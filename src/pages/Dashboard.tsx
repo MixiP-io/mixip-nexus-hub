@@ -10,7 +10,9 @@ import {
   BarChart3,
   Settings, 
   LogOut,
-  User
+  User,
+  ClipboardList,
+  Users
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import GlassCard from '@/components/ui/GlassCard';
@@ -158,8 +160,8 @@ const Dashboard: React.FC = () => {
           </div>
         </header>
         
-        {/* Tabs */}
-        <div className="border-b border-gray-800">
+        {/* Tabs with Action Buttons */}
+        <div className="border-b border-gray-800 flex justify-between">
           <div className="flex">
             <button className="px-6 py-4 font-medium border-b-2 border-green-600 text-white">
               Projects
@@ -171,21 +173,23 @@ const Dashboard: React.FC = () => {
               Campaigns
             </button>
             <button className="px-6 py-4 font-medium text-gray-400 hover:text-white">
-              Teams
+              Assignments
+            </button>
+            <button className="px-6 py-4 font-medium text-gray-400 hover:text-white">
+              Collaborators
             </button>
           </div>
-        </div>
-        
-        {/* Action Buttons */}
-        <div className="p-6 flex justify-end space-x-4">
-          <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md flex items-center transition-colors">
-            <Plus className="w-5 h-5 mr-2" />
-            Create New
-          </button>
-          <button className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-md flex items-center transition-colors">
-            <Upload className="w-5 h-5 mr-2" />
-            Upload Media
-          </button>
+          
+          <div className="flex items-center pr-6">
+            <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md flex items-center mr-3 transition-colors">
+              <Plus className="w-5 h-5 mr-2" />
+              Create New
+            </button>
+            <button className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-md flex items-center transition-colors">
+              <Upload className="w-5 h-5 mr-2" />
+              Upload Media
+            </button>
+          </div>
         </div>
         
         {/* Projects Grid */}
