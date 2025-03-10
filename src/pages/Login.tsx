@@ -1,11 +1,19 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import AnimatedLogo from '@/components/ui/AnimatedLogo';
 
 const Login: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const navigate = useNavigate();
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // In a real app, you would perform actual authentication here
+    // For now, just redirect to the dashboard
+    navigate('/dashboard');
+  };
   
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -31,7 +39,7 @@ const Login: React.FC = () => {
           </div>
           
           <div className="bg-white p-8 shadow-sm rounded-xl border border-gray-100">
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit={handleSubmit}>
               {!isLogin && (
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-mixip-gray-dark mb-1">
