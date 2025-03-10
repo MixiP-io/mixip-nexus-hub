@@ -11,7 +11,7 @@ const Footer: React.FC = () => {
       title: 'Platform',
       links: [
         { name: 'Xvidia App', href: '#xvidia' },
-        { name: 'Creator's Marketplace', href: '#marketplace' },
+        { name: 'Creator\'s Marketplace', href: '#marketplace' },
         { name: 'Adobe Plugin', href: '#adobe' },
         { name: 'Pricing', href: '#pricing' }
       ]
