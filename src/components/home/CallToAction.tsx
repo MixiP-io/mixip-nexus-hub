@@ -27,7 +27,7 @@ const CallToAction: React.FC = () => {
               
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <Link 
-                  to="/signup" 
+                  to="/login" 
                   className="px-8 py-4 bg-white text-mixip-blue rounded-full font-medium flex items-center justify-center hover:bg-opacity-90 transition-colors shadow-lg shadow-black/10"
                 >
                   Get Started <ArrowRight className="ml-2 h-5 w-5" />
