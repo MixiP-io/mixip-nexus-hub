@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { toast } from 'sonner';
 import SourceSelection from './components/SourceSelection';
@@ -27,6 +26,7 @@ const BatchUploader: React.FC = () => {
       e.stopPropagation();
     }
     
+    console.log("Triggering file input click");
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
