@@ -5,6 +5,7 @@ import Header from '@/components/dashboard/Header';
 import CollapsibleTabs from '@/components/dashboard/CollapsibleTabs';
 import ProjectGrid from '@/components/dashboard/ProjectGrid';
 import CampaignGrid from '@/components/workspace/CampaignGrid';
+import { Toaster } from 'sonner';
 
 const CreativeContent: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -43,6 +44,7 @@ const CreativeContent: React.FC = () => {
       <Header />
       <CollapsibleTabs />
       {renderContent()}
+      <Toaster position="top-right" richColors />
     </div>
   );
 };
