@@ -121,12 +121,12 @@ const CreatorCard: React.FC<CreatorCardProps> = ({
           </div>
         </div>
         
-        {/* Action buttons */}
+        {/* Action buttons - Improved with better contrast and visibility */}
         <div className="flex space-x-2">
           <Button 
-            variant="outline" 
+            variant="default" 
             size="sm" 
-            className="flex-1"
+            className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
             onClick={onMessage}
           >
             <MessageCircle className="w-4 h-4 mr-1" />
@@ -134,9 +134,9 @@ const CreatorCard: React.FC<CreatorCardProps> = ({
           </Button>
           {creator.status !== 'shortlisted' ? (
             <Button 
-              variant="outline" 
+              variant="default" 
               size="sm" 
-              className="flex-1"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
               onClick={onShortlist}
             >
               <UserPlus className="w-4 h-4 mr-1" />
@@ -144,9 +144,9 @@ const CreatorCard: React.FC<CreatorCardProps> = ({
             </Button>
           ) : (
             <Button 
-              variant="outline" 
+              variant="default" 
               size="sm" 
-              className="flex-1 border-blue-500 text-blue-500"
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white"
               onClick={onShortlist}
             >
               <UserPlus className="w-4 h-4 mr-1" />
@@ -154,9 +154,9 @@ const CreatorCard: React.FC<CreatorCardProps> = ({
             </Button>
           )}
           <Button 
-            variant="outline" 
+            variant="default" 
             size="sm" 
-            className="px-2"
+            className="px-2 bg-gray-600 hover:bg-gray-700 text-white"
             onClick={onViewProfile}
           >
             <ExternalLink className="w-4 h-4" />
