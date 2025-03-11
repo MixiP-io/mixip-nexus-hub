@@ -85,8 +85,8 @@ const GroupForm: React.FC<GroupFormProps> = ({
   const watchName = watch('name');
 
   return (
-    <div className="max-w-2xl mx-auto bg-gray-800 rounded-xl overflow-hidden p-6">
-      <h2 className="text-xl font-semibold mb-6">
+    <div className="max-w-2xl mx-auto bg-gray-900 rounded-xl overflow-hidden p-6 text-gray-200 border border-gray-700">
+      <h2 className="text-xl font-semibold mb-6 text-white">
         {isCreating ? 'Create New Collaborator Group' : 'Edit Group'}
       </h2>
       
@@ -94,15 +94,15 @@ const GroupForm: React.FC<GroupFormProps> = ({
         <div className="space-y-6">
           {/* Basic Information Section */}
           <div>
-            <h3 className="text-lg font-medium mb-4">Basic Information</h3>
+            <h3 className="text-lg font-medium mb-4 text-gray-100">Basic Information</h3>
             
             <div className="space-y-4">
               <div>
-                <Label htmlFor="name">Group Name</Label>
+                <Label htmlFor="name" className="text-gray-200">Group Name</Label>
                 <Input
                   id="name"
                   placeholder="e.g., Creative Team, NYC Photographers"
-                  className="mt-1"
+                  className="mt-1 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
                   {...register("name", { required: "Group name is required" })}
                 />
                 {errors.name && (
@@ -114,65 +114,70 @@ const GroupForm: React.FC<GroupFormProps> = ({
               </div>
               
               <div>
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description" className="text-gray-200">Description</Label>
                 <Textarea
                   id="description"
                   placeholder="Describe the purpose of this group"
-                  className="mt-1"
+                  className="mt-1 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
                   {...register("description")}
                 />
               </div>
               
               <div>
-                <Label>Group Type</Label>
+                <Label className="text-gray-200">Group Type</Label>
                 <RadioGroup defaultValue={existingGroup?.type || "Internal Team"} className="mt-2">
                   <div className="flex flex-wrap gap-4">
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem 
                         value="Internal Team" 
                         id="internal" 
-                        {...register("type")} 
+                        {...register("type")}
+                        className="border-gray-600"
                       />
-                      <Label htmlFor="internal" className="cursor-pointer">Internal Team</Label>
+                      <Label htmlFor="internal" className="cursor-pointer text-gray-200">Internal Team</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem 
                         value="External Network" 
                         id="external" 
-                        {...register("type")} 
+                        {...register("type")}
+                        className="border-gray-600"
                       />
-                      <Label htmlFor="external" className="cursor-pointer">External Network</Label>
+                      <Label htmlFor="external" className="cursor-pointer text-gray-200">External Network</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem 
                         value="Agencies" 
                         id="agencies" 
-                        {...register("type")} 
+                        {...register("type")}
+                        className="border-gray-600"
                       />
-                      <Label htmlFor="agencies" className="cursor-pointer">Agencies</Label>
+                      <Label htmlFor="agencies" className="cursor-pointer text-gray-200">Agencies</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem 
                         value="Talent" 
                         id="talent" 
-                        {...register("type")} 
+                        {...register("type")}
+                        className="border-gray-600"
                       />
-                      <Label htmlFor="talent" className="cursor-pointer">Talent</Label>
+                      <Label htmlFor="talent" className="cursor-pointer text-gray-200">Talent</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem 
                         value="Custom" 
                         id="custom" 
-                        {...register("type")} 
+                        {...register("type")}
+                        className="border-gray-600"
                       />
-                      <Label htmlFor="custom" className="cursor-pointer">Custom</Label>
+                      <Label htmlFor="custom" className="cursor-pointer text-gray-200">Custom</Label>
                     </div>
                   </div>
                 </RadioGroup>
               </div>
               
               <div>
-                <Label htmlFor="privacy">Privacy Setting</Label>
+                <Label htmlFor="privacy" className="text-gray-200">Privacy Setting</Label>
                 <Select 
                   defaultValue={existingGroup?.privacy || "Private"}
                   onValueChange={(value) => {
@@ -180,10 +185,10 @@ const GroupForm: React.FC<GroupFormProps> = ({
                     // but for simplicity in this example we're handling it directly
                   }}
                 >
-                  <SelectTrigger className="mt-1">
+                  <SelectTrigger className="mt-1 bg-gray-800 border-gray-700 text-white">
                     <SelectValue placeholder="Select privacy level" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-gray-800 border-gray-700 text-white">
                     <SelectItem value="Public">Public - Visible to everyone</SelectItem>
                     <SelectItem value="Private">Private - Only visible to you</SelectItem>
                     <SelectItem value="Shared">Shared - Visible to specific people</SelectItem>
@@ -192,7 +197,7 @@ const GroupForm: React.FC<GroupFormProps> = ({
               </div>
               
               <div>
-                <Label>Group Color</Label>
+                <Label className="text-gray-200">Group Color</Label>
                 <div className="flex flex-wrap gap-3 mt-2">
                   {colorOptions.map((color) => (
                     <button
@@ -217,6 +222,7 @@ const GroupForm: React.FC<GroupFormProps> = ({
               type="button" 
               variant="outline" 
               onClick={onCancel}
+              className="border-gray-600 text-gray-200 hover:text-white hover:bg-gray-700"
             >
               Cancel
             </Button>
