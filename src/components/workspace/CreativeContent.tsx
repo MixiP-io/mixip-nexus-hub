@@ -54,7 +54,7 @@ const CreativeContent: React.FC = () => {
       case 'collaborators':
         return <CollaboratorContent />;
       case 'uploader':
-        console.log('Rendering BatchUploader component');
+        console.log('Rendering BatchUploader component for uploader tab');
         return <BatchUploader />;
       case 'projects':
       default:

@@ -77,9 +77,10 @@ const MetadataSection: React.FC<MetadataSectionProps> = ({
               <SelectValue placeholder="Select usage rights" />
             </SelectTrigger>
             <SelectContent className="bg-gray-700 border-gray-600">
+              <SelectItem value="personal">Personal</SelectItem>
               <SelectItem value="commercial">Commercial</SelectItem>
               <SelectItem value="editorial">Editorial</SelectItem>
-              <SelectItem value="personal">Personal</SelectItem>
+              <SelectItem value="ai-training">AI Training</SelectItem>
             </SelectContent>
           </Select>
         </div>

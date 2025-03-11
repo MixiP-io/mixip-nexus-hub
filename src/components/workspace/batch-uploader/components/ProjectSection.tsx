@@ -68,6 +68,7 @@ const ProjectSection: React.FC<ProjectSectionProps> = ({
           <Select 
             value={selectedFolder} 
             onValueChange={setSelectedFolder}
+            defaultValue="root"
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select a folder" />
