@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,7 @@ import { CollaboratorGroup } from './types';
 import CollaboratorSearch from './CollaboratorSearch';
 import CollaboratorTabs from './CollaboratorTabs';
 import GroupList from './GroupList';
-import GroupForm from './GroupForm';
+import GroupForm from './group-form/GroupForm'; // Updated import path
 import GroupDetail from './GroupDetail';
 
 const CollaboratorContent: React.FC = () => {
