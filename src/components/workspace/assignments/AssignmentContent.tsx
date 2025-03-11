@@ -73,54 +73,54 @@ const AssignmentContent: React.FC = () => {
                   </TabsTrigger>
                 )}
               </TabsList>
+              
+              <TabsContent value="incoming">
+                <AssignmentsList 
+                  type="incoming" 
+                  userType={currentUserType}
+                  onViewAssignment={handleAssignmentClick}
+                />
+              </TabsContent>
+              
+              <TabsContent value="outgoing">
+                <AssignmentsList 
+                  type="outgoing" 
+                  userType={currentUserType}
+                  onViewAssignment={handleAssignmentClick}
+                />
+              </TabsContent>
+              
+              <TabsContent value="active">
+                <AssignmentsList 
+                  type="active" 
+                  userType={currentUserType}
+                  onViewAssignment={handleAssignmentClick}
+                />
+              </TabsContent>
+              
+              <TabsContent value="completed">
+                <AssignmentsList 
+                  type="completed" 
+                  userType={currentUserType}
+                  onViewAssignment={handleAssignmentClick}
+                />
+              </TabsContent>
+              
+              {currentUserType === 'agency' && (
+                <TabsContent value="team">
+                  <AssignmentsList 
+                    type="team" 
+                    userType={currentUserType}
+                    onViewAssignment={handleAssignmentClick}
+                  />
+                </TabsContent>
+              )}
             </Tabs>
             <Button variant="outline" className="flex items-center gap-2">
               <Filter className="w-4 h-4" />
               Filter
             </Button>
           </div>
-
-          <TabsContent value="incoming">
-            <AssignmentsList 
-              type="incoming" 
-              userType={currentUserType}
-              onViewAssignment={handleAssignmentClick}
-            />
-          </TabsContent>
-          
-          <TabsContent value="outgoing">
-            <AssignmentsList 
-              type="outgoing" 
-              userType={currentUserType}
-              onViewAssignment={handleAssignmentClick}
-            />
-          </TabsContent>
-          
-          <TabsContent value="active">
-            <AssignmentsList 
-              type="active" 
-              userType={currentUserType}
-              onViewAssignment={handleAssignmentClick}
-            />
-          </TabsContent>
-          
-          <TabsContent value="completed">
-            <AssignmentsList 
-              type="completed" 
-              userType={currentUserType}
-              onViewAssignment={handleAssignmentClick}
-            />
-          </TabsContent>
-          
-          {currentUserType === 'agency' && (
-            <TabsContent value="team">
-              <AssignmentsList 
-                type="team" 
-                userType={currentUserType}
-                onViewAssignment={handleAssignmentClick}
-              />
-            </TabsContent>
-          )}
         </>
       )}
     </div>
