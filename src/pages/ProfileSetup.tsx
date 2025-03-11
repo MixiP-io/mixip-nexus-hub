@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Check, ChevronRight, User, Building, Paintbrush, Bot, Upload, Camera } from 'lucide-react';
+import { Check, ChevronRight, User, Building, Paintbrush, Bot, Upload, Camera, Download } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
