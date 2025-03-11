@@ -2,20 +2,17 @@
 import React from 'react';
 import { Users, Camera, Video, Edit2, Music, Scissors } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useCampaignForm } from './context/CampaignFormContext';
 
 interface TeamStepProps {
-  selectedRoles: string[];
-  setSelectedRoles: (roles: string[]) => void;
   onBack: () => void;
   onNext: () => void;
 }
 
-const TeamStep: React.FC<TeamStepProps> = ({
-  selectedRoles,
-  setSelectedRoles,
-  onBack,
-  onNext
-}) => {
+const TeamStep: React.FC<TeamStepProps> = ({ onBack, onNext }) => {
+  const { formState, updateFormState } = useCampaignForm();
+  const { selectedRoles } = formState;
+
   const roles = [
     { id: 'photographer', label: 'Photographer', icon: <Camera className="h-8 w-8 mb-2" /> },
     { id: 'videographer', label: 'Videographer', icon: <Video className="h-8 w-8 mb-2" /> },
@@ -25,13 +22,11 @@ const TeamStep: React.FC<TeamStepProps> = ({
   ];
 
   const toggleRole = (roleId: string) => {
-    // Instead of using the functional update pattern, create the new array first
-    // and then pass it directly to setSelectedRoles
     const newSelectedRoles = selectedRoles.includes(roleId)
       ? selectedRoles.filter(id => id !== roleId)
       : [...selectedRoles, roleId];
     
-    setSelectedRoles(newSelectedRoles);
+    updateFormState('selectedRoles', newSelectedRoles);
   };
 
   return (

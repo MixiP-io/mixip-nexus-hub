@@ -3,41 +3,24 @@ import React from 'react';
 import { FileText, Upload, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-
-interface Deliverable {
-  id: number;
-  title: string;
-  description: string;
-}
+import { useCampaignForm } from './context/CampaignFormContext';
 
 interface CreativeStepProps {
-  deliverables: Deliverable[];
-  setDeliverables: (deliverables: Deliverable[]) => void;
-  creativeDirection: string;
-  setCreativeDirection: (direction: string) => void;
-  attachedFile: File | null;
-  setAttachedFile: (file: File | null) => void;
   onBack: () => void;
   onNext: () => void;
 }
 
-const CreativeStep: React.FC<CreativeStepProps> = ({
-  deliverables,
-  setDeliverables,
-  creativeDirection,
-  setCreativeDirection,
-  attachedFile,
-  setAttachedFile,
-  onBack,
-  onNext
-}) => {
+const CreativeStep: React.FC<CreativeStepProps> = ({ onBack, onNext }) => {
+  const { formState, updateFormState } = useCampaignForm();
+  const { deliverables, creativeDirection, attachedFile } = formState;
+
   const handleEditDeliverable = (id: number, field: 'title' | 'description', value: string) => {
     // Create a new array with the updated item
     const newDeliverables = deliverables.map(item => 
       item.id === id ? { ...item, [field]: value } : item
     );
     
-    setDeliverables(newDeliverables);
+    updateFormState('deliverables', newDeliverables);
   };
 
   const handleAddDeliverable = () => {
@@ -51,20 +34,20 @@ const CreativeStep: React.FC<CreativeStepProps> = ({
       { id: newId, title: 'New Deliverable', description: 'Description' }
     ];
     
-    setDeliverables(newDeliverables);
+    updateFormState('deliverables', newDeliverables);
   };
 
   const handleRemoveDeliverable = (id: number) => {
     // Create a new array without the removed item
     const newDeliverables = deliverables.filter(item => item.id !== id);
     
-    setDeliverables(newDeliverables);
+    updateFormState('deliverables', newDeliverables);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      setAttachedFile(files[0]);
+      updateFormState('attachedFile', files[0]);
       toast.success(`File attached: ${files[0].name}`);
     }
   };
@@ -118,7 +101,7 @@ const CreativeStep: React.FC<CreativeStepProps> = ({
             className="w-full bg-gray-700 border border-gray-600 rounded p-3 text-white h-24"
             placeholder="Provide creative direction for your team..."
             value={creativeDirection}
-            onChange={(e) => setCreativeDirection(e.target.value)}
+            onChange={(e) => updateFormState('creativeDirection', e.target.value)}
           />
           
           <div className="mt-3">

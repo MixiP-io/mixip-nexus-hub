@@ -2,49 +2,26 @@
 import React from 'react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
-
-interface UsageRights {
-  primaryCampaign: boolean;
-  secondaryBrand: boolean;
-  extendedMarketing: boolean;
-  derivativeWorks: boolean;
-  merchandising: boolean;
-  publicity: boolean;
-  socialMedia: boolean;
-  aiTraining: boolean;
-}
-
-interface Deliverable {
-  id: number;
-  title: string;
-  description: string;
-}
+import { useCampaignForm } from './context/CampaignFormContext';
 
 interface ReviewStepProps {
-  campaignName: string;
-  startDate: Date | undefined;
-  endDate: Date | undefined;
-  location: string;
-  selectedRoles: string[];
-  deliverables: Deliverable[];
-  ownershipSplit: number;
-  usageRights: UsageRights;
   onBack: () => void;
   onComplete: () => void;
 }
 
-const ReviewStep: React.FC<ReviewStepProps> = ({
-  campaignName,
-  startDate,
-  endDate,
-  location,
-  selectedRoles,
-  deliverables,
-  ownershipSplit,
-  usageRights,
-  onBack,
-  onComplete
-}) => {
+const ReviewStep: React.FC<ReviewStepProps> = ({ onBack, onComplete }) => {
+  const { formState } = useCampaignForm();
+  const {
+    campaignName,
+    startDate,
+    endDate,
+    location,
+    selectedRoles,
+    deliverables,
+    ownershipSplit,
+    usageRights
+  } = formState;
+
   return (
     <div className="space-y-6">
       <div className="bg-gray-700 p-4 rounded-lg">

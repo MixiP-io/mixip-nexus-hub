@@ -6,40 +6,29 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { useCampaignForm } from './context/CampaignFormContext';
 
 interface BasicsStepProps {
-  campaignName: string;
-  setCampaignName: (name: string) => void;
-  campaignDesc: string;
-  setCampaignDesc: (desc: string) => void;
-  startDate: Date | undefined;
-  setStartDate: (date: Date | undefined) => void;
-  endDate: Date | undefined;
-  setEndDate: (date: Date | undefined) => void;
-  location: string;
-  setLocation: (location: string) => void;
-  locationType: 'remote' | 'onsite' | 'anywhere';
-  handleLocationTypeChange: (type: 'remote' | 'onsite' | 'anywhere') => void;
   onBack: () => void;
   onNext: () => void;
 }
 
-const BasicsStep: React.FC<BasicsStepProps> = ({
-  campaignName,
-  setCampaignName,
-  campaignDesc,
-  setCampaignDesc,
-  startDate,
-  setStartDate,
-  endDate,
-  setEndDate,
-  location,
-  setLocation,
-  locationType,
-  handleLocationTypeChange,
-  onBack,
-  onNext
-}) => {
+const BasicsStep: React.FC<BasicsStepProps> = ({ onBack, onNext }) => {
+  const { 
+    formState, 
+    updateFormState, 
+    handleLocationTypeChange 
+  } = useCampaignForm();
+
+  const {
+    campaignName,
+    campaignDesc,
+    startDate,
+    endDate,
+    location,
+    locationType
+  } = formState;
+
   return (
     <div className="space-y-6">
       <div>
@@ -49,7 +38,7 @@ const BasicsStep: React.FC<BasicsStepProps> = ({
           className="w-full bg-gray-700 border border-gray-600 rounded p-3 text-white"
           placeholder="Enter campaign name..."
           value={campaignName}
-          onChange={(e) => setCampaignName(e.target.value)}
+          onChange={(e) => updateFormState('campaignName', e.target.value)}
         />
       </div>
       
@@ -59,7 +48,7 @@ const BasicsStep: React.FC<BasicsStepProps> = ({
           className="w-full bg-gray-700 border border-gray-600 rounded p-3 text-white h-24"
           placeholder="Describe your campaign..."
           value={campaignDesc}
-          onChange={(e) => setCampaignDesc(e.target.value)}
+          onChange={(e) => updateFormState('campaignDesc', e.target.value)}
         />
       </div>
       
@@ -82,7 +71,7 @@ const BasicsStep: React.FC<BasicsStepProps> = ({
               <CalendarComponent
                 mode="single"
                 selected={startDate}
-                onSelect={setStartDate}
+                onSelect={(date) => updateFormState('startDate', date)}
                 initialFocus
                 className={cn("p-3 pointer-events-auto bg-gray-800 border border-gray-700 rounded-md")}
               />
@@ -107,7 +96,7 @@ const BasicsStep: React.FC<BasicsStepProps> = ({
               <CalendarComponent
                 mode="single"
                 selected={endDate}
-                onSelect={setEndDate}
+                onSelect={(date) => updateFormState('endDate', date)}
                 initialFocus
                 className={cn("p-3 pointer-events-auto bg-gray-800 border border-gray-700 rounded-md")}
               />
@@ -156,7 +145,7 @@ const BasicsStep: React.FC<BasicsStepProps> = ({
               className="bg-transparent text-white w-full"
               placeholder="Enter location..."
               value={location}
-              onChange={(e) => setLocation(e.target.value)}
+              onChange={(e) => updateFormState('location', e.target.value)}
             />
           </div>
         )}

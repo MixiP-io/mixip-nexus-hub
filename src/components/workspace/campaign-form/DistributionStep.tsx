@@ -2,32 +2,22 @@
 import React from 'react';
 import { Share2, Globe, Users, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useCampaignForm } from './context/CampaignFormContext';
 
 interface DistributionStepProps {
-  distributionMethod: 'platform' | 'specific' | 'external';
-  setDistributionMethod: (method: 'platform' | 'specific' | 'external') => void;
-  selectedUsers: string[];
-  setSelectedUsers: (users: string[]) => void;
-  externalEmails: string[];
-  setExternalEmails: (emails: string[]) => void;
-  distributionMessage: string;
-  setDistributionMessage: (message: string) => void;
   onBack: () => void;
   onNext: () => void;
 }
 
-const DistributionStep: React.FC<DistributionStepProps> = ({
-  distributionMethod,
-  setDistributionMethod,
-  selectedUsers,
-  setSelectedUsers,
-  externalEmails,
-  setExternalEmails,
-  distributionMessage,
-  setDistributionMessage,
-  onBack,
-  onNext
-}) => {
+const DistributionStep: React.FC<DistributionStepProps> = ({ onBack, onNext }) => {
+  const { formState, updateFormState } = useCampaignForm();
+  const { 
+    distributionMethod,
+    selectedUsers,
+    externalEmails,
+    distributionMessage
+  } = formState;
+
   return (
     <div className="space-y-6">
       <div className="bg-gray-700 p-4 rounded-lg">
@@ -41,7 +31,7 @@ const DistributionStep: React.FC<DistributionStepProps> = ({
             className={`flex items-center justify-center flex-col p-3 rounded-lg border ${
               distributionMethod === 'platform' ? 'border-green-500 bg-gray-700' : 'border-gray-600 bg-gray-800'
             }`}
-            onClick={() => setDistributionMethod('platform')}
+            onClick={() => updateFormState('distributionMethod', 'platform')}
           >
             <Globe className="w-5 h-5 mb-1" />
             <span>Platform-wide</span>
@@ -50,7 +40,7 @@ const DistributionStep: React.FC<DistributionStepProps> = ({
             className={`flex items-center justify-center flex-col p-3 rounded-lg border ${
               distributionMethod === 'specific' ? 'border-green-500 bg-gray-700' : 'border-gray-600 bg-gray-800'
             }`}
-            onClick={() => setDistributionMethod('specific')}
+            onClick={() => updateFormState('distributionMethod', 'specific')}
           >
             <Users className="w-5 h-5 mb-1" />
             <span>Specific Users</span>
@@ -59,7 +49,7 @@ const DistributionStep: React.FC<DistributionStepProps> = ({
             className={`flex items-center justify-center flex-col p-3 rounded-lg border ${
               distributionMethod === 'external' ? 'border-green-500 bg-gray-700' : 'border-gray-600 bg-gray-800'
             }`}
-            onClick={() => setDistributionMethod('external')}
+            onClick={() => updateFormState('distributionMethod', 'external')}
           >
             <MapPin className="w-5 h-5 mb-1" />
             <span>External Invite</span>
@@ -100,7 +90,7 @@ const DistributionStep: React.FC<DistributionStepProps> = ({
             className="w-full bg-gray-700 border border-gray-600 rounded p-3 text-white h-24"
             placeholder="Add a message to be sent with your campaign..."
             value={distributionMessage}
-            onChange={(e) => setDistributionMessage(e.target.value)}
+            onChange={(e) => updateFormState('distributionMessage', e.target.value)}
           />
         </div>
       </div>
