@@ -1,6 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Settings, ChevronDown, ChevronUp } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 type Tab = {
   id: string;
@@ -10,6 +11,9 @@ type Tab = {
 };
 
 const CollapsibleTabs: React.FC = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  
   // Initial tabs configuration
   const [tabs, setTabs] = useState<Tab[]>([
     { id: 'projects', label: 'Projects', permanent: true, active: true },
@@ -22,7 +26,23 @@ const CollapsibleTabs: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showTabSettings, setShowTabSettings] = useState(false);
   
+  // Update active tab based on URL params
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam) {
+      setTabs(prevTabs => 
+        prevTabs.map(tab => ({
+          ...tab,
+          active: tab.id === tabParam
+        }))
+      );
+    }
+  }, [searchParams]);
+  
   const handleTabClick = (tabId: string) => {
+    // Update URL and state
+    navigate(`/dashboard/workspace?tab=${tabId}`);
+    
     setTabs(tabs.map(tab => ({
       ...tab,
       active: tab.id === tabId

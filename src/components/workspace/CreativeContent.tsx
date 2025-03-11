@@ -33,6 +33,36 @@ const CreativeContent: React.FC = () => {
     switch (activeTab) {
       case 'campaigns':
         return <CampaignGrid isCreating={action === 'new'} />;
+      case 'assets':
+        return (
+          <div className="p-6">
+            <h2 className="text-xl font-semibold mb-2">Assets</h2>
+            <p className="text-gray-400">Manage your digital assets and resources</p>
+            <div className="mt-6 p-8 text-center bg-gray-800 rounded-xl">
+              <p className="text-gray-400">Asset management coming soon</p>
+            </div>
+          </div>
+        );
+      case 'assignments':
+        return (
+          <div className="p-6">
+            <h2 className="text-xl font-semibold mb-2">Assignments</h2>
+            <p className="text-gray-400">Manage your creative assignments and tasks</p>
+            <div className="mt-6 p-8 text-center bg-gray-800 rounded-xl">
+              <p className="text-gray-400">Assignment tracking coming soon</p>
+            </div>
+          </div>
+        );
+      case 'collaborators':
+        return (
+          <div className="p-6">
+            <h2 className="text-xl font-semibold mb-2">Collaborators</h2>
+            <p className="text-gray-400">Manage your team and external collaborators</p>
+            <div className="mt-6 p-8 text-center bg-gray-800 rounded-xl">
+              <p className="text-gray-400">Collaborator management coming soon</p>
+            </div>
+          </div>
+        );
       case 'projects':
       default:
         return <ProjectGrid />;
