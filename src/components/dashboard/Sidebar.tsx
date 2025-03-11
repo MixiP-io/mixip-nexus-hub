@@ -41,9 +41,9 @@ const Sidebar: React.FC = () => {
             </Link>
           </li>
           <li>
-            <Link to="/dashboard/content" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 transition-colors">
+            <Link to="/dashboard/workspace" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 transition-colors">
               <FolderOpen className="w-5 h-5" />
-              <span>Content Hub</span>
+              <span>Creative Workspace</span>
             </Link>
           </li>
           <li>
