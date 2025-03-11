@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import AnimatedLogo from '@/components/ui/AnimatedLogo';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
@@ -20,22 +21,23 @@ const Sidebar: React.FC = () => {
   };
   
   return (
-    <div className="w-64 bg-[#1A1F2C] flex flex-col">
+    <div className="w-64 bg-[#1A1F2C] flex flex-col text-white">
       <div className="p-4 flex items-center space-x-2 border-b border-gray-800">
         <AnimatedLogo size="sm" />
         <span className="font-bold text-xl">Mix-IP</span>
       </div>
       
       <div className="p-4 border-b border-gray-800">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">
-            <User className="w-6 h-6 text-gray-300" />
-          </div>
+        <Link to="/profile/settings" className="flex items-center space-x-3 hover:bg-gray-800 p-2 rounded-lg transition-colors">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src="" />
+            <AvatarFallback className="bg-gray-700 text-gray-300">JD</AvatarFallback>
+          </Avatar>
           <div>
-            <h3 className="font-medium">Mix-IP</h3>
-            <p className="text-sm text-gray-400">Manage your assets</p>
+            <h3 className="font-medium">John Doe</h3>
+            <p className="text-sm text-gray-400">Creator Pro</p>
           </div>
-        </div>
+        </Link>
       </div>
       
       <nav className="flex-1 p-4">
@@ -79,9 +81,16 @@ const Sidebar: React.FC = () => {
             </Link>
           </li>
           <li>
-            <Link to="/dashboard/settings" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 transition-colors">
+            <Link 
+              to="/profile/settings" 
+              className={`flex items-center space-x-3 p-3 rounded-lg ${
+                isActive('/profile/settings') 
+                  ? 'bg-gray-800 text-mixip-blue' 
+                  : 'hover:bg-gray-800 transition-colors'
+              }`}
+            >
               <Settings className="w-5 h-5" />
-              <span>Settings</span>
+              <span>Profile Settings</span>
             </Link>
           </li>
         </ul>
@@ -95,13 +104,6 @@ const Sidebar: React.FC = () => {
           <LogOut className="w-5 h-5" />
           <span>Log Out</span>
         </button>
-      </div>
-      
-      <div className="p-4 border-t border-gray-800 flex items-center space-x-2">
-        <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
-          <span className="text-sm font-medium">JD</span>
-        </div>
-        <span>JD</span>
       </div>
     </div>
   );
