@@ -1,7 +1,9 @@
+
 import React, { useState } from 'react';
-import { Plus, Megaphone, Calendar, MapPin, Share2 } from 'lucide-react';
+import { Plus, Megaphone, Calendar, MapPin, Share2, Users } from 'lucide-react';
 import CampaignForm from './campaign-form';
 import CampaignDistributeDialog from './CampaignDistributeDialog';
+import CampaignResponseTracker from './campaign-tracker';
 import { toast } from 'sonner';
 
 // Sample campaign data
@@ -15,7 +17,8 @@ const initialCampaigns = [
     endDate: "2023-08-15",
     teamSize: 8,
     location: "Miami, FL",
-    image: "/placeholder.svg"
+    image: "/placeholder.svg",
+    responseRate: 85
   },
   {
     id: 2,
@@ -26,7 +29,8 @@ const initialCampaigns = [
     endDate: "2023-09-30",
     teamSize: 5,
     location: "New York, NY",
-    image: "/placeholder.svg"
+    image: "/placeholder.svg",
+    responseRate: 0
   }
 ];
 
@@ -39,6 +43,8 @@ const CampaignGrid: React.FC<CampaignGridProps> = ({ isCreating = false }) => {
   const [campaigns, setCampaigns] = useState(initialCampaigns);
   const [selectedCampaign, setSelectedCampaign] = useState<number | null>(null);
   const [showDistributeDialog, setShowDistributeDialog] = useState(false);
+  const [isViewingResponses, setIsViewingResponses] = useState(false);
+  const [viewingCampaignId, setViewingCampaignId] = useState<number | null>(null);
   
   // Campaign creation handlers
   const startCampaignCreation = () => {
@@ -60,7 +66,8 @@ const CampaignGrid: React.FC<CampaignGridProps> = ({ isCreating = false }) => {
       endDate: campaignData.endDate ? campaignData.endDate.toISOString().split('T')[0] : "",
       teamSize: campaignData.roles ? campaignData.roles.length : 0,
       location: campaignData.location || "Anywhere",
-      image: "/placeholder.svg"
+      image: "/placeholder.svg",
+      responseRate: 0
     };
     
     // Add the new campaign to the list
@@ -73,6 +80,35 @@ const CampaignGrid: React.FC<CampaignGridProps> = ({ isCreating = false }) => {
     setSelectedCampaign(campaignId);
     setShowDistributeDialog(true);
   };
+
+  const handleViewResponses = (campaignId: number) => {
+    setViewingCampaignId(campaignId);
+    setIsViewingResponses(true);
+  };
+
+  const handleBackToCampaigns = () => {
+    setIsViewingResponses(false);
+    setViewingCampaignId(null);
+  };
+
+  // If viewing responses for a specific campaign
+  if (isViewingResponses && viewingCampaignId) {
+    const campaign = campaigns.find(c => c.id === viewingCampaignId);
+    return (
+      <div>
+        <button 
+          onClick={handleBackToCampaigns}
+          className="mb-4 flex items-center text-blue-400 hover:text-blue-300"
+        >
+          ← Back to Campaigns
+        </button>
+        <CampaignResponseTracker 
+          campaignId={viewingCampaignId} 
+          campaignTitle={campaign?.title}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
@@ -101,6 +137,22 @@ const CampaignGrid: React.FC<CampaignGridProps> = ({ isCreating = false }) => {
                   <div className="absolute top-2 right-2 bg-gray-800 text-white text-xs px-2 py-1 rounded-full">
                     {campaign.status}
                   </div>
+                  {campaign.responseRate > 0 && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent text-white p-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs flex items-center">
+                          <Users className="w-3 h-3 mr-1" /> Response Rate
+                        </span>
+                        <span className="text-xs font-medium">{campaign.responseRate}%</span>
+                      </div>
+                      <div className="w-full bg-gray-600 rounded-full h-1.5 mt-1">
+                        <div 
+                          className="bg-green-500 h-1.5 rounded-full" 
+                          style={{ width: `${campaign.responseRate}%` }} 
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="p-4">
                   <h3 className="font-medium text-lg mb-1">{campaign.title}</h3>
@@ -113,13 +165,22 @@ const CampaignGrid: React.FC<CampaignGridProps> = ({ isCreating = false }) => {
                     <span>{campaign.location}</span>
                   </div>
                   
-                  <button
-                    onClick={() => handleDistributeCampaign(campaign.id)}
-                    className="mt-3 w-full flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded-md py-2 px-3 text-sm"
-                  >
-                    <Share2 className="w-4 h-4 mr-2" />
-                    Distribute Campaign
-                  </button>
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => handleViewResponses(campaign.id)}
+                      className="flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded-md py-2 px-3 text-sm"
+                    >
+                      <Users className="w-4 h-4 mr-2" />
+                      View Responses
+                    </button>
+                    <button
+                      onClick={() => handleDistributeCampaign(campaign.id)}
+                      className="flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded-md py-2 px-3 text-sm"
+                    >
+                      <Share2 className="w-4 h-4 mr-2" />
+                      Distribute
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
