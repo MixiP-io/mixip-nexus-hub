@@ -9,10 +9,16 @@ import {
   LogOut,
   User,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import AnimatedLogo from '@/components/ui/AnimatedLogo';
 
 const Sidebar: React.FC = () => {
+  const location = useLocation();
+  
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+  
   return (
     <div className="w-64 bg-[#1A1F2C] flex flex-col">
       <div className="p-4 flex items-center space-x-2 border-b border-gray-800">
@@ -35,13 +41,27 @@ const Sidebar: React.FC = () => {
       <nav className="flex-1 p-4">
         <ul className="space-y-2">
           <li>
-            <Link to="/dashboard" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 transition-colors">
+            <Link 
+              to="/dashboard" 
+              className={`flex items-center space-x-3 p-3 rounded-lg ${
+                isActive('/dashboard') 
+                  ? 'bg-gray-800 text-mixip-blue' 
+                  : 'hover:bg-gray-800 transition-colors'
+              }`}
+            >
               <LayoutDashboard className="w-5 h-5" />
               <span>Dashboard</span>
             </Link>
           </li>
           <li>
-            <Link to="/dashboard/workspace" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 transition-colors">
+            <Link 
+              to="/dashboard/workspace" 
+              className={`flex items-center space-x-3 p-3 rounded-lg ${
+                isActive('/dashboard/workspace') 
+                  ? 'bg-gray-800 text-mixip-blue' 
+                  : 'hover:bg-gray-800 transition-colors'
+              }`}
+            >
               <FolderOpen className="w-5 h-5" />
               <span>Creative Workspace</span>
             </Link>

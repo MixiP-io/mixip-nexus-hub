@@ -9,8 +9,10 @@ import {
   File,
   Megaphone
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const ActionMenu: React.FC = () => {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [isCreateMenuOpen, setIsCreateMenuOpen] = useState(false);
   
@@ -26,6 +28,13 @@ const ActionMenu: React.FC = () => {
   
   const handleItemClick = (action: string) => {
     console.log(`Action: ${action}`);
+    
+    // Handle different actions
+    if (action === 'Create Campaign') {
+      // Navigate to campaign creation
+      navigate('/dashboard/workspace?tab=campaigns&action=new');
+    }
+    
     setIsOpen(false);
     setIsCreateMenuOpen(false);
   };
