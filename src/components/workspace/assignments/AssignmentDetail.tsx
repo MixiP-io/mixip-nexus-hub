@@ -37,12 +37,12 @@ const AssignmentDetail: React.FC<AssignmentDetailProps> = ({ assignmentId, onBac
   if (!assignment) {
     return (
       <div>
-        <button onClick={onBack} className="flex items-center text-blue-400 mb-4">
+        <button onClick={onBack} className="flex items-center text-primary mb-4">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Assignments
         </button>
         <Card className="p-8 text-center">
-          <p className="text-gray-400">Assignment not found</p>
+          <p className="text-muted-foreground">Assignment not found</p>
         </Card>
       </div>
     );
@@ -59,7 +59,7 @@ const AssignmentDetail: React.FC<AssignmentDetailProps> = ({ assignmentId, onBac
 
   return (
     <div>
-      <button onClick={onBack} className="flex items-center text-blue-400 mb-4">
+      <button onClick={onBack} className="flex items-center text-primary mb-4">
         <ArrowLeft className="w-4 h-4 mr-2" />
         Back to Assignments
       </button>
@@ -70,11 +70,11 @@ const AssignmentDetail: React.FC<AssignmentDetailProps> = ({ assignmentId, onBac
           <Card>
             <CardHeader className="flex flex-row justify-between items-start">
               <div>
-                <h2 className="text-xl font-semibold">{assignment.title}</h2>
-                <p className="text-gray-400">From {assignment.client}</p>
+                <h2 className="text-xl font-semibold text-foreground">{assignment.title}</h2>
+                <p className="text-muted-foreground">From {assignment.client}</p>
               </div>
               <Badge variant={
-                assignment.status === 'Completed' ? 'default' : // Changed from 'success' to 'default'
+                assignment.status === 'Completed' ? 'default' : 
                 assignment.status === 'Rejected' ? 'destructive' : 
                 assignment.status === 'In Progress' ? 'default' : 'secondary'
               }>
@@ -106,26 +106,26 @@ const AssignmentDetail: React.FC<AssignmentDetailProps> = ({ assignmentId, onBac
                 <TabsContent value="details" className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-400">Due Date</p>
-                      <p className="flex items-center">
-                        <Calendar className="w-4 h-4 mr-2 text-gray-400" />
+                      <p className="text-sm text-muted-foreground">Due Date</p>
+                      <p className="flex items-center text-foreground">
+                        <Calendar className="w-4 h-4 mr-2 text-muted-foreground" />
                         {new Date(assignment.dueDate).toLocaleDateString()}
                       </p>
                     </div>
                     
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-400">Location</p>
-                      <p className="flex items-center">
-                        <MapPin className="w-4 h-4 mr-2 text-gray-400" />
+                      <p className="text-sm text-muted-foreground">Location</p>
+                      <p className="flex items-center text-foreground">
+                        <MapPin className="w-4 h-4 mr-2 text-muted-foreground" />
                         {assignment.location}
                       </p>
                     </div>
                     
                     {assignment.budget && (
                       <div className="space-y-1">
-                        <p className="text-sm text-gray-400">Budget</p>
-                        <p className="flex items-center">
-                          <DollarSign className="w-4 h-4 mr-2 text-gray-400" />
+                        <p className="text-sm text-muted-foreground">Budget</p>
+                        <p className="flex items-center text-foreground">
+                          <DollarSign className="w-4 h-4 mr-2 text-muted-foreground" />
                           ${assignment.budget}
                         </p>
                       </div>
@@ -133,9 +133,9 @@ const AssignmentDetail: React.FC<AssignmentDetailProps> = ({ assignmentId, onBac
                     
                     {assignment.teamSize && (
                       <div className="space-y-1">
-                        <p className="text-sm text-gray-400">Team Size</p>
-                        <p className="flex items-center">
-                          <Users className="w-4 h-4 mr-2 text-gray-400" />
+                        <p className="text-sm text-muted-foreground">Team Size</p>
+                        <p className="flex items-center text-foreground">
+                          <Users className="w-4 h-4 mr-2 text-muted-foreground" />
                           {assignment.teamSize} people
                         </p>
                       </div>
@@ -145,14 +145,14 @@ const AssignmentDetail: React.FC<AssignmentDetailProps> = ({ assignmentId, onBac
                   <Separator />
                   
                   <div>
-                    <h3 className="font-medium mb-2">Assignment Description</h3>
-                    <p className="text-gray-200">{assignment.description}</p>
+                    <h3 className="font-medium mb-2 text-foreground">Assignment Description</h3>
+                    <p className="text-foreground">{assignment.description}</p>
                   </div>
                   
                   {assignment.requirements && (
                     <div>
-                      <h3 className="font-medium mb-2">Requirements</h3>
-                      <ul className="list-disc pl-5 space-y-1 text-gray-200">
+                      <h3 className="font-medium mb-2 text-foreground">Requirements</h3>
+                      <ul className="list-disc pl-5 space-y-1 text-foreground">
                         {assignment.requirements.map((req, index) => (
                           <li key={index}>{req}</li>
                         ))}
@@ -164,7 +164,7 @@ const AssignmentDetail: React.FC<AssignmentDetailProps> = ({ assignmentId, onBac
                 <TabsContent value="deliverables">
                   <Card>
                     <CardContent className="p-6">
-                      <p className="text-center text-gray-400">Deliverables management coming soon</p>
+                      <p className="text-center text-muted-foreground">Deliverables management coming soon</p>
                     </CardContent>
                   </Card>
                 </TabsContent>
@@ -172,7 +172,7 @@ const AssignmentDetail: React.FC<AssignmentDetailProps> = ({ assignmentId, onBac
                 <TabsContent value="messages">
                   <Card>
                     <CardContent className="p-6">
-                      <p className="text-center text-gray-400">Messaging system coming soon</p>
+                      <p className="text-center text-muted-foreground">Messaging system coming soon</p>
                     </CardContent>
                   </Card>
                 </TabsContent>
@@ -180,7 +180,7 @@ const AssignmentDetail: React.FC<AssignmentDetailProps> = ({ assignmentId, onBac
                 <TabsContent value="timeline">
                   <Card>
                     <CardContent className="p-6">
-                      <p className="text-center text-gray-400">Timeline tracking coming soon</p>
+                      <p className="text-center text-muted-foreground">Timeline tracking coming soon</p>
                     </CardContent>
                   </Card>
                 </TabsContent>
@@ -193,12 +193,12 @@ const AssignmentDetail: React.FC<AssignmentDetailProps> = ({ assignmentId, onBac
         <div>
           <Card className="mb-6">
             <CardHeader>
-              <h3 className="font-medium">Assignment Actions</h3>
+              <h3 className="font-medium text-foreground">Assignment Actions</h3>
             </CardHeader>
             <CardContent className="space-y-3">
               {assignment.status === 'Pending' && (
                 <>
-                  <Button className="w-full bg-green-600 hover:bg-green-700" onClick={() => handleStatusChange('In Progress')}>
+                  <Button className="w-full bg-mixip-mint hover:bg-mixip-mint/90" onClick={() => handleStatusChange('In Progress')}>
                     <CheckCircle className="w-4 h-4 mr-2" />
                     Accept Assignment
                   </Button>
@@ -210,7 +210,7 @@ const AssignmentDetail: React.FC<AssignmentDetailProps> = ({ assignmentId, onBac
               )}
               
               {assignment.status === 'In Progress' && (
-                <Button className="w-full bg-green-600 hover:bg-green-700" onClick={() => handleStatusChange('Completed')}>
+                <Button className="w-full bg-mixip-mint hover:bg-mixip-mint/90" onClick={() => handleStatusChange('Completed')}>
                   <CheckCircle className="w-4 h-4 mr-2" />
                   Mark as Completed
                 </Button>
@@ -237,7 +237,7 @@ const AssignmentDetail: React.FC<AssignmentDetailProps> = ({ assignmentId, onBac
           
           <Card>
             <CardHeader>
-              <h3 className="font-medium">Client Contact</h3>
+              <h3 className="font-medium text-foreground">Client Contact</h3>
             </CardHeader>
             <CardContent>
               <div className="flex items-center space-x-4 mb-4">
@@ -246,8 +246,8 @@ const AssignmentDetail: React.FC<AssignmentDetailProps> = ({ assignmentId, onBac
                   <AvatarFallback>{assignment.client.slice(0, 2).toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-medium">{assignment.client}</p>
-                  <p className="text-sm text-gray-400">Client</p>
+                  <p className="font-medium text-foreground">{assignment.client}</p>
+                  <p className="text-sm text-muted-foreground">Client</p>
                 </div>
               </div>
               

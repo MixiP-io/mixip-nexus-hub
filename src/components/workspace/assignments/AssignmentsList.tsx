@@ -21,7 +21,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
   if (assignments.length === 0) {
     return (
       <Card className="p-8 text-center">
-        <p className="text-gray-400">No {type} assignments found</p>
+        <p className="text-muted-foreground">No {type} assignments found</p>
       </Card>
     );
   }

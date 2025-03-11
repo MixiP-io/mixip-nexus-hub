@@ -36,8 +36,8 @@ const AssignmentContent: React.FC = () => {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-2">Assignments</h2>
-        <p className="text-gray-400">Manage your creative work and tasks</p>
+        <h2 className="text-xl font-semibold mb-2 text-foreground">Assignments</h2>
+        <p className="text-muted-foreground">Manage your creative work and tasks</p>
       </div>
 
       {viewingAssignment ? (
