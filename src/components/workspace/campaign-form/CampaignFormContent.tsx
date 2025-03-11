@@ -6,7 +6,7 @@ import FormProgress from './FormProgress';
 import BasicsStep from './BasicsStep';
 import TeamStep from './TeamStep';
 import CreativeStep from './CreativeStep';
-import RightsManagement from '../RightsManagement';
+import RightsManagement from '../rights-management';
 import DistributionStep from './DistributionStep';
 import ReviewStep from './ReviewStep';
 
