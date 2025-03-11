@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Star, MapPin, Instagram, Globe } from 'lucide-react';
+import { Star, MapPin, Instagram, Globe, Camera, Video, Edit2, Music, MessageCircle, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Creator } from '../../types';
 
