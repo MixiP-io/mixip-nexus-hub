@@ -25,11 +25,13 @@ const TeamStep: React.FC<TeamStepProps> = ({
   ];
 
   const toggleRole = (roleId: string) => {
-    setSelectedRoles((prev: string[]) => 
-      prev.includes(roleId) 
-        ? prev.filter(id => id !== roleId) 
-        : [...prev, roleId]
-    );
+    // Instead of using the functional update pattern, create the new array first
+    // and then pass it directly to setSelectedRoles
+    const newSelectedRoles = selectedRoles.includes(roleId)
+      ? selectedRoles.filter(id => id !== roleId)
+      : [...selectedRoles, roleId];
+    
+    setSelectedRoles(newSelectedRoles);
   };
 
   return (

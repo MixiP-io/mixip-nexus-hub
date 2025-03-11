@@ -32,11 +32,12 @@ const CreativeStep: React.FC<CreativeStepProps> = ({
   onNext
 }) => {
   const handleEditDeliverable = (id: number, field: 'title' | 'description', value: string) => {
-    setDeliverables((prev: Deliverable[]) => 
-      prev.map(item => 
-        item.id === id ? { ...item, [field]: value } : item
-      )
+    // Create a new array with the updated item
+    const newDeliverables = deliverables.map(item => 
+      item.id === id ? { ...item, [field]: value } : item
     );
+    
+    setDeliverables(newDeliverables);
   };
 
   const handleAddDeliverable = () => {
@@ -44,14 +45,20 @@ const CreativeStep: React.FC<CreativeStepProps> = ({
       ? Math.max(...deliverables.map(d => d.id)) + 1 
       : 1;
     
-    setDeliverables((prev: Deliverable[]) => [
-      ...prev, 
+    // Create a new array with the added item
+    const newDeliverables = [
+      ...deliverables, 
       { id: newId, title: 'New Deliverable', description: 'Description' }
-    ]);
+    ];
+    
+    setDeliverables(newDeliverables);
   };
 
   const handleRemoveDeliverable = (id: number) => {
-    setDeliverables((prev: Deliverable[]) => prev.filter(item => item.id !== id));
+    // Create a new array without the removed item
+    const newDeliverables = deliverables.filter(item => item.id !== id);
+    
+    setDeliverables(newDeliverables);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
