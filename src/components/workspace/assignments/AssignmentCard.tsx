@@ -27,7 +27,7 @@ const AssignmentCard: React.FC<AssignmentCardProps> = ({ assignment, onClick }) 
     switch (status.toLowerCase()) {
       case 'pending': return 'secondary';
       case 'in progress': return 'default';
-      case 'completed': return 'success';
+      case 'completed': return 'default'; // Changed from 'success' to 'default'
       case 'rejected': return 'destructive';
       default: return 'outline';
     }

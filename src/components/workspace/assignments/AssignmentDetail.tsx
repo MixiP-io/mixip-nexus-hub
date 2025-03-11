@@ -74,7 +74,7 @@ const AssignmentDetail: React.FC<AssignmentDetailProps> = ({ assignmentId, onBac
                 <p className="text-gray-400">From {assignment.client}</p>
               </div>
               <Badge variant={
-                assignment.status === 'Completed' ? 'success' : 
+                assignment.status === 'Completed' ? 'default' : // Changed from 'success' to 'default'
                 assignment.status === 'Rejected' ? 'destructive' : 
                 assignment.status === 'In Progress' ? 'default' : 'secondary'
               }>
