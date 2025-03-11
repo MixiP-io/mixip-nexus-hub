@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useFormContext, UseFormWatch } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -15,7 +15,7 @@ import {
 import { FormData, colorOptions } from './types';
 
 interface BasicInformationProps {
-  watchName: ReturnType<UseFormWatch<FormData>>;
+  watchName: string | undefined; // Changed from ReturnType<UseFormWatch<FormData>>
   selectedColor: string;
   setSelectedColor: (color: string) => void;
 }

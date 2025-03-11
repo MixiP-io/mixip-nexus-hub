@@ -33,6 +33,9 @@ const GroupForm: React.FC<GroupFormProps> = ({
     existingGroup?.color || '#8B5CF6'
   );
 
+  // Use watch to get the name field value as a string
+  const watchName = watch('name');
+
   const onSubmit = (data: FormData) => {
     // Create a new group object from form data
     const groupData: Omit<CollaboratorGroup, 'id' | 'createdAt' | 'updatedAt'> = {
@@ -48,8 +51,6 @@ const GroupForm: React.FC<GroupFormProps> = ({
     
     onComplete(groupData);
   };
-
-  const watchName = watch('name');
 
   return (
     <div className="max-w-2xl mx-auto bg-gray-900 rounded-xl overflow-hidden p-6 text-gray-200 border border-gray-700">
