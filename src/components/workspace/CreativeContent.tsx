@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Header from '@/components/dashboard/Header';
@@ -5,6 +6,7 @@ import CollapsibleTabs from '@/components/dashboard/CollapsibleTabs';
 import ProjectGrid from '@/components/dashboard/ProjectGrid';
 import CampaignGrid from '@/components/workspace/campaign-grid';
 import AssignmentContent from '@/components/workspace/assignments/AssignmentContent';
+import CollaboratorContent from '@/components/workspace/collaborators/CollaboratorContent';
 import { Toaster } from 'sonner';
 
 const CreativeContent: React.FC = () => {
@@ -46,15 +48,7 @@ const CreativeContent: React.FC = () => {
       case 'assignments':
         return <AssignmentContent />;
       case 'collaborators':
-        return (
-          <div className="p-6">
-            <h2 className="text-xl font-semibold mb-2">Collaborators</h2>
-            <p className="text-gray-400">Manage your team and external collaborators</p>
-            <div className="mt-6 p-8 text-center bg-gray-800 rounded-xl">
-              <p className="text-gray-400">Collaborator management coming soon</p>
-            </div>
-          </div>
-        );
+        return <CollaboratorContent />;
       case 'projects':
       default:
         return <ProjectGrid />;
