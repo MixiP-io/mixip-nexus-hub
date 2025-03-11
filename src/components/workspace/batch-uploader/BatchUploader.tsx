@@ -1,50 +1,13 @@
+
 import React, { useState, useRef } from 'react';
-import { 
-  Upload, 
-  X, 
-  File, 
-  Image, 
-  Video, 
-  Folder, 
-  Plus,
-  CloudUpload, 
-  CheckCircle2,
-  AlertCircle,
-  Tag,
-  FileText,
-  Copyright,
-  FolderOpen,
-  Briefcase,
-  Hash
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-type UploadSource = 'local' | 'dropbox' | 'google-drive' | 'box' | 'icloud';
-
-type FileStatus = 'queued' | 'uploading' | 'processing' | 'complete' | 'error';
-
-interface UploadFile {
-  id: string;
-  name: string;
-  size: number;
-  type: string;
-  progress: number;
-  status: FileStatus;
-  source: UploadSource;
-  file?: File;
-  preview?: string;
-}
+import SourceSelection from './components/SourceSelection';
+import MetadataSection from './components/MetadataSection';
+import ProjectSection from './components/ProjectSection';
+import UploadArea from './components/UploadArea';
+import FilesList from './components/FilesList';
+import { UploadFile, UploadSource } from './types';
+import { formatFileSize, getFilePreview } from './utils/fileUtils';
 
 const BatchUploader: React.FC = () => {
   const [files, setFiles] = useState<UploadFile[]>([]);
@@ -57,22 +20,6 @@ const BatchUploader: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState('');
   const [selectedFolder, setSelectedFolder] = useState('root');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  const sources = [
-    { id: 'local', name: 'My Device', icon: <Folder className="h-5 w-5" /> },
-    { id: 'dropbox', name: 'Dropbox', icon: <CloudUpload className="h-5 w-5" /> },
-    { id: 'google-drive', name: 'Google Drive', icon: <CloudUpload className="h-5 w-5" /> },
-    { id: 'box', name: 'Box', icon: <CloudUpload className="h-5 w-5" /> },
-    { id: 'icloud', name: 'iCloud', icon: <CloudUpload className="h-5 w-5" /> },
-  ];
-  
-  const handleSourceChange = (source: UploadSource) => {
-    setActiveSource(source);
-    
-    if (source !== 'local') {
-      toast.info(`${source} integration coming soon`);
-    }
-  };
   
   const triggerFileInput = (e?: React.MouseEvent) => {
     if (e) {
@@ -95,10 +42,6 @@ const BatchUploader: React.FC = () => {
     }
     
     const newFiles: UploadFile[] = Array.from(selectedFiles).map(file => {
-      const preview = file.type.startsWith('image/') 
-        ? URL.createObjectURL(file) 
-        : undefined;
-        
       return {
         id: `file-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         name: file.name,
@@ -108,7 +51,7 @@ const BatchUploader: React.FC = () => {
         status: 'queued',
         source: 'local',
         file: file,
-        preview
+        preview: getFilePreview(file)
       };
     });
     
@@ -158,7 +101,7 @@ const BatchUploader: React.FC = () => {
     
     setIsUploading(true);
     
-    const uploadPromises = files.map((file, index) => {
+    const uploadPromises = files.map((file) => {
       return new Promise<void>((resolve) => {
         let progress = 0;
         
@@ -209,11 +152,8 @@ const BatchUploader: React.FC = () => {
       });
     });
     
-    let completedUploads = 0;
-    const totalFiles = files.length;
-    
     const intervalId = setInterval(() => {
-      const currentProgress = files.reduce((sum, file) => sum + file.progress, 0) / totalFiles;
+      const currentProgress = files.reduce((sum, file) => sum + file.progress, 0) / files.length;
       setOverallProgress(currentProgress);
     }, 200);
     
@@ -225,335 +165,57 @@ const BatchUploader: React.FC = () => {
     });
   };
   
-  const getFileIcon = (fileType: string) => {
-    if (fileType.startsWith('image/')) {
-      return <Image className="h-6 w-6 text-blue-400" />;
-    } else if (fileType.startsWith('video/')) {
-      return <Video className="h-6 w-6 text-purple-400" />;
-    } else {
-      return <File className="h-6 w-6 text-gray-400" />;
-    }
-  };
-  
-  const getStatusIcon = (status: FileStatus) => {
-    switch (status) {
-      case 'complete':
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
-      case 'error':
-        return <AlertCircle className="h-5 w-5 text-red-500" />;
-      default:
-        return null;
-    }
-  };
-  
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return bytes + ' B';
-    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-    else if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB';
-    else return (bytes / 1073741824).toFixed(1) + ' GB';
-  };
-  
   const calculateTotalSize = () => {
     return files.reduce((total, file) => total + file.size, 0);
   };
-  
-  const totalSize = formatFileSize(calculateTotalSize());
-  const uploadedFiles = files.filter(f => f.status === 'complete').length;
   
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <h2 className="text-2xl font-semibold mb-6">Batch Upload</h2>
       
       {/* Source Selection */}
-      <div className="bg-gray-800 rounded-lg p-4 mb-6">
-        <h3 className="text-lg font-medium mb-3">Upload Source</h3>
-        <div className="flex flex-wrap gap-2">
-          {sources.map(source => (
-            <Button
-              key={source.id}
-              variant={activeSource === source.id ? "default" : "outline"}
-              className={`flex items-center gap-2 ${
-                activeSource === source.id ? "bg-green-600 hover:bg-green-700" : ""
-              }`}
-              onClick={() => handleSourceChange(source.id as UploadSource)}
-            >
-              {source.icon}
-              {source.name}
-            </Button>
-          ))}
-        </div>
-      </div>
+      <SourceSelection
+        activeSource={activeSource}
+        setActiveSource={setActiveSource}
+      />
       
-      {/* Metadata & Rights - Redesigned and moved above the upload area */}
+      {/* Metadata & Rights and Project Assignment in a grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        {/* Metadata & Rights */}
-        <div className="bg-gray-800 rounded-lg p-4 overflow-hidden">
-          <div className="flex items-center gap-2 mb-4 border-b border-gray-700 pb-2">
-            <FileText className="h-5 w-5 text-purple-400" />
-            <h3 className="text-lg font-medium">Metadata & Rights</h3>
-          </div>
-          
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Tag className="h-4 w-4 text-blue-400" />
-                <Label htmlFor="tags">Tags</Label>
-              </div>
-              <Input 
-                id="tags"
-                value={tags}
-                onChange={(e) => setTags(e.target.value)}
-                className="bg-gray-700 border-gray-600 focus:border-purple-500"
-                placeholder="Enter tags separated by commas"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Copyright className="h-4 w-4 text-green-400" />
-                <Label htmlFor="license">License Type</Label>
-              </div>
-              <Select value={licenseType} onValueChange={setLicenseType}>
-                <SelectTrigger className="bg-gray-700 border-gray-600">
-                  <SelectValue placeholder="Select a license type" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-700 border-gray-600">
-                  <SelectItem value="standard">Standard License</SelectItem>
-                  <SelectItem value="extended">Extended License</SelectItem>
-                  <SelectItem value="custom">Custom License</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Hash className="h-4 w-4 text-yellow-400" />
-                <Label htmlFor="usage">Usage Rights</Label>
-              </div>
-              <Select value={usageRights} onValueChange={setUsageRights}>
-                <SelectTrigger className="bg-gray-700 border-gray-600">
-                  <SelectValue placeholder="Select usage rights" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-700 border-gray-600">
-                  <SelectItem value="commercial">Commercial</SelectItem>
-                  <SelectItem value="editorial">Editorial</SelectItem>
-                  <SelectItem value="personal">Personal</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
-        
-        {/* Project Assignment */}
-        <div className="bg-gray-800 rounded-lg p-4 overflow-hidden">
-          <div className="flex items-center gap-2 mb-4 border-b border-gray-700 pb-2">
-            <Briefcase className="h-5 w-5 text-blue-400" />
-            <h3 className="text-lg font-medium">Project Assignment</h3>
-          </div>
-          
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Briefcase className="h-4 w-4 text-green-400" />
-                <Label htmlFor="project">Select Project</Label>
-              </div>
-              <Select value={selectedProject} onValueChange={setSelectedProject}>
-                <SelectTrigger className="bg-gray-700 border-gray-600">
-                  <SelectValue placeholder="Select a project" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-700 border-gray-600">
-                  <SelectItem value="">Select a project</SelectItem>
-                  <SelectItem value="project-alpha">Project Alpha</SelectItem>
-                  <SelectItem value="brand-campaign-2023">Brand Campaign 2023</SelectItem>
-                  <SelectItem value="product-launch">Product Launch</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <FolderOpen className="h-4 w-4 text-yellow-400" />
-                <Label htmlFor="folder">Folder (Optional)</Label>
-              </div>
-              <Select value={selectedFolder} onValueChange={setSelectedFolder}>
-                <SelectTrigger className="bg-gray-700 border-gray-600">
-                  <SelectValue placeholder="Select a folder" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-700 border-gray-600">
-                  <SelectItem value="root">Root folder</SelectItem>
-                  <SelectItem value="images">Images</SelectItem>
-                  <SelectItem value="videos">Videos</SelectItem>
-                  <SelectItem value="documents">Documents</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="pt-2">
-              <Button 
-                variant="outline" 
-                className="w-full border-dashed flex items-center justify-center gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                Create New Project
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Upload Area with explicit form for better accessibility */}
-      <div className="mb-6">
-        <Input
-          type="file"
-          ref={fileInputRef}
-          className="hidden"
-          id="file-upload-input"
-          multiple
-          onChange={handleFileSelect}
-          accept="image/*,video/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        <MetadataSection
+          tags={tags}
+          setTags={setTags}
+          licenseType={licenseType}
+          setLicenseType={setLicenseType}
+          usageRights={usageRights}
+          setUsageRights={setUsageRights}
         />
         
-        <div 
-          className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center hover:border-gray-400 transition-colors cursor-pointer"
-          onClick={triggerFileInput}
-          onDragOver={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-          onDrop={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            
-            if (files.length > 0) {
-              const event = {
-                target: {
-                  files,
-                  value: ''
-                },
-              } as unknown as React.ChangeEvent<HTMLInputElement>;
-              handleFileSelect(event);
-            }
-          }}
-        >
-          <Upload className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-          <h3 className="text-lg font-medium mb-2">Drag files here or click to browse</h3>
-          <p className="text-gray-400 mb-2">
-            Upload multiple files at once. Support for images, videos, and documents.
-          </p>
-          <Button 
-            onClick={triggerFileInput}
-            className="mt-2 bg-green-600 hover:bg-green-700" 
-            type="button"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Select Files
-          </Button>
-        </div>
+        <ProjectSection
+          selectedProject={selectedProject}
+          setSelectedProject={setSelectedProject}
+          selectedFolder={selectedFolder}
+          setSelectedFolder={setSelectedFolder}
+        />
       </div>
+      
+      {/* Upload Area */}
+      <UploadArea
+        handleFileSelect={handleFileSelect}
+        triggerFileInput={triggerFileInput}
+      />
       
       {/* Files List */}
       {files.length > 0 && (
-        <div className="bg-gray-800 rounded-lg p-4 mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <div>
-              <h3 className="text-lg font-medium">Selected Files</h3>
-              <p className="text-sm text-gray-400">
-                {files.length} file{files.length !== 1 ? 's' : ''} ({totalSize})
-                {uploadedFiles > 0 && ` • ${uploadedFiles} uploaded`}
-              </p>
-            </div>
-            
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                onClick={clearAll}
-                disabled={isUploading}
-              >
-                Clear All
-              </Button>
-              <Button 
-                onClick={startUpload}
-                disabled={isUploading || files.length === 0}
-                className="bg-green-600 hover:bg-green-700"
-              >
-                <Upload className="mr-2 h-4 w-4" />
-                {isUploading ? 'Uploading...' : 'Start Upload'}
-              </Button>
-            </div>
-          </div>
-          
-          {/* Overall Progress */}
-          {isUploading && (
-            <div className="mb-4">
-              <div className="flex justify-between text-sm mb-1">
-                <span>Overall Progress</span>
-                <span>{Math.round(overallProgress)}%</span>
-              </div>
-              <Progress value={overallProgress} className="h-2" />
-            </div>
-          )}
-          
-          {/* File Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-            {files.map((file) => (
-              <div 
-                key={file.id} 
-                className="bg-gray-700 rounded-lg overflow-hidden flex flex-col"
-              >
-                <div className="relative h-32 bg-gray-800 flex items-center justify-center">
-                  {file.preview ? (
-                    <img 
-                      src={file.preview} 
-                      alt={file.name}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    getFileIcon(file.type)
-                  )}
-                  
-                  <button 
-                    className="absolute top-2 right-2 bg-gray-900 bg-opacity-50 rounded-full p-1 hover:bg-opacity-80"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeFile(file.id);
-                    }}
-                    disabled={isUploading}
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-                
-                <div className="p-3 flex-1 flex flex-col">
-                  <div className="flex items-start justify-between mb-1">
-                    <h4 className="font-medium text-sm truncate flex-1" title={file.name}>
-                      {file.name}
-                    </h4>
-                    {getStatusIcon(file.status)}
-                  </div>
-                  
-                  <p className="text-xs text-gray-400 mb-2">
-                    {formatFileSize(file.size)}
-                  </p>
-                  
-                  {file.status !== 'complete' && (
-                    <Progress value={file.progress} className="h-1 mt-auto" />
-                  )}
-                  
-                  <div className="text-xs text-gray-400 mt-1">
-                    {file.status === 'queued' && 'Ready to upload'}
-                    {file.status === 'uploading' && `Uploading ${Math.round(file.progress)}%`}
-                    {file.status === 'processing' && 'Processing...'}
-                    {file.status === 'complete' && 'Upload complete'}
-                    {file.status === 'error' && 'Upload failed'}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <FilesList
+          files={files}
+          isUploading={isUploading}
+          overallProgress={overallProgress}
+          formatFileSize={formatFileSize}
+          calculateTotalSize={calculateTotalSize}
+          removeFile={removeFile}
+          clearAll={clearAll}
+          startUpload={startUpload}
+        />
       )}
     </div>
   );
