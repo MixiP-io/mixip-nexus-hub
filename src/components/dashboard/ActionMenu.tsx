@@ -33,6 +33,18 @@ const ActionMenu: React.FC = () => {
     if (action === 'Create Campaign') {
       // Navigate to campaign creation
       navigate('/dashboard/workspace?tab=campaigns&action=new');
+    } else if (action === 'Upload Media') {
+      // Navigate to the batch uploader
+      navigate('/dashboard/workspace?tab=uploader');
+    } else if (action === 'Create Project') {
+      // Navigate to project creation
+      navigate('/dashboard/workspace?tab=projects&action=new');
+    } else if (action === 'Invite Collaborators') {
+      // Navigate to collaborators
+      navigate('/dashboard/workspace?tab=collaborators');
+    } else if (action === 'Sync Phone') {
+      // Placeholder for future functionality
+      console.log('Sync Phone action - functionality coming soon');
     }
     
     setIsOpen(false);

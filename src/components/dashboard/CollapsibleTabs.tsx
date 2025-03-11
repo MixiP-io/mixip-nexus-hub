@@ -21,6 +21,7 @@ const CollapsibleTabs: React.FC = () => {
     { id: 'campaigns', label: 'Campaigns', permanent: false, active: false },
     { id: 'assignments', label: 'Assignments', permanent: false, active: false },
     { id: 'collaborators', label: 'Collaborators', permanent: false, active: false },
+    { id: 'uploader', label: 'Uploader', permanent: false, active: false },
   ]);
   
   const [isCollapsed, setIsCollapsed] = useState(false);

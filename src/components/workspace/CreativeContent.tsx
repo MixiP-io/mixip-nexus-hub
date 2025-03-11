@@ -7,6 +7,7 @@ import ProjectGrid from '@/components/dashboard/ProjectGrid';
 import CampaignGrid from '@/components/workspace/campaign-grid';
 import AssignmentContent from '@/components/workspace/assignments/AssignmentContent';
 import CollaboratorContent from '@/components/workspace/collaborators/CollaboratorContent';
+import BatchUploader from '@/components/workspace/batch-uploader/BatchUploader';
 import { Toaster } from 'sonner';
 
 const CreativeContent: React.FC = () => {
@@ -49,6 +50,8 @@ const CreativeContent: React.FC = () => {
         return <AssignmentContent />;
       case 'collaborators':
         return <CollaboratorContent />;
+      case 'uploader':
+        return <BatchUploader />;
       case 'projects':
       default:
         return <ProjectGrid />;
