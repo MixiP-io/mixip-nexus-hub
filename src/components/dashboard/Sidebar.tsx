@@ -35,7 +35,7 @@ const Sidebar: React.FC = () => {
       <nav className="flex-1 p-4">
         <ul className="space-y-2">
           <li>
-            <Link to="/dashboard" className="flex items-center space-x-3 p-3 rounded-lg bg-mixip-blue bg-opacity-20 text-mixip-blue">
+            <Link to="/dashboard" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 transition-colors">
               <LayoutDashboard className="w-5 h-5" />
               <span>Dashboard</span>
             </Link>
