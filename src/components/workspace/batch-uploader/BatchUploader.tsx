@@ -15,6 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
+import { Input } from '@/components/ui/input';
 
 type UploadSource = 'local' | 'dropbox' | 'google-drive' | 'box' | 'icloud';
 
@@ -55,16 +56,27 @@ const BatchUploader: React.FC = () => {
     }
   };
   
-  const triggerFileInput = () => {
+  const triggerFileInput = (e?: React.MouseEvent) => {
+    // If this was triggered by an event, prevent default behavior
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    // Ensure the file input exists and click it
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
   
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("File selection triggered", event.target.files);
     const selectedFiles = event.target.files;
     
-    if (!selectedFiles || selectedFiles.length === 0) return;
+    if (!selectedFiles || selectedFiles.length === 0) {
+      console.log("No files selected");
+      return;
+    }
     
     const newFiles: UploadFile[] = Array.from(selectedFiles).map(file => {
       // Create object URL for preview
@@ -255,28 +267,57 @@ const BatchUploader: React.FC = () => {
         </div>
       </div>
       
-      {/* Upload Area */}
-      <div 
-        className="border-2 border-dashed border-gray-600 rounded-lg p-8 mb-6 text-center hover:border-gray-400 transition-colors cursor-pointer"
-        onClick={triggerFileInput}
-      >
-        <input
+      {/* Upload Area with explicit form for better accessibility */}
+      <div className="mb-6">
+        <Input
           type="file"
           ref={fileInputRef}
           className="hidden"
+          id="file-upload-input"
           multiple
           onChange={handleFileSelect}
+          accept="image/*,video/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         />
         
-        <Upload className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-        <h3 className="text-lg font-medium mb-2">Drag files here or click to browse</h3>
-        <p className="text-gray-400 mb-2">
-          Upload multiple files at once. Support for images, videos, and documents.
-        </p>
-        <Button onClick={triggerFileInput} className="mt-2 bg-green-600 hover:bg-green-700">
-          <Plus className="mr-2 h-4 w-4" />
-          Select Files
-        </Button>
+        <div 
+          className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center hover:border-gray-400 transition-colors cursor-pointer"
+          onClick={triggerFileInput}
+          onDragOver={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            if (files.length > 0) {
+              const event = {
+                target: {
+                  files,
+                  value: ''
+                },
+              } as unknown as React.ChangeEvent<HTMLInputElement>;
+              handleFileSelect(event);
+            }
+          }}
+        >
+          <Upload className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+          <h3 className="text-lg font-medium mb-2">Drag files here or click to browse</h3>
+          <p className="text-gray-400 mb-2">
+            Upload multiple files at once. Support for images, videos, and documents.
+          </p>
+          <Button 
+            onClick={triggerFileInput}
+            className="mt-2 bg-green-600 hover:bg-green-700" 
+            type="button"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Select Files
+          </Button>
+        </div>
       </div>
       
       {/* Files List */}
