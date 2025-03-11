@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Megaphone, 
@@ -14,13 +13,21 @@ import {
   Music,
   Scissors,
   Globe,
-  Home
+  Home,
+  Shield,
+  Info,
+  HelpCircle,
+  DollarSign,
+  Percent,
+  Share2
 } from 'lucide-react';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import RightsManagement from './RightsManagement';
 
 interface CampaignFormProps {
   isCreating: boolean;
@@ -47,6 +54,25 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ isCreating, onCancel, onCom
   ]);
   const [creativeDirection, setCreativeDirection] = useState('');
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
+  
+  // Step 4 - Rights Management
+  const [ownershipSplit, setOwnershipSplit] = useState(50);
+  const [usageRights, setUsageRights] = useState({
+    primaryCampaign: true,
+    secondaryBrand: false,
+    extendedMarketing: false,
+    derivativeWorks: false,
+    merchandising: false,
+    publicity: false,
+    socialMedia: false,
+    aiTraining: false
+  });
+  
+  // Step 5 - Distribution
+  const [distributionMethod, setDistributionMethod] = useState<'platform' | 'specific' | 'external'>('platform');
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [externalEmails, setExternalEmails] = useState<string[]>([]);
+  const [distributionMessage, setDistributionMessage] = useState('');
   
   const roles = [
     { id: 'photographer', label: 'Photographer', icon: <Camera className="h-8 w-8 mb-2" /> },
@@ -101,6 +127,13 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ isCreating, onCancel, onCom
     setDeliverables(prev => prev.filter(item => item.id !== id));
   };
 
+  const handleUsageRightsChange = (key: keyof typeof usageRights) => {
+    setUsageRights(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
   const handleCompleteCampaign = () => {
     // Prepare campaign data
     const campaignData = {
@@ -115,6 +148,14 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ isCreating, onCancel, onCom
       creativeDirection,
       // In a real application, you would handle file upload to storage
       attachedFileName: attachedFile?.name,
+      // Rights management data
+      ownershipSplit,
+      usageRights,
+      // Distribution data
+      distributionMethod,
+      selectedUsers,
+      externalEmails,
+      distributionMessage,
       status: 'Draft',
       image: '/placeholder.svg'
     };
@@ -132,10 +173,21 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ isCreating, onCancel, onCom
         return renderTeamStep();
       case 3:
         return renderCreativeStep();
+      case 4:
+        return <RightsManagement 
+          ownershipSplit={ownershipSplit} 
+          setOwnershipSplit={setOwnershipSplit}
+          usageRights={usageRights}
+          onUsageRightsChange={handleUsageRightsChange}
+        />;
+      case 5:
+        return renderDistributionStep();
+      case 6:
+        return renderReviewStep();
       default:
         return (
           <div className="text-center p-8">
-            <p className="text-gray-400 mb-4">Additional steps would be implemented based on the complete wireframes.</p>
+            <p className="text-gray-400 mb-4">Review your campaign before launch.</p>
             <button 
               onClick={handleCompleteCampaign}
               className="px-6 py-2 bg-green-600 hover:bg-green-700 rounded transition-colors"
@@ -423,6 +475,173 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ isCreating, onCancel, onCom
     );
   };
 
+  const renderDistributionStep = () => {
+    return (
+      <div className="space-y-6">
+        <div className="bg-gray-700 p-4 rounded-lg">
+          <h3 className="font-medium mb-4 flex items-center">
+            <Share2 className="w-5 h-5 mr-2" />
+            Distribution Method
+          </h3>
+          
+          <div className="flex space-x-3 mb-4">
+            <button
+              className={`flex items-center justify-center flex-col p-3 rounded-lg border ${
+                distributionMethod === 'platform' ? 'border-green-500 bg-gray-700' : 'border-gray-600 bg-gray-800'
+              }`}
+              onClick={() => setDistributionMethod('platform')}
+            >
+              <Globe className="w-5 h-5 mb-1" />
+              <span>Platform-wide</span>
+            </button>
+            <button
+              className={`flex items-center justify-center flex-col p-3 rounded-lg border ${
+                distributionMethod === 'specific' ? 'border-green-500 bg-gray-700' : 'border-gray-600 bg-gray-800'
+              }`}
+              onClick={() => setDistributionMethod('specific')}
+            >
+              <Users className="w-5 h-5 mb-1" />
+              <span>Specific Users</span>
+            </button>
+            <button
+              className={`flex items-center justify-center flex-col p-3 rounded-lg border ${
+                distributionMethod === 'external' ? 'border-green-500 bg-gray-700' : 'border-gray-600 bg-gray-800'
+              }`}
+              onClick={() => setDistributionMethod('external')}
+            >
+              <MapPin className="w-5 h-5 mb-1" />
+              <span>External Invite</span>
+            </button>
+          </div>
+
+          {distributionMethod === 'specific' && (
+            <div className="mb-4">
+              <p className="text-gray-400 mb-2">Select specific users (Not implemented in demo)</p>
+              <div className="bg-gray-800 p-3 rounded">
+                <input 
+                  type="text"
+                  className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white"
+                  placeholder="Search for users..."
+                  disabled
+                />
+              </div>
+            </div>
+          )}
+
+          {distributionMethod === 'external' && (
+            <div className="mb-4">
+              <p className="text-gray-400 mb-2">Invite external collaborators (Not implemented in demo)</p>
+              <div className="bg-gray-800 p-3 rounded">
+                <input 
+                  type="email"
+                  className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white"
+                  placeholder="Add email addresses..."
+                  disabled
+                />
+              </div>
+            </div>
+          )}
+          
+          <div className="mt-4">
+            <label className="block text-gray-400 mb-2">Distribution Message</label>
+            <textarea 
+              className="w-full bg-gray-700 border border-gray-600 rounded p-3 text-white h-24"
+              placeholder="Add a message to be sent with your campaign..."
+              value={distributionMessage}
+              onChange={(e) => setDistributionMessage(e.target.value)}
+            />
+          </div>
+        </div>
+        
+        <div className="flex justify-between pt-4">
+          <button 
+            onClick={() => setCurrentStep(4)}
+            className="px-6 py-2 border border-gray-600 rounded hover:bg-gray-700 transition-colors"
+          >
+            Back
+          </button>
+          <button 
+            onClick={() => setCurrentStep(6)}
+            className="px-6 py-2 bg-green-600 hover:bg-green-700 rounded transition-colors"
+          >
+            Continue
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderReviewStep = () => {
+    return (
+      <div className="space-y-6">
+        <div className="bg-gray-700 p-4 rounded-lg">
+          <h3 className="font-medium mb-4">Campaign Summary</h3>
+          
+          <div className="space-y-4">
+            <div className="bg-gray-800 p-3 rounded">
+              <h4 className="text-sm text-gray-400">Campaign Details</h4>
+              <p className="font-medium">{campaignName}</p>
+              <p className="text-sm text-gray-300">{startDate && endDate ? `${format(startDate, "MMM d, yyyy")} - ${format(endDate, "MMM d, yyyy")}` : "Dates not set"}</p>
+              <p className="text-sm text-gray-300">{location}</p>
+            </div>
+            
+            <div className="bg-gray-800 p-3 rounded">
+              <h4 className="text-sm text-gray-400">Team Roles</h4>
+              <div className="flex flex-wrap gap-2 mt-1">
+                {selectedRoles.map(role => (
+                  <span key={role} className="px-2 py-1 bg-gray-700 rounded text-sm">
+                    {role}
+                  </span>
+                ))}
+              </div>
+            </div>
+            
+            <div className="bg-gray-800 p-3 rounded">
+              <h4 className="text-sm text-gray-400">Deliverables</h4>
+              <ul className="mt-1 space-y-1">
+                {deliverables.map(d => (
+                  <li key={d.id} className="text-sm">{d.title}: {d.description}</li>
+                ))}
+              </ul>
+            </div>
+            
+            <div className="bg-gray-800 p-3 rounded">
+              <h4 className="text-sm text-gray-400">Rights Management</h4>
+              <p className="text-sm mt-1">Ownership Split: {ownershipSplit}% Brand / {100 - ownershipSplit}% Creators</p>
+              <div className="mt-2">
+                <h5 className="text-xs text-gray-400">Enabled Rights:</h5>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {Object.entries(usageRights)
+                    .filter(([_, value]) => value)
+                    .map(([key]) => (
+                      <span key={key} className="px-2 py-1 bg-gray-700 rounded text-sm">
+                        {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                      </span>
+                    ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex justify-between pt-4">
+          <button 
+            onClick={() => setCurrentStep(5)}
+            className="px-6 py-2 border border-gray-600 rounded hover:bg-gray-700 transition-colors"
+          >
+            Back
+          </button>
+          <button 
+            onClick={handleCompleteCampaign}
+            className="px-6 py-2 bg-green-600 hover:bg-green-700 rounded transition-colors"
+          >
+            Launch Campaign
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="bg-gray-800 rounded-xl p-6 shadow-lg w-full mb-8">
       <div className="flex justify-between items-center mb-6">
@@ -453,7 +672,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ isCreating, onCancel, onCom
                step === 2 ? 'Team' : 
                step === 3 ? 'Creative' : 
                step === 4 ? 'Rights' : 
-               step === 5 ? 'Selection' : 'Launch'}
+               step === 5 ? 'Distribution' : 'Review'}
             </span>
           </div>
         ))}
