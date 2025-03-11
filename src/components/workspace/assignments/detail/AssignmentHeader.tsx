@@ -20,11 +20,11 @@ const AssignmentHeader: React.FC<AssignmentHeaderProps> = ({ assignment }) => {
   };
 
   return (
-    <Card className="bg-card border-border">
+    <Card className="bg-mixip-gray-dark border-border shadow-md">
       <CardHeader className="flex flex-row justify-between items-start">
         <div>
-          <h2 className="text-xl font-semibold text-foreground">{assignment.title}</h2>
-          <p className="text-foreground/80">From {assignment.client}</p>
+          <h2 className="text-xl font-semibold text-white">{assignment.title}</h2>
+          <p className="text-white/80">From {assignment.client}</p>
         </div>
         <Badge variant={getBadgeVariant(assignment.status)}>
           {assignment.status}
