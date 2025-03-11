@@ -1,9 +1,7 @@
 
 import React from 'react';
-import { Briefcase, FolderOpen, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import {
+import { FolderTree, FileSpreadsheet } from 'lucide-react';
+import { 
   Select,
   SelectContent,
   SelectItem,
@@ -24,58 +22,67 @@ const ProjectSection: React.FC<ProjectSectionProps> = ({
   selectedFolder,
   setSelectedFolder
 }) => {
+  // Sample project and folder data
+  const projects = [
+    { id: 'project1', name: 'Marketing Campaign Q1' },
+    { id: 'project2', name: 'Product Photoshoot' },
+    { id: 'project3', name: 'Website Redesign Assets' },
+  ];
+  
+  const folders = [
+    { id: 'root', name: 'Project Root' },
+    { id: 'images', name: 'Images' },
+    { id: 'documents', name: 'Documents' },
+    { id: 'videos', name: 'Videos' },
+  ];
+  
   return (
-    <div className="bg-gray-800 rounded-lg p-4 overflow-hidden">
-      <div className="flex items-center gap-2 mb-4 border-b border-gray-700 pb-2">
-        <Briefcase className="h-5 w-5 text-blue-400" />
-        <h3 className="text-lg font-medium">Project Assignment</h3>
-      </div>
+    <div className="bg-gray-800 rounded-lg p-4">
+      <h3 className="text-lg font-medium mb-3">Project Assignment</h3>
       
       <div className="space-y-4">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <Briefcase className="h-4 w-4 text-green-400" />
-            <Label htmlFor="project">Select Project</Label>
-          </div>
-          <Select value={selectedProject} onValueChange={setSelectedProject}>
-            <SelectTrigger className="bg-gray-700 border-gray-600">
+        <div>
+          <label className="block text-gray-400 mb-2 text-sm">Select Project</label>
+          <Select 
+            value={selectedProject} 
+            onValueChange={setSelectedProject}
+          >
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Select a project" />
             </SelectTrigger>
-            <SelectContent className="bg-gray-700 border-gray-600">
-              <SelectItem value="">Select a project</SelectItem>
-              <SelectItem value="project-alpha">Project Alpha</SelectItem>
-              <SelectItem value="brand-campaign-2023">Brand Campaign 2023</SelectItem>
-              <SelectItem value="product-launch">Product Launch</SelectItem>
+            <SelectContent>
+              {projects.map((project) => (
+                <SelectItem key={project.id} value={project.id}>
+                  <div className="flex items-center">
+                    <FileSpreadsheet className="mr-2 h-4 w-4" />
+                    {project.name}
+                  </div>
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
         
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <FolderOpen className="h-4 w-4 text-yellow-400" />
-            <Label htmlFor="folder">Folder (Optional)</Label>
-          </div>
-          <Select value={selectedFolder} onValueChange={setSelectedFolder}>
-            <SelectTrigger className="bg-gray-700 border-gray-600">
+        <div>
+          <label className="block text-gray-400 mb-2 text-sm">Target Folder</label>
+          <Select 
+            value={selectedFolder} 
+            onValueChange={setSelectedFolder}
+          >
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Select a folder" />
             </SelectTrigger>
-            <SelectContent className="bg-gray-700 border-gray-600">
-              <SelectItem value="root">Root folder</SelectItem>
-              <SelectItem value="images">Images</SelectItem>
-              <SelectItem value="videos">Videos</SelectItem>
-              <SelectItem value="documents">Documents</SelectItem>
+            <SelectContent>
+              {folders.map((folder) => (
+                <SelectItem key={folder.id} value={folder.id}>
+                  <div className="flex items-center">
+                    <FolderTree className="mr-2 h-4 w-4" />
+                    {folder.name}
+                  </div>
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
-        </div>
-        
-        <div className="pt-2">
-          <Button 
-            variant="outline" 
-            className="w-full border-dashed flex items-center justify-center gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            Create New Project
-          </Button>
         </div>
       </div>
     </div>

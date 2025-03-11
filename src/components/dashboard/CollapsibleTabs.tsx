@@ -31,6 +31,7 @@ const CollapsibleTabs: React.FC = () => {
   useEffect(() => {
     const tabParam = searchParams.get('tab');
     if (tabParam) {
+      console.log('Active tab from URL:', tabParam);
       setTabs(prevTabs => 
         prevTabs.map(tab => ({
           ...tab,
@@ -42,6 +43,7 @@ const CollapsibleTabs: React.FC = () => {
   
   const handleTabClick = (tabId: string) => {
     // Update URL and state
+    console.log('Clicking on tab:', tabId);
     navigate(`/dashboard/workspace?tab=${tabId}`);
     
     setTabs(tabs.map(tab => ({

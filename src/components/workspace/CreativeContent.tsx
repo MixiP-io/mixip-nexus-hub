@@ -19,6 +19,7 @@ const CreativeContent: React.FC = () => {
     // Get the tab from URL params if available
     const tabParam = searchParams.get('tab');
     if (tabParam) {
+      console.log('Setting active tab to:', tabParam);
       setActiveTab(tabParam);
     }
     
@@ -33,6 +34,8 @@ const CreativeContent: React.FC = () => {
 
   // Render the appropriate content based on the active tab
   const renderContent = () => {
+    console.log('Rendering content for tab:', activeTab);
+    
     switch (activeTab) {
       case 'campaigns':
         return <CampaignGrid isCreating={action === 'new'} />;
@@ -51,6 +54,7 @@ const CreativeContent: React.FC = () => {
       case 'collaborators':
         return <CollaboratorContent />;
       case 'uploader':
+        console.log('Rendering BatchUploader component');
         return <BatchUploader />;
       case 'projects':
       default:
