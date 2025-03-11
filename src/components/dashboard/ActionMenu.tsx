@@ -3,13 +3,13 @@ import React, { useState } from 'react';
 import { 
   Plus, 
   Upload, 
-  SmartphoneNfc,
   UserPlus,
   ChevronDown,
   File,
   Megaphone
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import SyncPhone from './sync-phone/SyncPhone';
 
 const ActionMenu: React.FC = () => {
   const navigate = useNavigate();
@@ -42,9 +42,6 @@ const ActionMenu: React.FC = () => {
     } else if (action === 'Invite Collaborators') {
       // Navigate to collaborators
       navigate('/dashboard/workspace?tab=collaborators');
-    } else if (action === 'Sync Phone') {
-      // Placeholder for future functionality
-      console.log('Sync Phone action - functionality coming soon');
     }
     
     setIsOpen(false);
@@ -104,14 +101,7 @@ const ActionMenu: React.FC = () => {
               Upload Media
             </button>
             
-            <button
-              className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-700 flex items-center"
-              role="menuitem"
-              onClick={() => handleItemClick('Sync Phone')}
-            >
-              <SmartphoneNfc className="mr-3 h-5 w-5" />
-              Sync Phone
-            </button>
+            <SyncPhone />
             
             <button
               className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-700 flex items-center"
