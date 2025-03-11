@@ -1,10 +1,9 @@
-
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Header from '@/components/dashboard/Header';
 import CollapsibleTabs from '@/components/dashboard/CollapsibleTabs';
 import ProjectGrid from '@/components/dashboard/ProjectGrid';
-import CampaignGrid from '@/components/workspace/CampaignGrid';
+import CampaignGrid from '@/components/workspace/campaign-grid';
 import AssignmentContent from '@/components/workspace/assignments/AssignmentContent';
 import { Toaster } from 'sonner';
 
