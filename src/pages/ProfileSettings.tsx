@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Globe, Instagram, Linkedin, Twitter, Upload, User, MapPin, Languages, Briefcase, Shield, Camera, PenTool, Plus, X, Image, Info, Eye, Award, Lock, CreditCard, ExternalLink, Grid, List, Heart, Calendar, Clock } from 'lucide-react';
+import { Globe, Instagram, Linkedin, Twitter, Upload, User, MapPin, Languages, Briefcase, Shield, Camera, PenTool, Plus, X, Image, Info, Eye, Award, Lock, CreditCard, ExternalLink, Grid, List, Heart, Calendar, Clock, Download } from 'lucide-react';
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import Sidebar from '@/components/dashboard/Sidebar';
