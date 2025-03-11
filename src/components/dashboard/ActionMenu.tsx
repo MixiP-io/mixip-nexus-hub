@@ -33,9 +33,6 @@ const ActionMenu: React.FC = () => {
     if (action === 'Create Campaign') {
       // Navigate to campaign creation
       navigate('/dashboard/workspace?tab=campaigns&action=new');
-    } else if (action === 'Upload Media') {
-      // Navigate directly to batch uploader
-      navigate('/dashboard/workspace?tab=uploader');
     }
     
     setIsOpen(false);
