@@ -27,7 +27,7 @@ const AssignmentCard: React.FC<AssignmentCardProps> = ({ assignment, onClick }) 
     switch (status.toLowerCase()) {
       case 'pending': return 'secondary';
       case 'in progress': return 'default';
-      case 'completed': return 'default'; // Using 'default' instead of 'success'
+      case 'completed': return 'default'; 
       case 'rejected': return 'destructive';
       default: return 'outline';
     }
@@ -39,21 +39,21 @@ const AssignmentCard: React.FC<AssignmentCardProps> = ({ assignment, onClick }) 
       case 'photography': return <Camera className="w-8 h-8 text-primary" />;
       case 'videography': return <Video className="w-8 h-8 text-purple-400" />;
       case 'marketing': return <Briefcase className="w-8 h-8 text-mixip-mint" />;
-      default: return <Briefcase className="w-8 h-8 text-muted-foreground" />;
+      default: return <Briefcase className="w-8 h-8 text-primary/80" />;
     }
   };
 
   return (
     <Card 
-      className="overflow-hidden hover:ring-2 hover:ring-primary transition-all cursor-pointer flex flex-col"
+      className="overflow-hidden hover:ring-2 hover:ring-primary transition-all cursor-pointer flex flex-col bg-card"
       onClick={onClick}
     >
-      <div className="bg-card p-4 flex justify-between items-start">
+      <div className="bg-card p-4 flex justify-between items-start border-b border-border">
         <div className="flex items-center">
           {getTypeIcon(assignment.type)}
           <div className="ml-3">
             <h3 className="font-medium text-foreground">{assignment.title}</h3>
-            <p className="text-sm text-muted-foreground">{assignment.client}</p>
+            <p className="text-sm text-foreground/80">{assignment.client}</p>
           </div>
         </div>
         <Badge variant={getBadgeVariant(assignment.status)}>
@@ -63,25 +63,25 @@ const AssignmentCard: React.FC<AssignmentCardProps> = ({ assignment, onClick }) 
       
       <CardContent className="p-4 flex-grow">
         <div className="space-y-2">
-          <div className="flex items-center text-sm text-muted-foreground">
+          <div className="flex items-center text-sm text-foreground/80">
             <Calendar className="w-4 h-4 mr-2" />
             <span>Due: {new Date(assignment.dueDate).toLocaleDateString()}</span>
           </div>
           
-          <div className="flex items-center text-sm text-muted-foreground">
+          <div className="flex items-center text-sm text-foreground/80">
             <MapPin className="w-4 h-4 mr-2" />
             <span>{assignment.location}</span>
           </div>
           
           {assignment.budget && (
-            <div className="flex items-center text-sm text-muted-foreground">
+            <div className="flex items-center text-sm text-foreground/80">
               <DollarSign className="w-4 h-4 mr-2" />
               <span>Budget: ${assignment.budget}</span>
             </div>
           )}
           
           {assignment.teamSize && (
-            <div className="flex items-center text-sm text-muted-foreground">
+            <div className="flex items-center text-sm text-foreground/80">
               <Users className="w-4 h-4 mr-2" />
               <span>Team: {assignment.teamSize} people</span>
             </div>
@@ -93,7 +93,7 @@ const AssignmentCard: React.FC<AssignmentCardProps> = ({ assignment, onClick }) 
       
       <CardFooter className="p-4 border-t border-border">
         <div className="flex justify-between w-full items-center">
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs text-foreground/80">
             {new Date(assignment.createdAt).toLocaleDateString()}
           </span>
           
