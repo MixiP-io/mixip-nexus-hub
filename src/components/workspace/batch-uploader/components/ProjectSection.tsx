@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { FolderTree, FileSpreadsheet } from 'lucide-react';
 import { 
@@ -8,13 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-interface ProjectSectionProps {
-  selectedProject: string;
-  setSelectedProject: (project: string) => void;
-  selectedFolder: string;
-  setSelectedFolder: (folder: string) => void;
-}
+import { ProjectSectionProps } from '../types/componentProps';
 
 const ProjectSection: React.FC<ProjectSectionProps> = ({
   selectedProject,

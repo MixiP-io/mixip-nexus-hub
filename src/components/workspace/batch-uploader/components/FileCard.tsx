@@ -1,15 +1,8 @@
-
 import React from 'react';
 import { X, Image, Video, File, Check, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-import { UploadFile, FileStatus } from '../types';
-
-interface FileCardProps {
-  file: UploadFile;
-  removeFile: (id: string) => void;
-  isUploading: boolean;
-  formatFileSize: (bytes: number) => string;
-}
+import { FileCardProps } from '../types/componentProps';
+import { FileStatus } from '../types';
 
 const FileCard: React.FC<FileCardProps> = ({ 
   file, 

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { FileText, Tag, Copyright, Hash } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -10,15 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-interface MetadataSectionProps {
-  tags: string;
-  setTags: (tags: string) => void;
-  licenseType: string;
-  setLicenseType: (licenseType: string) => void;
-  usageRights: string;
-  setUsageRights: (usageRights: string) => void;
-}
+import { MetadataSectionProps } from '../types/componentProps';
 
 const MetadataSection: React.FC<MetadataSectionProps> = ({
   tags,

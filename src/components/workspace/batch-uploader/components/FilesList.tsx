@@ -1,21 +1,9 @@
-
 import React from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Upload } from 'lucide-react';
 import FileCard from './FileCard';
-import { UploadFile } from '../types';
-
-interface FilesListProps {
-  files: UploadFile[];
-  isUploading: boolean;
-  overallProgress: number;
-  formatFileSize: (bytes: number) => string;
-  calculateTotalSize: () => number;
-  removeFile: (id: string) => void;
-  clearAll: () => void;
-  startUpload: () => void;
-}
+import { FilesListProps } from '../types/componentProps';
 
 const FilesList: React.FC<FilesListProps> = ({
   files,
