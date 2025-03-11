@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { 
   Upload, 
@@ -10,12 +9,26 @@ import {
   Plus,
   CloudUpload, 
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Tag,
+  FileText,
+  Copyright,
+  FolderOpen,
+  Briefcase,
+  Hash
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type UploadSource = 'local' | 'dropbox' | 'google-drive' | 'box' | 'icloud';
 
@@ -38,6 +51,11 @@ const BatchUploader: React.FC = () => {
   const [activeSource, setActiveSource] = useState<UploadSource>('local');
   const [isUploading, setIsUploading] = useState(false);
   const [overallProgress, setOverallProgress] = useState(0);
+  const [tags, setTags] = useState('');
+  const [licenseType, setLicenseType] = useState('standard');
+  const [usageRights, setUsageRights] = useState('commercial');
+  const [selectedProject, setSelectedProject] = useState('');
+  const [selectedFolder, setSelectedFolder] = useState('root');
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const sources = [
@@ -57,13 +75,11 @@ const BatchUploader: React.FC = () => {
   };
   
   const triggerFileInput = (e?: React.MouseEvent) => {
-    // If this was triggered by an event, prevent default behavior
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
     
-    // Ensure the file input exists and click it
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
@@ -79,7 +95,6 @@ const BatchUploader: React.FC = () => {
     }
     
     const newFiles: UploadFile[] = Array.from(selectedFiles).map(file => {
-      // Create object URL for preview
       const preview = file.type.startsWith('image/') 
         ? URL.createObjectURL(file) 
         : undefined;
@@ -99,7 +114,6 @@ const BatchUploader: React.FC = () => {
     
     setFiles(prev => [...prev, ...newFiles]);
     
-    // Reset the input so the same file can be selected again
     if (event.target) {
       event.target.value = '';
     }
@@ -118,7 +132,6 @@ const BatchUploader: React.FC = () => {
   };
   
   const clearAll = () => {
-    // Revoke all object URLs to prevent memory leaks
     files.forEach(file => {
       if (file.preview) {
         URL.revokeObjectURL(file.preview);
@@ -133,14 +146,22 @@ const BatchUploader: React.FC = () => {
       return;
     }
     
+    if (!licenseType) {
+      toast.error("Please select a license type");
+      return;
+    }
+    
+    if (!selectedProject) {
+      toast.error("Please select a project to upload to");
+      return;
+    }
+    
     setIsUploading(true);
     
-    // Simulate uploading process for each file
     const uploadPromises = files.map((file, index) => {
       return new Promise<void>((resolve) => {
         let progress = 0;
         
-        // Mark file as uploading
         setFiles(prev => 
           prev.map(f => 
             f.id === file.id 
@@ -149,12 +170,10 @@ const BatchUploader: React.FC = () => {
           )
         );
         
-        // Simulate incremental progress
         const interval = setInterval(() => {
           if (progress >= 100) {
             clearInterval(interval);
             
-            // Mark file as processing then complete
             setFiles(prev => 
               prev.map(f => 
                 f.id === file.id 
@@ -176,7 +195,7 @@ const BatchUploader: React.FC = () => {
             
           } else {
             progress += Math.random() * 10;
-            progress = Math.min(progress, 98); // Cap at 98 before completion
+            progress = Math.min(progress, 98);
             
             setFiles(prev => 
               prev.map(f => 
@@ -186,11 +205,10 @@ const BatchUploader: React.FC = () => {
               )
             );
           }
-        }, 300 + Math.random() * 300); // Randomize interval for realism
+        }, 300 + Math.random() * 300);
       });
     });
     
-    // Track overall progress
     let completedUploads = 0;
     const totalFiles = files.length;
     
@@ -199,7 +217,6 @@ const BatchUploader: React.FC = () => {
       setOverallProgress(currentProgress);
     }, 200);
     
-    // When all uploads complete
     Promise.all(uploadPromises).then(() => {
       clearInterval(intervalId);
       setOverallProgress(100);
@@ -264,6 +281,123 @@ const BatchUploader: React.FC = () => {
               {source.name}
             </Button>
           ))}
+        </div>
+      </div>
+      
+      {/* Metadata & Rights - Redesigned and moved above the upload area */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        {/* Metadata & Rights */}
+        <div className="bg-gray-800 rounded-lg p-4 overflow-hidden">
+          <div className="flex items-center gap-2 mb-4 border-b border-gray-700 pb-2">
+            <FileText className="h-5 w-5 text-purple-400" />
+            <h3 className="text-lg font-medium">Metadata & Rights</h3>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Tag className="h-4 w-4 text-blue-400" />
+                <Label htmlFor="tags">Tags</Label>
+              </div>
+              <Input 
+                id="tags"
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
+                className="bg-gray-700 border-gray-600 focus:border-purple-500"
+                placeholder="Enter tags separated by commas"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Copyright className="h-4 w-4 text-green-400" />
+                <Label htmlFor="license">License Type</Label>
+              </div>
+              <Select value={licenseType} onValueChange={setLicenseType}>
+                <SelectTrigger className="bg-gray-700 border-gray-600">
+                  <SelectValue placeholder="Select a license type" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-700 border-gray-600">
+                  <SelectItem value="standard">Standard License</SelectItem>
+                  <SelectItem value="extended">Extended License</SelectItem>
+                  <SelectItem value="custom">Custom License</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Hash className="h-4 w-4 text-yellow-400" />
+                <Label htmlFor="usage">Usage Rights</Label>
+              </div>
+              <Select value={usageRights} onValueChange={setUsageRights}>
+                <SelectTrigger className="bg-gray-700 border-gray-600">
+                  <SelectValue placeholder="Select usage rights" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-700 border-gray-600">
+                  <SelectItem value="commercial">Commercial</SelectItem>
+                  <SelectItem value="editorial">Editorial</SelectItem>
+                  <SelectItem value="personal">Personal</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+        
+        {/* Project Assignment */}
+        <div className="bg-gray-800 rounded-lg p-4 overflow-hidden">
+          <div className="flex items-center gap-2 mb-4 border-b border-gray-700 pb-2">
+            <Briefcase className="h-5 w-5 text-blue-400" />
+            <h3 className="text-lg font-medium">Project Assignment</h3>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Briefcase className="h-4 w-4 text-green-400" />
+                <Label htmlFor="project">Select Project</Label>
+              </div>
+              <Select value={selectedProject} onValueChange={setSelectedProject}>
+                <SelectTrigger className="bg-gray-700 border-gray-600">
+                  <SelectValue placeholder="Select a project" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-700 border-gray-600">
+                  <SelectItem value="">Select a project</SelectItem>
+                  <SelectItem value="project-alpha">Project Alpha</SelectItem>
+                  <SelectItem value="brand-campaign-2023">Brand Campaign 2023</SelectItem>
+                  <SelectItem value="product-launch">Product Launch</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <FolderOpen className="h-4 w-4 text-yellow-400" />
+                <Label htmlFor="folder">Folder (Optional)</Label>
+              </div>
+              <Select value={selectedFolder} onValueChange={setSelectedFolder}>
+                <SelectTrigger className="bg-gray-700 border-gray-600">
+                  <SelectValue placeholder="Select a folder" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-700 border-gray-600">
+                  <SelectItem value="root">Root folder</SelectItem>
+                  <SelectItem value="images">Images</SelectItem>
+                  <SelectItem value="videos">Videos</SelectItem>
+                  <SelectItem value="documents">Documents</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="pt-2">
+              <Button 
+                variant="outline" 
+                className="w-full border-dashed flex items-center justify-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Create New Project
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
       
@@ -418,82 +552,6 @@ const BatchUploader: React.FC = () => {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      )}
-      
-      {/* Metadata and Project Assignment - Placeholder UI */}
-      {files.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          {/* Metadata & Rights */}
-          <div className="bg-gray-800 rounded-lg p-4">
-            <h3 className="text-lg font-medium mb-4">Metadata & Rights</h3>
-            <p className="text-gray-400 text-sm mb-4">
-              Apply metadata and rights information to all selected files.
-            </p>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Tags</label>
-                <input 
-                  type="text" 
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2"
-                  placeholder="Enter tags separated by commas"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">License Type</label>
-                <select className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2">
-                  <option>Standard License</option>
-                  <option>Extended License</option>
-                  <option>Custom License</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Usage Rights</label>
-                <select className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2">
-                  <option>Commercial</option>
-                  <option>Editorial</option>
-                  <option>Personal</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          
-          {/* Project Assignment */}
-          <div className="bg-gray-800 rounded-lg p-4">
-            <h3 className="text-lg font-medium mb-4">Project Assignment</h3>
-            <p className="text-gray-400 text-sm mb-4">
-              Select projects to add these files to.
-            </p>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Select Project</label>
-                <select className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2">
-                  <option>Select a project</option>
-                  <option>Project Alpha</option>
-                  <option>Brand Campaign 2023</option>
-                  <option>Product Launch</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Folder (Optional)</label>
-                <select className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2">
-                  <option>Root folder</option>
-                  <option>Images</option>
-                  <option>Videos</option>
-                  <option>Documents</option>
-                </select>
-              </div>
-              <div className="pt-2">
-                <Button 
-                  variant="outline" 
-                  className="w-full border-dashed"
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create New Project
-                </Button>
-              </div>
-            </div>
           </div>
         </div>
       )}
