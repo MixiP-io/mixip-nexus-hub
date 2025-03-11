@@ -5,6 +5,7 @@ import Header from '@/components/dashboard/Header';
 import CollapsibleTabs from '@/components/dashboard/CollapsibleTabs';
 import ProjectGrid from '@/components/dashboard/ProjectGrid';
 import CampaignGrid from '@/components/workspace/CampaignGrid';
+import AssignmentContent from '@/components/workspace/assignments/AssignmentContent';
 import { Toaster } from 'sonner';
 
 const CreativeContent: React.FC = () => {
@@ -44,15 +45,7 @@ const CreativeContent: React.FC = () => {
           </div>
         );
       case 'assignments':
-        return (
-          <div className="p-6">
-            <h2 className="text-xl font-semibold mb-2">Assignments</h2>
-            <p className="text-gray-400">Manage your creative assignments and tasks</p>
-            <div className="mt-6 p-8 text-center bg-gray-800 rounded-xl">
-              <p className="text-gray-400">Assignment tracking coming soon</p>
-            </div>
-          </div>
-        );
+        return <AssignmentContent />;
       case 'collaborators':
         return (
           <div className="p-6">
