@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { Plus, Megaphone, Calendar, MapPin, Share2 } from 'lucide-react';
-import CampaignForm from './CampaignForm';
+import CampaignForm from './campaign-form';
 import CampaignDistributeDialog from './CampaignDistributeDialog';
 import { toast } from 'sonner';
 
