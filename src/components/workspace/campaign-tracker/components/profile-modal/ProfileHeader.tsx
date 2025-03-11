@@ -3,6 +3,7 @@ import React from 'react';
 import { Star, MapPin, Instagram, Globe, Camera, Video, Edit2, Music, MessageCircle, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Creator } from '../../types';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface ProfileHeaderProps {
   creator: Creator;
@@ -25,11 +26,12 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ creator, onMessage, onSho
   return (
     <div className="bg-gray-700 p-6">
       <div className="flex items-start">
-        <img 
-          src={creator.avatar} 
-          alt={creator.name} 
-          className="w-20 h-20 rounded-full object-cover mr-5 border-2 border-white"
-        />
+        <Avatar className="w-20 h-20 rounded-full mr-5 border-2 border-white">
+          <AvatarImage src={creator.avatar} alt={creator.name} className="object-cover" />
+          <AvatarFallback className="bg-gray-800 text-white text-xl">
+            {creator.name.split(' ').map(n => n[0]).join('')}
+          </AvatarFallback>
+        </Avatar>
         <div className="flex-grow">
           <h2 className="text-2xl font-semibold mb-1">{creator.name}</h2>
           <div className="flex flex-wrap items-center gap-3 mb-2">

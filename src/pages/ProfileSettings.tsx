@@ -67,7 +67,7 @@ const ProfileSettings: React.FC = () => {
             {/* Header Image with Overlay */}
             <div className="w-full h-64 relative">
               <img 
-                src="/lovable-uploads/20e270e7-8a94-400d-a3c5-560f432fd5ba.png" 
+                src="https://images.unsplash.com/photo-1508896694512-1eade558679c?q=80&w=1920&auto=format&fit=crop" 
                 alt="Header Cover" 
                 className="w-full h-full object-cover"
               />
@@ -82,7 +82,7 @@ const ProfileSettings: React.FC = () => {
               <div className="flex flex-col sm:flex-row gap-6 -mt-20 relative z-10">
                 <div className="relative">
                   <Avatar className="h-32 w-32 border-4 border-mixip-gray-dark shadow-lg">
-                    <AvatarImage src="/lovable-uploads/62888d07-c9ec-4c92-9eec-05b52152011a.png" />
+                    <AvatarImage src="https://images.unsplash.com/photo-1581992652564-44c42f5ad3ad?q=80&w=250&auto=format&fit=crop" />
                     <AvatarFallback className="text-3xl bg-mixip-blue text-white">JD</AvatarFallback>
                   </Avatar>
                   <button className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-md border border-gray-200">
