@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Search, Filter, MapPin, Users, CheckCircle, Clock, X } from 'lucide-react';
+import { Search, Filter, MapPin, Users, CheckCircle, Clock, X, ArrowDownAZ, ArrowUpAZ } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CreatorCard from './CreatorCard';
 import CreatorProfileModal from './CreatorProfileModal';
@@ -56,7 +55,7 @@ const sampleResponses = [
     portfolio: [
       'https://images.unsplash.com/photo-1554941829-202a0b2403b8?w=600&h=600&fit=crop',
       'https://images.unsplash.com/photo-1604537466158-719b1972feb8?w=600&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=600&h=600&fit=crop'
+      'https://images.unsplash.com/photo-1492695797873-aa4cb6edd613?w=600&h=600&fit=crop'
     ],
     instagram: '@mchenedits',
     website: 'michaelchen.design',
@@ -118,6 +117,7 @@ const CampaignResponseTracker: React.FC<CampaignResponseTrackerProps> = ({
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeRole, setActiveRole] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   // Calculate statistics
   const stats = {
@@ -162,13 +162,16 @@ const CampaignResponseTracker: React.FC<CampaignResponseTrackerProps> = ({
   };
 
   const handleShortlist = (creatorId: number) => {
-    // In a real app, this would update the backend
     console.log('Shortlisted creator:', creatorId);
   };
 
   const handleMessage = (creatorId: number) => {
-    // In a real app, this would open a messaging interface
     console.log('Messaging creator:', creatorId);
+  };
+
+  const handleSort = () => {
+    setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    console.log(`Sorting creators by ${sortDirection}`);
   };
 
   return (
@@ -223,10 +226,24 @@ const CampaignResponseTracker: React.FC<CampaignResponseTrackerProps> = ({
             />
           </div>
           
+          {/* Updated Sort Button with Apple-inspired styling */}
+          <Button
+            onClick={handleSort}
+            variant="default"
+            className="bg-gradient-to-b from-mixip-blue to-mixip-blue-dark text-white shadow-sm hover:from-mixip-blue-dark hover:to-mixip-blue-dark transition-all duration-200"
+          >
+            {sortDirection === 'asc' ? 
+              <ArrowDownAZ className="w-4 h-4 mr-2" /> : 
+              <ArrowUpAZ className="w-4 h-4 mr-2" />
+            }
+            Sort {sortDirection === 'asc' ? 'A-Z' : 'Z-A'}
+          </Button>
+          
           <div className="flex gap-2 overflow-x-auto pb-2">
             <Button
               variant={activeRole === null ? "default" : "outline"}
               size="sm"
+              className={activeRole === null ? "bg-mixip-blue hover:bg-mixip-blue-dark text-white" : ""}
               onClick={() => setActiveRole(null)}
             >
               All Roles
@@ -236,6 +253,7 @@ const CampaignResponseTracker: React.FC<CampaignResponseTrackerProps> = ({
                 key={role}
                 variant={activeRole === role ? "default" : "outline"}
                 size="sm"
+                className={activeRole === role ? "bg-mixip-blue hover:bg-mixip-blue-dark text-white" : ""}
                 onClick={() => setActiveRole(role)}
               >
                 {role.charAt(0).toUpperCase() + role.slice(1).replace('-', ' ')}
