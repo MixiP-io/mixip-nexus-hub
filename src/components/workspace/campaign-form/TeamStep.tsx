@@ -25,7 +25,7 @@ const TeamStep: React.FC<TeamStepProps> = ({
   ];
 
   const toggleRole = (roleId: string) => {
-    setSelectedRoles(prev => 
+    setSelectedRoles((prev: string[]) => 
       prev.includes(roleId) 
         ? prev.filter(id => id !== roleId) 
         : [...prev, roleId]

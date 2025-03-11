@@ -32,7 +32,7 @@ const CreativeStep: React.FC<CreativeStepProps> = ({
   onNext
 }) => {
   const handleEditDeliverable = (id: number, field: 'title' | 'description', value: string) => {
-    setDeliverables(prev => 
+    setDeliverables((prev: Deliverable[]) => 
       prev.map(item => 
         item.id === id ? { ...item, [field]: value } : item
       )
@@ -44,14 +44,14 @@ const CreativeStep: React.FC<CreativeStepProps> = ({
       ? Math.max(...deliverables.map(d => d.id)) + 1 
       : 1;
     
-    setDeliverables([
-      ...deliverables, 
+    setDeliverables((prev: Deliverable[]) => [
+      ...prev, 
       { id: newId, title: 'New Deliverable', description: 'Description' }
     ]);
   };
 
   const handleRemoveDeliverable = (id: number) => {
-    setDeliverables(prev => prev.filter(item => item.id !== id));
+    setDeliverables((prev: Deliverable[]) => prev.filter(item => item.id !== id));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
