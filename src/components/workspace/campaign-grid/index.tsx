@@ -6,6 +6,9 @@ import CampaignResponseTracker from '../campaign-tracker';
 import { toast } from 'sonner';
 import CampaignList from './CampaignList';
 import { Campaign, initialCampaigns } from './types';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Inbox, Send, Clock, CheckCircle, Filter } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface CampaignGridProps {
   isCreating?: boolean;
@@ -18,6 +21,7 @@ const CampaignGrid: React.FC<CampaignGridProps> = ({ isCreating = false }) => {
   const [showDistributeDialog, setShowDistributeDialog] = useState(false);
   const [isViewingResponses, setIsViewingResponses] = useState(false);
   const [viewingCampaignId, setViewingCampaignId] = useState<number | null>(null);
+  const [activeView, setActiveView] = useState<string>('all');
   
   // Campaign creation handlers
   const startCampaignCreation = () => {
@@ -64,6 +68,24 @@ const CampaignGrid: React.FC<CampaignGridProps> = ({ isCreating = false }) => {
     setViewingCampaignId(null);
   };
 
+  // Filter campaigns based on active view
+  const filteredCampaigns = campaigns.filter(campaign => {
+    if (activeView === 'all') return true;
+    
+    switch (activeView) {
+      case 'incoming':
+        return campaign.status === 'New' || campaign.status === 'Draft';
+      case 'outgoing':
+        return campaign.status === 'Distributed';
+      case 'inprogress':
+        return campaign.status === 'In Progress' || campaign.status === 'Active';
+      case 'completed':
+        return campaign.status === 'Completed';
+      default:
+        return true;
+    }
+  });
+
   // If viewing responses for a specific campaign
   if (isViewingResponses && viewingCampaignId) {
     const campaign = campaigns.find(c => c.id === viewingCampaignId);
@@ -94,16 +116,84 @@ const CampaignGrid: React.FC<CampaignGridProps> = ({ isCreating = false }) => {
       ) : (
         <>
           <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-2">Campaigns</h2>
+            <h2 className="text-xl font-semibold mb-2 text-white">Campaigns</h2>
             <p className="text-gray-400">Manage your marketing and creative campaigns</p>
           </div>
           
-          <CampaignList 
-            campaigns={campaigns}
-            onStartCampaignCreation={startCampaignCreation}
-            onViewResponses={handleViewResponses}
-            onDistribute={handleDistributeCampaign}
-          />
+          <div className="flex justify-between items-center mb-4">
+            <Tabs defaultValue={activeView} onValueChange={setActiveView}>
+              <TabsList className="mb-4">
+                <TabsTrigger value="all">
+                  All Campaigns
+                </TabsTrigger>
+                <TabsTrigger value="incoming">
+                  <Inbox className="w-4 h-4 mr-2" />
+                  Incoming
+                </TabsTrigger>
+                <TabsTrigger value="outgoing">
+                  <Send className="w-4 h-4 mr-2" />
+                  Outgoing
+                </TabsTrigger>
+                <TabsTrigger value="inprogress">
+                  <Clock className="w-4 h-4 mr-2" />
+                  In Progress
+                </TabsTrigger>
+                <TabsTrigger value="completed">
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Completed
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="all">
+                <CampaignList 
+                  campaigns={filteredCampaigns}
+                  onStartCampaignCreation={startCampaignCreation}
+                  onViewResponses={handleViewResponses}
+                  onDistribute={handleDistributeCampaign}
+                />
+              </TabsContent>
+              
+              <TabsContent value="incoming">
+                <CampaignList 
+                  campaigns={filteredCampaigns}
+                  onStartCampaignCreation={startCampaignCreation}
+                  onViewResponses={handleViewResponses}
+                  onDistribute={handleDistributeCampaign}
+                />
+              </TabsContent>
+              
+              <TabsContent value="outgoing">
+                <CampaignList 
+                  campaigns={filteredCampaigns}
+                  onStartCampaignCreation={startCampaignCreation}
+                  onViewResponses={handleViewResponses}
+                  onDistribute={handleDistributeCampaign}
+                />
+              </TabsContent>
+              
+              <TabsContent value="inprogress">
+                <CampaignList 
+                  campaigns={filteredCampaigns}
+                  onStartCampaignCreation={startCampaignCreation}
+                  onViewResponses={handleViewResponses}
+                  onDistribute={handleDistributeCampaign}
+                />
+              </TabsContent>
+              
+              <TabsContent value="completed">
+                <CampaignList 
+                  campaigns={filteredCampaigns}
+                  onStartCampaignCreation={startCampaignCreation}
+                  onViewResponses={handleViewResponses}
+                  onDistribute={handleDistributeCampaign}
+                />
+              </TabsContent>
+            </Tabs>
+            <Button variant="outline" className="flex items-center gap-2">
+              <Filter className="w-4 h-4" />
+              Filter
+            </Button>
+          </div>
         </>
       )}
       
