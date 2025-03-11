@@ -49,7 +49,8 @@ const GroupForm: React.FC<GroupFormProps> = ({
     onComplete(groupData);
   };
 
-  const watchName = watch('name');
+  // Use the string value directly instead of the Subscription object
+  const watchName = watch('name') as string;
 
   return (
     <div className="max-w-2xl mx-auto bg-gray-900 rounded-xl overflow-hidden p-6 text-gray-200 border border-gray-700">
