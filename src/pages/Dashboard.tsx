@@ -1,9 +1,6 @@
-
 import React from 'react';
 import { 
   Search, 
-  Plus, 
-  Upload,
   LayoutDashboard, 
   FolderOpen, 
   Store, 
@@ -11,12 +8,11 @@ import {
   Settings, 
   LogOut,
   User,
-  ClipboardList,
-  Users
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import GlassCard from '@/components/ui/GlassCard';
 import AnimatedLogo from '@/components/ui/AnimatedLogo';
+import ActionMenu from '@/components/dashboard/ActionMenu';
+import CollapsibleTabs from '@/components/dashboard/CollapsibleTabs';
 
 // Sample project data
 const projects = [
@@ -148,9 +144,7 @@ const Dashboard: React.FC = () => {
           </div>
           
           <div className="flex items-center space-x-3">
-            <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-colors">
-              Quick Action
-            </button>
+            <ActionMenu />
             <button className="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition-colors">
               <Settings className="w-5 h-5" />
             </button>
@@ -160,37 +154,8 @@ const Dashboard: React.FC = () => {
           </div>
         </header>
         
-        {/* Tabs with Action Buttons */}
-        <div className="border-b border-gray-800 flex justify-between">
-          <div className="flex">
-            <button className="px-6 py-4 font-medium border-b-2 border-green-600 text-white">
-              Projects
-            </button>
-            <button className="px-6 py-4 font-medium text-gray-400 hover:text-white">
-              Assets
-            </button>
-            <button className="px-6 py-4 font-medium text-gray-400 hover:text-white">
-              Campaigns
-            </button>
-            <button className="px-6 py-4 font-medium text-gray-400 hover:text-white">
-              Assignments
-            </button>
-            <button className="px-6 py-4 font-medium text-gray-400 hover:text-white">
-              Collaborators
-            </button>
-          </div>
-          
-          <div className="flex items-center pr-6">
-            <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md flex items-center mr-3 transition-colors">
-              <Plus className="w-5 h-5 mr-2" />
-              Create New
-            </button>
-            <button className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-md flex items-center transition-colors">
-              <Upload className="w-5 h-5 mr-2" />
-              Upload Media
-            </button>
-          </div>
-        </div>
+        {/* Tabs System */}
+        <CollapsibleTabs />
         
         {/* Projects Grid */}
         <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
