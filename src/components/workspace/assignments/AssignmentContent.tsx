@@ -18,7 +18,7 @@ import AssignmentDetail from './AssignmentDetail';
 // Mock data for the different types of users
 type UserType = 'creator' | 'agency' | 'brand';
 // For demo purposes, we'll hardcode this, but in a real app this would come from auth
-const currentUserType: UserType = 'creator';
+const currentUserType = 'creator' as UserType;
 
 const AssignmentContent: React.FC = () => {
   const [viewingAssignment, setViewingAssignment] = useState<number | null>(null);
