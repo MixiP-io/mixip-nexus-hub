@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { FolderTree, FileSpreadsheet, Plus } from 'lucide-react';
 import { 
   Select,
@@ -16,8 +17,10 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { ProjectSectionProps } from '../types/componentProps';
+import { getProjects, createProject } from '../utils/projectUtils';
 
 const ProjectSection: React.FC<ProjectSectionProps> = ({
   selectedProject,
@@ -25,12 +28,8 @@ const ProjectSection: React.FC<ProjectSectionProps> = ({
   selectedFolder,
   setSelectedFolder
 }) => {
-  // Sample project and folder data
-  const [projects, setProjects] = useState([
-    { id: 'project1', name: 'Marketing Campaign Q1' },
-    { id: 'project2', name: 'Product Photoshoot' },
-    { id: 'project3', name: 'Website Redesign Assets' },
-  ]);
+  // State for projects and folders
+  const [projects, setProjects] = useState<{id: string, name: string}[]>([]);
   
   const [folders, setFolders] = useState([
     { id: 'root', name: 'Project Root' },
@@ -45,16 +44,24 @@ const ProjectSection: React.FC<ProjectSectionProps> = ({
   const [newProjectName, setNewProjectName] = useState('');
   const [newFolderName, setNewFolderName] = useState('');
 
+  // Load projects
+  useEffect(() => {
+    const projectData = getProjects();
+    setProjects(projectData.map(p => ({ id: p.id, name: p.name })));
+    
+    // Set default selected project if none is selected
+    if (!selectedProject && projectData.length > 0) {
+      setSelectedProject(projectData[0].id);
+    }
+  }, [selectedProject, setSelectedProject]);
+
   // Handle creating a new project
   const handleCreateProject = () => {
     if (!newProjectName.trim()) return;
     
-    const newProject = {
-      id: `project-${Date.now()}`,
-      name: newProjectName
-    };
+    const newProject = createProject(newProjectName);
     
-    setProjects([...projects, newProject]);
+    setProjects(prev => [...prev, { id: newProject.id, name: newProject.name }]);
     setSelectedProject(newProject.id);
     setNewProjectName('');
     setNewProjectDialogOpen(false);
@@ -149,6 +156,9 @@ const ProjectSection: React.FC<ProjectSectionProps> = ({
         <DialogContent className="bg-gray-800 text-white border-gray-700">
           <DialogHeader>
             <DialogTitle>Create New Project</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Create a new project to organize your uploaded files
+            </DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <Input
@@ -174,6 +184,9 @@ const ProjectSection: React.FC<ProjectSectionProps> = ({
         <DialogContent className="bg-gray-800 text-white border-gray-700">
           <DialogHeader>
             <DialogTitle>Create New Folder</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Add a new folder to better organize your files
+            </DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <Input

@@ -6,6 +6,7 @@ import FilesList from './components/FilesList';
 import { useFileUpload } from './hooks/useFileUpload';
 import { useMetadataState } from './hooks/useMetadataState';
 import { formatFileSize } from './utils/fileUtils';
+import { logProjects } from './utils/projectUtils';
 
 const BatchUploader: React.FC = () => {
   const {
@@ -38,8 +39,11 @@ const BatchUploader: React.FC = () => {
     setSelectedFolder
   } = useMetadataState();
   
-  const handleStartUpload = () => {
-    startUpload(licenseType, selectedProject);
+  const handleStartUpload = async () => {
+    await startUpload(licenseType, selectedProject);
+    
+    // Log projects after upload (for debugging)
+    logProjects();
   };
   
   return (
@@ -72,6 +76,7 @@ const BatchUploader: React.FC = () => {
         <UploadArea
           handleFileSelect={handleFileSelect}
           triggerFileInput={triggerFileInput}
+          fileInputRef={fileInputRef}
         />
       )}
       

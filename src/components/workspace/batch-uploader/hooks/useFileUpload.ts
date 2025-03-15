@@ -3,6 +3,7 @@ import { useState, useRef } from 'react';
 import { toast } from 'sonner';
 import { UploadFile, UploadSource } from '../types';
 import { getFilePreview } from '../utils/fileUtils';
+import { addFilesToProject } from '../utils/projectUtils';
 
 export const useFileUpload = () => {
   const [files, setFiles] = useState<UploadFile[]>([]);
@@ -39,7 +40,7 @@ export const useFileUpload = () => {
         type: file.type,
         progress: 0,
         status: 'queued',
-        source: 'computer', // Changed from 'local' to 'computer' to match the UploadSource type
+        source: 'computer',
         file: file,
         preview: getFilePreview(file)
       };
@@ -73,7 +74,27 @@ export const useFileUpload = () => {
     setFiles([]);
   };
   
-  const startUpload = (licenseType: string, selectedProject: string) => {
+  const updateFileProgress = (fileId: string, progress: number) => {
+    setFiles(prev => 
+      prev.map(f => 
+        f.id === fileId 
+          ? { ...f, progress, status: progress === 100 ? 'processing' : 'uploading' } 
+          : f
+      )
+    );
+  };
+
+  const updateFileStatus = (fileId: string, status: FileStatus) => {
+    setFiles(prev => 
+      prev.map(f => 
+        f.id === fileId 
+          ? { ...f, status } 
+          : f
+      )
+    );
+  };
+  
+  const startUpload = async (licenseType: string, selectedProject: string) => {
     if (files.length === 0) {
       toast.error("Please add files to upload");
       return;
@@ -85,78 +106,74 @@ export const useFileUpload = () => {
     }
     
     if (!selectedProject) {
-      toast.error("Please select a project to upload to");
+      toast.error("Please select a project to upload");
       return;
     }
     
     setIsUploading(true);
     
-    const uploadPromises = files.map((file) => {
-      return new Promise<void>((resolve) => {
-        let progress = 0;
-        
-        setFiles(prev => 
-          prev.map(f => 
-            f.id === file.id 
-              ? { ...f, status: 'uploading', progress: 0 } 
-              : f
-          )
-        );
-        
-        const interval = setInterval(() => {
-          if (progress >= 100) {
-            clearInterval(interval);
-            
-            setFiles(prev => 
-              prev.map(f => 
-                f.id === file.id 
-                  ? { ...f, status: 'processing', progress: 100 } 
-                  : f
-              )
-            );
-            
-            setTimeout(() => {
-              setFiles(prev => 
-                prev.map(f => 
-                  f.id === file.id 
-                    ? { ...f, status: 'complete', progress: 100 } 
-                    : f
-                )
-              );
-              resolve();
-            }, 1000);
-            
-          } else {
-            progress += Math.random() * 10;
-            progress = Math.min(progress, 98);
-            
-            setFiles(prev => 
-              prev.map(f => 
-                f.id === file.id 
-                  ? { ...f, progress } 
-                  : f
-              )
-            );
-          }
-        }, 300 + Math.random() * 300);
-      });
-    });
+    // Run a continuous update of the overall progress
+    const progressInterval = setInterval(() => {
+      const totalProgress = files.reduce((sum, file) => sum + file.progress, 0);
+      const averageProgress = totalProgress / files.length;
+      setOverallProgress(averageProgress);
+    }, 100);
     
-    const intervalId = setInterval(() => {
-      const currentProgress = files.reduce((sum, file) => sum + file.progress, 0) / files.length;
-      setOverallProgress(currentProgress);
-    }, 200);
-    
-    Promise.all(uploadPromises).then(() => {
-      clearInterval(intervalId);
+    try {
+      // Process files one by one with realistic timing
+      for (const file of files) {
+        // Only process queued files
+        if (file.status !== 'queued') continue;
+        
+        // Simulate upload - in a real app, replace with actual API calls
+        await simulateFileUpload(file.id, updateFileProgress);
+        
+        // Mark as processing
+        updateFileStatus(file.id, 'processing');
+        
+        // Simulate processing delay
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Mark as complete
+        updateFileStatus(file.id, 'complete');
+      }
+      
+      // Add files to project
+      await addFilesToProject(selectedProject, files);
+      
+      toast.success(`All files uploaded successfully to project!`);
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('There was a problem with the upload');
+    } finally {
+      clearInterval(progressInterval);
       setOverallProgress(100);
       setIsUploading(false);
-      toast.success("All files uploaded successfully!");
-    });
+    }
   };
   
   const calculateTotalSize = () => {
     return files.reduce((total, file) => total + file.size, 0);
+  };
+
+  // Simulates uploading a file with realistic progress
+  const simulateFileUpload = (fileId: string, progressCallback: (id: string, progress: number) => void): Promise<void> => {
+    return new Promise((resolve) => {
+      let progress = 0;
+      const interval = setInterval(() => {
+        // Realistic progress simulation - faster at start, slower at end
+        const increment = (100 - progress) / 10;
+        progress += Math.min(increment, 10);
+        
+        if (progress >= 99.5) {
+          clearInterval(interval);
+          progressCallback(fileId, 100);
+          resolve();
+        } else {
+          progressCallback(fileId, progress);
+        }
+      }, 200);
+    });
   };
 
   return {

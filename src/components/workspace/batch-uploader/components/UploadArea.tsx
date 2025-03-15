@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React from 'react';
 import { Upload, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,26 +7,14 @@ import { Input } from '@/components/ui/input';
 interface UploadAreaProps {
   handleFileSelect: (event: React.ChangeEvent<HTMLInputElement>) => void;
   triggerFileInput: (e?: React.MouseEvent) => void;
+  fileInputRef: React.RefObject<HTMLInputElement>;
 }
 
 const UploadArea: React.FC<UploadAreaProps> = ({ 
   handleFileSelect, 
-  triggerFileInput 
+  triggerFileInput,
+  fileInputRef
 }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Create a function to trigger the file input click
-  const handleTriggerFileInput = (e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
   return (
     <div className="mb-6">
       <Input
@@ -41,7 +29,7 @@ const UploadArea: React.FC<UploadAreaProps> = ({
       
       <div 
         className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center hover:border-gray-400 transition-colors cursor-pointer"
-        onClick={handleTriggerFileInput}
+        onClick={triggerFileInput}
         onDragOver={(e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -70,7 +58,10 @@ const UploadArea: React.FC<UploadAreaProps> = ({
           Upload multiple files at once. Support for images, videos, and documents.
         </p>
         <Button 
-          onClick={handleTriggerFileInput}
+          onClick={(e) => {
+            e.stopPropagation();
+            triggerFileInput(e);
+          }}
           className="mt-2 bg-green-600 hover:bg-green-700" 
           type="button"
         >

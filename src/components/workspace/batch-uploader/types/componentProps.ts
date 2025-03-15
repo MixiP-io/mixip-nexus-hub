@@ -69,5 +69,6 @@ export interface UploaderTabsProps {
  */
 export interface UploadAreaProps {
   handleFileSelect: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  triggerFileInput: () => void;
+  triggerFileInput: (e?: React.MouseEvent) => void;
+  fileInputRef: React.RefObject<HTMLInputElement>;
 }
