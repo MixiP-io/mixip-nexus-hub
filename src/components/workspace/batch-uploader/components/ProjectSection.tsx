@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { FolderTree, FileSpreadsheet } from 'lucide-react';
 import { 
@@ -40,12 +41,12 @@ const ProjectSection: React.FC<ProjectSectionProps> = ({
             value={selectedProject} 
             onValueChange={setSelectedProject}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full bg-gray-700 border-gray-600 text-white">
               <SelectValue placeholder="Select a project" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-gray-700 border-gray-600">
               {projects.map((project) => (
-                <SelectItem key={project.id} value={project.id}>
+                <SelectItem key={project.id} value={project.id} className="text-white hover:bg-gray-600">
                   <div className="flex items-center">
                     <FileSpreadsheet className="mr-2 h-4 w-4" />
                     {project.name}
@@ -63,12 +64,12 @@ const ProjectSection: React.FC<ProjectSectionProps> = ({
             onValueChange={setSelectedFolder}
             defaultValue="root"
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full bg-gray-700 border-gray-600 text-white">
               <SelectValue placeholder="Select a folder" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-gray-700 border-gray-600">
               {folders.map((folder) => (
-                <SelectItem key={folder.id} value={folder.id}>
+                <SelectItem key={folder.id} value={folder.id} className="text-white hover:bg-gray-600">
                   <div className="flex items-center">
                     <FolderTree className="mr-2 h-4 w-4" />
                     {folder.name}

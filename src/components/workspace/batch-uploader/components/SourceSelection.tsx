@@ -40,7 +40,9 @@ const SourceSelection: React.FC<SourceSelectionProps> = ({
             key={source.id}
             variant={activeSource === source.id ? "default" : "outline"}
             className={`flex items-center gap-2 ${
-              activeSource === source.id ? "bg-green-600 hover:bg-green-700" : ""
+              activeSource === source.id 
+                ? "bg-mixip-blue hover:bg-mixip-blue-dark text-white" 
+                : "bg-gray-700 text-gray-300 hover:bg-gray-600 border-gray-600"
             }`}
             onClick={() => handleSourceChange(source.id as UploadSource)}
           >
