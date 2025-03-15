@@ -14,7 +14,7 @@ const SyncPhone: React.FC = () => {
   return (
     <>
       <button
-        className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-700 flex items-center"
+        className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-700 flex items-center font-medium"
         onClick={handleSyncClick}
       >
         <SmartphoneNfc className="mr-3 h-5 w-5" />

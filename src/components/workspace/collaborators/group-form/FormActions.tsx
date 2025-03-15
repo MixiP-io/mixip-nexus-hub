@@ -15,14 +15,14 @@ const FormActions: React.FC<FormActionsProps> = ({ isCreating, onCancel }) => {
         type="button" 
         variant="default" 
         onClick={onCancel}
-        className="bg-gray-600 hover:bg-gray-700"
+        className="bg-gray-600 hover:bg-gray-700 text-white"
       >
         <X className="w-4 h-4 mr-2" />
         Cancel
       </Button>
       <Button 
         type="submit"
-        className="bg-green-600 hover:bg-green-700"
+        className="bg-green-600 hover:bg-green-700 text-white"
       >
         <Check className="w-4 h-4 mr-2" />
         {isCreating ? 'Create Group' : 'Save Changes'}

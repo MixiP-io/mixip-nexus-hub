@@ -49,7 +49,7 @@ const TeamStep: React.FC<TeamStepProps> = ({ onBack, onNext }) => {
               onClick={() => toggleRole(role.id)}
             >
               {role.icon}
-              <span className="text-center">{role.label}</span>
+              <span className="text-center text-white">{role.label}</span>
             </div>
           ))}
         </div>
@@ -59,6 +59,7 @@ const TeamStep: React.FC<TeamStepProps> = ({ onBack, onNext }) => {
         <Button 
           onClick={onBack}
           variant="outline"
+          className="text-white hover:text-white bg-gray-700/50 hover:bg-gray-700 font-medium"
         >
           Back
         </Button>

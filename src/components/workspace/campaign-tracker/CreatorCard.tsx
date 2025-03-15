@@ -75,7 +75,7 @@ const CreatorCard: React.FC<CreatorCardProps> = ({
             )}
           </div>
           <div className="flex-grow min-w-0">
-            <h3 className="font-medium text-lg truncate">{creator.name}</h3>
+            <h3 className="font-medium text-lg truncate text-white">{creator.name}</h3>
             <div className="flex items-center text-sm">
               <span className="bg-gray-700 text-gray-300 px-2 py-0.5 rounded mr-2">
                 {creator.role.replace('-', ' ')}
@@ -126,7 +126,7 @@ const CreatorCard: React.FC<CreatorCardProps> = ({
           <Button 
             variant="default" 
             size="sm" 
-            className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
+            className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-medium"
             onClick={onMessage}
           >
             <MessageCircle className="w-4 h-4 mr-1" />
@@ -136,7 +136,7 @@ const CreatorCard: React.FC<CreatorCardProps> = ({
             <Button 
               variant="default" 
               size="sm" 
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium"
               onClick={onShortlist}
             >
               <UserPlus className="w-4 h-4 mr-1" />
@@ -146,7 +146,7 @@ const CreatorCard: React.FC<CreatorCardProps> = ({
             <Button 
               variant="default" 
               size="sm" 
-              className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium"
               onClick={onShortlist}
             >
               <UserPlus className="w-4 h-4 mr-1" />

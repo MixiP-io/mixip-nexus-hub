@@ -30,7 +30,7 @@ const ReviewStep: React.FC<ReviewStepProps> = ({ onBack, onComplete }) => {
         <div className="space-y-4">
           <div className="bg-gray-800 p-3 rounded">
             <h4 className="text-sm text-gray-400">Campaign Details</h4>
-            <p className="font-medium">{campaignName}</p>
+            <p className="font-medium text-white">{campaignName}</p>
             <p className="text-sm text-gray-300">
               {startDate && endDate 
                 ? `${format(startDate, "MMM d, yyyy")} - ${format(endDate, "MMM d, yyyy")}` 
@@ -43,7 +43,7 @@ const ReviewStep: React.FC<ReviewStepProps> = ({ onBack, onComplete }) => {
             <h4 className="text-sm text-gray-400">Team Roles</h4>
             <div className="flex flex-wrap gap-2 mt-1">
               {selectedRoles.map(role => (
-                <span key={role} className="px-2 py-1 bg-gray-700 rounded text-sm">
+                <span key={role} className="px-2 py-1 bg-gray-700 rounded text-sm text-white">
                   {role}
                 </span>
               ))}
@@ -54,21 +54,21 @@ const ReviewStep: React.FC<ReviewStepProps> = ({ onBack, onComplete }) => {
             <h4 className="text-sm text-gray-400">Deliverables</h4>
             <ul className="mt-1 space-y-1">
               {deliverables.map(d => (
-                <li key={d.id} className="text-sm">{d.title}: {d.description}</li>
+                <li key={d.id} className="text-sm text-white">{d.title}: {d.description}</li>
               ))}
             </ul>
           </div>
           
           <div className="bg-gray-800 p-3 rounded">
             <h4 className="text-sm text-gray-400">Rights Management</h4>
-            <p className="text-sm mt-1">Ownership Split: {ownershipSplit}% Brand / {100 - ownershipSplit}% Creators</p>
+            <p className="text-sm mt-1 text-white">Ownership Split: {ownershipSplit}% Brand / {100 - ownershipSplit}% Creators</p>
             <div className="mt-2">
               <h5 className="text-xs text-gray-400">Enabled Rights:</h5>
               <div className="flex flex-wrap gap-2 mt-1">
                 {Object.entries(usageRights)
                   .filter(([_, value]) => value)
                   .map(([key]) => (
-                    <span key={key} className="px-2 py-1 bg-gray-700 rounded text-sm">
+                    <span key={key} className="px-2 py-1 bg-gray-700 rounded text-sm text-white">
                       {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
                     </span>
                   ))}
@@ -82,6 +82,7 @@ const ReviewStep: React.FC<ReviewStepProps> = ({ onBack, onComplete }) => {
         <Button 
           onClick={onBack}
           variant="outline"
+          className="text-white hover:text-white bg-gray-700/50 hover:bg-gray-700 font-medium"
         >
           Back
         </Button>

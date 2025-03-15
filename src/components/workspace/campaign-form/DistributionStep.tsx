@@ -34,7 +34,7 @@ const DistributionStep: React.FC<DistributionStepProps> = ({ onBack, onNext }) =
             onClick={() => updateFormState('distributionMethod', 'platform')}
           >
             <Globe className="w-5 h-5 mb-1" />
-            <span>Platform-wide</span>
+            <span className="text-white">Platform-wide</span>
           </button>
           <button
             className={`flex items-center justify-center flex-col p-3 rounded-lg border ${
@@ -43,7 +43,7 @@ const DistributionStep: React.FC<DistributionStepProps> = ({ onBack, onNext }) =
             onClick={() => updateFormState('distributionMethod', 'specific')}
           >
             <Users className="w-5 h-5 mb-1" />
-            <span>Specific Users</span>
+            <span className="text-white">Specific Users</span>
           </button>
           <button
             className={`flex items-center justify-center flex-col p-3 rounded-lg border ${
@@ -52,7 +52,7 @@ const DistributionStep: React.FC<DistributionStepProps> = ({ onBack, onNext }) =
             onClick={() => updateFormState('distributionMethod', 'external')}
           >
             <MapPin className="w-5 h-5 mb-1" />
-            <span>External Invite</span>
+            <span className="text-white">External Invite</span>
           </button>
         </div>
 
@@ -99,6 +99,7 @@ const DistributionStep: React.FC<DistributionStepProps> = ({ onBack, onNext }) =
         <Button 
           onClick={onBack}
           variant="outline"
+          className="text-white hover:text-white bg-gray-700/50 hover:bg-gray-700 font-medium"
         >
           Back
         </Button>

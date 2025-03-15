@@ -55,7 +55,7 @@ const SourceSelection: React.FC<SourceSelectionProps> = ({
               className={`flex items-center gap-2 ${
                 (activeSource === 'computer' || activeSource === 'phone') 
                   ? "bg-mixip-blue hover:bg-mixip-blue-dark text-white" 
-                  : "bg-gray-700 text-gray-300 hover:bg-gray-600 border-gray-600"
+                  : "bg-gray-700 text-white hover:bg-gray-600 border-gray-600 font-medium"
               }`}
             >
               <Folder className="h-5 w-5" />
@@ -85,7 +85,7 @@ const SourceSelection: React.FC<SourceSelectionProps> = ({
             className={`flex items-center gap-2 ${
               activeSource === source.id 
                 ? "bg-mixip-blue hover:bg-mixip-blue-dark text-white" 
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600 border-gray-600"
+                : "bg-gray-700 text-white hover:bg-gray-600 border-gray-600 font-medium"
             }`}
             onClick={() => handleSourceChange(source.id as UploadSource)}
           >

@@ -62,7 +62,7 @@ const CreativeStep: React.FC<CreativeStepProps> = ({ onBack, onNext }) => {
           </div>
           <button
             onClick={handleAddDeliverable}
-            className="text-sm bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded-md"
+            className="text-sm bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded-md text-white font-medium"
           >
             + Add Deliverable
           </button>
@@ -107,7 +107,7 @@ const CreativeStep: React.FC<CreativeStepProps> = ({ onBack, onNext }) => {
           <div className="mt-3">
             <label className="block text-gray-400 mb-2">Attach Reference Files</label>
             <div className="flex items-center">
-              <label className="cursor-pointer flex items-center bg-gray-700 border border-gray-600 rounded p-3 hover:bg-gray-600">
+              <label className="cursor-pointer flex items-center bg-gray-700 border border-gray-600 rounded p-3 hover:bg-gray-600 text-white font-medium">
                 <Upload className="w-5 h-5 mr-2" />
                 {attachedFile ? attachedFile.name : "Choose file..."}
                 <input 
@@ -125,6 +125,7 @@ const CreativeStep: React.FC<CreativeStepProps> = ({ onBack, onNext }) => {
         <Button 
           onClick={onBack}
           variant="outline"
+          className="text-white hover:text-white bg-gray-700/50 hover:bg-gray-700 font-medium"
         >
           Back
         </Button>

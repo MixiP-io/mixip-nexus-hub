@@ -60,7 +60,7 @@ const BasicsStep: React.FC<BasicsStepProps> = ({ onBack, onNext }) => {
               <button
                 className={cn(
                   "w-full text-left flex items-center bg-gray-700 border border-gray-600 rounded p-3",
-                  !startDate && "text-gray-400"
+                  !startDate ? "text-gray-400" : "text-white"
                 )}
               >
                 <Calendar className="w-5 h-5 mr-2 text-gray-400" />
@@ -85,7 +85,7 @@ const BasicsStep: React.FC<BasicsStepProps> = ({ onBack, onNext }) => {
               <button
                 className={cn(
                   "w-full text-left flex items-center bg-gray-700 border border-gray-600 rounded p-3",
-                  !endDate && "text-gray-400"
+                  !endDate ? "text-gray-400" : "text-white"
                 )}
               >
                 <Calendar className="w-5 h-5 mr-2 text-gray-400" />
@@ -115,7 +115,7 @@ const BasicsStep: React.FC<BasicsStepProps> = ({ onBack, onNext }) => {
             onClick={() => handleLocationTypeChange('remote')}
           >
             <Home className="w-5 h-5 mb-1" />
-            <span>Remote</span>
+            <span className="text-white">Remote</span>
           </button>
           <button
             className={`flex items-center justify-center flex-col p-3 rounded-lg border ${
@@ -124,7 +124,7 @@ const BasicsStep: React.FC<BasicsStepProps> = ({ onBack, onNext }) => {
             onClick={() => handleLocationTypeChange('onsite')}
           >
             <MapPin className="w-5 h-5 mb-1" />
-            <span>On Site</span>
+            <span className="text-white">On Site</span>
           </button>
           <button
             className={`flex items-center justify-center flex-col p-3 rounded-lg border ${
@@ -133,7 +133,7 @@ const BasicsStep: React.FC<BasicsStepProps> = ({ onBack, onNext }) => {
             onClick={() => handleLocationTypeChange('anywhere')}
           >
             <Globe className="w-5 h-5 mb-1" />
-            <span>Anywhere</span>
+            <span className="text-white">Anywhere</span>
           </button>
         </div>
         
@@ -155,6 +155,7 @@ const BasicsStep: React.FC<BasicsStepProps> = ({ onBack, onNext }) => {
         <Button 
           onClick={onBack}
           variant="outline"
+          className="text-white hover:text-white bg-gray-700/50 hover:bg-gray-700 font-medium"
         >
           Cancel
         </Button>
