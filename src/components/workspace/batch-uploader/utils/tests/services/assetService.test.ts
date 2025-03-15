@@ -42,7 +42,16 @@ describe('Asset Service', () => {
         updatedAt: new Date(),
         createdBy: 'testuser',
         owners: [],
-        licensing: { type: 'standard', usageRights: {} },
+        licensing: { type: 'standard', usageRights: {
+          primaryCampaign: true,
+          secondaryBrand: false,
+          extendedMarketing: false,
+          derivativeWorks: false,
+          merchandising: false,
+          publicity: false,
+          socialMedia: true,
+          aiTraining: false
+        }},
         subfolders: [
           {
             id: 'folder1',
@@ -65,6 +74,7 @@ describe('Asset Service', () => {
         size: 1024,
         progress: 100,
         status: 'complete',
+        source: 'computer', // Added source property
         file: new File([], 'test-image.jpg', { type: 'image/jpeg' }),
         preview: 'data:image/jpeg;base64,test'
       },
@@ -75,6 +85,7 @@ describe('Asset Service', () => {
         size: 2048,
         progress: 100,
         status: 'complete',
+        source: 'computer', // Added source property
         file: new File([], 'test-document.pdf', { type: 'application/pdf' }),
         preview: undefined
       },
@@ -85,6 +96,7 @@ describe('Asset Service', () => {
         size: 512,
         progress: 50,
         status: 'uploading',
+        source: 'computer', // Added source property
         file: new File([], 'incomplete-file.png', { type: 'image/png' }),
         preview: undefined
       }

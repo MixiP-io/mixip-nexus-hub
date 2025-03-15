@@ -40,7 +40,16 @@ describe('Folder Service', () => {
         ],
         licensing: {
           type: 'standard',
-          usageRights: {}
+          usageRights: {
+            primaryCampaign: true,
+            secondaryBrand: false,
+            extendedMarketing: false,
+            derivativeWorks: false,
+            merchandising: false,
+            publicity: false,
+            socialMedia: true,
+            aiTraining: false
+          }
         },
         subfolders: [
           {
@@ -72,7 +81,16 @@ describe('Folder Service', () => {
         owners: [],
         licensing: {
           type: 'standard',
-          usageRights: {}
+          usageRights: {
+            primaryCampaign: true,
+            secondaryBrand: false,
+            extendedMarketing: false,
+            derivativeWorks: false,
+            merchandising: false,
+            publicity: false,
+            socialMedia: true,
+            aiTraining: false
+          }
         },
         subfolders: []
       }
