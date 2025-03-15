@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import SectionHeader from '../SectionHeader';
 import AssignmentsList from './AssignmentsList';
 import AssignmentDetail from './AssignmentDetail';
 import AssignmentTabs from './AssignmentTabs';
@@ -28,11 +29,6 @@ const AssignmentContent: React.FC = () => {
 
   return (
     <div className="p-6">
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-2 text-white">Assignments</h2>
-        <p className="text-white/80">Manage your creative work and tasks</p>
-      </div>
-
       {viewingAssignment ? (
         <AssignmentDetail 
           assignmentId={viewingAssignment} 
@@ -40,6 +36,11 @@ const AssignmentContent: React.FC = () => {
         />
       ) : (
         <>
+          <SectionHeader 
+            title="Assignments" 
+            description="Manage your creative work and tasks"
+          />
+          
           <AssignmentTabs 
             activeView={activeView}
             setActiveView={setActiveView}

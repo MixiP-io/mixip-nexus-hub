@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import UploaderTabs from './components/UploaderTabs';
 import UploadArea from './components/UploadArea';
 import FilesList from './components/FilesList';
+import SectionHeader from '../SectionHeader';
 import { useFileUpload } from './hooks/useFileUpload';
 import { useMetadataState } from './hooks/useMetadataState';
 import { formatFileSize } from './utils/fileUtils';
@@ -64,10 +65,10 @@ const BatchUploader: React.FC = () => {
   
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <div className="mb-6">
-        <h2 className="text-2xl font-semibold mb-2">Batch Upload</h2>
-        <p className="text-white/80">Upload and organize multiple media files with metadata and licensing</p>
-      </div>
+      <SectionHeader 
+        title="Uploader" 
+        description="Upload and organize multiple media files with metadata and licensing"
+      />
       
       {/* Sub Navigation Tabs */}
       <UploaderTabs

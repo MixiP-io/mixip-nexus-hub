@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Filter, LayoutGrid, List, Eye, Pencil, Trash, MoreHorizontal, Image, FolderOpen } from 'lucide-react';
 import { getProjects } from '../batch-uploader/utils/projectUtils';
+import SectionHeader from '../SectionHeader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -76,40 +77,45 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
   return (
     <div className="p-6">
       {/* Header with search and actions */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-        <h2 className="text-2xl font-semibold">Projects</h2>
-        <div className="flex items-center gap-3">
-          <div className="relative flex-1 md:min-w-[300px]">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-              placeholder="Search projects..."
-              className="pl-10 bg-gray-800 border-gray-700 text-white"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <div className="flex items-center border border-gray-700 rounded-md overflow-hidden">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setViewMode('grid')}
-              className={viewMode === 'grid' ? 'bg-gray-700' : ''}
-            >
-              <LayoutGrid className="h-4 w-4" />
+      <div className="mb-6">
+        <SectionHeader 
+          title="Projects" 
+          description="Organize and manage your creative projects"
+        />
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-6">
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1 md:min-w-[300px]">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="Search projects..."
+                className="pl-10 bg-gray-800 border-gray-700 text-white"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <div className="flex items-center border border-gray-700 rounded-md overflow-hidden">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setViewMode('grid')}
+                className={viewMode === 'grid' ? 'bg-gray-700' : ''}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setViewMode('list')}
+                className={viewMode === 'list' ? 'bg-gray-700' : ''}
+              >
+                <List className="h-4 w-4" />
+              </Button>
+            </div>
+            <Button className="bg-green-600 hover:bg-green-700" onClick={() => setCreateProjectOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              New Project
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setViewMode('list')}
-              className={viewMode === 'list' ? 'bg-gray-700' : ''}
-            >
-              <List className="h-4 w-4" />
-            </Button>
           </div>
-          <Button className="bg-green-600 hover:bg-green-700" onClick={() => setCreateProjectOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            New Project
-          </Button>
         </div>
       </div>
 
