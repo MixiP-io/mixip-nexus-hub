@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Search, Settings, LogOut, Download, User } from 'lucide-react';
+import { Search, LogOut, Download, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import ActionMenu from '@/components/dashboard/ActionMenu';
@@ -56,7 +56,7 @@ const Header: React.FC = () => {
                   role="menuitem"
                 >
                   <User className="mr-3 h-5 w-5" />
-                  Profile Settings
+                  My Profile
                 </Link>
                 
                 <button
