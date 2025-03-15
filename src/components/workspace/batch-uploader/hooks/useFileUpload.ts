@@ -56,6 +56,8 @@ export const useFileUpload = () => {
       return;
     }
     
+    // Reset the upload complete state
+    setUploadComplete(false);
     setIsUploading(true);
     setSelectedProject(projectId);
     
@@ -97,6 +99,7 @@ export const useFileUpload = () => {
         
         // Set upload complete to show success message
         setUploadComplete(true);
+        console.log("Upload complete, showing success dialog");
       }
     } catch (error) {
       console.error('Upload error:', error);
