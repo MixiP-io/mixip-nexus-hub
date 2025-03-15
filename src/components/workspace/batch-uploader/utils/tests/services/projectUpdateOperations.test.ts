@@ -98,6 +98,19 @@ describe('Project Service - Update Operations', () => {
       expect(toast.error).toHaveBeenCalledWith('Project not found: nonexistent');
       expect(updateProjects).not.toHaveBeenCalled();
     });
+    
+    it('should handle multiple owners with different percentages', () => {
+      const multipleOwners: ProjectOwner[] = [
+        { userId: 'user1', name: 'User One', email: 'user1@example.com', royaltyPercentage: 40 },
+        { userId: 'user2', name: 'User Two', email: 'user2@example.com', royaltyPercentage: 35 },
+        { userId: 'user3', name: 'User Three', email: 'user3@example.com', royaltyPercentage: 25 }
+      ];
+      
+      const result = updateProjectOwnership('project1', multipleOwners);
+      
+      expect(result).toBe(true);
+      expect(updateProjects).toHaveBeenCalled();
+    });
   });
   
   describe('updateProjectLicensing', () => {

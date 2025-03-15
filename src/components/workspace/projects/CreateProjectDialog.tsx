@@ -31,6 +31,14 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
   const [ownershipSplit, setOwnershipSplit] = useState(100);
   const [additionalOwners, setAdditionalOwners] = useState<ProjectOwner[]>([]);
   
+  // Default primary owner
+  const primaryOwner: ProjectOwner = {
+    userId: 'user1', // In a real app, would be current user's ID
+    name: 'John Doe', // In a real app, would be current user's name
+    email: 'john@example.com', // In a real app, would be current user's email
+    royaltyPercentage: ownershipSplit
+  };
+  
   // Rights management state
   const [licenseType, setLicenseType] = useState('standard');
   const [usageRights, setUsageRights] = useState<UsageRights>({
@@ -59,13 +67,14 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
     setIsSubmitting(true);
     
     // Prepare the ownership data
+    // Update primary owner's percentage and combine with additional owners
+    const primaryWithUpdatedPercentage = {
+      ...primaryOwner,
+      royaltyPercentage: ownershipSplit
+    };
+    
     const owners: ProjectOwner[] = [
-      { 
-        userId: 'user1', // In a real app, would be current user's ID
-        name: 'John Doe', // In a real app, would be current user's name
-        email: 'john@example.com', // In a real app, would be current user's email
-        royaltyPercentage: ownershipSplit 
-      },
+      primaryWithUpdatedPercentage,
       ...additionalOwners
     ];
     
@@ -158,6 +167,9 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
                 handleSubmit={handleSubmit}
                 isSubmitting={isSubmitting}
                 projectName={projectName}
+                primaryOwner={primaryOwner}
+                additionalOwners={additionalOwners}
+                setAdditionalOwners={setAdditionalOwners}
               />
             </TabsContent>
           </form>

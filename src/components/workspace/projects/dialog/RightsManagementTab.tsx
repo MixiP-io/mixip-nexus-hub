@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { DialogFooter } from '@/components/ui/dialog';
 import RightsManagement from '../../rights-management';
 import { UsageRights } from '../../rights-management/types';
+import { ProjectOwner } from '../../batch-uploader/utils/types/projectTypes';
 
 interface RightsManagementTabProps {
   ownershipSplit: number;
@@ -14,6 +15,9 @@ interface RightsManagementTabProps {
   handleSubmit: (e: React.FormEvent) => void;
   isSubmitting: boolean;
   projectName: string;
+  primaryOwner: ProjectOwner;
+  additionalOwners: ProjectOwner[];
+  setAdditionalOwners: (owners: ProjectOwner[]) => void;
 }
 
 const RightsManagementTab: React.FC<RightsManagementTabProps> = ({
@@ -25,6 +29,9 @@ const RightsManagementTab: React.FC<RightsManagementTabProps> = ({
   handleSubmit,
   isSubmitting,
   projectName,
+  primaryOwner,
+  additionalOwners,
+  setAdditionalOwners
 }) => {
   return (
     <div className="space-y-4 py-4">
@@ -34,6 +41,10 @@ const RightsManagementTab: React.FC<RightsManagementTabProps> = ({
           setOwnershipSplit={setOwnershipSplit}
           usageRights={usageRights}
           onUsageRightsChange={onUsageRightsChange}
+          primaryOwner={primaryOwner}
+          additionalOwners={additionalOwners}
+          setAdditionalOwners={setAdditionalOwners}
+          showOwnershipManagement={true}
         />
       </div>
       

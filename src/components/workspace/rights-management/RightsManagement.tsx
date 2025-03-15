@@ -1,9 +1,11 @@
 
 import React from 'react';
 import OwnershipStructure from './OwnershipStructure';
+import OwnershipManagement from './OwnershipManagement';
 import UsageRightsMatrix from './UsageRightsMatrix';
 import { Button } from '@/components/ui/button';
 import { UsageRights } from './types';
+import { ProjectOwner } from '../batch-uploader/utils/types/projectTypes';
 
 interface RightsManagementProps {
   ownershipSplit: number;
@@ -12,6 +14,10 @@ interface RightsManagementProps {
   onUsageRightsChange: (key: keyof UsageRights) => void;
   onBack?: () => void;
   onNext?: () => void;
+  primaryOwner?: ProjectOwner;
+  additionalOwners?: ProjectOwner[];
+  setAdditionalOwners?: (owners: ProjectOwner[]) => void;
+  showOwnershipManagement?: boolean;
 }
 
 const RightsManagement: React.FC<RightsManagementProps> = ({
@@ -20,14 +26,38 @@ const RightsManagement: React.FC<RightsManagementProps> = ({
   usageRights,
   onUsageRightsChange,
   onBack,
-  onNext
+  onNext,
+  primaryOwner,
+  additionalOwners = [],
+  setAdditionalOwners,
+  showOwnershipManagement = false
 }) => {
+  // Default primary owner if none provided
+  const defaultPrimaryOwner: ProjectOwner = primaryOwner || {
+    userId: 'user1',
+    name: 'John Doe',
+    email: 'john@example.com',
+    royaltyPercentage: ownershipSplit
+  };
+
   return (
     <div className="space-y-6">
-      <OwnershipStructure 
-        ownershipSplit={ownershipSplit}
-        setOwnershipSplit={setOwnershipSplit}
-      />
+      {showOwnershipManagement && setAdditionalOwners ? (
+        <OwnershipManagement 
+          primaryOwner={defaultPrimaryOwner}
+          additionalOwners={additionalOwners}
+          setAdditionalOwners={setAdditionalOwners}
+          ownershipSplit={ownershipSplit}
+          setOwnershipSplit={setOwnershipSplit}
+        />
+      ) : (
+        <OwnershipStructure 
+          ownershipSplit={ownershipSplit}
+          setOwnershipSplit={setOwnershipSplit}
+          primaryOwnerName={primaryOwner?.name}
+          additionalOwnersCount={additionalOwners.length}
+        />
+      )}
       
       <UsageRightsMatrix 
         usageRights={usageRights}
