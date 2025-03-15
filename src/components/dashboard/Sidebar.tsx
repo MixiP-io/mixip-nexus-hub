@@ -5,7 +5,6 @@ import {
   FolderOpen, 
   Store, 
   BarChart3,
-  Settings, 
   LogOut,
   User,
 } from 'lucide-react';
@@ -89,8 +88,8 @@ const Sidebar: React.FC = () => {
                   : 'hover:bg-gray-800 transition-colors'
               }`}
             >
-              <Settings className="w-5 h-5" />
-              <span>Profile Settings</span>
+              <User className="w-5 h-5" />
+              <span>My Profile</span>
             </Link>
           </li>
         </ul>

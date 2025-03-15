@@ -36,12 +36,6 @@ const Header: React.FC = () => {
           <span className="hidden sm:inline">Xvidia App</span>
         </Link>
         
-        <Link to="/profile/settings">
-          <button className="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition-colors">
-            <Settings className="w-5 h-5" />
-          </button>
-        </Link>
-        
         <div className="relative">
           <button 
             onClick={toggleProfileMenu}
