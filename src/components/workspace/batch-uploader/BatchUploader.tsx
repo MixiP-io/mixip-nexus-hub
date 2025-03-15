@@ -64,11 +64,13 @@ const BatchUploader: React.FC = () => {
         setSelectedFolder={setSelectedFolder}
       />
       
-      {/* Upload Area */}
-      <UploadArea
-        handleFileSelect={handleFileSelect}
-        triggerFileInput={triggerFileInput}
-      />
+      {/* Only show upload area on source view */}
+      {activeView === 'source' && (
+        <UploadArea
+          handleFileSelect={handleFileSelect}
+          triggerFileInput={triggerFileInput}
+        />
+      )}
       
       {/* Files List */}
       {files.length > 0 && (

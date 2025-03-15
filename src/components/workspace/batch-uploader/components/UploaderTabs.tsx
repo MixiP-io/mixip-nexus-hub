@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 import { ViewOption } from '../types/viewOption';
 import SourceSelection from './SourceSelection';
 import MetadataSection from './MetadataSection';
@@ -33,46 +33,73 @@ const UploaderTabs: React.FC<UploaderTabsProps> = ({
   selectedFolder,
   setSelectedFolder
 }) => {
+  const tabs = [
+    { id: 'source', label: 'Upload Source' },
+    { id: 'metadata', label: 'Metadata & Rights' },
+    { id: 'project', label: 'Project Assignment' }
+  ];
+
+  // Render the active content based on the active view
+  const renderContent = () => {
+    switch (activeView) {
+      case 'source':
+        return (
+          <SourceSelection
+            activeSource={activeSource}
+            setActiveSource={setActiveSource}
+          />
+        );
+      case 'metadata':
+        return (
+          <MetadataSection
+            tags={tags}
+            setTags={setTags}
+            licenseType={licenseType}
+            setLicenseType={setLicenseType}
+            usageRights={usageRights}
+            setUsageRights={setUsageRights}
+          />
+        );
+      case 'project':
+        return (
+          <ProjectSection
+            selectedProject={selectedProject}
+            setSelectedProject={setSelectedProject}
+            selectedFolder={selectedFolder}
+            setSelectedFolder={setSelectedFolder}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
-    <Tabs
-      defaultValue={activeView}
-      value={activeView}
-      onValueChange={(value) => setActiveView(value as ViewOption)}
-      className="w-full mb-6"
-    >
-      <TabsList className="grid grid-cols-3 w-full bg-gray-800">
-        <TabsTrigger value="source" className="py-2">Upload Source</TabsTrigger>
-        <TabsTrigger value="metadata" className="py-2">Metadata & Rights</TabsTrigger>
-        <TabsTrigger value="project" className="py-2">Project Assignment</TabsTrigger>
-      </TabsList>
-
-      <TabsContent value="source" className="mt-4 space-y-4">
-        <SourceSelection
-          activeSource={activeSource}
-          setActiveSource={setActiveSource}
-        />
-      </TabsContent>
-
-      <TabsContent value="metadata" className="mt-4 space-y-4">
-        <MetadataSection
-          tags={tags}
-          setTags={setTags}
-          licenseType={licenseType}
-          setLicenseType={setLicenseType}
-          usageRights={usageRights}
-          setUsageRights={setUsageRights}
-        />
-      </TabsContent>
-
-      <TabsContent value="project" className="mt-4 space-y-4">
-        <ProjectSection
-          selectedProject={selectedProject}
-          setSelectedProject={setSelectedProject}
-          selectedFolder={selectedFolder}
-          setSelectedFolder={setSelectedFolder}
-        />
-      </TabsContent>
-    </Tabs>
+    <div className="mb-6">
+      <div className="border-b border-gray-800 mb-6">
+        <div className="flex space-x-8">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              className={cn(
+                "pb-4 px-1 font-medium text-base relative transition-colors",
+                activeView === tab.id
+                  ? "text-white" 
+                  : "text-gray-400 hover:text-gray-300"
+              )}
+              onClick={() => setActiveView(tab.id as ViewOption)}
+            >
+              {tab.label}
+              {activeView === tab.id && (
+                <span className="absolute bottom-0 left-0 w-full h-1 bg-blue-500"></span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      {renderContent()}
+    </div>
   );
 };
 
