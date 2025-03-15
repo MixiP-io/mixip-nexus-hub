@@ -1,97 +1,202 @@
 
 import React from 'react';
-import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { useCampaignForm } from './context/CampaignFormContext';
+import { format } from 'date-fns';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { CalendarIcon, Users, Palette, DollarSign, SendIcon } from 'lucide-react';
 
-interface ReviewStepProps {
-  onBack: () => void;
-  onComplete: () => void;
-}
-
-const ReviewStep: React.FC<ReviewStepProps> = ({ onBack, onComplete }) => {
+const ReviewStep: React.FC<{ onBack: () => void; onComplete: () => void }> = ({ 
+  onBack,
+  onComplete
+}) => {
   const { formState } = useCampaignForm();
-  const {
-    campaignName,
-    startDate,
-    endDate,
-    location,
-    selectedRoles,
-    deliverables,
-    ownershipSplit,
-    usageRights
-  } = formState;
-
+  
+  const formatDate = (date: Date | undefined) => {
+    return date ? format(date, 'MMM dd, yyyy') : 'Not specified';
+  };
+  
+  const getUsageRightsList = () => {
+    const rights = [];
+    if (formState.usageRights.primaryCampaign) rights.push('Primary Campaign');
+    if (formState.usageRights.secondaryBrand) rights.push('Secondary Brand');
+    if (formState.usageRights.extendedMarketing) rights.push('Extended Marketing');
+    if (formState.usageRights.derivativeWorks) rights.push('Derivative Works');
+    if (formState.usageRights.merchandising) rights.push('Merchandising');
+    if (formState.usageRights.publicity) rights.push('Publicity');
+    if (formState.usageRights.socialMedia) rights.push('Social Media');
+    if (formState.usageRights.aiTraining) rights.push('AI Training');
+    
+    return rights.length > 0 ? rights.join(', ') : 'None selected';
+  };
+  
+  // Format distribution method
+  const getDistributionMethod = () => {
+    switch (formState.distributionMethod) {
+      case 'platform':
+        return 'Platform - All users';
+      case 'specific':
+        return `Specific users (${formState.selectedUsers.length})`;
+      case 'external':
+        return `External emails (${formState.externalEmails.length})`;
+      default:
+        return 'Not specified';
+    }
+  };
+  
   return (
     <div className="space-y-6">
-      <div className="bg-gray-700 p-4 rounded-lg">
-        <h3 className="font-medium mb-4">Campaign Summary</h3>
-        
-        <div className="space-y-4">
-          <div className="bg-gray-800 p-3 rounded">
-            <h4 className="text-sm text-gray-400">Campaign Details</h4>
-            <p className="font-medium text-white">{campaignName}</p>
-            <p className="text-sm text-gray-300">
-              {startDate && endDate 
-                ? `${format(startDate, "MMM d, yyyy")} - ${format(endDate, "MMM d, yyyy")}` 
-                : "Dates not set"}
-            </p>
-            <p className="text-sm text-gray-300">{location}</p>
+      <h3 className="text-lg font-medium">Review Campaign Details</h3>
+      <p className="text-sm text-gray-400 mb-4">
+        Please review all details of your campaign before creating it.
+      </p>
+
+      {/* Basic Info */}
+      <Card className="bg-gray-800 border-gray-700">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <div className="space-y-0.5">
+            <CardTitle className="text-base font-medium">Basic Information</CardTitle>
           </div>
-          
-          <div className="bg-gray-800 p-3 rounded">
-            <h4 className="text-sm text-gray-400">Team Roles</h4>
-            <div className="flex flex-wrap gap-2 mt-1">
-              {selectedRoles.map(role => (
-                <span key={role} className="px-2 py-1 bg-gray-700 rounded text-sm text-white">
-                  {role}
-                </span>
-              ))}
+          <CalendarIcon className="h-4 w-4 text-gray-400" />
+        </CardHeader>
+        <CardContent className="text-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <div className="font-medium text-gray-300">Campaign Name</div>
+              <div>{formState.campaignName}</div>
+            </div>
+            <div>
+              <div className="font-medium text-gray-300">Description</div>
+              <div className="line-clamp-2">{formState.campaignDesc}</div>
+            </div>
+            <div>
+              <div className="font-medium text-gray-300">Date Range</div>
+              <div>{formatDate(formState.startDate)} to {formatDate(formState.endDate)}</div>
+            </div>
+            <div>
+              <div className="font-medium text-gray-300">Location</div>
+              <div>{formState.location || formState.locationType}</div>
             </div>
           </div>
-          
-          <div className="bg-gray-800 p-3 rounded">
-            <h4 className="text-sm text-gray-400">Deliverables</h4>
-            <ul className="mt-1 space-y-1">
-              {deliverables.map(d => (
-                <li key={d.id} className="text-sm text-white">{d.title}: {d.description}</li>
-              ))}
-            </ul>
+        </CardContent>
+      </Card>
+
+      {/* Team Requirements */}
+      <Card className="bg-gray-800 border-gray-700">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <div className="space-y-0.5">
+            <CardTitle className="text-base font-medium">Team Requirements</CardTitle>
           </div>
-          
-          <div className="bg-gray-800 p-3 rounded">
-            <h4 className="text-sm text-gray-400">Rights Management</h4>
-            <p className="text-sm mt-1 text-white">Ownership Split: {ownershipSplit}% Brand / {100 - ownershipSplit}% Creators</p>
-            <div className="mt-2">
-              <h5 className="text-xs text-gray-400">Enabled Rights:</h5>
-              <div className="flex flex-wrap gap-2 mt-1">
-                {Object.entries(usageRights)
-                  .filter(([_, value]) => value)
-                  .map(([key]) => (
-                    <span key={key} className="px-2 py-1 bg-gray-700 rounded text-sm text-white">
-                      {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                    </span>
-                  ))}
+          <Users className="h-4 w-4 text-gray-400" />
+        </CardHeader>
+        <CardContent className="text-sm">
+          <div className="font-medium text-gray-300">Selected Roles</div>
+          <div>{formState.selectedRoles.length > 0 ? formState.selectedRoles.join(', ') : 'No roles selected'}</div>
+        </CardContent>
+      </Card>
+
+      {/* Creative Direction */}
+      <Card className="bg-gray-800 border-gray-700">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <div className="space-y-0.5">
+            <CardTitle className="text-base font-medium">Creative Direction</CardTitle>
+          </div>
+          <Palette className="h-4 w-4 text-gray-400" />
+        </CardHeader>
+        <CardContent className="text-sm">
+          <div className="space-y-3">
+            <div>
+              <div className="font-medium text-gray-300">Deliverables</div>
+              <ul className="list-disc list-inside">
+                {formState.deliverables.map(d => (
+                  <li key={d.id}>{d.title} - {d.description}</li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <div className="font-medium text-gray-300">Creative Brief</div>
+              <div className="line-clamp-2">{formState.creativeDirection || 'None provided'}</div>
+            </div>
+            <div>
+              <div className="font-medium text-gray-300">Attached File</div>
+              <div>{formState.attachedFile ? formState.attachedFile.name : 'No file attached'}</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Rights Management */}
+      <Card className="bg-gray-800 border-gray-700">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <div className="space-y-0.5">
+            <CardTitle className="text-base font-medium">Rights Management</CardTitle>
+          </div>
+          <DollarSign className="h-4 w-4 text-gray-400" />
+        </CardHeader>
+        <CardContent className="text-sm">
+          <div className="space-y-3">
+            <div>
+              <div className="font-medium text-gray-300">Ownership Split</div>
+              <div>Brand: {formState.ownershipSplit}% / Creators: {100 - formState.ownershipSplit}%</div>
+            </div>
+            <div>
+              <div className="font-medium text-gray-300">Usage Rights</div>
+              <div>{getUsageRightsList()}</div>
+            </div>
+            <div>
+              <div className="font-medium text-gray-300">Owners</div>
+              <div>
+                <div className="font-medium">{formState.primaryOwner.name} (Primary): {formState.primaryOwner.royaltyPercentage}%</div>
+                {formState.additionalOwners.map((owner, index) => (
+                  <div key={index}>{owner.name}: {owner.royaltyPercentage}%</div>
+                ))}
               </div>
             </div>
           </div>
-        </div>
-      </div>
-      
+        </CardContent>
+      </Card>
+
+      {/* Distribution */}
+      <Card className="bg-gray-800 border-gray-700">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <div className="space-y-0.5">
+            <CardTitle className="text-base font-medium">Distribution</CardTitle>
+          </div>
+          <SendIcon className="h-4 w-4 text-gray-400" />
+        </CardHeader>
+        <CardContent className="text-sm">
+          <div className="space-y-3">
+            <div>
+              <div className="font-medium text-gray-300">Distribution Method</div>
+              <div>{getDistributionMethod()}</div>
+            </div>
+            <div>
+              <div className="font-medium text-gray-300">Message</div>
+              <div className="line-clamp-2">{formState.distributionMessage || 'No message included'}</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="flex justify-between pt-4">
         <Button 
           onClick={onBack}
           variant="outline"
-          className="text-white hover:text-white bg-gray-700/50 hover:bg-gray-700 font-medium"
+          className="border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white"
         >
           Back
         </Button>
         <Button 
           onClick={onComplete}
-          variant="default"
-          className="bg-green-600 hover:bg-green-700"
+          className="bg-green-600 hover:bg-green-700 text-white"
         >
-          Launch Campaign
+          Create Campaign
         </Button>
       </div>
     </div>

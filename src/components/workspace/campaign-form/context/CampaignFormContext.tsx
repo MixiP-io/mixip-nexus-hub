@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useCampaignFormState, CampaignFormState } from '../hooks/useCampaignFormState';
+import { ProjectOwner } from '../../batch-uploader/utils/types/projectTypes';
 
 interface CampaignFormContextType {
   formState: CampaignFormState;
@@ -9,6 +10,7 @@ interface CampaignFormContextType {
   updateFormState: <K extends keyof CampaignFormState>(key: K, value: CampaignFormState[K]) => void;
   handleLocationTypeChange: (type: 'remote' | 'onsite' | 'anywhere') => void;
   handleUsageRightsChange: (key: keyof CampaignFormState['usageRights']) => void;
+  setAdditionalOwners: (owners: ProjectOwner[]) => void;
   handleCompleteCampaign: () => void;
   onCancel: () => void;
 }
@@ -32,7 +34,8 @@ export const CampaignFormProvider: React.FC<CampaignFormProviderProps> = ({
     setCurrentStep, 
     updateFormState,
     handleLocationTypeChange,
-    handleUsageRightsChange
+    handleUsageRightsChange,
+    setAdditionalOwners
   } = useCampaignFormState();
   
   const handleCompleteCampaign = () => {
@@ -52,6 +55,8 @@ export const CampaignFormProvider: React.FC<CampaignFormProviderProps> = ({
       // Rights management data
       ownershipSplit: formState.ownershipSplit,
       usageRights: formState.usageRights,
+      primaryOwner: formState.primaryOwner,
+      additionalOwners: formState.additionalOwners,
       // Distribution data
       distributionMethod: formState.distributionMethod,
       selectedUsers: formState.selectedUsers,
@@ -73,6 +78,7 @@ export const CampaignFormProvider: React.FC<CampaignFormProviderProps> = ({
         updateFormState,
         handleLocationTypeChange,
         handleUsageRightsChange,
+        setAdditionalOwners,
         handleCompleteCampaign,
         onCancel
       }}

@@ -70,6 +70,7 @@ const RightsManagement: React.FC<RightsManagementProps> = ({
             <Button 
               onClick={onBack}
               variant="outline"
+              className="border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white"
             >
               Back
             </Button>
@@ -78,7 +79,7 @@ const RightsManagement: React.FC<RightsManagementProps> = ({
             <Button 
               onClick={onNext}
               variant="default"
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-green-600 hover:bg-green-700 text-white"
             >
               Continue
             </Button>

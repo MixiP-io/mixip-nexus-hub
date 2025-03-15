@@ -15,7 +15,8 @@ const CampaignFormContent: React.FC = () => {
     formState, 
     currentStep, 
     onCancel,
-    setCurrentStep
+    setCurrentStep,
+    setAdditionalOwners
   } = useCampaignForm();
 
   // Render the appropriate step component based on currentStep
@@ -51,6 +52,10 @@ const CampaignFormContent: React.FC = () => {
             onUsageRightsChange={useCampaignForm().handleUsageRightsChange}
             onBack={() => setCurrentStep(3)}
             onNext={() => setCurrentStep(5)}
+            primaryOwner={formState.primaryOwner}
+            additionalOwners={formState.additionalOwners}
+            setAdditionalOwners={setAdditionalOwners}
+            showOwnershipManagement={true}
           />
         );
       case 5:

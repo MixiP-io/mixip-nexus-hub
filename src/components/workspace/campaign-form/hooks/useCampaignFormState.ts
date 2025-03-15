@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { ProjectOwner } from '../../batch-uploader/utils/types/projectTypes';
 
 // Define the types for form state
 export interface CampaignFormState {
@@ -35,6 +36,8 @@ export interface CampaignFormState {
     socialMedia: boolean;
     aiTraining: boolean;
   };
+  additionalOwners: ProjectOwner[];
+  primaryOwner: ProjectOwner;
   
   // Step 5 - Distribution
   distributionMethod: 'platform' | 'specific' | 'external';
@@ -74,6 +77,13 @@ export const initialFormState: CampaignFormState = {
     publicity: false,
     socialMedia: false,
     aiTraining: false
+  },
+  additionalOwners: [],
+  primaryOwner: {
+    userId: 'user1',
+    name: 'Your Brand',
+    email: 'brand@example.com',
+    royaltyPercentage: 50
   },
   
   // Step 5 - Distribution
@@ -115,6 +125,11 @@ export function useCampaignFormState() {
     }));
   };
 
+  // Set additional owners
+  const setAdditionalOwners = (owners: ProjectOwner[]) => {
+    updateFormState('additionalOwners', owners);
+  };
+
   return {
     formState,
     currentStep,
@@ -122,5 +137,6 @@ export function useCampaignFormState() {
     updateFormState,
     handleLocationTypeChange,
     handleUsageRightsChange,
+    setAdditionalOwners,
   };
 }
