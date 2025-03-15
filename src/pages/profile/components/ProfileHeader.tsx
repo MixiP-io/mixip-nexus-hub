@@ -89,22 +89,30 @@ const ProfileHeader: React.FC = () => {
             </div>
             
             <div className="flex flex-wrap items-center gap-3 mt-4">
-              <Button variant="outline" size="sm" className="gap-2 text-gray-300 hover:text-mixip-blue bg-gray-800/50 border-gray-700">
-                <Globe className="h-4 w-4" />
-                {profileData.displayName}.com
-              </Button>
-              <Button variant="outline" size="sm" className="gap-2 text-gray-300 hover:text-pink-500 bg-gray-800/50 border-gray-700">
-                <Instagram className="h-4 w-4" />
-                @{profileData.displayName}
-              </Button>
-              <Button variant="outline" size="sm" className="gap-2 text-gray-300 hover:text-blue-400 bg-gray-800/50 border-gray-700">
-                <Twitter className="h-4 w-4" />
-                @{profileData.displayName}
-              </Button>
-              <Button variant="outline" size="sm" className="gap-2 text-gray-300 hover:text-blue-700 bg-gray-800/50 border-gray-700">
-                <Linkedin className="h-4 w-4" />
-                {profileData.displayName}
-              </Button>
+              {profileData.website && (
+                <Button variant="outline" size="sm" className="gap-2 text-gray-300 hover:text-mixip-blue bg-gray-800/50 border-gray-700">
+                  <Globe className="h-4 w-4" />
+                  {profileData.website}
+                </Button>
+              )}
+              {profileData.instagram && (
+                <Button variant="outline" size="sm" className="gap-2 text-gray-300 hover:text-pink-500 bg-gray-800/50 border-gray-700">
+                  <Instagram className="h-4 w-4" />
+                  @{profileData.instagram}
+                </Button>
+              )}
+              {profileData.twitter && (
+                <Button variant="outline" size="sm" className="gap-2 text-gray-300 hover:text-blue-400 bg-gray-800/50 border-gray-700">
+                  <Twitter className="h-4 w-4" />
+                  @{profileData.twitter}
+                </Button>
+              )}
+              {profileData.linkedin && (
+                <Button variant="outline" size="sm" className="gap-2 text-gray-300 hover:text-blue-700 bg-gray-800/50 border-gray-700">
+                  <Linkedin className="h-4 w-4" />
+                  {profileData.linkedin}
+                </Button>
+              )}
             </div>
           </div>
         </div>
