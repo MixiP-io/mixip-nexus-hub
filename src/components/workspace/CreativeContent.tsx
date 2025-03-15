@@ -3,7 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Header from '@/components/dashboard/Header';
 import CollapsibleTabs from '@/components/dashboard/CollapsibleTabs';
-import ProjectGrid from '@/components/dashboard/ProjectGrid';
+import ProjectGrid from '@/components/workspace/projects/ProjectGrid';
+import AssetsManager from '@/components/workspace/assets/AssetsManager';
 import CampaignGrid from '@/components/workspace/campaign-grid';
 import AssignmentContent from '@/components/workspace/assignments/AssignmentContent';
 import CollaboratorContent from '@/components/workspace/collaborators/CollaboratorContent';
@@ -14,6 +15,7 @@ const CreativeContent: React.FC = () => {
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('projects');
   const [action, setAction] = useState<string | null>(null);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   
   useEffect(() => {
     // Get the tab from URL params if available
@@ -30,6 +32,12 @@ const CreativeContent: React.FC = () => {
     } else {
       setAction(null);
     }
+
+    // Check if there's a project selection
+    const projectParam = searchParams.get('project');
+    if (projectParam) {
+      setSelectedProjectId(projectParam);
+    }
   }, [searchParams]);
 
   // Render the appropriate content based on the active tab
@@ -40,15 +48,7 @@ const CreativeContent: React.FC = () => {
       case 'campaigns':
         return <CampaignGrid isCreating={action === 'new'} />;
       case 'assets':
-        return (
-          <div className="p-6">
-            <h2 className="text-xl font-semibold mb-2">Assets</h2>
-            <p className="text-gray-400">Manage your digital assets and resources</p>
-            <div className="mt-6 p-8 text-center bg-gray-800 rounded-xl">
-              <p className="text-gray-400">Asset management coming soon</p>
-            </div>
-          </div>
-        );
+        return <AssetsManager selectedProjectId={selectedProjectId} />;
       case 'assignments':
         return <AssignmentContent />;
       case 'collaborators':
@@ -58,8 +58,12 @@ const CreativeContent: React.FC = () => {
         return <BatchUploader />;
       case 'projects':
       default:
-        return <ProjectGrid />;
+        return <ProjectGrid onProjectSelect={handleProjectSelect} />;
     }
+  };
+
+  const handleProjectSelect = (projectId: string) => {
+    setSelectedProjectId(projectId);
   };
 
   return (

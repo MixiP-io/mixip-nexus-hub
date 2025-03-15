@@ -43,7 +43,14 @@ const CollapsibleTabs: React.FC = () => {
   const handleTabClick = (tabId: string) => {
     // Update URL and state
     console.log('Clicking on tab:', tabId);
-    navigate(`/dashboard/workspace?tab=${tabId}`);
+    
+    // Preserve project selection when changing tabs
+    const projectParam = searchParams.get('project');
+    const newUrl = projectParam 
+      ? `/dashboard/workspace?tab=${tabId}&project=${projectParam}`
+      : `/dashboard/workspace?tab=${tabId}`;
+    
+    navigate(newUrl);
     
     setTabs(tabs.map(tab => ({
       ...tab,
