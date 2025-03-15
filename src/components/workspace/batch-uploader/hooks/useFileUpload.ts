@@ -1,7 +1,7 @@
 
 import { useState, useRef } from 'react';
 import { toast } from 'sonner';
-import { UploadFile, UploadSource } from '../types';
+import { UploadFile, UploadSource, FileStatus } from '../types';
 import { getFilePreview } from '../utils/fileUtils';
 import { addFilesToProject } from '../utils/projectUtils';
 
