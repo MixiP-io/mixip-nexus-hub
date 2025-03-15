@@ -136,7 +136,7 @@ export const addFilesToProject = async (
     return Promise.reject(new Error(`Project not found: ${projectId}`));
   }
   
-  const { projectIndex } = projectData;
+  const { projectIndex, project } = projectData;
   
   // Convert files to assets
   const assets = convertFilesToAssets(files, licenseType, folderId);
@@ -146,7 +146,8 @@ export const addFilesToProject = async (
     return Promise.resolve();
   }
   
-  const updatedProjects = [...projects];
+  // Create a deep copy of projects to avoid reference issues
+  const updatedProjects = JSON.parse(JSON.stringify(projects));
   
   // Check if we need to update cover image
   updateProjectCoverIfNeeded(projectIndex, assets);
@@ -154,22 +155,34 @@ export const addFilesToProject = async (
   // If adding to root folder
   if (folderId === 'root') {
     // Update the project with new assets
-    updatedProjects[projectIndex] = {
-      ...updatedProjects[projectIndex],
-      assets: [...updatedProjects[projectIndex].assets, ...assets],
-      updatedAt: new Date()
-    };
+    console.log(`Adding ${assets.length} assets to project ${projectId} root folder`);
+    updatedProjects[projectIndex].assets = [
+      ...updatedProjects[projectIndex].assets, 
+      ...assets
+    ];
   } else {
     // Try to add assets to the specified folder
-    if (!addAssetsToFolder(updatedProjects[projectIndex].subfolders, folderId, assets)) {
+    const folderFound = addAssetsToFolder(
+      updatedProjects[projectIndex].subfolders, 
+      folderId, 
+      assets
+    );
+    
+    if (!folderFound) {
       // If folder not found, add to project root
-      updatedProjects[projectIndex].assets = [...updatedProjects[projectIndex].assets, ...assets];
+      console.log(`Folder ${folderId} not found, adding to project root instead`);
+      updatedProjects[projectIndex].assets = [
+        ...updatedProjects[projectIndex].assets, 
+        ...assets
+      ];
       toast.warning(`Folder not found, added to project root`);
     }
-    
-    updatedProjects[projectIndex].updatedAt = new Date();
   }
   
+  // Update the project timestamp
+  updatedProjects[projectIndex].updatedAt = new Date();
+  
+  // Update the global projects store with the new projects array
   updateProjects(updatedProjects);
   console.log(`Added ${assets.length} files to project ${projectId}`);
   logProjects(); // Log the updated projects for debugging

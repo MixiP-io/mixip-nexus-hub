@@ -15,11 +15,22 @@ export const useAssetsManager = (selectedProjectId: string | null) => {
   
   useEffect(() => {
     if (selectedProjectId) {
+      console.log('Fetching project data for ID:', selectedProjectId);
       const project = getProjectById(selectedProjectId);
-      setProjectData(project || null);
+      
+      if (project) {
+        console.log('Project found:', project.name, 'with', project.assets.length, 'assets');
+        // Make a deep copy to avoid reference issues
+        setProjectData(JSON.parse(JSON.stringify(project)));
+      } else {
+        console.log('Project not found for ID:', selectedProjectId);
+        setProjectData(null);
+        toast.error('Project not found');
+      }
     } else {
       // If no project is selected, show all assets from all projects
       // In a real implementation, this would fetch all assets
+      console.log('No project selected, showing all assets');
       const allProjects = [] as any[];
       setProjectData({
         name: 'All Assets',
@@ -75,9 +86,39 @@ export const useAssetsManager = (selectedProjectId: string | null) => {
     setRightsPanelOpen(true);
   };
 
-  const filteredAssets = projectData?.assets?.filter((asset: any) => 
-    asset.name.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+  // Get all assets from project and subfolders
+  const getAllProjectAssets = (project: any): any[] => {
+    if (!project) return [];
+    
+    // Start with project root assets
+    let allAssets = [...(project.assets || [])];
+    
+    // Function to recursively get assets from folders
+    const getAssetsFromFolders = (folders: any[]) => {
+      folders.forEach(folder => {
+        // Add assets from this folder
+        allAssets = [...allAssets, ...(folder.assets || [])];
+        
+        // Recursively process subfolders
+        if (folder.subfolders && folder.subfolders.length > 0) {
+          getAssetsFromFolders(folder.subfolders);
+        }
+      });
+    };
+    
+    // Process all folders in the project
+    if (project.subfolders && project.subfolders.length > 0) {
+      getAssetsFromFolders(project.subfolders);
+    }
+    
+    return allAssets;
+  };
+
+  // Get all assets and filter by search query
+  const allAssets = getAllProjectAssets(projectData);
+  const filteredAssets = allAssets.filter((asset: any) => 
+    asset && asset.name && asset.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return {
     viewMode,
