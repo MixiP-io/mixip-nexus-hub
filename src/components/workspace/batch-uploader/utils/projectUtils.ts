@@ -31,8 +31,24 @@ export {
 
 // Re-export asset functions
 export {
-  addFilesToProject
+  addFilesToProject,
+  setProjectCoverImage
 } from './services/assetService';
+
+// Re-export asset utility functions
+export {
+  convertFilesToAssets
+} from './services/assetConversionUtils';
+
+export {
+  findProject,
+  updateProjectCoverIfNeeded,
+  findAssetInProject
+} from './services/projectOperationUtils';
+
+export {
+  addAssetsToFolder
+} from './services/folderOperationUtils';
 
 // Re-export debugging functions
 export { logProjects } from './data/projectStore';
