@@ -19,7 +19,12 @@ const BatchUploader: React.FC = () => {
     removeFile,
     clearAll,
     startUpload,
-    calculateTotalSize
+    calculateTotalSize,
+    uploadComplete,
+    setUploadComplete,
+    selectedProject,
+    selectedProjectName,
+    navigateToProject
   } = useFileUpload();
 
   const {
@@ -33,15 +38,15 @@ const BatchUploader: React.FC = () => {
     setLicenseType,
     usageRights,
     setUsageRights,
-    selectedProject,
-    setSelectedProject,
+    selectedProject: metadataSelectedProject,
+    setSelectedProject: setMetadataSelectedProject,
     selectedFolder,
     setSelectedFolder
   } = useMetadataState();
   
   const handleStartUpload = async () => {
-    // Ensure we're passing the correct license type to startUpload
-    await startUpload(licenseType, selectedProject);
+    // Ensure we're passing the correct license type and project to startUpload
+    await startUpload(licenseType, metadataSelectedProject);
     
     // Log projects after upload (for debugging)
     logProjects();
@@ -66,8 +71,8 @@ const BatchUploader: React.FC = () => {
         setLicenseType={setLicenseType}
         usageRights={usageRights}
         setUsageRights={setUsageRights}
-        selectedProject={selectedProject}
-        setSelectedProject={setSelectedProject}
+        selectedProject={metadataSelectedProject}
+        setSelectedProject={setMetadataSelectedProject}
         selectedFolder={selectedFolder}
         setSelectedFolder={setSelectedFolder}
       />
@@ -92,6 +97,11 @@ const BatchUploader: React.FC = () => {
           removeFile={removeFile}
           clearAll={clearAll}
           startUpload={handleStartUpload}
+          uploadComplete={uploadComplete}
+          setUploadComplete={setUploadComplete}
+          selectedProject={selectedProject}
+          selectedProjectName={selectedProjectName}
+          navigateToProject={navigateToProject}
         />
       )}
     </div>

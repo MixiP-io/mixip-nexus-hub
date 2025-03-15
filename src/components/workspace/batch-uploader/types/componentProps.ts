@@ -14,6 +14,11 @@ export interface FilesListProps {
   removeFile: (id: string) => void;
   clearAll: () => void;
   startUpload: () => void;
+  uploadComplete: boolean;
+  setUploadComplete: (value: boolean) => void;
+  selectedProject: string;
+  selectedProjectName: string | undefined;
+  navigateToProject: (projectId: string) => void;
 }
 
 /**
