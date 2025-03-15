@@ -1,7 +1,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { toast } from 'sonner';
-import { getProjects, getProjectById, createProject } from '../../services/projectService';
+import { getProjects, getProjectById, createProject } from '../../services/projectManagement/basicOperations';
 import { projects, updateProjects, currentUser } from '../../data/projectStore';
 
 // Mock the toast module

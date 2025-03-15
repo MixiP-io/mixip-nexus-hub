@@ -1,7 +1,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { toast } from 'sonner';
-import { updateProjectOwnership, updateProjectLicensing } from '../../services/projectService';
+import { updateProjectOwnership, updateProjectLicensing } from '../../services/projectManagement/updateOperations';
 import { projects, updateProjects } from '../../data/projectStore';
 import { ProjectOwner, ProjectLicensing } from '../../types/projectTypes';
 

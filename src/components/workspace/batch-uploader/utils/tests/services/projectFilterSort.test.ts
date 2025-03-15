@@ -1,6 +1,6 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { filterAndSortProjects } from '../../services/projectService';
+import { filterAndSortProjects } from '../../services/projectManagement/filterSortOperations';
 import { projects } from '../../data/projectStore';
 
 // Mock the projectStore module
