@@ -1,5 +1,5 @@
 
-export type UploadSource = 'computer' | 'phone' | 'moby' | 'dropbox' | 'google-drive' | 'box' | 'icloud';
+export type UploadSource = 'computer' | 'phone' | 'moby' | 'dropbox' | 'google-drive' | 'box' | 'icloud' | 'local';
 
 export type FileStatus = 'queued' | 'uploading' | 'processing' | 'complete' | 'error';
 

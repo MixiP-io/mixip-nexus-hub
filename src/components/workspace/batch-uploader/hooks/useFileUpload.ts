@@ -39,7 +39,7 @@ export const useFileUpload = () => {
         type: file.type,
         progress: 0,
         status: 'queued',
-        source: 'local',
+        source: 'computer', // Changed from 'local' to 'computer' to match the UploadSource type
         file: file,
         preview: getFilePreview(file)
       };
