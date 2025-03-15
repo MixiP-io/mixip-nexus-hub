@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { Campaign, initialCampaigns } from '../types';
+import { ViewOption } from '../types/viewOption';
 import { toast } from 'sonner';
 
 export function useCampaignState(isCreating = false) {
@@ -10,7 +11,7 @@ export function useCampaignState(isCreating = false) {
   const [showDistributeDialog, setShowDistributeDialog] = useState(false);
   const [isViewingResponses, setIsViewingResponses] = useState(false);
   const [viewingCampaignId, setViewingCampaignId] = useState<number | null>(null);
-  const [activeView, setActiveView] = useState<string>('all');
+  const [activeView, setActiveView] = useState<ViewOption>('all');
   
   // Campaign creation handlers
   const startCampaignCreation = () => {

@@ -6,6 +6,7 @@ import CampaignResponseView from './CampaignResponseView';
 import CampaignHeader from './CampaignHeader';
 import CampaignTabs from './CampaignTabs';
 import { useCampaignState } from './hooks/useCampaignState';
+import { ViewOption } from './types/viewOption';
 
 interface CampaignGridProps {
   isCreating?: boolean;
@@ -60,7 +61,7 @@ const CampaignGrid: React.FC<CampaignGridProps> = ({ isCreating = false }) => {
           
           <CampaignTabs
             activeView={activeView}
-            onActiveViewChange={setActiveView}
+            setActiveView={setActiveView}
             filteredCampaigns={filteredCampaigns}
             onStartCampaignCreation={startCampaignCreation}
             onViewResponses={handleViewResponses}
