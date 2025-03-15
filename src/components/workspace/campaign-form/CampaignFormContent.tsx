@@ -16,6 +16,8 @@ const CampaignFormContent: React.FC = () => {
     currentStep, 
     onCancel,
     setCurrentStep,
+    updateFormState,
+    handleUsageRightsChange,
     setAdditionalOwners
   } = useCampaignForm();
 
@@ -47,9 +49,9 @@ const CampaignFormContent: React.FC = () => {
         return (
           <RightsManagement 
             ownershipSplit={formState.ownershipSplit}
-            setOwnershipSplit={(value) => useCampaignForm().updateFormState('ownershipSplit', value)}
+            setOwnershipSplit={(value) => updateFormState('ownershipSplit', value)}
             usageRights={formState.usageRights}
-            onUsageRightsChange={useCampaignForm().handleUsageRightsChange}
+            onUsageRightsChange={handleUsageRightsChange}
             onBack={() => setCurrentStep(3)}
             onNext={() => setCurrentStep(5)}
             primaryOwner={formState.primaryOwner}

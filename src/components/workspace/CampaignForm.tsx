@@ -1,8 +1,6 @@
 
 import React from 'react';
-import { Megaphone, X } from 'lucide-react';
 import { CampaignFormProvider } from './campaign-form/context/CampaignFormContext';
-import RightsManagement from './rights-management';
 import CampaignFormContent from './campaign-form/CampaignFormContent';
 
 interface CampaignFormProps {
