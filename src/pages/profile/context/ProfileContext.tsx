@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 export interface ProfileData {
   fullName: string;
@@ -32,13 +32,28 @@ const defaultProfileData: ProfileData = {
   profileCompletion: 72
 };
 
+// Key for storing profile data in localStorage
+const PROFILE_STORAGE_KEY = 'user_profile_data';
+
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 
 export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [profileData, setProfileData] = useState<ProfileData>(defaultProfileData);
+  // Initialize state from localStorage or use default
+  const [profileData, setProfileData] = useState<ProfileData>(() => {
+    const savedProfile = localStorage.getItem(PROFILE_STORAGE_KEY);
+    return savedProfile ? JSON.parse(savedProfile) : defaultProfileData;
+  });
+
+  // Save to localStorage whenever profileData changes
+  useEffect(() => {
+    localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profileData));
+  }, [profileData]);
 
   const updateProfileData = (newData: Partial<ProfileData>) => {
-    setProfileData(prev => ({ ...prev, ...newData }));
+    setProfileData(prev => {
+      const updated = { ...prev, ...newData };
+      return updated;
+    });
   };
 
   return (

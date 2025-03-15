@@ -28,19 +28,19 @@ const GeneralTab: React.FC = () => {
   const { profileData, updateProfileData } = useProfile();
   
   // Languages state and handlers
-  const [languages, setLanguages] = useState<string[]>(profileData.languages);
+  const [languages, setLanguages] = useState<string[]>(profileData.languages || []);
   const [newLanguage, setNewLanguage] = useState("");
 
   // Create form
   const personalInfoForm = useForm<z.infer<typeof personalInfoSchema>>({
     resolver: zodResolver(personalInfoSchema),
     defaultValues: {
-      fullName: profileData.fullName,
-      displayName: profileData.displayName,
-      email: profileData.email,
-      phone: profileData.phone,
-      bio: profileData.bio,
-      location: profileData.location,
+      fullName: profileData.fullName || '',
+      displayName: profileData.displayName || '',
+      email: profileData.email || '',
+      phone: profileData.phone || '',
+      bio: profileData.bio || '',
+      location: profileData.location || '',
     },
   });
 
@@ -54,6 +54,7 @@ const GeneralTab: React.FC = () => {
       bio: profileData.bio,
       location: profileData.location,
     });
+    setLanguages(profileData.languages || []);
   }, [profileData, personalInfoForm]);
 
   const addLanguage = () => {
@@ -76,7 +77,10 @@ const GeneralTab: React.FC = () => {
     console.log('Personal info saved:', values);
     
     // Update profile data in context
-    updateProfileData(values);
+    updateProfileData({
+      ...values,
+      languages: languages
+    });
     
     toast({
       title: "Changes saved",
