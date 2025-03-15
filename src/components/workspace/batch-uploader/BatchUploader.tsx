@@ -46,7 +46,7 @@ const BatchUploader: React.FC = () => {
     <div className="p-6 max-w-6xl mx-auto">
       <div className="mb-6">
         <h2 className="text-2xl font-semibold mb-2">Batch Upload</h2>
-        <p className="text-white/80">Upload and organize multiple assets with metadata</p>
+        <p className="text-white/80">Upload and organize multiple media files with metadata and licensing</p>
       </div>
       
       {/* Sub Navigation Tabs */}
