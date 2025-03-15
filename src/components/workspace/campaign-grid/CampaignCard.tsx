@@ -43,12 +43,12 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
         )}
       </div>
       <div className="p-4">
-        <h3 className="font-medium text-lg mb-1">{campaign.title}</h3>
-        <div className="flex items-center text-sm text-gray-400 mb-2">
+        <h3 className="font-medium text-lg text-white mb-1">{campaign.title}</h3>
+        <div className="flex items-center text-sm text-gray-300 mb-2">
           <Calendar className="w-4 h-4 mr-1" />
           <span>{new Date(campaign.startDate).toLocaleDateString()} - {new Date(campaign.endDate).toLocaleDateString()}</span>
         </div>
-        <div className="flex items-center text-sm text-gray-400">
+        <div className="flex items-center text-sm text-gray-300">
           <MapPin className="w-4 h-4 mr-1" />
           <span>{campaign.location}</span>
         </div>
@@ -56,14 +56,14 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
         <div className="mt-3 grid grid-cols-2 gap-2">
           <button
             onClick={() => onViewResponses(campaign.id)}
-            className="flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded-md py-2 px-3 text-sm"
+            className="flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded-md py-2 px-3 text-sm text-gray-200"
           >
             <Users className="w-4 h-4 mr-2" />
             View Responses
           </button>
           <button
             onClick={() => onDistribute(campaign.id)}
-            className="flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded-md py-2 px-3 text-sm"
+            className="flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded-md py-2 px-3 text-sm text-gray-200"
           >
             <Share2 className="w-4 h-4 mr-2" />
             Distribute

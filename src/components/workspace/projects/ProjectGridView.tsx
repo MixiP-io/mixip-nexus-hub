@@ -55,7 +55,7 @@ const ProjectGridView: React.FC<ProjectGridViewProps> = ({
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
-                <FolderOpen className="w-16 h-16 text-gray-500" />
+                <FolderOpen className="w-16 h-16 text-gray-400" />
               </div>
             )}
             <div className="absolute top-2 right-2">
@@ -82,7 +82,7 @@ const ProjectGridView: React.FC<ProjectGridViewProps> = ({
             <div className="flex justify-between items-start">
               <div>
                 <div className="flex items-center">
-                  <h3 className="font-medium text-lg mb-1">{project.name}</h3>
+                  <h3 className="font-medium text-lg mb-1 text-white">{project.name}</h3>
                   {project.subfolders && project.subfolders.length > 0 && (
                     <TooltipProvider>
                       <Tooltip>
@@ -98,7 +98,7 @@ const ProjectGridView: React.FC<ProjectGridViewProps> = ({
                     </TooltipProvider>
                   )}
                 </div>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-gray-300">
                   {project.assets ? project.assets.length : 0} assets • Updated {new Date(project.updatedAt).toLocaleDateString()}
                 </p>
               </div>
@@ -110,7 +110,7 @@ const ProjectGridView: React.FC<ProjectGridViewProps> = ({
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div className="flex items-center text-gray-400">
+                      <div className="flex items-center text-gray-300">
                         {project.owners.length > 1 ? (
                           <Users className="h-4 w-4 mr-1" />
                         ) : (
@@ -139,11 +139,11 @@ const ProjectGridView: React.FC<ProjectGridViewProps> = ({
             )}
           </CardContent>
           <CardFooter className="px-4 py-3 border-t border-gray-700 flex justify-between">
-            <Badge variant="outline" className="bg-gray-700 text-gray-300">
+            <Badge variant="outline" className="bg-gray-700 text-gray-200">
               <Image className="mr-1 h-3 w-3" />
               {project.assets ? project.assets.length : 0}
             </Badge>
-            <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
+            <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white">
               <Eye className="mr-1 h-3 w-3" />
               View
             </Button>
@@ -160,8 +160,8 @@ const ProjectGridView: React.FC<ProjectGridViewProps> = ({
           <div className="w-16 h-16 rounded-full bg-gray-700 flex items-center justify-center mb-4">
             <Plus className="w-8 h-8 text-gray-400" />
           </div>
-          <CardTitle className="font-medium text-lg mb-1">Create New Project</CardTitle>
-          <p className="text-sm text-gray-400">
+          <CardTitle className="font-medium text-lg mb-1 text-white">Create New Project</CardTitle>
+          <p className="text-sm text-gray-300">
             Start organizing your assets
           </p>
         </CardContent>

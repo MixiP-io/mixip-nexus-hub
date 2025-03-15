@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Image } from 'lucide-react';
 
 // Sample project data
 const projects = [
@@ -54,10 +54,16 @@ const ProjectGrid: React.FC = () => {
             />
           </div>
           <div className="p-4">
-            <h3 className="font-medium text-lg mb-1">{project.title}</h3>
-            <p className="text-sm text-gray-400">
+            <h3 className="font-medium text-lg text-white mb-1">{project.title}</h3>
+            <p className="text-sm text-gray-300">
               {project.assets} assets • Updated {project.updated}
             </p>
+          </div>
+          <div className="px-4 py-3 border-t border-gray-700 flex justify-between items-center">
+            <div className="text-xs bg-gray-700 text-gray-200 px-2 py-1 rounded-full flex items-center">
+              <Image className="w-3 h-3 mr-1" />
+              {project.assets}
+            </div>
           </div>
         </div>
       ))}
@@ -65,10 +71,13 @@ const ProjectGrid: React.FC = () => {
       {/* Create New Project Card */}
       <div className="bg-gray-800 rounded-xl overflow-hidden hover:ring-2 hover:ring-mixip-blue transition-all cursor-pointer">
         <div className="h-40 bg-gray-700 flex items-center justify-center">
-          <Plus className="w-10 h-10 text-gray-500" />
+          <Plus className="w-10 h-10 text-gray-400" />
         </div>
         <div className="p-4">
-          <h3 className="font-medium text-lg mb-1">Create New Project</h3>
+          <h3 className="font-medium text-lg text-white mb-1">Create New Project</h3>
+          <p className="text-sm text-gray-300">
+            Start organizing your assets
+          </p>
         </div>
       </div>
     </div>
