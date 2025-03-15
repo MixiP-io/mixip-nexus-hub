@@ -6,12 +6,76 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Info, Plus } from 'lucide-react';
+import { Info, Plus, X } from 'lucide-react';
 import { Label } from "@/components/ui/label";
 import SkillsInput from '../components/SkillsInput';
+import { useProfile } from '../context/ProfileContext';
+import RoleCard from '../components/RoleCard';
+import { useToast } from '@/hooks/use-toast';
+
+interface Role {
+  id: string;
+  title: string;
+  experience: string;
+  specialties: string[];
+}
 
 const ProfessionalTab: React.FC = () => {
-  const [skills, setSkills] = useState<string[]>(['Photography', 'Videography', 'Editing']);
+  const { profileData, updateProfileData } = useProfile();
+  const { toast } = useToast();
+  const [skills, setSkills] = useState<string[]>(profileData.skills || ['Photography', 'Videography', 'Editing']);
+  const [roles, setRoles] = useState<Role[]>([
+    {
+      id: '1',
+      title: 'Videographer',
+      experience: '10+ years',
+      specialties: ['Commercial', 'Documentary']
+    },
+    {
+      id: '2',
+      title: 'Photographer',
+      experience: '5 years',
+      specialties: ['Portrait', 'Event']
+    }
+  ]);
+  const [equipment, setEquipment] = useState<string>(
+    "Sony A7III, DJI Ronin, Canon 5D Mark IV, Various lenses, Professional lighting kit"
+  );
+
+  const handleSaveChanges = () => {
+    updateProfileData({ 
+      skills,
+      professionalInfo: {
+        roles,
+        equipment
+      }
+    });
+    
+    toast({
+      title: "Changes saved",
+      description: "Your professional information has been updated.",
+    });
+  };
+
+  const handleAddRole = () => {
+    const newRole: Role = {
+      id: Date.now().toString(),
+      title: '',
+      experience: '',
+      specialties: []
+    };
+    setRoles([...roles, newRole]);
+  };
+
+  const handleRemoveRole = (roleId: string) => {
+    setRoles(roles.filter(role => role.id !== roleId));
+  };
+
+  const updateRole = (updatedRole: Role) => {
+    setRoles(roles.map(role => 
+      role.id === updatedRole.id ? updatedRole : role
+    ));
+  };
 
   return (
     <div className="space-y-6">
@@ -32,40 +96,21 @@ const ProfessionalTab: React.FC = () => {
           <div className="space-y-2">
             <Label className="text-gray-300">Professional Roles</Label>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="border rounded-lg p-4 bg-gray-800 border-gray-700 shadow-md hover:shadow-lg transition-shadow">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium text-white">Primary Role</span>
-                  <Badge className="bg-mixip-blue text-white">10+ years</Badge>
-                </div>
-                <Input defaultValue="Videographer" className="mb-2 bg-gray-700 border-gray-600 text-white" />
-                <div className="text-sm text-gray-400">Specialties:</div>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  <Badge variant="outline" className="bg-blue-900/30 text-blue-300 border-blue-700">Commercial</Badge>
-                  <Badge variant="outline" className="bg-blue-900/30 text-blue-300 border-blue-700">Documentary</Badge>
-                  <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-gray-400 hover:text-white">
-                    <Plus className="h-3 w-3 mr-1" />
-                  </Button>
-                </div>
-              </div>
+              {roles.map((role) => (
+                <RoleCard 
+                  key={role.id} 
+                  role={role} 
+                  onUpdate={updateRole}
+                  onRemove={() => handleRemoveRole(role.id)}
+                />
+              ))}
               
-              <div className="border rounded-lg p-4 bg-gray-800 border-gray-700 shadow-md hover:shadow-lg transition-shadow">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium text-white">Secondary Role</span>
-                  <Badge className="bg-indigo-500 text-white">5 years</Badge>
-                </div>
-                <Input defaultValue="Photographer" className="mb-2 bg-gray-700 border-gray-600 text-white" />
-                <div className="text-sm text-gray-400">Specialties:</div>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  <Badge variant="outline" className="bg-blue-900/30 text-blue-300 border-blue-700">Portrait</Badge>
-                  <Badge variant="outline" className="bg-blue-900/30 text-blue-300 border-blue-700">Event</Badge>
-                  <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-gray-400 hover:text-white">
-                    <Plus className="h-3 w-3 mr-1" />
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="border rounded-lg p-4 border-dashed flex items-center justify-center bg-gray-800 border-gray-700">
-                <Button variant="ghost" className="text-gray-400 hover:text-white">
+              <div className="border rounded-lg p-4 border-dashed flex items-center justify-center bg-gray-800 border-gray-700 hover:bg-gray-700 transition-colors group">
+                <Button 
+                  variant="ghost" 
+                  className="text-gray-400 group-hover:text-white transition-colors"
+                  onClick={handleAddRole}
+                >
                   <Plus className="h-5 w-5 mr-2" />
                   Add Another Role
                 </Button>
@@ -83,13 +128,14 @@ const ProfessionalTab: React.FC = () => {
             <Textarea 
               id="equipment" 
               placeholder="List your equipment" 
-              defaultValue="Sony A7III, DJI Ronin, Canon 5D Mark IV, Various lenses, Professional lighting kit"
+              value={equipment}
+              onChange={(e) => setEquipment(e.target.value)}
               className="min-h-[100px] bg-gray-800 border-gray-700 text-white"
             />
           </div>
           
           <div className="flex justify-end">
-            <Button>Save Changes</Button>
+            <Button onClick={handleSaveChanges}>Save Changes</Button>
           </div>
         </CardContent>
       </Card>

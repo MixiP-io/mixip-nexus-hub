@@ -1,6 +1,18 @@
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
+interface Role {
+  id: string;
+  title: string;
+  experience: string;
+  specialties: string[];
+}
+
+interface ProfessionalInfo {
+  roles: Role[];
+  equipment: string;
+}
+
 export interface ProfileData {
   fullName: string;
   displayName: string;
@@ -12,11 +24,13 @@ export interface ProfileData {
   languages: string[];
   skills: string[];
   profileCompletion: number;
-  // Add social media links to the profile data
+  // Social media links
   website: string;
   instagram: string;
   twitter: string;
   linkedin: string;
+  // Professional information
+  professionalInfo?: ProfessionalInfo;
 }
 
 interface ProfileContextType {
@@ -33,13 +47,31 @@ const defaultProfileData: ProfileData = {
   location: "New York, USA",
   avatar: "https://images.unsplash.com/photo-1581992652564-44c42f5ad3ad?q=80&w=250&auto=format&fit=crop",
   languages: ["English", "Spanish"],
-  skills: [],
+  skills: ["Photography", "Videography", "Editing"],
   profileCompletion: 72,
-  // Add default values for social media links
+  // Default values for social media links
   website: "",
   instagram: "",
   twitter: "",
-  linkedin: ""
+  linkedin: "",
+  // Default professional info
+  professionalInfo: {
+    roles: [
+      {
+        id: '1', 
+        title: 'Videographer',
+        experience: '10+ years',
+        specialties: ['Commercial', 'Documentary']
+      },
+      {
+        id: '2',
+        title: 'Photographer',
+        experience: '5 years',
+        specialties: ['Portrait', 'Event']
+      }
+    ],
+    equipment: "Sony A7III, DJI Ronin, Canon 5D Mark IV, Various lenses, Professional lighting kit"
+  }
 };
 
 // Key for storing profile data in localStorage
