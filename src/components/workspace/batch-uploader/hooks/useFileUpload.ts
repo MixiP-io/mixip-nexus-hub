@@ -82,6 +82,9 @@ export const useFileUpload = () => {
           : f
       )
     );
+    
+    // Recalculate overall progress whenever a file's progress changes
+    calculateOverallProgress();
   };
 
   const updateFileStatus = (fileId: string, status: FileStatus) => {
@@ -92,6 +95,29 @@ export const useFileUpload = () => {
           : f
       )
     );
+    
+    // Also recalculate overall progress when status changes
+    calculateOverallProgress();
+  };
+  
+  // Calculate and update the overall progress based on all files
+  const calculateOverallProgress = () => {
+    if (files.length === 0) {
+      setOverallProgress(0);
+      return;
+    }
+    
+    const totalProgress = files.reduce((sum, file) => {
+      // Count completed files as 100% progress
+      if (file.status === 'complete') {
+        return sum + 100;
+      }
+      // Use the actual progress for uploading files
+      return sum + file.progress;
+    }, 0);
+    
+    const averageProgress = totalProgress / files.length;
+    setOverallProgress(averageProgress);
   };
   
   const startUpload = async (licenseType: string, selectedProject: string) => {
@@ -111,16 +137,10 @@ export const useFileUpload = () => {
     }
     
     setIsUploading(true);
-    
-    // Run a continuous update of the overall progress
-    const progressInterval = setInterval(() => {
-      const totalProgress = files.reduce((sum, file) => sum + file.progress, 0);
-      const averageProgress = totalProgress / files.length;
-      setOverallProgress(averageProgress);
-    }, 100);
+    setOverallProgress(0); // Reset progress at start
     
     try {
-      // Process files one by one with realistic timing
+      // Process files one by one
       for (const file of files) {
         // Only process queued files
         if (file.status !== 'queued') continue;
@@ -146,7 +166,7 @@ export const useFileUpload = () => {
       console.error('Upload error:', error);
       toast.error('There was a problem with the upload');
     } finally {
-      clearInterval(progressInterval);
+      // Ensure overall progress is 100% at the end
       setOverallProgress(100);
       setIsUploading(false);
     }
