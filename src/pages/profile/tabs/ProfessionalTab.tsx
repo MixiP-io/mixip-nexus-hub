@@ -116,10 +116,13 @@ const ProfessionalTab: React.FC = () => {
                     />
                   ))}
                   
-                  <div className="relative border rounded-lg p-4 border-dashed flex items-center justify-center bg-gray-800 border-gray-700 hover:bg-gray-700 transition-colors group cursor-pointer min-h-[200px]" onClick={handleAddRole}>
+                  <div 
+                    className="relative border rounded-lg p-4 border-dashed flex items-center justify-center bg-gray-800 border-gray-700 hover:bg-gray-700 transition-colors group cursor-pointer min-h-[200px]"
+                    onClick={handleAddRole}
+                  >
                     <Button 
                       variant="ghost" 
-                      className="text-gray-400 group-hover:text-gray-300 transition-colors absolute inset-0 w-full h-full flex items-center justify-center"
+                      className="text-gray-400 group-hover:text-gray-300 transition-colors absolute inset-0 w-full h-full flex items-center justify-center bg-transparent hover:bg-transparent"
                     >
                       <Plus className="h-5 w-5 mr-2" />
                       Add Another Role

@@ -24,17 +24,19 @@ const ProfileTabs: React.FC<ProfileTabsProps> = ({ activeTab, handleTabClick }) 
           <button
             key={tab.id}
             className={cn(
-              "pb-4 px-1 font-medium text-base relative transition-colors flex items-center",
+              "pb-4 px-1 font-medium text-base relative transition-colors",
               activeTab === tab.id
                 ? "text-white" 
                 : "text-gray-400 hover:text-gray-300"
             )}
             onClick={() => handleTabClick(tab.id)}
           >
-            {tab.icon}
-            {tab.label}
+            <div className="flex items-center">
+              {tab.icon}
+              {tab.label}
+            </div>
             {activeTab === tab.id && (
-              <span className="absolute bottom-0 left-0 w-full h-1 bg-green-600"></span>
+              <span className="absolute bottom-0 left-0 w-full h-1 bg-blue-500"></span>
             )}
           </button>
         ))}
