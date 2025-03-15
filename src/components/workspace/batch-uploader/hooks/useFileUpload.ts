@@ -1,10 +1,10 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { useFileManager } from './useFileManager';
 import { useFileInput } from './useFileInput';
 import { simulateFileUpload, calculateTotalSize } from '../utils/uploadUtils';
-import { addFilesToProject, getProjectById } from '../utils/projectUtils';
+import { addFilesToProject, getProjectById, logProjects } from '../utils/projectUtils';
 
 export const useFileUpload = () => {
   const [isUploading, setIsUploading] = useState(false);
@@ -40,11 +40,16 @@ export const useFileUpload = () => {
     // For example: router.push(`/dashboard/projects/${projectId}`);
   };
 
-  // Reset upload complete when files change
+  // Reset upload complete when files change or component unmounts
   useEffect(() => {
     if (files.length === 0) {
       setUploadComplete(false);
     }
+    
+    // Clean up function to reset state when component unmounts
+    return () => {
+      setUploadComplete(false);
+    };
   }, [files]);
   
   // Log state changes for debugging
@@ -57,6 +62,12 @@ export const useFileUpload = () => {
       completedFiles: files.filter(f => f.status === 'complete').length
     });
   }, [uploadComplete, selectedProject, selectedProjectName, files]);
+  
+  // Use a callback to ensure the upload complete setter is stable
+  const completeUpload = useCallback(() => {
+    console.log("Setting uploadComplete state to true");
+    setUploadComplete(true);
+  }, []);
   
   const startUpload = async (licenseType: string, projectId: string) => {
     if (files.length === 0) {
@@ -118,15 +129,18 @@ export const useFileUpload = () => {
         console.log("Upload complete, setting uploadComplete to true");
         console.log("Project:", projectId, "Project name:", selectedProjectName);
         
+        // Log projects after upload (for debugging)
+        logProjects();
+        
         // Ensure all state is updated correctly after upload
         setIsUploading(false);
         updateOverallProgress();
         
-        // Use setTimeout to ensure state updates are processed before setting uploadComplete
+        // Use setTimeout with a longer delay to ensure all state updates are processed
+        // and the component has re-rendered before showing the dialog
         setTimeout(() => {
-          console.log("Setting uploadComplete state to true");
-          setUploadComplete(true);
-        }, 300);
+          completeUpload();
+        }, 500);
       }
     } catch (error) {
       console.error('Upload error:', error);
