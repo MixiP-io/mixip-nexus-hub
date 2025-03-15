@@ -94,19 +94,22 @@ export const initialGroups: CollaboratorGroup[] = [
   }
 ];
 
-// Sample data for collaborators
+// Sample data for collaborators with Unsplash avatars
 export const sampleCollaborators: Collaborator[] = [
   {
     id: 1,
     name: "Alex Morgan",
-    avatar: "/placeholder.svg",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
     role: "Photographer",
     skills: ["Portrait", "Product", "Landscape"],
     location: "New York, NY",
     email: "alex@example.com",
     rating: 4.8,
     status: "Available",
-    portfolio: ["/placeholder.svg", "/placeholder.svg"],
+    portfolio: [
+      "https://images.unsplash.com/photo-1517329782449-810562a4ec2f?w=600&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1595411425732-e69476bd690c?w=600&h=600&fit=crop"
+    ],
     instagram: "@alexmorgan",
     website: "alexmorgan.com",
     previousCollabs: 12,
@@ -116,14 +119,17 @@ export const sampleCollaborators: Collaborator[] = [
   {
     id: 2,
     name: "Jamie Lee",
-    avatar: "/placeholder.svg",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
     role: "Videographer",
     skills: ["Commercial", "Documentary", "Motion Graphics"],
     location: "Los Angeles, CA",
     email: "jamie@example.com",
     rating: 4.9,
     status: "Busy",
-    portfolio: ["/placeholder.svg", "/placeholder.svg"],
+    portfolio: [
+      "https://images.unsplash.com/photo-1604995236333-84f3249e572c?w=600&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1616261167032-b16d2df8333b?w=600&h=600&fit=crop"
+    ],
     instagram: "@jamielee",
     website: "jamielee.com",
     previousCollabs: 8,
@@ -133,14 +139,17 @@ export const sampleCollaborators: Collaborator[] = [
   {
     id: 3,
     name: "Taylor Swift",
-    avatar: "/placeholder.svg",
+    avatar: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=400&h=400&fit=crop",
     role: "Model",
     skills: ["Fashion", "Commercial", "Print"],
     location: "Miami, FL",
     email: "taylor@example.com",
     rating: 4.7,
     status: "Available",
-    portfolio: ["/placeholder.svg", "/placeholder.svg"],
+    portfolio: [
+      "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=600&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&h=600&fit=crop"
+    ],
     instagram: "@taylorswift",
     website: "taylorswift.com",
     previousCollabs: 15,
@@ -150,14 +159,17 @@ export const sampleCollaborators: Collaborator[] = [
   {
     id: 4,
     name: "Jordan Smith",
-    avatar: "/placeholder.svg",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
     role: "Stylist",
     skills: ["Fashion", "Editorial", "Celebrity"],
     location: "New York, NY",
     email: "jordan@example.com",
     rating: 4.6,
     status: "Unavailable",
-    portfolio: ["/placeholder.svg", "/placeholder.svg"],
+    portfolio: [
+      "https://images.unsplash.com/photo-1489875347897-49f64b51c1f8?w=600&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=600&h=600&fit=crop"
+    ],
     instagram: "@jordansmith",
     website: "jordansmith.com",
     previousCollabs: 10,
@@ -167,19 +179,122 @@ export const sampleCollaborators: Collaborator[] = [
   {
     id: 5,
     name: "Riley Johnson",
-    avatar: "/placeholder.svg",
+    avatar: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=400&h=400&fit=crop",
     role: "Makeup Artist",
     skills: ["Beauty", "Editorial", "SFX"],
     location: "Chicago, IL",
     email: "riley@example.com",
     rating: 4.9,
     status: "Available",
-    portfolio: ["/placeholder.svg", "/placeholder.svg"],
+    portfolio: [
+      "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=600&h=600&fit=crop"
+    ],
     instagram: "@rileyjohnson",
     website: "rileyjohnson.com",
     previousCollabs: 7,
     joinedAt: "2023-02-15T13:45:00Z",
     bio: "Experienced makeup artist specializing in natural beauty and editorial looks."
+  },
+  {
+    id: 6,
+    name: "Mia Davis",
+    avatar: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=400&fit=crop",
+    role: "Producer",
+    skills: ["Commercial", "Music Videos", "Documentary"],
+    location: "Austin, TX",
+    email: "mia@example.com",
+    rating: 4.8,
+    status: "Available",
+    portfolio: [
+      "https://images.unsplash.com/photo-1517329782449-810562a4ec2f?w=600&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&h=600&fit=crop"
+    ],
+    instagram: "@miadavis",
+    website: "miadavis.pro",
+    previousCollabs: 9,
+    joinedAt: "2023-03-15T10:30:00Z",
+    bio: "Creative producer with extensive experience in commercial and documentary production."
+  },
+  {
+    id: 7,
+    name: "Ethan Williams",
+    avatar: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=400&h=400&fit=crop",
+    role: "Director",
+    skills: ["Narrative", "Commercial", "Music Videos"],
+    location: "Los Angeles, CA",
+    email: "ethan@example.com",
+    rating: 4.9,
+    status: "Busy",
+    portfolio: [
+      "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=600&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1682695797873-aa4cb6edd613?w=600&h=600&fit=crop"
+    ],
+    instagram: "@ethanwilliams",
+    website: "ethanwilliams.director",
+    previousCollabs: 11,
+    joinedAt: "2023-01-20T16:45:00Z",
+    bio: "Award-winning director with a background in narrative and commercial filmmaking."
+  },
+  {
+    id: 8,
+    name: "Olivia Chen",
+    avatar: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&h=400&fit=crop",
+    role: "Editor",
+    skills: ["Film", "Commercial", "Motion Graphics"],
+    location: "San Francisco, CA",
+    email: "olivia@example.com",
+    rating: 4.7,
+    status: "Available",
+    portfolio: [
+      "https://images.unsplash.com/photo-1554941829-202a0b2403b8?w=600&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1604537466158-719b1972feb8?w=600&h=600&fit=crop"
+    ],
+    instagram: "@oliviachen",
+    website: "oliviachen.edit",
+    previousCollabs: 5,
+    joinedAt: "2023-04-05T14:30:00Z",
+    bio: "Detail-oriented editor specializing in narrative and commercial content."
+  },
+  {
+    id: 9,
+    name: "Noah Thompson",
+    avatar: "https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?w=400&h=400&fit=crop",
+    role: "Designer",
+    skills: ["Motion Graphics", "UI/UX", "Branding"],
+    location: "Chicago, IL",
+    email: "noah@example.com",
+    rating: 4.8,
+    status: "Available",
+    portfolio: [
+      "https://images.unsplash.com/photo-1682695797873-aa4cb6edd613?w=600&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1492695797873-aa4cb6edd613?w=600&h=600&fit=crop"
+    ],
+    instagram: "@noahdesigns",
+    website: "noahthompson.design",
+    previousCollabs: 7,
+    joinedAt: "2023-02-28T09:15:00Z",
+    bio: "Creative designer with expertise in motion graphics and branding."
+  },
+  {
+    id: 10,
+    name: "Sophia Rodriguez",
+    avatar: "https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?w=400&h=400&fit=crop",
+    role: "Writer",
+    skills: ["Screenwriting", "Commercial", "Content"],
+    location: "New York, NY",
+    email: "sophia@example.com",
+    rating: 4.6,
+    status: "Busy",
+    portfolio: [
+      "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=600&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&h=600&fit=crop"
+    ],
+    instagram: "@sophiawrites",
+    website: "sophiarodriguez.writer",
+    previousCollabs: 4,
+    joinedAt: "2023-03-22T11:45:00Z",
+    bio: "Versatile writer with experience in screenwriting and commercial content creation."
   }
 ];
 
