@@ -1,121 +1,33 @@
-import { useState, useRef } from 'react';
+
+import { useState } from 'react';
 import { toast } from 'sonner';
-import { UploadFile, UploadSource, FileStatus } from '../types';
-import { getFilePreview } from '../utils/fileUtils';
+import { useFileManager } from './useFileManager';
+import { useFileInput } from './useFileInput';
+import { simulateFileUpload, calculateTotalSize } from '../utils/uploadUtils';
 import { addFilesToProject } from '../utils/projectUtils';
 
 export const useFileUpload = () => {
-  const [files, setFiles] = useState<UploadFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  const [overallProgress, setOverallProgress] = useState(0);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const triggerFileInput = (e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    
-    console.log("Triggering file input click");
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
+  const {
+    files,
+    overallProgress,
+    addFiles,
+    removeFile,
+    clearAll,
+    updateFileProgress,
+    updateFileStatus,
+    updateOverallProgress
+  } = useFileManager();
+  
+  const {
+    fileInputRef,
+    triggerFileInput,
+    handleFileSelect: handleInputChange
+  } = useFileInput(addFiles);
   
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("File selection triggered", event.target.files);
-    const selectedFiles = event.target.files;
-    
-    if (!selectedFiles || selectedFiles.length === 0) {
-      console.log("No files selected");
-      return;
-    }
-    
-    const newFiles: UploadFile[] = Array.from(selectedFiles).map(file => {
-      return {
-        id: `file-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        progress: 0,
-        status: 'queued',
-        source: 'computer',
-        file: file,
-        preview: getFilePreview(file)
-      };
-    });
-    
-    setFiles(prev => [...prev, ...newFiles]);
-    
-    if (event.target) {
-      event.target.value = '';
-    }
-    
-    toast.success(`${newFiles.length} files added to upload queue`);
-  };
-  
-  const removeFile = (id: string) => {
-    setFiles(prev => {
-      const file = prev.find(f => f.id === id);
-      if (file?.preview) {
-        URL.revokeObjectURL(file.preview);
-      }
-      return prev.filter(file => file.id !== id);
-    });
-  };
-  
-  const clearAll = () => {
-    files.forEach(file => {
-      if (file.preview) {
-        URL.revokeObjectURL(file.preview);
-      }
-    });
-    setFiles([]);
-  };
-  
-  const updateFileProgress = (fileId: string, progress: number) => {
-    setFiles(prev => 
-      prev.map(f => 
-        f.id === fileId 
-          ? { ...f, progress, status: progress === 100 ? 'processing' : 'uploading' } 
-          : f
-      )
-    );
-    
-    // Immediately recalculate overall progress
-    calculateOverallProgress();
-  };
-
-  const updateFileStatus = (fileId: string, status: FileStatus) => {
-    setFiles(prev => 
-      prev.map(f => 
-        f.id === fileId 
-          ? { ...f, status } 
-          : f
-      )
-    );
-    
-    // Immediately recalculate overall progress
-    calculateOverallProgress();
-  };
-  
-  const calculateOverallProgress = () => {
-    if (files.length === 0) {
-      setOverallProgress(0);
-      return;
-    }
-    
-    const totalProgress = files.reduce((sum, file) => {
-      // Count completed files as 100% progress
-      if (file.status === 'complete' || file.status === 'processing') {
-        return sum + 100;
-      }
-      // Use the actual progress for uploading files
-      return sum + file.progress;
-    }, 0);
-    
-    const averageProgress = totalProgress / files.length;
-    setOverallProgress(Math.round(averageProgress));
+    handleInputChange(event);
   };
   
   const startUpload = async (licenseType: string, selectedProject: string) => {
@@ -135,8 +47,7 @@ export const useFileUpload = () => {
     }
     
     setIsUploading(true);
-    setOverallProgress(0); // Reset progress at start
-    calculateOverallProgress(); // Calculate initial progress
+    updateOverallProgress(); // Calculate initial progress
     
     try {
       // Process files one by one
@@ -161,37 +72,13 @@ export const useFileUpload = () => {
       await addFilesToProject(selectedProject, files, licenseType);
       
       toast.success(`All files uploaded successfully to project!`);
-      setOverallProgress(100); // Ensure we end at 100%
+      updateFileStatus('', 'complete'); // Force progress to 100%
     } catch (error) {
       console.error('Upload error:', error);
       toast.error('There was a problem with the upload');
     } finally {
       setIsUploading(false);
     }
-  };
-  
-  const calculateTotalSize = () => {
-    return files.reduce((total, file) => total + file.size, 0);
-  };
-
-  // Simulates uploading a file with realistic progress
-  const simulateFileUpload = (fileId: string, progressCallback: (id: string, progress: number) => void): Promise<void> => {
-    return new Promise((resolve) => {
-      let progress = 0;
-      const interval = setInterval(() => {
-        // Realistic progress simulation - faster at start, slower at end
-        const increment = Math.max(1, (100 - progress) / 10);
-        progress += increment;
-        
-        if (progress >= 99.5) {
-          clearInterval(interval);
-          progressCallback(fileId, 100);
-          resolve();
-        } else {
-          progressCallback(fileId, progress);
-        }
-      }, 200);
-    });
   };
 
   return {
@@ -204,6 +91,6 @@ export const useFileUpload = () => {
     removeFile,
     clearAll,
     startUpload,
-    calculateTotalSize
+    calculateTotalSize: () => calculateTotalSize(files)
   };
 };
