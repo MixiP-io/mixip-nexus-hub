@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { CollaboratorGroup, GroupType, initialGroups } from '../types';
+import { CollaboratorGroup, GroupType, initialGroups, Collaborator, sampleCollaborators } from '../types';
 
 type SortOption = 'recent' | 'alphabetical' | 'size' | 'type';
 type ViewOption = 'all' | 'internal' | 'external' | 'agencies' | 'talent' | 'favorites';
@@ -91,20 +91,10 @@ export const useCollaboratorGroups = () => {
     setGroups(groups.map(group => {
       if (group.id !== groupId) return group;
       
-      // Get available users that match the IDs (in a real app, this would fetch from an API)
-      const availableUsers = [
-        { id: 101, name: 'Alex Johnson', role: 'Designer', avatar: '' },
-        { id: 102, name: 'Sam Williams', role: 'Developer', avatar: '' },
-        { id: 103, name: 'Jamie Smith', role: 'Marketing', avatar: '' },
-        { id: 104, name: 'Taylor Brown', role: 'Project Manager', avatar: '' },
-        { id: 105, name: 'Casey Garcia', role: 'Content Creator', avatar: '' },
-        { id: 106, name: 'Jordan Lee', role: 'UI/UX Designer', avatar: '' },
-      ];
-      
-      // Find the users to add
-      const newMembers = availableUsers.filter(user => 
-        memberIds.includes(user.id) && 
-        !group.members.some(member => member.id === user.id)
+      // Find members from the sampleCollaborators array instead of creating incomplete objects
+      const newMembers = sampleCollaborators.filter(collaborator => 
+        memberIds.includes(collaborator.id) && 
+        !group.members.some(member => member.id === collaborator.id)
       );
       
       // Update the group with new members
