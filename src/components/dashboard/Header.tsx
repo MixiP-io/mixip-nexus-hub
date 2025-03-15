@@ -1,10 +1,14 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Search, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ActionMenu from '@/components/dashboard/ActionMenu';
+import { useProfile } from '@/pages/profile/context/ProfileContext';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const Header: React.FC = () => {
+  const { profileData } = useProfile();
+
   return (
     <header className="bg-[#1A1F2C] p-4 flex items-center justify-between border-b border-gray-800">
       <div className="relative w-80">
@@ -27,6 +31,15 @@ const Header: React.FC = () => {
         >
           <Download className="w-5 h-5" />
           <span className="hidden sm:inline">Xvidia App</span>
+        </Link>
+
+        <Link to="/profile/settings" className="ml-2 hidden sm:block">
+          <Avatar className="h-8 w-8 border border-gray-700">
+            <AvatarImage src={profileData?.avatar || ""} />
+            <AvatarFallback className="bg-gray-700 text-gray-300">
+              {profileData?.fullName.split(' ').map(name => name[0]).join('') || "JD"}
+            </AvatarFallback>
+          </Avatar>
         </Link>
       </div>
     </header>

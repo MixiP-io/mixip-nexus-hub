@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "@/hooks/use-toast";
+import { useProfile } from '../context/ProfileContext';
 
 // Define form schema for personal information
 const personalInfoSchema = z.object({
@@ -24,45 +25,63 @@ const personalInfoSchema = z.object({
 });
 
 const GeneralTab: React.FC = () => {
+  const { profileData, updateProfileData } = useProfile();
+  
   // Languages state and handlers
-  const [languages, setLanguages] = useState<string[]>(["English", "Spanish"]);
+  const [languages, setLanguages] = useState<string[]>(profileData.languages);
   const [newLanguage, setNewLanguage] = useState("");
 
   // Create form
   const personalInfoForm = useForm<z.infer<typeof personalInfoSchema>>({
     resolver: zodResolver(personalInfoSchema),
     defaultValues: {
-      fullName: "John Doe",
-      displayName: "johndoe",
-      email: "john@example.com",
-      phone: "+1 (555) 123-4567",
-      bio: "Professional videographer and photographer specializing in commercial and documentary work.",
-      location: "New York, USA",
+      fullName: profileData.fullName,
+      displayName: profileData.displayName,
+      email: profileData.email,
+      phone: profileData.phone,
+      bio: profileData.bio,
+      location: profileData.location,
     },
   });
 
+  // Update form when profileData changes
+  useEffect(() => {
+    personalInfoForm.reset({
+      fullName: profileData.fullName,
+      displayName: profileData.displayName,
+      email: profileData.email,
+      phone: profileData.phone,
+      bio: profileData.bio,
+      location: profileData.location,
+    });
+  }, [profileData, personalInfoForm]);
+
   const addLanguage = () => {
     if (newLanguage && !languages.includes(newLanguage)) {
-      setLanguages([...languages, newLanguage]);
+      const updatedLanguages = [...languages, newLanguage];
+      setLanguages(updatedLanguages);
+      updateProfileData({ languages: updatedLanguages });
       setNewLanguage('');
     }
   };
 
   const removeLanguage = (languageToRemove: string) => {
-    setLanguages(languages.filter(language => language !== languageToRemove));
+    const updatedLanguages = languages.filter(language => language !== languageToRemove);
+    setLanguages(updatedLanguages);
+    updateProfileData({ languages: updatedLanguages });
   };
 
   // Handle personal info form submission
   const onPersonalInfoSubmit = (values: z.infer<typeof personalInfoSchema>) => {
     console.log('Personal info saved:', values);
     
-    // Use the toast function directly, not from a hook context
+    // Update profile data in context
+    updateProfileData(values);
+    
     toast({
       title: "Changes saved",
       description: "Your personal information has been updated successfully.",
     });
-    
-    // Here you would typically send this data to an API
   };
 
   return (

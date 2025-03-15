@@ -11,9 +11,11 @@ import {
 import { Link, useLocation } from 'react-router-dom';
 import AnimatedLogo from '@/components/ui/AnimatedLogo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useProfile } from '@/pages/profile/context/ProfileContext';
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
+  const { profileData } = useProfile();
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -29,11 +31,13 @@ const Sidebar: React.FC = () => {
       <div className="p-4 border-b border-gray-800">
         <Link to="/profile/settings" className="flex items-center space-x-3 hover:bg-gray-800 p-2 rounded-lg transition-colors">
           <Avatar className="h-10 w-10">
-            <AvatarImage src="" />
-            <AvatarFallback className="bg-gray-700 text-gray-300">JD</AvatarFallback>
+            <AvatarImage src={profileData?.avatar || ""} />
+            <AvatarFallback className="bg-gray-700 text-gray-300">
+              {profileData?.fullName.split(' ').map(name => name[0]).join('') || "JD"}
+            </AvatarFallback>
           </Avatar>
           <div>
-            <h3 className="font-medium">John Doe</h3>
+            <h3 className="font-medium">{profileData?.fullName || "John Doe"}</h3>
             <p className="text-sm text-gray-400">Creator Pro</p>
           </div>
         </Link>
