@@ -1,23 +1,28 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CollaboratorGroup } from './types';
 import { ArrowLeft, Edit, Trash2, UserPlus, Users } from 'lucide-react';
+import MemberAddDialog from './MemberAddDialog';
 
 interface GroupDetailProps {
   group: CollaboratorGroup;
   onBack: () => void;
   onEdit: (groupId: number) => void;
   onDelete: (groupId: number) => void;
+  onAddMembers: (groupId: number, memberIds: number[]) => void;
 }
 
 const GroupDetail: React.FC<GroupDetailProps> = ({
   group,
   onBack,
   onEdit,
-  onDelete
+  onDelete,
+  onAddMembers
 }) => {
+  const [isAddMemberDialogOpen, setIsAddMemberDialogOpen] = useState(false);
+  
   // Get initials for avatar fallback
   const getInitials = (name: string) => {
     return name
@@ -27,6 +32,9 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
       .toUpperCase()
       .substring(0, 2);
   };
+
+  // Get existing member IDs for filtering in the dialog
+  const existingMemberIds = group.members.map(member => member.id);
 
   return (
     <div>
@@ -57,7 +65,7 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
               <Button 
                 variant="default" 
                 size="sm"
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-green-600 hover:bg-green-700 text-white"
                 onClick={() => onEdit(group.id)}
               >
                 <Edit className="w-4 h-4 mr-2" />
@@ -66,7 +74,7 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
               <Button 
                 variant="default" 
                 size="sm" 
-                className="bg-red-600 hover:bg-red-700"
+                className="bg-red-600 hover:bg-red-700 text-white"
                 onClick={() => onDelete(group.id)}
               >
                 <Trash2 className="w-4 h-4 mr-2" />
@@ -100,7 +108,8 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
           <h3 className="text-xl font-semibold">Members ({group.memberCount})</h3>
           <Button 
             variant="default" 
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+            onClick={() => setIsAddMemberDialogOpen(true)}
           >
             <UserPlus className="w-4 h-4 mr-2" />
             Add Members
@@ -130,13 +139,25 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
             <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
             <h3 className="text-lg font-medium mb-1">No members yet</h3>
             <p className="text-gray-400 mb-4">Add team members to this group</p>
-            <Button className="bg-blue-600 hover:bg-blue-700">
+            <Button 
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+              onClick={() => setIsAddMemberDialogOpen(true)}
+            >
               <UserPlus className="w-4 h-4 mr-2" />
               Add Members
             </Button>
           </div>
         )}
       </div>
+      
+      {/* Add Member Dialog */}
+      <MemberAddDialog
+        isOpen={isAddMemberDialogOpen}
+        onClose={() => setIsAddMemberDialogOpen(false)}
+        onAddMembers={(memberIds) => onAddMembers(group.id, memberIds)}
+        groupId={group.id}
+        existingMemberIds={existingMemberIds}
+      />
     </div>
   );
 };

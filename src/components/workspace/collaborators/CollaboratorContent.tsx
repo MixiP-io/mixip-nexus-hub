@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -22,7 +23,8 @@ const CollaboratorContent: React.FC = () => {
     setIsCreatingGroup,
     addGroup,
     toggleStarGroup,
-    deleteGroup
+    deleteGroup,
+    addMembersToGroup
   } = useCollaboratorGroups();
   
   const [viewingGroupId, setViewingGroupId] = useState<number | null>(null);
@@ -81,6 +83,12 @@ const CollaboratorContent: React.FC = () => {
       toast.success('New group created successfully');
     }
   };
+  
+  // Handler for adding members to a group
+  const handleAddMembers = (groupId: number, memberIds: number[]) => {
+    addMembersToGroup(groupId, memberIds);
+    toast.success(`${memberIds.length} ${memberIds.length === 1 ? 'member' : 'members'} added successfully`);
+  };
 
   // If creating or editing a group, show the form
   if (isCreatingGroup || editingGroupId) {
@@ -105,6 +113,7 @@ const CollaboratorContent: React.FC = () => {
           onBack={handleBackToGroups}
           onEdit={handleEditGroup}
           onDelete={handleDeleteGroup}
+          onAddMembers={handleAddMembers}
         />
       </div>
     );
