@@ -55,21 +55,22 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
             
             <div className="flex space-x-2">
               <Button 
-                variant="outline" 
+                variant="default" 
                 size="sm"
+                className="bg-green-600 hover:bg-green-700"
                 onClick={() => onEdit(group.id)}
               >
-                <Edit className="w-4 h-4 mr-1" />
-                Edit
+                <Edit className="w-4 h-4 mr-2" />
+                Edit Group
               </Button>
               <Button 
-                variant="outline" 
+                variant="default" 
                 size="sm" 
-                className="text-red-500 hover:text-red-400"
+                className="bg-red-600 hover:bg-red-700"
                 onClick={() => onDelete(group.id)}
               >
-                <Trash2 className="w-4 h-4 mr-1" />
-                Delete
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete Group
               </Button>
             </div>
           </div>
@@ -97,7 +98,10 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-semibold">Members ({group.memberCount})</h3>
-          <Button variant="outline" className="flex items-center">
+          <Button 
+            variant="default" 
+            className="bg-blue-600 hover:bg-blue-700"
+          >
             <UserPlus className="w-4 h-4 mr-2" />
             Add Members
           </Button>
@@ -126,7 +130,7 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
             <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
             <h3 className="text-lg font-medium mb-1">No members yet</h3>
             <p className="text-gray-400 mb-4">Add team members to this group</p>
-            <Button className="bg-gradient-to-b from-mixip-blue to-mixip-blue-dark">
+            <Button className="bg-blue-600 hover:bg-blue-700">
               <UserPlus className="w-4 h-4 mr-2" />
               Add Members
             </Button>

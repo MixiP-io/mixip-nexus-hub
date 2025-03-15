@@ -33,18 +33,18 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
       </div>
       
       <div className="flex gap-2">
-        <ToggleGroup type="single" defaultValue="recent">
+        <ToggleGroup type="single" value={sortOption}>
           <ToggleGroupItem 
             value="recent" 
             onClick={() => setSortOption('recent')}
-            className="bg-gray-800 hover:bg-gray-700 data-[state=on]:bg-gray-700"
+            className="bg-gray-800 hover:bg-gray-700 data-[state=on]:bg-blue-600 px-4 py-2"
           >
             Recent
           </ToggleGroupItem>
           <ToggleGroupItem 
-            value="popular" 
+            value="alphabetical" 
             onClick={() => setSortOption('alphabetical')}
-            className="bg-gray-800 hover:bg-gray-700 data-[state=on]:bg-gray-700"
+            className="bg-gray-800 hover:bg-gray-700 data-[state=on]:bg-blue-600 px-4 py-2"
           >
             Popular
           </ToggleGroupItem>

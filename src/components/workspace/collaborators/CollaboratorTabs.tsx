@@ -29,7 +29,7 @@ const CollaboratorTabs: React.FC<CollaboratorTabsProps> = ({
           <button
             key={tab.id}
             className={cn(
-              "pb-4 px-1 font-medium text-base relative",
+              "pb-4 px-1 font-medium text-base relative transition-colors",
               activeView === tab.id
                 ? "text-white" 
                 : "text-gray-400 hover:text-gray-300"
@@ -38,7 +38,7 @@ const CollaboratorTabs: React.FC<CollaboratorTabsProps> = ({
           >
             {tab.label}
             {activeView === tab.id && (
-              <span className="absolute bottom-0 left-0 w-full h-1 bg-green-500"></span>
+              <span className="absolute bottom-0 left-0 w-full h-1 bg-blue-500"></span>
             )}
           </button>
         ))}
