@@ -111,9 +111,9 @@ export const setProjectCoverImage = (projectId: string, assetId: string): boolea
   }
   
   // Find the asset in the project's assets
-  const asset = projects[projectIndex].assets.find(a => a.id === assetId);
+  let targetAsset = projects[projectIndex].assets.find(a => a.id === assetId);
   
-  if (!asset) {
+  if (!targetAsset) {
     // Search in subfolders
     let foundAsset = null;
     
@@ -141,12 +141,12 @@ export const setProjectCoverImage = (projectId: string, assetId: string): boolea
       return false;
     }
     
-    asset = foundAsset;
+    targetAsset = foundAsset;
   }
   
   // Update the project with the new cover image
   const updatedProjects = [...projects];
-  updatedProjects[projectIndex].coverImage = asset.preview;
+  updatedProjects[projectIndex].coverImage = targetAsset.preview;
   updatedProjects[projectIndex].updatedAt = new Date();
   
   updateProjects(updatedProjects);

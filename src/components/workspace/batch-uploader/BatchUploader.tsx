@@ -26,6 +26,7 @@ const BatchUploader: React.FC = () => {
     selectedProject,
     selectedProjectName,
     selectedFolder,
+    setSelectedFolder,
     navigateToProject
   } = useFileUpload();
 
