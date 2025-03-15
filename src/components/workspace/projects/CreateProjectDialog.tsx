@@ -114,28 +114,38 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="bg-gray-800 border-gray-700 max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Create New Project</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-white text-xl">Create New Project</DialogTitle>
+          <DialogDescription className="text-gray-300">
             Create a new project to organize your creative assets.
           </DialogDescription>
         </DialogHeader>
         
         <Tabs defaultValue="basic" value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-2 mb-4">
-            <TabsTrigger value="basic">Basic Info</TabsTrigger>
-            <TabsTrigger value="rights">Ownership & Rights</TabsTrigger>
+          <TabsList className="grid grid-cols-2 mb-4 bg-gray-700">
+            <TabsTrigger 
+              value="basic" 
+              className="data-[state=active]:bg-gray-600 data-[state=active]:text-white text-gray-300"
+            >
+              Basic Info
+            </TabsTrigger>
+            <TabsTrigger 
+              value="rights" 
+              className="data-[state=active]:bg-gray-600 data-[state=active]:text-white text-gray-300"
+            >
+              Ownership & Rights
+            </TabsTrigger>
           </TabsList>
           
           <form onSubmit={handleSubmit}>
             <TabsContent value="basic" className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="project-name">Project Name</Label>
+                <Label htmlFor="project-name" className="text-gray-200">Project Name</Label>
                 <Input
                   id="project-name"
                   placeholder="Enter project name"
                   value={projectName}
                   onChange={(e) => setProjectName(e.target.value)}
-                  className="bg-gray-700 border-gray-600 text-white"
+                  className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
                   required
                 />
               </div>
@@ -145,7 +155,7 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
                   type="button" 
                   variant="outline" 
                   onClick={() => setIsOpen(false)}
-                  className="border-gray-600"
+                  className="border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white"
                 >
                   Cancel
                 </Button>
@@ -153,7 +163,7 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
                 <Button 
                   type="button" 
                   onClick={() => setActiveTab("rights")}
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-green-600 hover:bg-green-700 text-white"
                   disabled={!projectName.trim()}
                 >
                   Next: Rights Management
@@ -176,7 +186,7 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
                   type="button" 
                   variant="outline" 
                   onClick={() => setActiveTab("basic")}
-                  className="border-gray-600"
+                  className="border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white"
                 >
                   Back
                 </Button>
@@ -184,7 +194,7 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
                 <Button 
                   type="submit" 
                   disabled={!projectName.trim() || isSubmitting}
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-green-600 hover:bg-green-700 text-white"
                 >
                   {isSubmitting ? 'Creating...' : 'Create Project'}
                 </Button>

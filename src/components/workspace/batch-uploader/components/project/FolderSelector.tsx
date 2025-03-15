@@ -37,7 +37,7 @@ const FolderSelector: React.FC<FolderSelectorProps> = ({
 
   return (
     <div>
-      <label className="block text-gray-400 mb-2 text-sm">Target Folder</label>
+      <label className="block text-gray-300 mb-2 text-sm">Target Folder</label>
       <div className="flex gap-2">
         <Select 
           value={selectedFolder} 
@@ -65,7 +65,7 @@ const FolderSelector: React.FC<FolderSelectorProps> = ({
                   <div className="flex items-center">
                     <FolderTree className="mr-2 h-4 w-4" />
                     {folder.name}
-                    <span className="ml-1 text-xs text-gray-400">
+                    <span className="ml-1 text-xs text-gray-300">
                       ({getParentName(folder.parentId || '')})
                     </span>
                   </div>

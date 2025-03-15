@@ -47,8 +47,8 @@ const UsageRightsMatrix: React.FC<UsageRightsMatrixProps> = ({
   };
 
   return (
-    <div className="bg-gray-700 p-4 rounded-lg">
-      <h3 className="font-medium mb-4 flex items-center">
+    <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+      <h3 className="font-medium mb-4 flex items-center text-white">
         <Percent className="w-5 h-5 mr-2" />
         Usage Rights Matrix
       </h3>
@@ -56,17 +56,17 @@ const UsageRightsMatrix: React.FC<UsageRightsMatrixProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className={cn(
           "p-3 rounded-lg border",
-          "bg-gray-800 border-green-500 opacity-75"
+          "bg-gray-700 border-green-500 opacity-100"
         )}>
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <Check className="w-4 h-4 mr-2 text-green-500" />
-              <span className="font-medium">Primary Campaign Usage</span>
+              <span className="font-medium text-white">Primary Campaign Usage</span>
             </div>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="text-gray-400 hover:text-white">
+                  <button className="text-gray-300 hover:text-white">
                     <Info className="w-4 h-4" />
                   </button>
                 </TooltipTrigger>
@@ -78,7 +78,7 @@ const UsageRightsMatrix: React.FC<UsageRightsMatrixProps> = ({
               </Tooltip>
             </TooltipProvider>
           </div>
-          <p className="text-xs text-gray-400 mt-1 ml-6">Use in the primary campaign (always included)</p>
+          <p className="text-xs text-gray-300 mt-1 ml-6">Use in the primary campaign (always included)</p>
         </div>
         
         {Object.entries(usageRights)
@@ -93,8 +93,8 @@ const UsageRightsMatrix: React.FC<UsageRightsMatrixProps> = ({
                 className={cn(
                   "p-3 rounded-lg border cursor-pointer hover:border-gray-500",
                   value 
-                    ? "bg-gray-800 border-green-500" 
-                    : "bg-gray-800 border-gray-600"
+                    ? "bg-gray-700 border-green-500" 
+                    : "bg-gray-700 border-gray-600"
                 )}
                 onClick={() => onUsageRightsChange(key as keyof UsageRights)}
               >
@@ -105,12 +105,12 @@ const UsageRightsMatrix: React.FC<UsageRightsMatrixProps> = ({
                     ) : (
                       <div className="w-4 h-4 mr-2 rounded-sm border border-gray-500" />
                     )}
-                    <span className="font-medium">{label}</span>
+                    <span className="font-medium text-white">{label}</span>
                   </div>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button className="text-gray-400 hover:text-white">
+                        <button className="text-gray-300 hover:text-white">
                           <Info className="w-4 h-4" />
                         </button>
                       </TooltipTrigger>
@@ -122,7 +122,7 @@ const UsageRightsMatrix: React.FC<UsageRightsMatrixProps> = ({
                     </Tooltip>
                   </TooltipProvider>
                 </div>
-                <p className="text-xs text-gray-400 mt-1 ml-6">{description}</p>
+                <p className="text-xs text-gray-300 mt-1 ml-6">{description}</p>
               </div>
             );
           })}

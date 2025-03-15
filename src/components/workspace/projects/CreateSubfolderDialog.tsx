@@ -61,8 +61,8 @@ const CreateSubfolderDialog: React.FC<CreateSubfolderDialogProps> = ({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="bg-gray-800 border-gray-700">
         <DialogHeader>
-          <DialogTitle>Create New Folder</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-white text-xl">Create New Folder</DialogTitle>
+          <DialogDescription className="text-gray-300">
             Create a new folder{parentText} to organize your assets
           </DialogDescription>
         </DialogHeader>
@@ -70,13 +70,13 @@ const CreateSubfolderDialog: React.FC<CreateSubfolderDialogProps> = ({
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="folder-name">Folder Name</Label>
+              <Label htmlFor="folder-name" className="text-gray-200">Folder Name</Label>
               <Input
                 id="folder-name"
                 placeholder="Enter folder name"
                 value={folderName}
                 onChange={(e) => setFolderName(e.target.value)}
-                className="bg-gray-700 border-gray-600 text-white"
+                className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
                 required
               />
             </div>
@@ -87,14 +87,14 @@ const CreateSubfolderDialog: React.FC<CreateSubfolderDialogProps> = ({
               type="button" 
               variant="outline" 
               onClick={() => setIsOpen(false)}
-              className="border-gray-600"
+              className="border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white"
             >
               Cancel
             </Button>
             <Button 
               type="submit" 
               disabled={!folderName.trim() || isSubmitting}
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-green-600 hover:bg-green-700 text-white"
             >
               {isSubmitting ? 'Creating...' : (
                 <>
