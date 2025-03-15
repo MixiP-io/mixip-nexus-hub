@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import UploaderTabs from './components/UploaderTabs';
 import UploadArea from './components/UploadArea';
 import FilesList from './components/FilesList';
@@ -43,6 +43,16 @@ const BatchUploader: React.FC = () => {
     selectedFolder,
     setSelectedFolder
   } = useMetadataState();
+  
+  // Debug log for tracking upload state
+  useEffect(() => {
+    if (uploadComplete) {
+      console.log("BatchUploader: Upload complete state is true", { 
+        selectedProject, 
+        selectedProjectName 
+      });
+    }
+  }, [uploadComplete, selectedProject, selectedProjectName]);
   
   const handleStartUpload = async () => {
     // Ensure we're passing the correct license type and project to startUpload

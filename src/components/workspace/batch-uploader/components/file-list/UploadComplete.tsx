@@ -23,6 +23,8 @@ const UploadComplete: React.FC<UploadCompleteProps> = ({
   projectName,
   navigateToProject
 }) => {
+  console.log("UploadComplete dialog props:", { isOpen, fileCount, projectId, projectName });
+
   const handleNavigate = () => {
     navigateToProject(projectId);
     onClose();

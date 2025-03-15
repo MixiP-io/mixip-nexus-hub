@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import FileListHeader from './file-list/FileListHeader';
 import OverallProgress from './file-list/OverallProgress';
 import FileGrid from './file-list/FileGrid';
@@ -23,6 +23,17 @@ const FilesList: React.FC<FilesListProps> = ({
 }) => {
   const totalSize = formatFileSize(calculateTotalSize());
   const uploadedFiles = files.filter(f => f.status === 'complete').length;
+  
+  // Add effect to log state changes for debugging
+  useEffect(() => {
+    console.log("FilesList render state:", { 
+      uploadComplete, 
+      selectedProject, 
+      selectedProjectName,
+      uploadedFiles,
+      filesCount: files.length
+    });
+  }, [uploadComplete, selectedProject, selectedProjectName, uploadedFiles, files.length]);
   
   return (
     <div className="bg-gray-800 rounded-lg p-4 mb-6">
@@ -48,6 +59,7 @@ const FilesList: React.FC<FilesListProps> = ({
         formatFileSize={formatFileSize}
       />
 
+      {/* Show upload complete dialog when upload is complete and we have a project */}
       {uploadComplete && selectedProject && (
         <UploadComplete 
           isOpen={uploadComplete}

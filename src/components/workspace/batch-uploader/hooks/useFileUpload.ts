@@ -56,7 +56,7 @@ export const useFileUpload = () => {
       return;
     }
     
-    // Reset the upload complete state
+    // Reset the upload complete state at the beginning of upload
     setUploadComplete(false);
     setIsUploading(true);
     setSelectedProject(projectId);
@@ -97,13 +97,19 @@ export const useFileUpload = () => {
       if (completedFiles.length > 0) {
         await addFilesToProject(projectId, completedFiles, licenseType);
         
-        // Set upload complete to show success message
+        // Set upload complete to true AFTER all files are processed and added to project
+        console.log("Upload complete, setting uploadComplete to true");
+        console.log("Project:", projectId, "Project name:", selectedProjectName);
+        
+        // Force completion state to be set
+        setIsUploading(false);
+        updateOverallProgress();
         setUploadComplete(true);
-        console.log("Upload complete, showing success dialog");
       }
     } catch (error) {
       console.error('Upload error:', error);
       toast.error('There was a problem with the upload');
+      setUploadComplete(false);
     } finally {
       setIsUploading(false);
       // Force a final update to overall progress
