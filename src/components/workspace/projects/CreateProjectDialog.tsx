@@ -6,22 +6,14 @@ import {
   DialogHeader, 
   DialogTitle, 
   DialogDescription,
-  DialogFooter,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { createProject, ProjectOwner, ProjectLicensing } from '../batch-uploader/utils/projectUtils';
-import RightsManagement from '../rights-management';
 import { UsageRights } from '../rights-management/types';
 
-interface CreateProjectDialogProps {
-  isOpen: boolean;
-  setIsOpen: (open: boolean) => void;
-  onCreateProject: (name: string) => void;
-  parentFolderId?: string;
-}
+import BasicInfoTab from './dialog/BasicInfoTab';
+import RightsManagementTab from './dialog/RightsManagementTab';
+import { CreateProjectDialogProps } from './dialog/types';
 
 const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
   isOpen,
@@ -137,68 +129,26 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
           </TabsList>
           
           <form onSubmit={handleSubmit}>
-            <TabsContent value="basic" className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="project-name" className="text-gray-200">Project Name</Label>
-                <Input
-                  id="project-name"
-                  placeholder="Enter project name"
-                  value={projectName}
-                  onChange={(e) => setProjectName(e.target.value)}
-                  className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
-                  required
-                />
-              </div>
-              
-              <div className="pt-4 flex justify-between">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setIsOpen(false)}
-                  className="border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white"
-                >
-                  Cancel
-                </Button>
-                
-                <Button 
-                  type="button" 
-                  onClick={() => setActiveTab("rights")}
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                  disabled={!projectName.trim()}
-                >
-                  Next: Rights Management
-                </Button>
-              </div>
+            <TabsContent value="basic">
+              <BasicInfoTab 
+                projectName={projectName}
+                setProjectName={setProjectName}
+                setActiveTab={setActiveTab}
+                setIsOpen={setIsOpen}
+              />
             </TabsContent>
             
-            <TabsContent value="rights" className="space-y-4 py-4">
-              <div className="space-y-4">
-                <RightsManagement
-                  ownershipSplit={ownershipSplit}
-                  setOwnershipSplit={setOwnershipSplit}
-                  usageRights={usageRights}
-                  onUsageRightsChange={handleUsageRightsChange}
-                />
-              </div>
-              
-              <DialogFooter className="pt-4 flex justify-between">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setActiveTab("basic")}
-                  className="border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white"
-                >
-                  Back
-                </Button>
-                
-                <Button 
-                  type="submit" 
-                  disabled={!projectName.trim() || isSubmitting}
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                >
-                  {isSubmitting ? 'Creating...' : 'Create Project'}
-                </Button>
-              </DialogFooter>
+            <TabsContent value="rights">
+              <RightsManagementTab 
+                ownershipSplit={ownershipSplit}
+                setOwnershipSplit={setOwnershipSplit}
+                usageRights={usageRights}
+                onUsageRightsChange={handleUsageRightsChange}
+                setActiveTab={setActiveTab}
+                handleSubmit={handleSubmit}
+                isSubmitting={isSubmitting}
+                projectName={projectName}
+              />
             </TabsContent>
           </form>
         </Tabs>
