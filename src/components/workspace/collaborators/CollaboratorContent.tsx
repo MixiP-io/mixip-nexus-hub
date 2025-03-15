@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useCollaboratorGroups } from './hooks/useCollaboratorGroups';
 import { useGroupActions } from './hooks/useGroupActions';
@@ -5,6 +6,9 @@ import GroupFormView from './views/GroupFormView';
 import AddMembersView from './views/AddMembersView';
 import GroupDetailView from './views/GroupDetailView';
 import GroupListView from './views/GroupListView';
+
+// Define the ViewOption type
+type ViewOption = 'all' | 'internal' | 'external' | 'agencies' | 'talent' | 'favorites';
 
 const CollaboratorContent: React.FC = () => {
   const {

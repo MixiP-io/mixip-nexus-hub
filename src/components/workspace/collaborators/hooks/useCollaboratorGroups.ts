@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { CollaboratorGroup, GroupType, initialGroups, Collaborator, sampleCollaborators } from '../types';
 
@@ -15,16 +14,13 @@ export const useCollaboratorGroups = () => {
   const [isCreatingGroup, setIsCreatingGroup] = useState(false);
   const [lastCreatedGroupId, setLastCreatedGroupId] = useState<number | null>(null);
 
-  // Handle filtering groups by type/view
   const filteredGroups = groups.filter(group => {
-    // First apply search filter
     const matchesSearch = searchQuery === '' || 
       group.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       group.description.toLowerCase().includes(searchQuery.toLowerCase());
     
     if (!matchesSearch) return false;
     
-    // Then apply view filter
     switch (activeView) {
       case 'all':
         return true;
@@ -42,8 +38,7 @@ export const useCollaboratorGroups = () => {
         return true;
     }
   });
-  
-  // Handle sorting groups
+
   const sortedGroups = [...filteredGroups].sort((a, b) => {
     switch (sortOption) {
       case 'recent':
@@ -59,7 +54,6 @@ export const useCollaboratorGroups = () => {
     }
   });
 
-  // Function to add a new group
   const addGroup = (newGroup: Omit<CollaboratorGroup, 'id' | 'createdAt' | 'updatedAt'>) => {
     const now = new Date().toISOString();
     const newId = groups.length > 0 ? Math.max(...groups.map(g => g.id)) + 1 : 1;
@@ -73,10 +67,9 @@ export const useCollaboratorGroups = () => {
     
     setGroups([...groups, groupToAdd]);
     setIsCreatingGroup(false);
-    setLastCreatedGroupId(newId); // Set the last created group ID for immediate viewing
+    setLastCreatedGroupId(newId);
   };
 
-  // Function to toggle starred status
   const toggleStarGroup = (groupId: number) => {
     setGroups(groups.map(group => 
       group.id === groupId 
@@ -85,23 +78,19 @@ export const useCollaboratorGroups = () => {
     ));
   };
 
-  // Function to delete a group
   const deleteGroup = (groupId: number) => {
     setGroups(groups.filter(group => group.id !== groupId));
   };
-  
-  // Function to add members to a group
+
   const addMembersToGroup = (groupId: number, memberIds: number[]) => {
     setGroups(groups.map(group => {
       if (group.id !== groupId) return group;
       
-      // Find members from the sampleCollaborators array instead of creating incomplete objects
       const newMembers = sampleCollaborators.filter(collaborator => 
         memberIds.includes(collaborator.id) && 
         !group.members.some(member => member.id === collaborator.id)
       );
       
-      // Update the group with new members
       const updatedMembers = [...group.members, ...newMembers];
       
       return {
@@ -113,19 +102,15 @@ export const useCollaboratorGroups = () => {
     }));
   };
 
-  // Find available collaborators filtered by search criteria
   const findAvailableCollaborators = (groupId: number | null, query: string = '') => {
     const group = groupId ? groups.find(g => g.id === groupId) : null;
     const existingMemberIds = group ? group.members.map(m => m.id) : [];
     
     return sampleCollaborators.filter(collab => {
-      // Filter out existing members
       if (existingMemberIds.includes(collab.id)) return false;
       
-      // If no search query, include all
       if (!query) return true;
       
-      // Search based on selected field
       const lowercaseQuery = query.toLowerCase();
       switch (searchField) {
         case 'name':
@@ -139,7 +124,6 @@ export const useCollaboratorGroups = () => {
             skill.toLowerCase().includes(lowercaseQuery)
           );
         default:
-          // Fallback to search across all fields
           return (
             collab.name.toLowerCase().includes(lowercaseQuery) ||
             collab.location.toLowerCase().includes(lowercaseQuery) ||
@@ -150,7 +134,6 @@ export const useCollaboratorGroups = () => {
     });
   };
 
-  // Clear the last created group ID (used after viewing it)
   const clearLastCreatedGroupId = () => {
     setLastCreatedGroupId(null);
   };

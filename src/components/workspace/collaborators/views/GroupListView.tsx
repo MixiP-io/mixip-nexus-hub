@@ -5,14 +5,17 @@ import CollaboratorSearch from '../CollaboratorSearch';
 import CollaboratorTabs from '../CollaboratorTabs';
 import GroupList from '../GroupList';
 
+// Import ViewOption type from the CollaboratorTabs component
+type ViewOption = 'all' | 'internal' | 'external' | 'agencies' | 'talent' | 'favorites';
+
 interface GroupListViewProps {
   groups: CollaboratorGroup[];
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   searchField: string;
   setSearchField: (field: any) => void;
-  activeView: string;
-  setActiveView: (view: any) => void;
+  activeView: ViewOption; // Updated type from string to ViewOption
+  setActiveView: (view: ViewOption) => void; // Updated type from any to ViewOption
   sortOption: string;
   setSortOption: (option: any) => void;
   onStartGroupCreation: () => void;
