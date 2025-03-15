@@ -1,7 +1,4 @@
-
 import React, { useState } from 'react';
-import { SlidersHorizontal } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
 import { useCollaboratorGroups } from './hooks/useCollaboratorGroups';
@@ -9,7 +6,7 @@ import { CollaboratorGroup } from './types';
 import CollaboratorSearch from './CollaboratorSearch';
 import CollaboratorTabs from './CollaboratorTabs';
 import GroupList from './GroupList';
-import GroupForm from './group-form/GroupForm'; // Updated import path
+import GroupForm from './group-form/GroupForm';
 import GroupDetail from './GroupDetail';
 
 const CollaboratorContent: React.FC = () => {
@@ -116,22 +113,15 @@ const CollaboratorContent: React.FC = () => {
   // Otherwise, show the group list
   return (
     <div className="p-6">
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-2 text-white">Collaborators</h2>
+      <div className="mb-8">
+        <h1 className="text-3xl font-semibold mb-2 text-white">Collaborators</h1>
         <p className="text-gray-400">Organize your professional network into meaningful groups</p>
       </div>
       
-      <div className="flex justify-between items-center mb-4">
-        <CollaboratorTabs 
-          activeView={activeView} 
-          setActiveView={setActiveView} 
-        />
-        
-        <Button variant="outline" className="flex items-center gap-2">
-          <SlidersHorizontal className="w-4 h-4" />
-          Advanced Filters
-        </Button>
-      </div>
+      <CollaboratorTabs
+        activeView={activeView} 
+        setActiveView={setActiveView} 
+      />
       
       <CollaboratorSearch 
         searchQuery={searchQuery}

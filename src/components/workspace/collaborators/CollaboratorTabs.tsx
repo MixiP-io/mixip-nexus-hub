@@ -1,7 +1,6 @@
 
 import React from 'react';
-import { Users, Building, UserPlus, Star, UsersRound } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 
 type ViewOption = 'all' | 'internal' | 'external' | 'agencies' | 'talent' | 'favorites';
 
@@ -14,35 +13,37 @@ const CollaboratorTabs: React.FC<CollaboratorTabsProps> = ({
   activeView,
   setActiveView
 }) => {
+  const tabs = [
+    { id: 'all', label: 'All Groups' },
+    { id: 'internal', label: 'Internal Teams' },
+    { id: 'external', label: 'External Network' },
+    { id: 'agencies', label: 'Agencies' },
+    { id: 'talent', label: 'Talent' },
+    { id: 'favorites', label: 'Favorites' }
+  ];
+
   return (
-    <Tabs defaultValue={activeView} onValueChange={(value) => setActiveView(value as ViewOption)}>
-      <TabsList className="mb-4">
-        <TabsTrigger value="all">
-          <Users className="w-4 h-4 mr-2" />
-          All Groups
-        </TabsTrigger>
-        <TabsTrigger value="internal">
-          <UsersRound className="w-4 h-4 mr-2" />
-          Internal Teams
-        </TabsTrigger>
-        <TabsTrigger value="external">
-          <UserPlus className="w-4 h-4 mr-2" />
-          External Network
-        </TabsTrigger>
-        <TabsTrigger value="agencies">
-          <Building className="w-4 h-4 mr-2" />
-          Agencies
-        </TabsTrigger>
-        <TabsTrigger value="talent">
-          <Users className="w-4 h-4 mr-2" />
-          Talent
-        </TabsTrigger>
-        <TabsTrigger value="favorites">
-          <Star className="w-4 h-4 mr-2" />
-          Favorites
-        </TabsTrigger>
-      </TabsList>
-    </Tabs>
+    <div className="border-b border-gray-800 mb-6">
+      <div className="flex space-x-8">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            className={cn(
+              "pb-4 px-1 font-medium text-base relative",
+              activeView === tab.id
+                ? "text-white" 
+                : "text-gray-400 hover:text-gray-300"
+            )}
+            onClick={() => setActiveView(tab.id as ViewOption)}
+          >
+            {tab.label}
+            {activeView === tab.id && (
+              <span className="absolute bottom-0 left-0 w-full h-1 bg-green-500"></span>
+            )}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 };
 

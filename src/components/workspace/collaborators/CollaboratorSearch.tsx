@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { Search, SlidersHorizontal } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 interface CollaboratorSearchProps {
   searchQuery: string;
@@ -17,52 +18,37 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
   setSortOption
 }) => {
   return (
-    <div className="flex flex-col sm:flex-row gap-4 mb-6">
-      <div className="relative flex-grow">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+    <div className="space-y-4 mb-6">
+      <div className="relative">
+        <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+          <Search className="h-5 w-5 text-gray-400" />
+        </div>
         <input
           type="text"
           placeholder="Search groups..."
-          className="pl-10 pr-4 py-2 w-full rounded-md bg-gray-700 border border-gray-600 focus:border-blue-500 focus:outline-none"
+          className="pl-12 pr-4 py-3 w-full rounded-xl bg-gray-800 border border-gray-700 focus:border-gray-600 focus:outline-none text-white"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
       
       <div className="flex gap-2">
-        <Button
-          variant="outline"
-          className={sortOption === 'recent' ? 'bg-gray-700' : ''}
-          onClick={() => setSortOption('recent')}
-        >
-          Recent
-        </Button>
-        <Button
-          variant="outline"
-          className={sortOption === 'alphabetical' ? 'bg-gray-700' : ''}
-          onClick={() => setSortOption('alphabetical')}
-        >
-          A-Z
-        </Button>
-        <Button
-          variant="outline"
-          className={sortOption === 'size' ? 'bg-gray-700' : ''}
-          onClick={() => setSortOption('size')}
-        >
-          Size
-        </Button>
-        <Button
-          variant="outline"
-          className={sortOption === 'type' ? 'bg-gray-700' : ''}
-          onClick={() => setSortOption('type')}
-        >
-          Type
-        </Button>
-        
-        <Button variant="outline" className="flex items-center gap-2">
-          <SlidersHorizontal className="w-4 h-4" />
-          Filter
-        </Button>
+        <ToggleGroup type="single" defaultValue="recent">
+          <ToggleGroupItem 
+            value="recent" 
+            onClick={() => setSortOption('recent')}
+            className="bg-gray-800 hover:bg-gray-700 data-[state=on]:bg-gray-700"
+          >
+            Recent
+          </ToggleGroupItem>
+          <ToggleGroupItem 
+            value="popular" 
+            onClick={() => setSortOption('alphabetical')}
+            className="bg-gray-800 hover:bg-gray-700 data-[state=on]:bg-gray-700"
+          >
+            Popular
+          </ToggleGroupItem>
+        </ToggleGroup>
       </div>
     </div>
   );
