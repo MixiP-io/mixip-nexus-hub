@@ -78,6 +78,7 @@ export const addFilesToProject = async (
   // Update the global projects store with the new projects array
   updateProjects(updatedProjects);
   console.log(`Added ${assets.length} files to project ${projectId}`);
+  toast.success(`Added ${assets.length} files to project`);
   logProjects(); // Log the updated projects for debugging
   
   return Promise.resolve();

@@ -95,9 +95,13 @@ export const useAssetsManager = (selectedProjectId: string | null) => {
     
     // Function to recursively get assets from folders
     const getAssetsFromFolders = (folders: any[]) => {
+      if (!folders || !Array.isArray(folders)) return;
+      
       folders.forEach(folder => {
         // Add assets from this folder
-        allAssets = [...allAssets, ...(folder.assets || [])];
+        if (folder.assets && Array.isArray(folder.assets)) {
+          allAssets = [...allAssets, ...folder.assets];
+        }
         
         // Recursively process subfolders
         if (folder.subfolders && folder.subfolders.length > 0) {
