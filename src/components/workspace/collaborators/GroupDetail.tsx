@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { CollaboratorGroup } from './types';
+import { CollaboratorGroup, Collaborator } from './types';
 import { ArrowLeft, Edit, Trash2, UserPlus, Users } from 'lucide-react';
 import MemberAddDialog from './MemberAddDialog';
 
@@ -12,6 +12,7 @@ interface GroupDetailProps {
   onEdit: (groupId: number) => void;
   onDelete: (groupId: number) => void;
   onAddMembers: (groupId: number, memberIds: number[]) => void;
+  findAvailableCollaborators: (groupId: number | null, query: string) => Collaborator[];
 }
 
 const GroupDetail: React.FC<GroupDetailProps> = ({
@@ -19,7 +20,8 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
   onBack,
   onEdit,
   onDelete,
-  onAddMembers
+  onAddMembers,
+  findAvailableCollaborators
 }) => {
   const [isAddMemberDialogOpen, setIsAddMemberDialogOpen] = useState(false);
   
@@ -157,6 +159,7 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
         onAddMembers={(memberIds) => onAddMembers(group.id, memberIds)}
         groupId={group.id}
         existingMemberIds={existingMemberIds}
+        findAvailableCollaborators={(query) => findAvailableCollaborators(group.id, query)}
       />
     </div>
   );

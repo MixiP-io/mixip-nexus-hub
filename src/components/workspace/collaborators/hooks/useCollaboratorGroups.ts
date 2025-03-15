@@ -4,13 +4,16 @@ import { CollaboratorGroup, GroupType, initialGroups, Collaborator, sampleCollab
 
 type SortOption = 'recent' | 'alphabetical' | 'size' | 'type';
 type ViewOption = 'all' | 'internal' | 'external' | 'agencies' | 'talent' | 'favorites';
+type SearchField = 'name' | 'location' | 'role' | 'skills';
 
 export const useCollaboratorGroups = () => {
   const [groups, setGroups] = useState<CollaboratorGroup[]>(initialGroups);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchField, setSearchField] = useState<SearchField>('name');
   const [activeView, setActiveView] = useState<ViewOption>('all');
   const [sortOption, setSortOption] = useState<SortOption>('recent');
   const [isCreatingGroup, setIsCreatingGroup] = useState(false);
+  const [lastCreatedGroupId, setLastCreatedGroupId] = useState<number | null>(null);
 
   // Handle filtering groups by type/view
   const filteredGroups = groups.filter(group => {
@@ -70,6 +73,7 @@ export const useCollaboratorGroups = () => {
     
     setGroups([...groups, groupToAdd]);
     setIsCreatingGroup(false);
+    setLastCreatedGroupId(newId); // Set the last created group ID for immediate viewing
   };
 
   // Function to toggle starred status
@@ -109,10 +113,54 @@ export const useCollaboratorGroups = () => {
     }));
   };
 
+  // Find available collaborators filtered by search criteria
+  const findAvailableCollaborators = (groupId: number | null, query: string = '') => {
+    const group = groupId ? groups.find(g => g.id === groupId) : null;
+    const existingMemberIds = group ? group.members.map(m => m.id) : [];
+    
+    return sampleCollaborators.filter(collab => {
+      // Filter out existing members
+      if (existingMemberIds.includes(collab.id)) return false;
+      
+      // If no search query, include all
+      if (!query) return true;
+      
+      // Search based on selected field
+      const lowercaseQuery = query.toLowerCase();
+      switch (searchField) {
+        case 'name':
+          return collab.name.toLowerCase().includes(lowercaseQuery);
+        case 'location':
+          return collab.location.toLowerCase().includes(lowercaseQuery);
+        case 'role':
+          return collab.role.toLowerCase().includes(lowercaseQuery);
+        case 'skills':
+          return collab.skills.some(skill => 
+            skill.toLowerCase().includes(lowercaseQuery)
+          );
+        default:
+          // Fallback to search across all fields
+          return (
+            collab.name.toLowerCase().includes(lowercaseQuery) ||
+            collab.location.toLowerCase().includes(lowercaseQuery) ||
+            collab.role.toLowerCase().includes(lowercaseQuery) ||
+            collab.skills.some(skill => skill.toLowerCase().includes(lowercaseQuery))
+          );
+      }
+    });
+  };
+
+  // Clear the last created group ID (used after viewing it)
+  const clearLastCreatedGroupId = () => {
+    setLastCreatedGroupId(null);
+  };
+
   return {
     groups: sortedGroups,
     searchQuery,
     setSearchQuery,
+    searchField,
+    setSearchField,
     activeView,
     setActiveView,
     sortOption,
@@ -122,6 +170,9 @@ export const useCollaboratorGroups = () => {
     addGroup,
     toggleStarGroup,
     deleteGroup,
-    addMembersToGroup
+    addMembersToGroup,
+    findAvailableCollaborators,
+    lastCreatedGroupId,
+    clearLastCreatedGroupId
   };
 };

@@ -15,16 +15,14 @@ import {
 } from '@/components/ui/avatar';
 import { Check, Search, UserPlus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-
-// Example users data - in a real application, this would come from an API
-const availableUsers = [
-  { id: 101, name: 'Alex Johnson', role: 'Designer', avatar: '' },
-  { id: 102, name: 'Sam Williams', role: 'Developer', avatar: '' },
-  { id: 103, name: 'Jamie Smith', role: 'Marketing', avatar: '' },
-  { id: 104, name: 'Taylor Brown', role: 'Project Manager', avatar: '' },
-  { id: 105, name: 'Casey Garcia', role: 'Content Creator', avatar: '' },
-  { id: 106, name: 'Jordan Lee', role: 'UI/UX Designer', avatar: '' },
-];
+import { Collaborator } from './types';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface MemberAddDialogProps {
   isOpen: boolean;
@@ -32,6 +30,7 @@ interface MemberAddDialogProps {
   onAddMembers: (selectedUserIds: number[]) => void;
   groupId: number;
   existingMemberIds: number[];
+  findAvailableCollaborators: (query: string) => Collaborator[];
 }
 
 const MemberAddDialog: React.FC<MemberAddDialogProps> = ({
@@ -39,18 +38,15 @@ const MemberAddDialog: React.FC<MemberAddDialogProps> = ({
   onClose,
   onAddMembers,
   groupId,
-  existingMemberIds
+  existingMemberIds,
+  findAvailableCollaborators
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchField, setSearchField] = useState<string>('name');
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   
-  // Filter users based on search query and exclude existing members
-  const filteredUsers = availableUsers
-    .filter(user => !existingMemberIds.includes(user.id))
-    .filter(user => 
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.role.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+  // Get filtered users based on current search
+  const filteredUsers = findAvailableCollaborators(searchQuery);
   
   // Toggle user selection
   const toggleUserSelection = (userId: number) => {
@@ -86,14 +82,31 @@ const MemberAddDialog: React.FC<MemberAddDialogProps> = ({
           <DialogTitle className="text-xl font-semibold">Add Members to Group</DialogTitle>
         </DialogHeader>
         
-        <div className="relative mb-4">
-          <Input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search users..."
-            className="bg-gray-800 border-gray-700 pr-10 text-white"
-          />
-          <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+        <div className="flex gap-3 mb-4">
+          <div className="relative flex-grow">
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search collaborators..."
+              className="bg-gray-800 border-gray-700 pr-10 text-white"
+            />
+            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+          </div>
+          
+          <Select 
+            value={searchField} 
+            onValueChange={setSearchField}
+          >
+            <SelectTrigger className="bg-gray-800 border-gray-700 text-white w-32">
+              <SelectValue placeholder="Search by" />
+            </SelectTrigger>
+            <SelectContent className="bg-gray-800 border-gray-700 text-white">
+              <SelectItem value="name">Name</SelectItem>
+              <SelectItem value="location">Location</SelectItem>
+              <SelectItem value="role">Role Type</SelectItem>
+              <SelectItem value="skills">Speciality</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         
         <div className="max-h-[300px] overflow-y-auto pr-1">
@@ -116,7 +129,15 @@ const MemberAddDialog: React.FC<MemberAddDialogProps> = ({
                     </Avatar>
                     <div>
                       <h4 className="font-medium">{user.name}</h4>
-                      <p className="text-sm text-gray-400">{user.role}</p>
+                      <div className="flex items-center text-sm">
+                        <span className="text-blue-400">{user.role}</span>
+                        {user.location && (
+                          <>
+                            <span className="mx-2 text-gray-500">•</span>
+                            <span className="text-gray-400">{user.location}</span>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                   
@@ -129,7 +150,7 @@ const MemberAddDialog: React.FC<MemberAddDialogProps> = ({
           ) : (
             <div className="text-center py-8 text-gray-400">
               <UserPlus className="h-10 w-10 mx-auto mb-3 opacity-50" />
-              <p>No matching users found</p>
+              <p>No matching collaborators found</p>
             </div>
           )}
         </div>
