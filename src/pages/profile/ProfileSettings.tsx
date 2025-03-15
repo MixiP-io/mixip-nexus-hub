@@ -5,7 +5,7 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import ProfileHeader from './components/ProfileHeader';
 import ProfileTabs from './components/ProfileTabs';
-import GeneralTab from './tabs/GeneralTab';
+import GeneralTab from './tabs/general';
 import ProfessionalTab from './tabs/ProfessionalTab';
 import PortfolioTab from './tabs/PortfolioTab';
 import SecurityTab from './tabs/SecurityTab';
