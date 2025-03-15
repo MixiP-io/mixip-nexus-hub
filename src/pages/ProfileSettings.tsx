@@ -14,7 +14,7 @@ import { Progress } from "@/components/ui/progress";
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { useSearchParams } from 'react-router-dom';
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -27,7 +27,6 @@ const ProfileSettings: React.FC = () => {
   const [newSkill, setNewSkill] = useState('');
   const [portfolioView, setPortfolioView] = useState<'grid' | 'list'>('grid');
   const [profileCompletion, setProfileCompletion] = useState(72);
-  const { toast } = useToast();
 
   // Define form schema for personal information
   const personalInfoSchema = z.object({
@@ -87,10 +86,13 @@ const ProfileSettings: React.FC = () => {
   // Handle personal info form submission
   const onPersonalInfoSubmit = (values: z.infer<typeof personalInfoSchema>) => {
     console.log('Personal info saved:', values);
+    
+    // Use the toast function directly, not from a hook context
     toast({
       title: "Changes saved",
       description: "Your personal information has been updated successfully.",
     });
+    
     // Here you would typically send this data to an API
   };
 
