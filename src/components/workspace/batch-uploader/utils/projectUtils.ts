@@ -6,6 +6,8 @@ import { UploadFile } from '../types';
 interface ProjectData {
   id: string;
   name: string;
+  description?: string; // Make description optional
+  tags?: string[]; // Add tags as optional
   assets: ProjectAsset[];
   createdAt: Date;
   updatedAt: Date;
@@ -168,6 +170,8 @@ export const getProjectById = (id: string): ProjectData | undefined => {
 export const createProject = (
   name: string,
   options?: {
+    description?: string,
+    tags?: string[],
     owners?: ProjectOwner[],
     licensing?: ProjectLicensing,
     parentId?: string
@@ -201,6 +205,8 @@ export const createProject = (
   const newProject: ProjectData = {
     id: `project-${Date.now()}`,
     name,
+    description: options?.description,
+    tags: options?.tags,
     assets: [],
     createdAt: new Date(),
     updatedAt: new Date(),
