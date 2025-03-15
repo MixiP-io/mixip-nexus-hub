@@ -18,15 +18,15 @@ const ProfileTabs: React.FC<ProfileTabsProps> = ({ activeTab, handleTabClick }) 
   ];
 
   return (
-    <div className="border-b border-gray-800 mb-6">
-      <div className="flex space-x-8">
+    <div className="mb-6">
+      <div className="flex flex-wrap bg-gray-800 p-1 rounded-md">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             className={cn(
-              "pb-4 px-1 font-medium text-base relative transition-colors",
+              "flex-1 flex items-center justify-center py-2 px-4 text-sm font-medium rounded-sm transition-colors",
               activeTab === tab.id
-                ? "text-white" 
+                ? "bg-gray-700 text-white" 
                 : "text-gray-400 hover:text-gray-300"
             )}
             onClick={() => handleTabClick(tab.id)}
@@ -35,9 +35,6 @@ const ProfileTabs: React.FC<ProfileTabsProps> = ({ activeTab, handleTabClick }) 
               {tab.icon}
               {tab.label}
             </div>
-            {activeTab === tab.id && (
-              <span className="absolute bottom-0 left-0 w-full h-1 bg-blue-500"></span>
-            )}
           </button>
         ))}
       </div>
