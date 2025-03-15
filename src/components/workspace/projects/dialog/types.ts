@@ -11,6 +11,8 @@ export interface CreateProjectDialogProps {
 
 export interface ProjectFormState {
   projectName: string;
+  projectDescription: string;
+  projectTags: string[];
   ownershipSplit: number;
   additionalOwners: ProjectOwner[];
   licenseType: string;

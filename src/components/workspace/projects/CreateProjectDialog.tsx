@@ -22,6 +22,8 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
   parentFolderId,
 }) => {
   const [projectName, setProjectName] = useState('');
+  const [projectDescription, setProjectDescription] = useState('');
+  const [projectTags, setProjectTags] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("basic");
   
@@ -75,6 +77,8 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
     
     // Create the project with ownership and licensing data
     const newProject = createProject(projectName, {
+      description: projectDescription,
+      tags: projectTags,
       owners,
       licensing,
       parentId: parentFolderId
@@ -85,6 +89,8 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
     
     // Reset form
     setProjectName('');
+    setProjectDescription('');
+    setProjectTags([]);
     setOwnershipSplit(100);
     setAdditionalOwners([]);
     setLicenseType('standard');
@@ -133,6 +139,10 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
               <BasicInfoTab 
                 projectName={projectName}
                 setProjectName={setProjectName}
+                projectDescription={projectDescription}
+                setProjectDescription={setProjectDescription}
+                projectTags={projectTags}
+                setProjectTags={setProjectTags}
                 setActiveTab={setActiveTab}
                 setIsOpen={setIsOpen}
               />
