@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Eye, Pencil, Trash, MoreHorizontal, Image, FolderOpen } from 'lucide-react';
+import { Plus, Eye, Pencil, Trash, MoreHorizontal, Image, FolderOpen, Users, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -16,6 +16,12 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface ProjectGridViewProps {
   projects: any[];
@@ -75,12 +81,62 @@ const ProjectGridView: React.FC<ProjectGridViewProps> = ({
           <CardContent className="p-4">
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="font-medium text-lg mb-1">{project.name}</h3>
+                <div className="flex items-center">
+                  <h3 className="font-medium text-lg mb-1">{project.name}</h3>
+                  {project.subfolders && project.subfolders.length > 0 && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Badge variant="outline" className="ml-2 bg-blue-600/20 text-blue-400 border-blue-600/30">
+                            {project.subfolders.length} {project.subfolders.length === 1 ? 'folder' : 'folders'}
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-gray-800 border-gray-700">
+                          <p>Contains subfolders</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
+                </div>
                 <p className="text-sm text-gray-400">
                   {project.assets ? project.assets.length : 0} assets • Updated {new Date(project.updatedAt).toLocaleDateString()}
                 </p>
               </div>
             </div>
+            
+            {/* Ownership indicators */}
+            {project.owners && project.owners.length > 0 && (
+              <div className="mt-3 flex items-center">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center text-gray-400">
+                        {project.owners.length > 1 ? (
+                          <Users className="h-4 w-4 mr-1" />
+                        ) : (
+                          <User className="h-4 w-4 mr-1" />
+                        )}
+                        <span className="text-xs">
+                          {project.owners.length > 1 
+                            ? `${project.owners.length} owners` 
+                            : project.owners[0].name}
+                        </span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-gray-800 border-gray-700 p-2">
+                      <div className="space-y-1">
+                        {project.owners.map((owner: any) => (
+                          <div key={owner.userId} className="flex justify-between text-xs">
+                            <span>{owner.name}</span>
+                            <span className="ml-4 font-medium">{owner.royaltyPercentage}%</span>
+                          </div>
+                        ))}
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            )}
           </CardContent>
           <CardFooter className="px-4 py-3 border-t border-gray-700 flex justify-between">
             <Badge variant="outline" className="bg-gray-700 text-gray-300">

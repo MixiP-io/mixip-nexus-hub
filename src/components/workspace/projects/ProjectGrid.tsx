@@ -8,6 +8,7 @@ import ProjectToolbar from './ProjectToolbar';
 import ProjectGridView from './ProjectGridView';
 import ProjectListView from './ProjectListView';
 import CreateProjectDialog from './CreateProjectDialog';
+import CreateSubfolderDialog from './CreateSubfolderDialog';
 
 interface ProjectGridProps {
   onProjectSelect: (projectId: string) => void;
@@ -19,6 +20,9 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [createProjectOpen, setCreateProjectOpen] = useState(false);
+  const [createSubfolderOpen, setCreateSubfolderOpen] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [selectedFolderId, setSelectedFolderId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     loadProjects();
@@ -51,8 +55,15 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
 
   const handleEditProject = (projectId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    // In a real implementation, this would open a project edit dialog
-    console.log(`Edit project: ${projectId}`);
+    // In this implementation, we open the subfolder dialog
+    setSelectedProjectId(projectId);
+    setCreateSubfolderOpen(true);
+  };
+  
+  const handleFolderCreated = () => {
+    // Reload projects after folder creation
+    loadProjects();
+    setCreateSubfolderOpen(false);
   };
 
   const filteredProjects = projects.filter(project => 
@@ -92,7 +103,7 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
         <ProjectGridView 
           projects={filteredProjects}
           onProjectClick={handleProjectClick}
-          onEditProject={handleEditProject}
+          onEditProject={handleEditProject} // This now opens the subfolder dialog
           onDeleteProject={handleDeleteProject}
           onCreateProject={() => setCreateProjectOpen(true)}
         />
@@ -100,7 +111,7 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
         <ProjectListView 
           projects={filteredProjects}
           onProjectClick={handleProjectClick}
-          onEditProject={handleEditProject}
+          onEditProject={handleEditProject} // This now opens the subfolder dialog
           onDeleteProject={handleDeleteProject}
         />
       )}
@@ -110,6 +121,16 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
         setIsOpen={setCreateProjectOpen}
         onCreateProject={handleCreateProject}
       />
+      
+      {selectedProjectId && (
+        <CreateSubfolderDialog
+          isOpen={createSubfolderOpen}
+          setIsOpen={setCreateSubfolderOpen}
+          projectId={selectedProjectId}
+          parentFolderId={selectedFolderId}
+          onFolderCreated={handleFolderCreated}
+        />
+      )}
     </div>
   );
 };
