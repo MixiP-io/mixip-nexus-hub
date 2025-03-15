@@ -38,9 +38,11 @@ const ProfileSettings: React.FC = () => {
         <main className="flex-1 overflow-y-auto">
           <ProfileHeader />
           
-          <ProfileTabs activeTab={activeTab} handleTabClick={handleTabClick} />
+          <div className="max-w-6xl mx-auto px-6 pt-6">
+            <ProfileTabs activeTab={activeTab} handleTabClick={handleTabClick} />
+          </div>
 
-          <div className="max-w-6xl mx-auto px-6 py-8">
+          <div className="max-w-6xl mx-auto px-6 py-6">
             {activeTab === "general" && <GeneralTab />}
             {activeTab === "professional" && <ProfessionalTab />}
             {activeTab === "portfolio" && <PortfolioTab />}
