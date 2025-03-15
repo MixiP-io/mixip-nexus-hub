@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React from 'react';
 import { Folder, CloudUpload, Smartphone, Computer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -8,8 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-type UploadSource = 'computer' | 'phone' | 'moby' | 'dropbox' | 'google-drive' | 'box' | 'icloud';
+import { UploadSource } from '../types';
 
 interface SourceSelectionProps {
   activeSource: UploadSource;
