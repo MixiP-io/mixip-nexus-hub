@@ -3,6 +3,7 @@ import React from 'react';
 import FileListHeader from './file-list/FileListHeader';
 import OverallProgress from './file-list/OverallProgress';
 import FileGrid from './file-list/FileGrid';
+import UploadComplete from './file-list/UploadComplete';
 import { FilesListProps } from '../types/componentProps';
 
 const FilesList: React.FC<FilesListProps> = ({
@@ -13,7 +14,12 @@ const FilesList: React.FC<FilesListProps> = ({
   calculateTotalSize,
   removeFile,
   clearAll,
-  startUpload
+  startUpload,
+  uploadComplete,
+  setUploadComplete,
+  selectedProject,
+  selectedProjectName,
+  navigateToProject
 }) => {
   const totalSize = formatFileSize(calculateTotalSize());
   const uploadedFiles = files.filter(f => f.status === 'complete').length;
@@ -40,6 +46,18 @@ const FilesList: React.FC<FilesListProps> = ({
         isUploading={isUploading}
         formatFileSize={formatFileSize}
       />
+
+      {uploadComplete && selectedProject && (
+        <UploadComplete 
+          isOpen={uploadComplete}
+          onClose={() => setUploadComplete(false)}
+          fileCount={uploadedFiles}
+          totalSize={totalSize}
+          projectId={selectedProject}
+          projectName={selectedProjectName || "Project"}
+          navigateToProject={navigateToProject}
+        />
+      )}
     </div>
   );
 };
