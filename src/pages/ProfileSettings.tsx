@@ -14,6 +14,11 @@ import { Progress } from "@/components/ui/progress";
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { useSearchParams } from 'react-router-dom';
+import { useToast } from "@/hooks/use-toast";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 const ProfileSettings: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -22,6 +27,30 @@ const ProfileSettings: React.FC = () => {
   const [newSkill, setNewSkill] = useState('');
   const [portfolioView, setPortfolioView] = useState<'grid' | 'list'>('grid');
   const [profileCompletion, setProfileCompletion] = useState(72);
+  const { toast } = useToast();
+
+  // Define form schema for personal information
+  const personalInfoSchema = z.object({
+    fullName: z.string().min(2, { message: "Full name must be at least 2 characters." }),
+    displayName: z.string().min(2, { message: "Display name must be at least 2 characters." }),
+    email: z.string().email({ message: "Please enter a valid email address." }),
+    phone: z.string().optional(),
+    bio: z.string().optional(),
+    location: z.string().optional(),
+  });
+
+  // Create form
+  const personalInfoForm = useForm<z.infer<typeof personalInfoSchema>>({
+    resolver: zodResolver(personalInfoSchema),
+    defaultValues: {
+      fullName: "John Doe",
+      displayName: "johndoe",
+      email: "john@example.com",
+      phone: "+1 (555) 123-4567",
+      bio: "Professional videographer and photographer specializing in commercial and documentary work.",
+      location: "New York, USA",
+    },
+  });
 
   useEffect(() => {
     // Get the tab from URL params if available
@@ -53,6 +82,31 @@ const ProfileSettings: React.FC = () => {
       e.preventDefault();
       addSkill();
     }
+  };
+
+  // Handle personal info form submission
+  const onPersonalInfoSubmit = (values: z.infer<typeof personalInfoSchema>) => {
+    console.log('Personal info saved:', values);
+    toast({
+      title: "Changes saved",
+      description: "Your personal information has been updated successfully.",
+    });
+    // Here you would typically send this data to an API
+  };
+
+  // Languages state and handlers
+  const [languages, setLanguages] = useState<string[]>(["English", "Spanish"]);
+  const [newLanguage, setNewLanguage] = useState("");
+
+  const addLanguage = () => {
+    if (newLanguage && !languages.includes(newLanguage)) {
+      setLanguages([...languages, newLanguage]);
+      setNewLanguage('');
+    }
+  };
+
+  const removeLanguage = (languageToRemove: string) => {
+    setLanguages(languages.filter(language => language !== languageToRemove));
   };
 
   return (
@@ -225,91 +279,159 @@ const ProfileSettings: React.FC = () => {
                     <Separator className="bg-gray-800" />
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="fullName" className="text-gray-300">Full Name</Label>
-                        <Input 
-                          id="fullName" 
-                          placeholder="John Doe" 
-                          defaultValue="John Doe" 
-                          className="bg-gray-800 border-gray-700 text-white"
+                    <Form {...personalInfoForm}>
+                      <form onSubmit={personalInfoForm.handleSubmit(onPersonalInfoSubmit)} className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={personalInfoForm.control}
+                            name="fullName"
+                            render={({ field }) => (
+                              <FormItem className="space-y-2">
+                                <FormLabel className="text-gray-300">Full Name</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    {...field}
+                                    placeholder="John Doe" 
+                                    className="bg-gray-800 border-gray-700 text-white"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={personalInfoForm.control}
+                            name="displayName"
+                            render={({ field }) => (
+                              <FormItem className="space-y-2">
+                                <FormLabel className="text-gray-300">Display Name</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    {...field}
+                                    placeholder="johndoe" 
+                                    className="bg-gray-800 border-gray-700 text-white"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={personalInfoForm.control}
+                            name="email"
+                            render={({ field }) => (
+                              <FormItem className="space-y-2">
+                                <FormLabel className="text-gray-300">Email</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    {...field}
+                                    type="email" 
+                                    placeholder="john@example.com" 
+                                    className="bg-gray-800 border-gray-700 text-white"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={personalInfoForm.control}
+                            name="phone"
+                            render={({ field }) => (
+                              <FormItem className="space-y-2">
+                                <FormLabel className="text-gray-300">Phone Number</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    {...field}
+                                    type="tel" 
+                                    placeholder="+1 (555) 123-4567" 
+                                    className="bg-gray-800 border-gray-700 text-white"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        
+                        <FormField
+                          control={personalInfoForm.control}
+                          name="bio"
+                          render={({ field }) => (
+                            <FormItem className="space-y-2">
+                              <FormLabel className="text-gray-300">Bio</FormLabel>
+                              <FormControl>
+                                <Textarea 
+                                  {...field}
+                                  placeholder="Tell us about yourself" 
+                                  className="min-h-[120px] bg-gray-800 border-gray-700 text-white"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="displayName" className="text-gray-300">Display Name</Label>
-                        <Input 
-                          id="displayName" 
-                          placeholder="johndoe" 
-                          defaultValue="johndoe" 
-                          className="bg-gray-800 border-gray-700 text-white"
+                        
+                        <FormField
+                          control={personalInfoForm.control}
+                          name="location"
+                          render={({ field }) => (
+                            <FormItem className="space-y-2">
+                              <FormLabel className="text-gray-300">Location</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field}
+                                  placeholder="City, Country" 
+                                  className="bg-gray-800 border-gray-700 text-white"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="email" className="text-gray-300">Email</Label>
-                        <Input 
-                          id="email" 
-                          type="email" 
-                          placeholder="john@example.com" 
-                          defaultValue="john@example.com" 
-                          className="bg-gray-800 border-gray-700 text-white"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="phone" className="text-gray-300">Phone Number</Label>
-                        <Input 
-                          id="phone" 
-                          type="tel" 
-                          placeholder="+1 (555) 123-4567" 
-                          defaultValue="+1 (555) 123-4567" 
-                          className="bg-gray-800 border-gray-700 text-white"
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="bio" className="text-gray-300">Bio</Label>
-                      <Textarea 
-                        id="bio" 
-                        placeholder="Tell us about yourself" 
-                        defaultValue="Professional videographer and photographer specializing in commercial and documentary work."
-                        className="min-h-[120px] bg-gray-800 border-gray-700 text-white"
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="location" className="text-gray-300">Location</Label>
-                      <Input 
-                        id="location" 
-                        placeholder="City, Country" 
-                        defaultValue="New York, USA" 
-                        className="bg-gray-800 border-gray-700 text-white"
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label className="text-gray-300">Languages</Label>
-                      <div className="flex items-center flex-wrap gap-2">
-                        <Badge className="bg-mixip-blue/20 text-blue-300 border-blue-700 hover:bg-mixip-blue/30">
-                          English
-                          <button className="ml-1 hover:text-blue-100">
-                            <X className="h-3 w-3" />
-                          </button>
-                        </Badge>
-                        <Badge className="bg-mixip-blue/20 text-blue-300 border-blue-700 hover:bg-mixip-blue/30">
-                          Spanish
-                          <button className="ml-1 hover:text-blue-100">
-                            <X className="h-3 w-3" />
-                          </button>
-                        </Badge>
-                        <Button variant="outline" size="sm" className="h-7 bg-gray-800 border-gray-700 text-gray-300">
-                          <Plus className="h-3 w-3 mr-1" /> Add Language
-                        </Button>
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-end">
-                      <Button>Save Changes</Button>
-                    </div>
+                        
+                        <div className="space-y-2">
+                          <Label className="text-gray-300">Languages</Label>
+                          <div className="flex items-center mb-2">
+                            <Input 
+                              id="language" 
+                              placeholder="Add a language" 
+                              value={newLanguage}
+                              onChange={(e) => setNewLanguage(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  addLanguage();
+                                }
+                              }} 
+                              className="mr-2 bg-gray-800 border-gray-700 text-white"
+                            />
+                            <Button type="button" onClick={addLanguage}>Add</Button>
+                          </div>
+                          <div className="flex items-center flex-wrap gap-2">
+                            {languages.map((language, index) => (
+                              <Badge key={index} className="bg-mixip-blue/20 text-blue-300 border-blue-700 hover:bg-mixip-blue/30">
+                                {language}
+                                <button 
+                                  type="button"
+                                  className="ml-1 hover:text-blue-100"
+                                  onClick={() => removeLanguage(language)}
+                                >
+                                  <X className="h-3 w-3" />
+                                </button>
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <div className="flex justify-end">
+                          <Button type="submit">Save Changes</Button>
+                        </div>
+                      </form>
+                    </Form>
                   </CardContent>
                 </Card>
               </div>
