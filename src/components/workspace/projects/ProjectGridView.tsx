@@ -104,7 +104,7 @@ const ProjectGridView: React.FC<ProjectGridViewProps> = ({
           <div className="w-16 h-16 rounded-full bg-gray-700 flex items-center justify-center mb-4">
             <Plus className="w-8 h-8 text-gray-400" />
           </div>
-          <CardTitle as="h3" className="font-medium text-lg mb-1">Create New Project</CardTitle>
+          <CardTitle className="font-medium text-lg mb-1">Create New Project</CardTitle>
           <p className="text-sm text-gray-400">
             Start organizing your assets
           </p>
