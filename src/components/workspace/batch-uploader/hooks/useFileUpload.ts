@@ -11,6 +11,7 @@ export const useFileUpload = () => {
   const [uploadComplete, setUploadComplete] = useState(false);
   const [selectedProject, setSelectedProject] = useState<string>('');
   const [selectedProjectName, setSelectedProjectName] = useState<string>('');
+  const [selectedFolder, setSelectedFolder] = useState<string>('root');
   
   const {
     files,
@@ -58,10 +59,11 @@ export const useFileUpload = () => {
       uploadComplete, 
       selectedProject, 
       selectedProjectName,
+      selectedFolder,
       filesCount: files.length,
       completedFiles: files.filter(f => f.status === 'complete').length
     });
-  }, [uploadComplete, selectedProject, selectedProjectName, files]);
+  }, [uploadComplete, selectedProject, selectedProjectName, selectedFolder, files]);
   
   // Use a callback to ensure the upload complete setter is stable
   const completeUpload = useCallback(() => {
@@ -69,7 +71,7 @@ export const useFileUpload = () => {
     setUploadComplete(true);
   }, []);
   
-  const startUpload = async (licenseType: string, projectId: string) => {
+  const startUpload = async (licenseType: string, projectId: string, folderId: string = 'root') => {
     if (files.length === 0) {
       toast.error("Please add files to upload");
       return;
@@ -89,6 +91,7 @@ export const useFileUpload = () => {
     setUploadComplete(false);
     setIsUploading(true);
     setSelectedProject(projectId);
+    setSelectedFolder(folderId);
     
     // Get project name for the success message
     const project = getProjectById(projectId);
@@ -124,10 +127,10 @@ export const useFileUpload = () => {
       const completedFiles = files.filter(f => f.status === 'complete');
       
       if (completedFiles.length > 0) {
-        await addFilesToProject(projectId, completedFiles, licenseType);
+        await addFilesToProject(projectId, completedFiles, licenseType, folderId);
         
         console.log("Upload complete, setting uploadComplete to true");
-        console.log("Project:", projectId, "Project name:", selectedProjectName);
+        console.log("Project:", projectId, "Project name:", selectedProjectName, "Folder:", folderId);
         
         // Log projects after upload (for debugging)
         logProjects();
@@ -168,6 +171,8 @@ export const useFileUpload = () => {
     setUploadComplete,
     selectedProject,
     selectedProjectName,
+    selectedFolder,
+    setSelectedFolder,
     navigateToProject
   };
 };

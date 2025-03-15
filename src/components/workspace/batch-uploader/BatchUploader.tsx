@@ -25,6 +25,7 @@ const BatchUploader: React.FC = () => {
     setUploadComplete,
     selectedProject,
     selectedProjectName,
+    selectedFolder,
     navigateToProject
   } = useFileUpload();
 
@@ -41,8 +42,8 @@ const BatchUploader: React.FC = () => {
     setUsageRights,
     selectedProject: metadataSelectedProject,
     setSelectedProject: setMetadataSelectedProject,
-    selectedFolder,
-    setSelectedFolder
+    selectedFolder: metadataSelectedFolder,
+    setSelectedFolder: setMetadataSelectedFolder
   } = useMetadataState();
   
   // Debug log for tracking upload state
@@ -50,14 +51,22 @@ const BatchUploader: React.FC = () => {
     if (uploadComplete) {
       console.log("BatchUploader: Upload complete state is true", { 
         selectedProject, 
-        selectedProjectName 
+        selectedProjectName,
+        selectedFolder 
       });
     }
-  }, [uploadComplete, selectedProject, selectedProjectName]);
+  }, [uploadComplete, selectedProject, selectedProjectName, selectedFolder]);
+  
+  // Sync the selected folder between the two hooks
+  useEffect(() => {
+    if (metadataSelectedFolder !== selectedFolder) {
+      setSelectedFolder(metadataSelectedFolder);
+    }
+  }, [metadataSelectedFolder, selectedFolder, setSelectedFolder]);
   
   const handleStartUpload = async () => {
-    // Ensure we're passing the correct license type and project to startUpload
-    await startUpload(licenseType, metadataSelectedProject);
+    // Ensure we're passing the correct license type, project, and folder to startUpload
+    await startUpload(licenseType, metadataSelectedProject, metadataSelectedFolder);
     
     // Log projects after upload (for debugging)
     logProjects();
@@ -84,8 +93,8 @@ const BatchUploader: React.FC = () => {
         setUsageRights={setUsageRights}
         selectedProject={metadataSelectedProject}
         setSelectedProject={setMetadataSelectedProject}
-        selectedFolder={selectedFolder}
-        setSelectedFolder={setSelectedFolder}
+        selectedFolder={metadataSelectedFolder}
+        setSelectedFolder={setMetadataSelectedFolder}
       />
       
       {/* Only show upload area on source view */}

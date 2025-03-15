@@ -8,10 +8,10 @@ import { projects, updateProjects, logProjects } from '../data/projectStore';
 export const addFilesToProject = async (
   projectId: string, 
   files: UploadFile[],
-  folderId: string = 'root',
-  licenseType: string = 'standard'
+  licenseType: string = 'standard',
+  folderId: string = 'root'
 ): Promise<void> => {
-  console.log(`Adding files to project: ${projectId}, folder: ${folderId}`);
+  console.log(`Adding files to project: ${projectId}, folder: ${folderId}, license: ${licenseType}`);
   
   // Find the project
   const projectIndex = projects.findIndex(p => p.id === projectId);
@@ -42,6 +42,20 @@ export const addFilesToProject = async (
   }));
   
   const updatedProjects = [...projects];
+  
+  // If this is the first asset being added to the project, set it as the cover image
+  const shouldUpdateCoverImage = (
+    updatedProjects[projectIndex].assets.length === 0 && 
+    !updatedProjects[projectIndex].coverImage &&
+    assets.some(asset => asset.preview)
+  );
+  
+  if (shouldUpdateCoverImage) {
+    const firstImageAsset = assets.find(asset => asset.preview);
+    if (firstImageAsset) {
+      updatedProjects[projectIndex].coverImage = firstImageAsset.preview;
+    }
+  }
   
   // If adding to root folder
   if (folderId === 'root') {
@@ -85,4 +99,58 @@ export const addFilesToProject = async (
   logProjects(); // Log the updated projects for debugging
   
   return Promise.resolve();
+};
+
+// Set project cover image
+export const setProjectCoverImage = (projectId: string, assetId: string): boolean => {
+  const projectIndex = projects.findIndex(p => p.id === projectId);
+  
+  if (projectIndex === -1) {
+    toast.error(`Project not found: ${projectId}`);
+    return false;
+  }
+  
+  // Find the asset in the project's assets
+  const asset = projects[projectIndex].assets.find(a => a.id === assetId);
+  
+  if (!asset) {
+    // Search in subfolders
+    let foundAsset = null;
+    
+    const findAssetInSubfolders = (folders: typeof projects[number]['subfolders']) => {
+      for (const folder of folders) {
+        const folderAsset = folder.assets.find(a => a.id === assetId);
+        if (folderAsset) {
+          foundAsset = folderAsset;
+          return true;
+        }
+        
+        if (folder.subfolders.length > 0) {
+          if (findAssetInSubfolders(folder.subfolders)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+    
+    findAssetInSubfolders(projects[projectIndex].subfolders);
+    
+    if (!foundAsset) {
+      toast.error(`Asset not found in project`);
+      return false;
+    }
+    
+    asset = foundAsset;
+  }
+  
+  // Update the project with the new cover image
+  const updatedProjects = [...projects];
+  updatedProjects[projectIndex].coverImage = asset.preview;
+  updatedProjects[projectIndex].updatedAt = new Date();
+  
+  updateProjects(updatedProjects);
+  toast.success(`Project cover image updated`);
+  
+  return true;
 };

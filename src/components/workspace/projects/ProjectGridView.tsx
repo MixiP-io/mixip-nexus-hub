@@ -8,6 +8,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import {
   Card,
@@ -29,6 +30,7 @@ interface ProjectGridViewProps {
   onEditProject: (projectId: string, e: React.MouseEvent) => void;
   onDeleteProject: (projectId: string, e: React.MouseEvent) => void;
   onCreateProject: () => void;
+  onSetCoverImage?: (projectId: string, e: React.MouseEvent) => void;
 }
 
 const ProjectGridView: React.FC<ProjectGridViewProps> = ({
@@ -36,7 +38,8 @@ const ProjectGridView: React.FC<ProjectGridViewProps> = ({
   onProjectClick,
   onEditProject,
   onDeleteProject,
-  onCreateProject
+  onCreateProject,
+  onSetCoverImage
 }) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -47,7 +50,13 @@ const ProjectGridView: React.FC<ProjectGridViewProps> = ({
           onClick={() => onProjectClick(project.id)}
         >
           <div className="h-40 bg-gray-700 relative">
-            {project.assets && project.assets.length > 0 && project.assets[0].preview ? (
+            {project.coverImage ? (
+              <img 
+                src={project.coverImage} 
+                alt={project.name} 
+                className="w-full h-full object-cover"
+              />
+            ) : project.assets && project.assets.length > 0 && project.assets[0].preview ? (
               <img 
                 src={project.assets[0].preview} 
                 alt={project.name} 
@@ -70,6 +79,13 @@ const ProjectGridView: React.FC<ProjectGridViewProps> = ({
                     <Pencil className="mr-2 h-4 w-4" />
                     Edit
                   </DropdownMenuItem>
+                  {onSetCoverImage && project.assets && project.assets.length > 0 && (
+                    <DropdownMenuItem onClick={(e) => onSetCoverImage(project.id, e)}>
+                      <Image className="mr-2 h-4 w-4" />
+                      Set Cover Image
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={(e) => onDeleteProject(project.id, e)}>
                     <Trash className="mr-2 h-4 w-4" />
                     Delete

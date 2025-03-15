@@ -17,6 +17,7 @@ export interface ProjectData {
   licensing: ProjectLicensing;
   subfolders: ProjectFolder[];
   parentId?: string;
+  coverImage?: string; // New field to store the cover image URL
 }
 
 // Owner of a project
@@ -50,6 +51,7 @@ export interface ProjectFolder {
   createdAt: Date;
   updatedAt: Date;
   subfolders: ProjectFolder[]; // Recursive structure for nested folders
+  coverImage?: string; // New field to store the cover image URL for folders too
 }
 
 // Asset within a project
