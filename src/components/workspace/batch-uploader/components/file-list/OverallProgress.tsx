@@ -8,9 +8,7 @@ interface OverallProgressProps {
 }
 
 const OverallProgress: React.FC<OverallProgressProps> = ({ progress, isUploading }) => {
-  if (!isUploading) return null;
-  
-  // Ensure progress is between 0 and 100
+  // Show progress bar even if not uploading, to show completed uploads
   const safeProgress = Math.min(Math.max(0, progress), 100);
   
   return (

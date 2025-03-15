@@ -35,9 +35,10 @@ const FilesList: React.FC<FilesListProps> = ({
         startUpload={startUpload}
       />
       
+      {/* Always show progress bar, regardless of upload state */}
       <OverallProgress 
         progress={overallProgress}
-        isUploading={isUploading}
+        isUploading={true}
       />
       
       <FileGrid 

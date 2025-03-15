@@ -27,17 +27,22 @@ export const calculateTotalProgress = (files: UploadFile[]): number => {
     return 0;
   }
   
-  const totalProgress = files.reduce((sum, file) => {
-    // Count completed files as 100% progress
-    if (file.status === 'complete' || file.status === 'processing') {
-      return sum + 100;
-    }
-    // Use the actual progress for uploading files
-    return sum + file.progress;
-  }, 0);
+  let completedFiles = 0;
+  let totalProgress = 0;
   
-  const averageProgress = totalProgress / files.length;
-  return Math.round(averageProgress);
+  files.forEach(file => {
+    if (file.status === 'complete') {
+      completedFiles++;
+      totalProgress += 100;
+    } else if (file.status === 'processing') {
+      totalProgress += 100; // Count processing as complete for progress bar
+    } else if (file.status === 'uploading') {
+      totalProgress += file.progress;
+    }
+    // Queued files contribute 0 to progress
+  });
+  
+  return Math.round(totalProgress / files.length);
 };
 
 // Calculate total file size

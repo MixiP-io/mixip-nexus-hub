@@ -41,6 +41,9 @@ export const useFileManager = () => {
       }
       return prev.filter(file => file.id !== id);
     });
+    
+    // Update overall progress after removing a file
+    setTimeout(() => updateOverallProgress(), 0);
   };
   
   const clearAll = () => {
@@ -62,8 +65,8 @@ export const useFileManager = () => {
       )
     );
     
-    // Recalculate overall progress
-    updateOverallProgress();
+    // Recalculate overall progress immediately
+    setTimeout(() => updateOverallProgress(), 0);
   };
 
   const updateFileStatus = (fileId: string, status: FileStatus) => {
@@ -75,13 +78,16 @@ export const useFileManager = () => {
       )
     );
     
-    // Recalculate overall progress
-    updateOverallProgress();
+    // Recalculate overall progress immediately
+    setTimeout(() => updateOverallProgress(), 0);
   };
   
   const updateOverallProgress = () => {
-    const newProgress = calculateTotalProgress(files);
-    setOverallProgress(newProgress);
+    setFiles(currentFiles => {
+      const newProgress = calculateTotalProgress(currentFiles);
+      setOverallProgress(newProgress);
+      return currentFiles;
+    });
   };
   
   return {
