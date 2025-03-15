@@ -188,7 +188,7 @@ const OwnershipManagement: React.FC<OwnershipManagementProps> = ({
             <Button 
               variant="outline" 
               onClick={toggleSearch}
-              className="w-full border-dashed border-gray-600 text-gray-300 hover:text-white hover:bg-gray-700"
+              className="w-full border-dashed border-gray-600 text-white hover:text-white hover:bg-gray-700 bg-gray-700/50 font-medium"
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Owner
