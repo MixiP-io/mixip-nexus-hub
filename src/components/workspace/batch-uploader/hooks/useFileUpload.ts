@@ -1,4 +1,3 @@
-
 import { useState, useRef } from 'react';
 import { toast } from 'sonner';
 import { UploadFile, UploadSource, FileStatus } from '../types';
@@ -83,7 +82,7 @@ export const useFileUpload = () => {
       )
     );
     
-    // Recalculate overall progress whenever a file's progress changes
+    // Immediately recalculate overall progress
     calculateOverallProgress();
   };
 
@@ -96,11 +95,10 @@ export const useFileUpload = () => {
       )
     );
     
-    // Also recalculate overall progress when status changes
+    // Immediately recalculate overall progress
     calculateOverallProgress();
   };
   
-  // Calculate and update the overall progress based on all files
   const calculateOverallProgress = () => {
     if (files.length === 0) {
       setOverallProgress(0);
@@ -109,7 +107,7 @@ export const useFileUpload = () => {
     
     const totalProgress = files.reduce((sum, file) => {
       // Count completed files as 100% progress
-      if (file.status === 'complete') {
+      if (file.status === 'complete' || file.status === 'processing') {
         return sum + 100;
       }
       // Use the actual progress for uploading files
@@ -117,7 +115,7 @@ export const useFileUpload = () => {
     }, 0);
     
     const averageProgress = totalProgress / files.length;
-    setOverallProgress(averageProgress);
+    setOverallProgress(Math.round(averageProgress));
   };
   
   const startUpload = async (licenseType: string, selectedProject: string) => {
@@ -138,6 +136,7 @@ export const useFileUpload = () => {
     
     setIsUploading(true);
     setOverallProgress(0); // Reset progress at start
+    calculateOverallProgress(); // Calculate initial progress
     
     try {
       // Process files one by one
@@ -158,16 +157,15 @@ export const useFileUpload = () => {
         updateFileStatus(file.id, 'complete');
       }
       
-      // Add files to project
-      await addFilesToProject(selectedProject, files);
+      // Add files to project after processing all files
+      await addFilesToProject(selectedProject, files, licenseType);
       
       toast.success(`All files uploaded successfully to project!`);
+      setOverallProgress(100); // Ensure we end at 100%
     } catch (error) {
       console.error('Upload error:', error);
       toast.error('There was a problem with the upload');
     } finally {
-      // Ensure overall progress is 100% at the end
-      setOverallProgress(100);
       setIsUploading(false);
     }
   };
@@ -182,8 +180,8 @@ export const useFileUpload = () => {
       let progress = 0;
       const interval = setInterval(() => {
         // Realistic progress simulation - faster at start, slower at end
-        const increment = (100 - progress) / 10;
-        progress += Math.min(increment, 10);
+        const increment = Math.max(1, (100 - progress) / 10);
+        progress += increment;
         
         if (progress >= 99.5) {
           clearInterval(interval);

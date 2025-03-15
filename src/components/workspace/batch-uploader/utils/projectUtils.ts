@@ -76,6 +76,8 @@ export const addFilesToProject = async (
   files: UploadFile[],
   licenseType: string = 'standard'
 ): Promise<void> => {
+  console.log(`Adding files to project: ${projectId}`);
+  
   // Find the project
   const projectIndex = projects.findIndex(p => p.id === projectId);
   
@@ -84,18 +86,24 @@ export const addFilesToProject = async (
     return Promise.reject(new Error(`Project not found: ${projectId}`));
   }
   
+  // Filter for completed files only
+  const completedFiles = files.filter(file => file.status === 'complete');
+  
+  if (completedFiles.length === 0) {
+    console.log('No completed files to add to project');
+    return Promise.resolve();
+  }
+  
   // Convert uploaded files to project assets
-  const assets: ProjectAsset[] = files
-    .filter(file => file.status === 'complete')
-    .map(file => ({
-      id: file.id,
-      name: file.name,
-      type: file.type,
-      size: file.size,
-      preview: file.preview,
-      uploadedAt: new Date(),
-      licenseType
-    }));
+  const assets: ProjectAsset[] = completedFiles.map(file => ({
+    id: file.id,
+    name: file.name,
+    type: file.type,
+    size: file.size,
+    preview: file.preview,
+    uploadedAt: new Date(),
+    licenseType
+  }));
   
   // Update the project with new assets
   const updatedProject = {
@@ -111,8 +119,8 @@ export const addFilesToProject = async (
     ...projects.slice(projectIndex + 1)
   ];
   
-  // In a real app, this would be an API call to persist data
   console.log(`Added ${assets.length} files to project ${projectId}`);
+  logProjects(); // Log the updated projects for debugging
   
   return Promise.resolve();
 };

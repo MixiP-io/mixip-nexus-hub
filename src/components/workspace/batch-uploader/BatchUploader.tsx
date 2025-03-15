@@ -40,6 +40,7 @@ const BatchUploader: React.FC = () => {
   } = useMetadataState();
   
   const handleStartUpload = async () => {
+    // Ensure we're passing the correct license type to startUpload
     await startUpload(licenseType, selectedProject);
     
     // Log projects after upload (for debugging)
