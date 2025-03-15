@@ -25,7 +25,19 @@ describe('Project Store', () => {
           updatedAt: new Date(),
           createdBy: 'user1',
           owners: [],
-          licensing: { type: 'standard', usageRights: {} },
+          licensing: { 
+            type: 'standard', 
+            usageRights: {
+              primaryCampaign: true,
+              secondaryBrand: false,
+              extendedMarketing: false,
+              derivativeWorks: false,
+              merchandising: false,
+              publicity: false,
+              socialMedia: true,
+              aiTraining: false
+            }
+          },
           subfolders: []
         }
       ];

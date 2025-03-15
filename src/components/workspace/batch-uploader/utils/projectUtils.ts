@@ -19,7 +19,8 @@ export {
   getProjectById,
   createProject,
   updateProjectOwnership,
-  updateProjectLicensing
+  updateProjectLicensing,
+  filterAndSortProjects
 } from './services/projectService';
 
 // Re-export folder functions

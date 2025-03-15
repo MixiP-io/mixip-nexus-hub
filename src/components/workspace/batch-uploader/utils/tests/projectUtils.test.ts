@@ -22,6 +22,7 @@ describe('Project Utils Export', () => {
     expect(projectUtils).toHaveProperty('createProject');
     expect(projectUtils).toHaveProperty('updateProjectOwnership');
     expect(projectUtils).toHaveProperty('updateProjectLicensing');
+    expect(projectUtils).toHaveProperty('filterAndSortProjects');
     
     // Check that folder service functions are exported
     expect(projectUtils).toHaveProperty('createSubfolder');
