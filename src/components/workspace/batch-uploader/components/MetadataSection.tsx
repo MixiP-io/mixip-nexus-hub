@@ -22,11 +22,6 @@ const MetadataSection: React.FC<MetadataSectionProps> = ({
 }) => {
   return (
     <div className="bg-gray-800 rounded-lg p-4 overflow-hidden">
-      <div className="flex items-center gap-2 mb-4 border-b border-gray-700 pb-2">
-        <FileText className="h-5 w-5 text-purple-400" />
-        <h3 className="text-lg font-medium">Metadata & Rights</h3>
-      </div>
-      
       <div className="space-y-4">
         <div className="space-y-2">
           <div className="flex items-center gap-2">

@@ -1,5 +1,6 @@
 
 import { UploadFile, UploadSource, FileStatus } from '../types';
+import { ViewOption } from './viewOption';
 
 /**
  * Props for the FilesList component
@@ -53,6 +54,14 @@ export interface ProjectSectionProps {
 export interface SourceSelectionProps {
   activeSource: UploadSource;
   setActiveSource: (source: UploadSource) => void;
+}
+
+/**
+ * Props for the UploaderTabs component
+ */
+export interface UploaderTabsProps {
+  activeView: ViewOption;
+  setActiveView: (view: ViewOption) => void;
 }
 
 /**

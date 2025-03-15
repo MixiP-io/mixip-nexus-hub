@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { FolderTree, FileSpreadsheet, Plus } from 'lucide-react';
 import { 
@@ -78,8 +77,6 @@ const ProjectSection: React.FC<ProjectSectionProps> = ({
   
   return (
     <div className="bg-gray-800 rounded-lg p-4">
-      <h3 className="text-lg font-medium mb-3">Project Assignment</h3>
-      
       <div className="space-y-4">
         <div>
           <label className="block text-gray-400 mb-2 text-sm">Select Project</label>

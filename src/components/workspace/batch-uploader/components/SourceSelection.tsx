@@ -46,8 +46,7 @@ const SourceSelection: React.FC<SourceSelectionProps> = ({
   };
 
   return (
-    <div className="bg-gray-800 rounded-lg p-4 mb-6">
-      <h3 className="text-lg font-medium mb-3">Upload Source</h3>
+    <div className="bg-gray-800 rounded-lg p-4">
       <div className="flex flex-wrap gap-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

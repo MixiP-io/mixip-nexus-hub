@@ -1,8 +1,6 @@
 
 import React from 'react';
-import SourceSelection from './components/SourceSelection';
-import MetadataSection from './components/MetadataSection';
-import ProjectSection from './components/ProjectSection';
+import UploaderTabs from './components/UploaderTabs';
 import UploadArea from './components/UploadArea';
 import FilesList from './components/FilesList';
 import { useFileUpload } from './hooks/useFileUpload';
@@ -24,6 +22,8 @@ const BatchUploader: React.FC = () => {
   } = useFileUpload();
 
   const {
+    activeView,
+    setActiveView,
     activeSource,
     setActiveSource,
     tags,
@@ -46,30 +46,23 @@ const BatchUploader: React.FC = () => {
     <div className="p-6 max-w-6xl mx-auto">
       <h2 className="text-2xl font-semibold mb-6">Batch Upload</h2>
       
-      {/* Source Selection */}
-      <SourceSelection
+      {/* Sub Navigation Tabs */}
+      <UploaderTabs
+        activeView={activeView}
+        setActiveView={setActiveView}
         activeSource={activeSource}
         setActiveSource={setActiveSource}
+        tags={tags}
+        setTags={setTags}
+        licenseType={licenseType}
+        setLicenseType={setLicenseType}
+        usageRights={usageRights}
+        setUsageRights={setUsageRights}
+        selectedProject={selectedProject}
+        setSelectedProject={setSelectedProject}
+        selectedFolder={selectedFolder}
+        setSelectedFolder={setSelectedFolder}
       />
-      
-      {/* Metadata & Rights and Project Assignment in a grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <MetadataSection
-          tags={tags}
-          setTags={setTags}
-          licenseType={licenseType}
-          setLicenseType={setLicenseType}
-          usageRights={usageRights}
-          setUsageRights={setUsageRights}
-        />
-        
-        <ProjectSection
-          selectedProject={selectedProject}
-          setSelectedProject={setSelectedProject}
-          selectedFolder={selectedFolder}
-          setSelectedFolder={setSelectedFolder}
-        />
-      </div>
       
       {/* Upload Area */}
       <UploadArea
