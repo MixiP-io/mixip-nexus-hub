@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { UploadSource } from '../types';
 
 export const useMetadataState = () => {
-  const [activeSource, setActiveSource] = useState<UploadSource>('local');
+  const [activeSource, setActiveSource] = useState<UploadSource>('computer');
   const [tags, setTags] = useState('');
   const [licenseType, setLicenseType] = useState('standard');
   const [usageRights, setUsageRights] = useState('commercial');

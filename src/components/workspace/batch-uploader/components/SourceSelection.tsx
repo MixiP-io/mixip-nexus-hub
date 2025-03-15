@@ -1,10 +1,15 @@
-
-import React from 'react';
-import { Folder, CloudUpload } from 'lucide-react';
+import React, { useState } from 'react';
+import { Folder, CloudUpload, Smartphone, Computer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-type UploadSource = 'local' | 'dropbox' | 'google-drive' | 'box' | 'icloud';
+type UploadSource = 'computer' | 'phone' | 'moby' | 'dropbox' | 'google-drive' | 'box' | 'icloud';
 
 interface SourceSelectionProps {
   activeSource: UploadSource;
@@ -16,7 +21,16 @@ const SourceSelection: React.FC<SourceSelectionProps> = ({
   setActiveSource 
 }) => {
   const sources = [
-    { id: 'local', name: 'My Device', icon: <Folder className="h-5 w-5" /> },
+    { 
+      id: 'device', 
+      name: 'My Device', 
+      icon: <Folder className="h-5 w-5" />,
+      options: [
+        { id: 'computer', name: 'My Computer', icon: <Computer className="h-5 w-5" /> },
+        { id: 'phone', name: 'My Phone', icon: <Smartphone className="h-5 w-5" /> }
+      ]
+    },
+    { id: 'moby', name: 'Moby', icon: <CloudUpload className="h-5 w-5" /> },
     { id: 'dropbox', name: 'Dropbox', icon: <CloudUpload className="h-5 w-5" /> },
     { id: 'google-drive', name: 'Google Drive', icon: <CloudUpload className="h-5 w-5" /> },
     { id: 'box', name: 'Box', icon: <CloudUpload className="h-5 w-5" /> },
@@ -26,7 +40,7 @@ const SourceSelection: React.FC<SourceSelectionProps> = ({
   const handleSourceChange = (source: UploadSource) => {
     setActiveSource(source);
     
-    if (source !== 'local') {
+    if (source !== 'computer' && source !== 'phone') {
       toast.info(`${source} integration coming soon`);
     }
   };
@@ -35,7 +49,37 @@ const SourceSelection: React.FC<SourceSelectionProps> = ({
     <div className="bg-gray-800 rounded-lg p-4 mb-6">
       <h3 className="text-lg font-medium mb-3">Upload Source</h3>
       <div className="flex flex-wrap gap-2">
-        {sources.map(source => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              className={`flex items-center gap-2 ${
+                (activeSource === 'computer' || activeSource === 'phone') 
+                  ? "bg-mixip-blue hover:bg-mixip-blue-dark text-white" 
+                  : "bg-gray-700 text-gray-300 hover:bg-gray-600 border-gray-600"
+              }`}
+            >
+              <Folder className="h-5 w-5" />
+              My Device
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="bg-gray-700 border-gray-600">
+            {sources[0].options.map(option => (
+              <DropdownMenuItem 
+                key={option.id}
+                className="text-white hover:bg-gray-600"
+                onClick={() => handleSourceChange(option.id as UploadSource)}
+              >
+                <div className="flex items-center gap-2">
+                  {option.icon}
+                  {option.name}
+                </div>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {sources.slice(1).map(source => (
           <Button
             key={source.id}
             variant={activeSource === source.id ? "default" : "outline"}

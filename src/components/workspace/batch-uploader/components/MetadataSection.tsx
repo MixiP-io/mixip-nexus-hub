@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { FileText, Tag, Copyright, Hash } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -68,6 +69,7 @@ const MetadataSection: React.FC<MetadataSectionProps> = ({
               <SelectValue placeholder="Select usage rights" />
             </SelectTrigger>
             <SelectContent className="bg-gray-700 border-gray-600">
+              <SelectItem value="all">All Rights</SelectItem>
               <SelectItem value="personal">Personal</SelectItem>
               <SelectItem value="commercial">Commercial</SelectItem>
               <SelectItem value="editorial">Editorial</SelectItem>
