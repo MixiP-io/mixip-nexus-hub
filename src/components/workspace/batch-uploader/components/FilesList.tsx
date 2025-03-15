@@ -63,7 +63,10 @@ const FilesList: React.FC<FilesListProps> = ({
       {uploadComplete && selectedProject && (
         <UploadComplete 
           isOpen={uploadComplete}
-          onClose={() => setUploadComplete(false)}
+          onClose={() => {
+            console.log("Closing upload complete dialog");
+            setUploadComplete(false);
+          }}
           fileCount={uploadedFiles}
           totalSize={totalSize}
           projectId={selectedProject}

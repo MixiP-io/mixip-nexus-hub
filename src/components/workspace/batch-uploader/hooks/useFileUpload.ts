@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useFileManager } from './useFileManager';
 import { useFileInput } from './useFileInput';
@@ -39,6 +39,24 @@ export const useFileUpload = () => {
     // This is where you'd implement navigation to the project folder
     // For example: router.push(`/dashboard/projects/${projectId}`);
   };
+
+  // Reset upload complete when files change
+  useEffect(() => {
+    if (files.length === 0) {
+      setUploadComplete(false);
+    }
+  }, [files]);
+  
+  // Log state changes for debugging
+  useEffect(() => {
+    console.log("useFileUpload state:", { 
+      uploadComplete, 
+      selectedProject, 
+      selectedProjectName,
+      filesCount: files.length,
+      completedFiles: files.filter(f => f.status === 'complete').length
+    });
+  }, [uploadComplete, selectedProject, selectedProjectName, files]);
   
   const startUpload = async (licenseType: string, projectId: string) => {
     if (files.length === 0) {
@@ -97,14 +115,18 @@ export const useFileUpload = () => {
       if (completedFiles.length > 0) {
         await addFilesToProject(projectId, completedFiles, licenseType);
         
-        // Set upload complete to true AFTER all files are processed and added to project
         console.log("Upload complete, setting uploadComplete to true");
         console.log("Project:", projectId, "Project name:", selectedProjectName);
         
-        // Force completion state to be set
+        // Ensure all state is updated correctly after upload
         setIsUploading(false);
         updateOverallProgress();
-        setUploadComplete(true);
+        
+        // Use setTimeout to ensure state updates are processed before setting uploadComplete
+        setTimeout(() => {
+          console.log("Setting uploadComplete state to true");
+          setUploadComplete(true);
+        }, 300);
       }
     } catch (error) {
       console.error('Upload error:', error);

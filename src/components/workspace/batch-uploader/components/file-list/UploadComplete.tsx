@@ -23,15 +23,19 @@ const UploadComplete: React.FC<UploadCompleteProps> = ({
   projectName,
   navigateToProject
 }) => {
-  console.log("UploadComplete dialog props:", { isOpen, fileCount, projectId, projectName });
+  console.log("UploadComplete rendering with:", { isOpen, fileCount, projectId, projectName });
 
   const handleNavigate = () => {
+    console.log("Navigate to project:", projectId);
     navigateToProject(projectId);
     onClose();
   };
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={onClose}>
+    <AlertDialog open={isOpen} onOpenChange={(open) => {
+      console.log("AlertDialog onOpenChange:", open);
+      if (!open) onClose();
+    }}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Upload Complete!</AlertDialogTitle>
