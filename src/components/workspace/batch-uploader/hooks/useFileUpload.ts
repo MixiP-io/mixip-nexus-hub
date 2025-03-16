@@ -1,18 +1,16 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { toast } from 'sonner';
 import { useFileManager } from './useFileManager';
 import { useFileInput } from './useFileInput';
-import { simulateFileUpload, calculateTotalSize } from '../utils/uploadUtils';
-import { addFilesToProject, getProjectById, logProjects } from '../utils/projectUtils';
+import { calculateTotalSize } from '../utils/uploadUtils';
+import { logProjects } from '../utils/projectUtils';
+import { useUploadProcess } from './uploads/useUploadProcess';
+import { useProjectSelection } from './uploads/useProjectSelection';
+import { useNavigation } from './uploads/useNavigation';
+import { useUploadValidation } from './uploads/useUploadValidation';
 
 export const useFileUpload = () => {
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadComplete, setUploadComplete] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<string>('');
-  const [selectedProjectName, setSelectedProjectName] = useState<string>('');
-  const [selectedFolder, setSelectedFolder] = useState<string>('root');
-  
+  // Import sub-hooks
   const {
     files,
     overallProgress,
@@ -30,16 +28,27 @@ export const useFileUpload = () => {
     handleFileSelect: handleInputChange
   } = useFileInput(addFiles);
   
+  const {
+    isUploading,
+    uploadComplete,
+    setUploadComplete,
+    processUpload
+  } = useUploadProcess();
+  
+  const {
+    selectedProject,
+    selectedProjectName,
+    selectedFolder,
+    setSelectedFolder,
+    selectProject
+  } = useProjectSelection();
+  
+  const { navigateToProject } = useNavigation();
+  
+  const { validateUploadParams } = useUploadValidation();
+  
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     handleInputChange(event);
-  };
-  
-  const navigateToProject = (projectId: string) => {
-    // In a real app, this would navigate to the project page
-    console.log(`Navigating to project: ${projectId}`);
-    
-    // Force window navigation to ensure fresh load
-    window.location.href = `/dashboard/workspace?tab=assets&project=${projectId}`;
   };
 
   // Reset upload complete when files change or component unmounts
@@ -52,7 +61,7 @@ export const useFileUpload = () => {
     return () => {
       setUploadComplete(false);
     };
-  }, [files]);
+  }, [files, setUploadComplete]);
   
   // Log state changes for debugging
   useEffect(() => {
@@ -66,125 +75,32 @@ export const useFileUpload = () => {
     });
   }, [uploadComplete, selectedProject, selectedProjectName, selectedFolder, files]);
   
-  // Use a callback to ensure the upload complete setter is stable
-  const completeUpload = useCallback(() => {
-    console.log("Setting uploadComplete state to true");
-    setUploadComplete(true);
-    
-    // Debug the project state after upload
-    const project = getProjectById(selectedProject);
-    if (project) {
-      console.log(`Project ${project.name} now has ${project.assets?.length || 0} assets at root level`);
-      
-      // Show a confirmation toast here too for redundancy
-      toast.success(`Upload complete! ${files.filter(f => f.status === 'complete').length} files added to ${project.name}`);
-    }
-  }, [selectedProject, files]);
-  
   const startUpload = async (licenseType: string, projectId: string, folderId: string = 'root') => {
-    if (files.length === 0) {
-      toast.error("Please add files to upload");
-      return;
-    }
-    
-    if (!licenseType) {
-      toast.error("Please select a license type");
-      return;
-    }
-    
-    if (!projectId) {
-      toast.error("Please select a project to upload");
+    // Validate upload parameters
+    if (!validateUploadParams(files, licenseType, projectId)) {
       return;
     }
     
     console.log(`Starting upload to project: ${projectId}, folder: ${folderId}, license: ${licenseType}`);
     
-    // Reset the upload complete state at the beginning of upload
-    setUploadComplete(false);
-    setIsUploading(true);
-    setSelectedProject(projectId);
+    // Update selected project and folder
+    selectProject(projectId);
     setSelectedFolder(folderId);
     
-    // Get project name for the success message
-    const project = getProjectById(projectId);
-    if (project) {
-      setSelectedProjectName(project.name);
-      console.log(`Project before upload: ${project.name} with ${project.assets?.length || 0} assets`);
-    } else {
-      console.error(`Project not found: ${projectId}`);
-      toast.error(`Project not found: ${projectId}`);
-      setIsUploading(false);
-      return;
-    }
+    // Process the upload
+    await processUpload(
+      files,
+      projectId,
+      selectedProjectName || getProjectById(projectId)?.name || "Project",
+      folderId,
+      licenseType,
+      updateFileProgress,
+      updateFileStatus,
+      updateOverallProgress
+    );
     
-    updateOverallProgress(); // Calculate initial progress
-    
-    try {
-      // Process files one by one
-      for (const file of files) {
-        // Only process queued files
-        if (file.status !== 'queued') continue;
-        
-        // Simulate upload - in a real app, replace with actual API calls
-        await simulateFileUpload(file.id, updateFileProgress);
-        
-        // Mark as processing
-        updateFileStatus(file.id, 'processing');
-        
-        // Simulate processing delay
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Mark as complete
-        updateFileStatus(file.id, 'complete');
-        
-        // Update overall progress after each file
-        updateOverallProgress();
-      }
-      
-      // Add files to project after processing all files
-      const completedFiles = files.filter(f => f.status === 'complete');
-      console.log(`Completed files: ${completedFiles.length}`);
-      
-      if (completedFiles.length > 0) {
-        console.log(`Adding ${completedFiles.length} files to project ${projectId}`);
-        await addFilesToProject(projectId, completedFiles, licenseType, folderId);
-        
-        console.log("Upload complete, setting uploadComplete to true");
-        console.log("Project:", projectId, "Project name:", selectedProjectName, "Folder:", folderId);
-        
-        // Log projects after upload (for debugging)
-        logProjects();
-        
-        // Check project again to verify assets were added
-        const updatedProject = getProjectById(projectId);
-        if (updatedProject) {
-          console.log(`Project after upload: ${updatedProject.name} with ${updatedProject.assets?.length || 0} assets`);
-          
-          // Ensure all state is updated correctly after upload
-          setIsUploading(false);
-          updateOverallProgress();
-          
-          // Set upload complete flag immediately instead of using setTimeout
-          completeUpload();
-        } else {
-          console.error("Updated project not found after upload");
-          toast.error("Error: Could not verify upload completed");
-          setIsUploading(false);
-        }
-      } else {
-        console.log("No completed files to add to project");
-        toast.warning("No files were uploaded successfully");
-        setIsUploading(false);
-      }
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast.error('There was a problem with the upload');
-      setUploadComplete(false);
-      setIsUploading(false);
-    } finally {
-      // Force a final update to overall progress
-      updateOverallProgress();
-    }
+    // Log projects after upload (for debugging)
+    logProjects();
   };
 
   return {

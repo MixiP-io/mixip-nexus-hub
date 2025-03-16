@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import UploaderTabs from './components/UploaderTabs';
 import UploadArea from './components/UploadArea';
@@ -47,7 +46,6 @@ const BatchUploader: React.FC = () => {
     setSelectedFolder: setMetadataSelectedFolder
   } = useMetadataState();
   
-  // Debug log for tracking upload state
   useEffect(() => {
     if (uploadComplete) {
       console.log("BatchUploader: Upload complete state is true", { 
@@ -58,7 +56,6 @@ const BatchUploader: React.FC = () => {
     }
   }, [uploadComplete, selectedProject, selectedProjectName, selectedFolder]);
   
-  // Sync the selected folder between the two hooks
   useEffect(() => {
     if (metadataSelectedFolder !== selectedFolder) {
       setSelectedFolder(metadataSelectedFolder);
@@ -66,10 +63,7 @@ const BatchUploader: React.FC = () => {
   }, [metadataSelectedFolder, selectedFolder, setSelectedFolder]);
   
   const handleStartUpload = async () => {
-    // Ensure we're passing the correct license type, project, and folder to startUpload
     await startUpload(licenseType, metadataSelectedProject, metadataSelectedFolder);
-    
-    // Log projects after upload (for debugging)
     logProjects();
   };
   
@@ -80,7 +74,6 @@ const BatchUploader: React.FC = () => {
         description="Upload and organize multiple media files with metadata and licensing"
       />
       
-      {/* Sub Navigation Tabs */}
       <UploaderTabs
         activeView={activeView}
         setActiveView={setActiveView}
@@ -98,7 +91,6 @@ const BatchUploader: React.FC = () => {
         setSelectedFolder={setMetadataSelectedFolder}
       />
       
-      {/* Only show upload area on source view */}
       {activeView === 'source' && (
         <UploadArea
           handleFileSelect={handleFileSelect}
@@ -107,7 +99,6 @@ const BatchUploader: React.FC = () => {
         />
       )}
       
-      {/* Files List */}
       {files.length > 0 && (
         <FilesList
           files={files}
