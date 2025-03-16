@@ -49,8 +49,13 @@ const UploadComplete: React.FC<UploadCompleteProps> = ({
 
   const handleNavigate = () => {
     console.log("Navigate to project:", projectId);
-    navigateToProject(projectId);
-    onClose();
+    if (projectId) {
+      navigateToProject(projectId);
+      onClose();
+    } else {
+      console.error("Cannot navigate: No project ID provided");
+      toast.error("Error: Cannot navigate to project");
+    }
   };
 
   return (
@@ -79,15 +84,13 @@ const UploadComplete: React.FC<UploadCompleteProps> = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogAction asChild>
-            <Button 
-              onClick={handleNavigate} 
-              className={success ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700"}
-            >
-              <FolderOpen className="mr-2 h-4 w-4" />
-              View Project Folder
-            </Button>
-          </AlertDialogAction>
+          <Button 
+            onClick={handleNavigate} 
+            className={success ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700"}
+          >
+            <FolderOpen className="mr-2 h-4 w-4" />
+            View Project Folder
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

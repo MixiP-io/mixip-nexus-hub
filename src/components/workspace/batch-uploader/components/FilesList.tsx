@@ -72,7 +72,7 @@ const FilesList: React.FC<FilesListProps> = ({
         formatFileSize={formatFileSize}
       />
 
-      {/* Show upload complete dialog when upload is complete and we have a project */}
+      {/* Show upload complete dialog when upload is complete and we have results */}
       {uploadComplete && uploadResults && (
         <UploadComplete 
           isOpen={uploadComplete}
@@ -82,8 +82,8 @@ const FilesList: React.FC<FilesListProps> = ({
           }}
           fileCount={uploadResults.count}
           totalSize={totalSize}
-          projectId={uploadResults.projectId}
-          projectName={uploadResults.projectName}
+          projectId={uploadResults.projectId || ""}
+          projectName={uploadResults.projectName || ""}
           success={uploadResults.success}
           navigateToProject={navigateToProject}
         />

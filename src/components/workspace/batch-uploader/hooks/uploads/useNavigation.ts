@@ -12,6 +12,11 @@ export const useNavigation = () => {
   const navigateToProject = useCallback((projectId: string) => {
     console.log(`Navigating to project: ${projectId}`);
     
+    if (!projectId) {
+      console.error("Cannot navigate: No project ID provided");
+      return;
+    }
+    
     // Use react-router's navigate for better state handling
     navigate(`/dashboard/workspace?tab=assets&project=${projectId}`);
   }, [navigate]);
