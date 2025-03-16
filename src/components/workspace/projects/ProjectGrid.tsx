@@ -1,10 +1,7 @@
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getProjects, getProjectById, filterAndSortProjects } from '../batch-uploader/utils/projectUtils';
+import React from 'react';
 import SectionHeader from '../SectionHeader';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { toast } from 'sonner';
 import ProjectToolbar from './ProjectToolbar';
 import ProjectGridView from './ProjectGridView';
 import ProjectListView from './ProjectListView';
@@ -12,151 +9,48 @@ import CreateProjectDialog from './CreateProjectDialog';
 import CreateSubfolderDialog from './CreateSubfolderDialog';
 import SetCoverImageDialog from './dialogs/SetCoverImageDialog';
 import EditProjectDialog from './dialogs/EditProjectDialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import DeleteProjectDialog from './dialogs/DeleteProjectDialog';
+import { useProjectsManager } from './hooks/useProjectsManager';
 
 interface ProjectGridProps {
   onProjectSelect: (projectId: string) => void;
 }
 
 const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
-  const navigate = useNavigate();
-  const [projects, setProjects] = useState<any[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [createProjectOpen, setCreateProjectOpen] = useState(false);
-  const [createSubfolderOpen, setCreateSubfolderOpen] = useState(false);
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
-  const [selectedFolderId, setSelectedFolderId] = useState<string | undefined>(undefined);
-  
-  // Cover image state
-  const [setCoverImageOpen, setSetCoverImageOpen] = useState(false);
-  const [projectForCoverImage, setProjectForCoverImage] = useState<string | null>(null);
-  const [projectAssets, setProjectAssets] = useState<any[]>([]);
-  
-  // Edit project state
-  const [editProjectOpen, setEditProjectOpen] = useState(false);
-  const [projectToEdit, setProjectToEdit] = useState<any>(null);
-  
-  // Delete project confirmation
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
-  const [projectToDeleteName, setProjectToDeleteName] = useState<string>('');
-
-  useEffect(() => {
-    loadProjects();
-  }, []);
-
-  const loadProjects = () => {
-    const projectsData = getProjects();
-    setProjects(projectsData);
-  };
-
-  const handleCreateProject = (name: string) => {
-    // Project creation is handled in the dialog component
-    // After creation, we reload the projects
-    loadProjects();
-    setCreateProjectOpen(false);
-  };
-
-  const handleProjectClick = (projectId: string) => {
-    console.log(`Project clicked: ${projectId}`);
-    // Call the onProjectSelect callback to set the selected project
-    onProjectSelect(projectId);
-    
-    // Navigate directly to the assets view for this project
-    navigate(`/dashboard/workspace?tab=assets&project=${projectId}`);
-  };
-
-  const handleDeleteProject = (projectId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    // Open delete confirmation dialog
-    const project = projects.find(p => p.id === projectId);
-    if (project) {
-      setProjectToDelete(projectId);
-      setProjectToDeleteName(project.name);
-      setDeleteDialogOpen(true);
-    }
-  };
-  
-  const confirmDeleteProject = () => {
-    if (!projectToDelete) return;
-    
-    // Remove project from projects array
-    const updatedProjects = projects.filter(p => p.id !== projectToDelete);
-    
-    // Update local state and localStorage
-    const projectsJSON = JSON.stringify(updatedProjects);
-    localStorage.setItem('projects', projectsJSON);
-    
-    // Reload projects
-    loadProjects();
-    
-    // Close dialog and show toast
-    setDeleteDialogOpen(false);
-    toast.success(`Project "${projectToDeleteName}" deleted successfully`);
-  };
-
-  const handleEditProject = (projectId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    // Get project details
-    const project = projects.find(p => p.id === projectId);
-    if (project) {
-      setProjectToEdit(project);
-      setEditProjectOpen(true);
-    }
-  };
-  
-  const handleAddSubfolder = (projectId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    // Open the subfolder dialog
-    setSelectedProjectId(projectId);
-    setCreateSubfolderOpen(true);
-  };
-  
-  const handleFolderCreated = () => {
-    // Reload projects after folder creation
-    loadProjects();
-    setCreateSubfolderOpen(false);
-  };
-  
-  const handleSetCoverImage = (projectId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    const project = projects.find(p => p.id === projectId);
-    
-    if (!project) {
-      toast.error('Project not found');
-      return;
-    }
-    
-    if (!project.assets || project.assets.length === 0) {
-      toast.error('Project has no assets to set as cover image');
-      return;
-    }
-    
-    // Set project and assets for the dialog
-    setProjectForCoverImage(projectId);
-    setProjectAssets(project.assets.filter((asset: any) => asset.preview));
-    setSetCoverImageOpen(true);
-  };
-  
-  const handleProjectUpdated = () => {
-    // Reload projects after updating
-    loadProjects();
-    setEditProjectOpen(false);
-  };
-
-  const filteredProjects = projects.filter(project => 
-    project.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const {
+    projects,
+    searchQuery,
+    setSearchQuery,
+    viewMode,
+    setViewMode,
+    createProjectOpen,
+    setCreateProjectOpen,
+    createSubfolderOpen,
+    setCreateSubfolderOpen,
+    selectedProjectId,
+    selectedFolderId,
+    setCoverImageOpen,
+    setSetCoverImageOpen,
+    projectForCoverImage,
+    projectAssets,
+    editProjectOpen,
+    setEditProjectOpen,
+    projectToEdit,
+    deleteDialogOpen,
+    setDeleteDialogOpen,
+    projectToDelete,
+    projectToDeleteName,
+    handleCreateProject,
+    handleProjectClick,
+    handleDeleteProject,
+    confirmDeleteProject,
+    handleEditProject,
+    handleAddSubfolder,
+    handleFolderCreated,
+    handleSetCoverImage,
+    handleProjectUpdated,
+    loadProjects
+  } = useProjectsManager();
 
   return (
     <div className="p-6">
@@ -189,8 +83,11 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
       {/* Project Views */}
       {viewMode === 'grid' ? (
         <ProjectGridView 
-          projects={filteredProjects}
-          onProjectClick={handleProjectClick}
+          projects={projects}
+          onProjectClick={(projectId) => {
+            handleProjectClick(projectId);
+            onProjectSelect(projectId);
+          }}
           onEditProject={handleEditProject}
           onAddSubfolder={handleAddSubfolder}
           onDeleteProject={handleDeleteProject}
@@ -199,14 +96,18 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
         />
       ) : (
         <ProjectListView 
-          projects={filteredProjects}
-          onProjectClick={handleProjectClick}
+          projects={projects}
+          onProjectClick={(projectId) => {
+            handleProjectClick(projectId);
+            onProjectSelect(projectId);
+          }}
           onEditProject={handleEditProject}
           onAddSubfolder={handleAddSubfolder}
           onDeleteProject={handleDeleteProject}
         />
       )}
 
+      {/* Dialogs */}
       <CreateProjectDialog
         isOpen={createProjectOpen}
         setIsOpen={setCreateProjectOpen}
@@ -243,27 +144,12 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
       )}
       
       {/* Delete confirmation dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className="bg-gray-800 border-gray-700 text-white">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">Delete Project</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-300">
-              Are you sure you want to delete "{projectToDeleteName}"? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="bg-gray-700 text-white border-gray-600 hover:bg-gray-600">
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDeleteProject}
-              className="bg-red-600 text-white hover:bg-red-700"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteProjectDialog
+        isOpen={deleteDialogOpen}
+        setIsOpen={setDeleteDialogOpen}
+        projectName={projectToDeleteName}
+        onConfirm={confirmDeleteProject}
+      />
     </div>
   );
 };

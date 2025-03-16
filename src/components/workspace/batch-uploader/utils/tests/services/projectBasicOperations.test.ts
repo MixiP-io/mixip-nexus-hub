@@ -1,187 +1,227 @@
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { toast } from 'sonner';
 import { 
   getProjects, 
   getProjectById, 
-  createProject 
+  createProject,
+  deleteProject,
+  updateProject,
+  syncProjectsWithLocalStorage,
+  persistProjectsToLocalStorage
 } from '../../services/projectManagement/basicOperations';
-import { projects, updateProjects, currentUser } from '../../data/projectStore';
 
-// Mock the toast module
-vi.mock('sonner', () => ({
-  toast: {
-    error: vi.fn(),
-    success: vi.fn(),
-  }
-}));
+// Mock localStorage
+const localStorageMock = (() => {
+  let store: Record<string, string> = {};
+  return {
+    getItem: (key: string) => {
+      return store[key] || null;
+    },
+    setItem: (key: string, value: string) => {
+      store[key] = value;
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    }
+  };
+})();
 
-// Mock the projectStore module
-vi.mock('../../data/projectStore', () => ({
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock
+});
+
+// Mock project store
+jest.mock('../../../data/projectStore', () => ({
   projects: [],
-  updateProjects: vi.fn(),
-  currentUser: {
-    id: 'testuser',
-    name: 'Test User',
-    email: 'test@example.com'
-  }
+  updateProjects: jest.fn(),
+  currentUser: 'test-user'
 }));
 
-// Mock the retrieval operations
-vi.mock('../../services/projectManagement/projectRetrievalOperations', () => ({
-  getProjects: vi.fn(),
-  getProjectById: vi.fn()
-}));
-
-// Mock the create operations
-vi.mock('../../services/projectManagement/projectCreateOperations', () => ({
-  createProject: vi.fn()
-}));
-
-describe('Project Service - Basic Operations', () => {
-  let mockProjects: any[];
-  
+describe('Basic Project Operations', () => {
   beforeEach(() => {
-    // Reset mocks
-    vi.clearAllMocks();
+    // Clear localStorage before each test
+    window.localStorage.clear();
     
-    // Sample test data
-    mockProjects = [
-      {
-        id: 'project1',
-        name: 'Test Project 1',
-        description: 'Test description',
-        tags: ['marketing', 'social'],
-        assets: [],
-        createdAt: new Date('2024-01-15'),
-        updatedAt: new Date('2024-02-20'),
-        createdBy: 'testuser',
-        owners: [
-          { userId: 'testuser', name: 'Test User', email: 'test@example.com', royaltyPercentage: 100 }
-        ],
-        licensing: {
-          type: 'standard',
-          usageRights: {
-            primaryCampaign: true,
-            secondaryBrand: false,
-            extendedMarketing: false,
-            derivativeWorks: false,
-            merchandising: false,
-            publicity: false,
-            socialMedia: true,
-            aiTraining: false
-          }
-        },
-        subfolders: []
-      },
-      {
-        id: 'project2',
-        name: 'Product Photoshoot',
-        description: 'Product photos',
-        tags: ['product', 'photography'],
-        assets: [],
-        createdAt: new Date('2024-03-10'),
-        updatedAt: new Date('2024-03-15'),
-        createdBy: 'user2',
-        owners: [
-          { userId: 'user2', name: 'User Two', email: 'user2@example.com', royaltyPercentage: 100 }
-        ],
-        licensing: {
-          type: 'standard',
-          usageRights: {
-            primaryCampaign: true,
-            secondaryBrand: false,
-            extendedMarketing: false,
-            derivativeWorks: false,
-            merchandising: false,
-            publicity: false,
-            socialMedia: true,
-            aiTraining: false
-          }
-        },
-        subfolders: []
-      }
-    ];
+    // Reset mock functions
+    jest.clearAllMocks();
     
-    // Import the actual implementations for tests
-    const actualModule = jest.requireActual('../../services/projectManagement/projectRetrievalOperations');
-    const actualCreateModule = jest.requireActual('../../services/projectManagement/projectCreateOperations');
-    
-    // Setup the mocked implementation
-    vi.mocked(getProjects).mockImplementation(() => mockProjects);
-    vi.mocked(getProjectById).mockImplementation((id) => mockProjects.find(p => p.id === id) || null);
-    vi.mocked(createProject).mockImplementation(actualCreateModule.createProject);
-    
-    // Set up the mocked projects array
-    vi.mocked(projects).splice(0, projects.length, ...mockProjects);
+    // Reset in-memory projects (if needed)
+    require('../../../data/projectStore').projects.length = 0;
   });
   
   describe('getProjects', () => {
-    it('should return a copy of all projects', () => {
-      const result = getProjects();
-      expect(result).toEqual(mockProjects);
-      expect(result).not.toBe(projects); // Should be a new array, not a reference
+    it('should return an empty array when no projects exist', () => {
+      const projects = getProjects();
+      expect(projects).toEqual([]);
+    });
+    
+    it('should return projects from localStorage if they exist', () => {
+      const testProjects = [
+        { 
+          id: 'test1', 
+          name: 'Test Project 1', 
+          assets: [], 
+          createdAt: new Date(), 
+          updatedAt: new Date(),
+          createdBy: 'test-user',
+          owners: [{
+            userId: 'test-user',
+            name: 'Test User',
+            email: 'test@example.com',
+            royaltyPercentage: 100
+          }],
+          licensing: {
+            type: 'standard',
+            usageRights: {
+              primaryCampaign: true,
+              secondaryBrand: false,
+              extendedMarketing: false,
+              derivativeWorks: false,
+              merchandising: false,
+              publicity: false,
+              socialMedia: true,
+              aiTraining: false
+            }
+          },
+          subfolders: []
+        }
+      ];
+      
+      window.localStorage.setItem('projects', JSON.stringify(testProjects));
+      const projects = getProjects();
+      expect(projects).toEqual(testProjects);
     });
   });
   
   describe('getProjectById', () => {
-    it('should return the project with the matching ID', () => {
-      const result = getProjectById('project1');
-      expect(result).toEqual(mockProjects[0]);
+    it('should return undefined if project does not exist', () => {
+      const project = getProjectById('non-existent');
+      expect(project).toBeUndefined();
     });
     
-    it('should return undefined if no project matches the ID', () => {
-      const result = getProjectById('nonexistent');
-      expect(result).toBeUndefined();
-    });
-  });
-  
-  describe('createProject', () => {
-    it('should create a new project with minimum required fields', () => {
-      const projectName = 'New Test Project';
-      const result = createProject(projectName);
-      
-      expect(result.name).toBe(projectName);
-      expect(result.id).toContain('project-');
-      expect(result.createdBy).toBe(currentUser.id);
-      expect(result.owners[0].userId).toBe(currentUser.id);
-      expect(updateProjects).toHaveBeenCalled();
-    });
-    
-    it('should create a project with optional fields when provided', () => {
-      const projectName = 'Project with Options';
-      const options = {
-        description: 'Test description',
-        tags: ['test', 'project'],
-        owners: [
-          { userId: 'user1', name: 'User One', email: 'user1@example.com', royaltyPercentage: 60 },
-          { userId: 'user2', name: 'User Two', email: 'user2@example.com', royaltyPercentage: 40 }
-        ],
+    it('should return the project if it exists', () => {
+      const testProject = { 
+        id: 'test1', 
+        name: 'Test Project 1', 
+        assets: [], 
+        createdAt: new Date(), 
+        updatedAt: new Date(),
+        createdBy: 'test-user',
+        owners: [{
+          userId: 'test-user',
+          name: 'Test User',
+          email: 'test@example.com',
+          royaltyPercentage: 100
+        }],
         licensing: {
-          type: 'exclusive',
+          type: 'standard',
           usageRights: {
             primaryCampaign: true,
-            secondaryBrand: true,
-            extendedMarketing: true,
+            secondaryBrand: false,
+            extendedMarketing: false,
             derivativeWorks: false,
             merchandising: false,
-            publicity: true,
+            publicity: false,
             socialMedia: true,
             aiTraining: false
           }
         },
-        parentId: 'parent-project'
+        subfolders: []
       };
       
-      const result = createProject(projectName, options);
-      
-      expect(result.name).toBe(projectName);
-      expect(result.description).toBe(options.description);
-      expect(result.tags).toEqual(options.tags);
-      expect(result.owners).toEqual(options.owners);
-      expect(result.licensing).toEqual(options.licensing);
-      expect(result.parentId).toBe(options.parentId);
-      expect(updateProjects).toHaveBeenCalled();
+      window.localStorage.setItem('projects', JSON.stringify([testProject]));
+      const project = getProjectById('test1');
+      expect(project).toEqual(testProject);
     });
   });
+  
+  describe('createProject', () => {
+    it('should create a new project with the specified name', () => {
+      const newProject = createProject('New Project', {
+        description: 'Test description',
+        tags: ['test', 'project'],
+        owners: [{
+          userId: 'test-user',
+          name: 'Test User',
+          email: 'test@example.com',
+          royaltyPercentage: 100
+        }],
+        licensing: {
+          type: 'standard',
+          usageRights: {
+            primaryCampaign: true,
+            secondaryBrand: false,
+            extendedMarketing: false,
+            derivativeWorks: false,
+            merchandising: false,
+            publicity: false,
+            socialMedia: true,
+            aiTraining: false
+          }
+        },
+        parentId: 'parent-id'
+      });
+      
+      expect(newProject.name).toBe('New Project');
+      expect(newProject.description).toBe('Test description');
+      expect(newProject.tags).toEqual(['test', 'project']);
+      
+      // Check that the project was saved to localStorage
+      const savedProjects = JSON.parse(window.localStorage.getItem('projects') || '[]');
+      expect(savedProjects.length).toBe(1);
+      expect(savedProjects[0].name).toBe('New Project');
+    });
+    
+    it('should generate a unique ID for the new project', () => {
+      const project1 = createProject('Project 1', {
+        owners: [{
+          userId: 'test-user',
+          name: 'Test User',
+          email: 'test@example.com',
+          royaltyPercentage: 100
+        }],
+        licensing: {
+          type: 'standard',
+          usageRights: {
+            primaryCampaign: true,
+            secondaryBrand: false,
+            extendedMarketing: false,
+            derivativeWorks: false,
+            merchandising: false,
+            publicity: false,
+            socialMedia: true,
+            aiTraining: false
+          }
+        }
+      });
+      
+      const project2 = createProject('Project 2', {
+        owners: [{
+          userId: 'test-user',
+          name: 'Test User',
+          email: 'test@example.com',
+          royaltyPercentage: 100
+        }],
+        licensing: {
+          type: 'standard',
+          usageRights: {
+            primaryCampaign: true,
+            secondaryBrand: false,
+            extendedMarketing: false,
+            derivativeWorks: false,
+            merchandising: false,
+            publicity: false,
+            socialMedia: true,
+            aiTraining: false
+          }
+        }
+      });
+      
+      expect(project1.id).not.toBe(project2.id);
+    });
+  });
+  
+  // Additional tests for other functions...
 });

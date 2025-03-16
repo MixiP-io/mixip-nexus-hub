@@ -1,68 +1,99 @@
 
-import React from 'react';
-import { Plus, Image } from 'lucide-react';
-
-// Sample project data
-const projects = [
-  {
-    id: 1,
-    title: "Belize Vacation",
-    assets: 32,
-    updated: "2 days ago",
-    image: "/lovable-uploads/20e270e7-8a94-400d-a3c5-560f432fd5ba.png"
-  },
-  {
-    id: 2,
-    title: "Brand Photoshoot",
-    assets: 18,
-    updated: "1 week ago",
-    image: "/placeholder.svg"
-  },
-  {
-    id: 3,
-    title: "Client Presentation",
-    assets: 8,
-    updated: "yesterday",
-    image: "/placeholder.svg"
-  },
-  {
-    id: 4,
-    title: "Nature Collection",
-    assets: 56,
-    updated: "3 days ago",
-    image: "/placeholder.svg"
-  },
-  {
-    id: 5,
-    title: "Stock Collection",
-    assets: 114,
-    updated: "today",
-    image: "/placeholder.svg"
-  }
-];
+import React, { useState, useEffect } from 'react';
+import { Plus, Image, FolderOpen } from 'lucide-react';
+import { getProjects } from '../workspace/batch-uploader/utils/services/projectService';
 
 const ProjectGrid: React.FC = () => {
+  const [projects, setProjects] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Try to load projects from service, fallback to sample data if none
+    const loadedProjects = getProjects();
+    
+    if (loadedProjects && loadedProjects.length > 0) {
+      setProjects(loadedProjects);
+    } else {
+      // Use sample project data as fallback
+      setProjects([
+        {
+          id: 1,
+          name: "Belize Vacation",
+          assets: new Array(32),
+          updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+          coverImage: "/lovable-uploads/20e270e7-8a94-400d-a3c5-560f432fd5ba.png"
+        },
+        {
+          id: 2,
+          name: "Brand Photoshoot",
+          assets: new Array(18),
+          updatedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+          coverImage: "/placeholder.svg"
+        },
+        {
+          id: 3,
+          name: "Client Presentation",
+          assets: new Array(8),
+          updatedAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
+          coverImage: "/placeholder.svg"
+        },
+        {
+          id: 4,
+          name: "Nature Collection",
+          assets: new Array(56),
+          updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+          coverImage: "/placeholder.svg"
+        },
+        {
+          id: 5,
+          name: "Stock Collection",
+          assets: new Array(114),
+          updatedAt: new Date(),
+          coverImage: "/placeholder.svg"
+        }
+      ]);
+    }
+  }, []);
+
+  const formatUpdatedTime = (date: Date) => {
+    const now = new Date();
+    const diffMs = now.getTime() - new Date(date).getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return "today";
+    if (diffDays === 1) return "yesterday";
+    if (diffDays < 7) return `${diffDays} days ago`;
+    return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''} ago`;
+  };
+
   return (
     <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {projects.map(project => (
         <div key={project.id} className="bg-gray-800 rounded-xl overflow-hidden hover:ring-2 hover:ring-mixip-blue transition-all cursor-pointer">
           <div className="h-40 bg-gray-700 relative">
-            <img 
-              src={project.image} 
-              alt={project.title} 
-              className="w-full h-full object-cover"
-            />
+            {project.coverImage ? (
+              <img 
+                src={project.coverImage} 
+                alt={project.name} 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <FolderOpen className="w-16 h-16 text-gray-400" />
+              </div>
+            )}
           </div>
           <div className="p-4">
-            <h3 className="font-medium text-lg text-white mb-1">{project.title}</h3>
+            <h3 className="font-medium text-lg text-white mb-1">{project.name}</h3>
             <p className="text-sm text-gray-300">
-              {project.assets} assets • Updated {project.updated}
+              {project.assets ? project.assets.length : 0} assets • Updated {
+                project.updatedAt ? formatUpdatedTime(project.updatedAt) : "recently"
+              }
             </p>
           </div>
           <div className="px-4 py-3 border-t border-gray-700 flex justify-between items-center">
             <div className="text-xs bg-gray-700 text-gray-200 px-2 py-1 rounded-full flex items-center">
               <Image className="w-3 h-3 mr-1" />
-              {project.assets}
+              {project.assets ? project.assets.length : 0}
             </div>
           </div>
         </div>
