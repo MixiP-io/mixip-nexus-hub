@@ -19,6 +19,7 @@ const CreativeContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState('projects');
   const [action, setAction] = useState<string | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   
   useEffect(() => {
     // Get the tab from URL params if available
@@ -42,11 +43,30 @@ const CreativeContent: React.FC = () => {
       console.log('Project selected from URL:', projectParam);
       setSelectedProjectId(projectParam);
       
+      // Get folder parameter if available
+      const folderParam = searchParams.get('folder');
+      if (folderParam) {
+        console.log('Folder selected from URL:', folderParam);
+        setSelectedFolderId(folderParam);
+      } else {
+        setSelectedFolderId('root');
+      }
+      
       // Debug the selected project
       const project = getProjectById(projectParam);
       if (project) {
         console.log('Project data loaded from URL:', project.name);
         console.log('Project assets count:', project.assets?.length || 0);
+        
+        // Log assets in folder if folder is selected
+        if (folderParam && folderParam !== 'root' && project.subfolders) {
+          const folder = project.subfolders.find(f => f.id === folderParam);
+          if (folder) {
+            console.log(`Folder ${folder.name} assets:`, folder.assets?.length || 0);
+          } else {
+            console.log('Selected folder not found in project');
+          }
+        }
       } else {
         console.log('Project not found:', projectParam);
         toast.error('Project not found or failed to load');
@@ -65,9 +85,11 @@ const CreativeContent: React.FC = () => {
     
     // Set the project ID in state
     setSelectedProjectId(projectId);
+    setSelectedFolderId('root'); // Reset to root folder when changing projects
     
     // Update URL and switch to assets tab
     searchParams.set('project', projectId);
+    searchParams.delete('folder'); // Remove any folder parameter
     searchParams.set('tab', 'assets');
     setSearchParams(searchParams);
     setActiveTab('assets');
@@ -87,13 +109,16 @@ const CreativeContent: React.FC = () => {
 
   // Render the appropriate content based on the active tab
   const renderContent = () => {
-    console.log('Rendering content for tab:', activeTab, 'with selected project:', selectedProjectId);
+    console.log('Rendering content for tab:', activeTab, 'with selected project:', selectedProjectId, 'folder:', selectedFolderId);
     
     switch (activeTab) {
       case 'campaigns':
         return <CampaignGrid isCreating={action === 'new'} />;
       case 'assets':
-        return <AssetsManager selectedProjectId={selectedProjectId} />;
+        return <AssetsManager 
+                 selectedProjectId={selectedProjectId} 
+                 selectedFolderId={selectedFolderId} 
+               />;
       case 'assignments':
         return <AssignmentContent />;
       case 'collaborators':

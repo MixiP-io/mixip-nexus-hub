@@ -12,9 +12,13 @@ import { toast } from 'sonner';
 
 interface AssetsManagerProps {
   selectedProjectId: string | null;
+  selectedFolderId?: string | null;
 }
 
-const AssetsManager: React.FC<AssetsManagerProps> = ({ selectedProjectId }) => {
+const AssetsManager: React.FC<AssetsManagerProps> = ({ 
+  selectedProjectId,
+  selectedFolderId = 'root'
+}) => {
   const {
     viewMode,
     setViewMode,
@@ -31,14 +35,35 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({ selectedProjectId }) => {
     handleSelectAll,
     handleBatchUpload,
     handleOpenRightsPanel,
-    handleBatchRights
+    handleBatchRights,
+    setCurrentFolderId,
+    currentFolderId
   } = useAssetsManager(selectedProjectId);
 
   useEffect(() => {
-    console.log('AssetsManager rendered with projectId:', selectedProjectId);
+    console.log('AssetsManager rendered with projectId:', selectedProjectId, 'folderId:', selectedFolderId);
+    
+    // Update current folder when selectedFolderId changes
+    if (selectedFolderId && selectedFolderId !== currentFolderId) {
+      console.log('Setting current folder to:', selectedFolderId);
+      setCurrentFolderId(selectedFolderId);
+    }
     
     if (projectData) {
       console.log('Project data loaded:', projectData.name);
+      
+      // Check if we're viewing a specific folder
+      if (selectedFolderId && selectedFolderId !== 'root' && projectData.subfolders) {
+        const folder = projectData.subfolders.find((f: any) => f.id === selectedFolderId);
+        if (folder) {
+          console.log(`Viewing folder: ${folder.name} with ${folder.assets?.length || 0} assets`);
+          toast.info(`Viewing folder: ${folder.name}`);
+        } else {
+          console.log('Selected folder not found:', selectedFolderId);
+        }
+      } else {
+        console.log('Viewing root folder with', projectData.assets?.length || 0, 'assets');
+      }
       
       if (projectData.assets) {
         console.log('Project has assets array of length:', projectData.assets.length);
@@ -71,14 +96,14 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({ selectedProjectId }) => {
         toast.info(`Viewing assets for project: ${projectData.name}`);
         
         // If we have subfolder assets but no filtered assets, show a helpful message
-        if (totalFolderAssets > 0 && filteredAssets.length === 0) {
+        if (totalFolderAssets > 0 && filteredAssets.length === 0 && selectedFolderId === 'root') {
           toast.info(`This project has ${totalFolderAssets} assets in subfolders, but they may not be visible in the current view.`);
         }
       }
     } else {
       console.log('No project data loaded');
     }
-  }, [selectedProjectId, projectData, filteredAssets]);
+  }, [selectedProjectId, projectData, filteredAssets, selectedFolderId, currentFolderId, setCurrentFolderId]);
 
   if (!selectedProjectId) {
     return <NoProjectSelected />;
@@ -127,7 +152,7 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({ selectedProjectId }) => {
 
       {!hasFilteredAssets ? (
         <div>
-          {hasAssetsInFolders && (
+          {hasAssetsInFolders && currentFolderId === 'root' && (
             <div className="bg-blue-500/20 border border-blue-500/30 text-blue-200 p-4 rounded-lg mb-4">
               <p className="font-medium">Assets found in folders:</p>
               <p className="mt-1">This project has assets in the following folders: {foldersWithAssets.join(', ')}</p>
@@ -136,8 +161,8 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({ selectedProjectId }) => {
           )}
           
           <div className="bg-yellow-500/20 border border-yellow-500/30 text-yellow-200 p-4 rounded-lg mb-4">
-            <p>No assets found in project "{projectData.name}". Project has {hasAssets ? projectData.assets.length : 0} root assets.</p>
-            {hasAssets && <p className="mt-2">Assets may be filtered out by your search criteria or stored in subfolders.</p>}
+            <p>No assets found in {currentFolderId === 'root' ? `project "${projectData.name}"` : `folder "${currentFolderId}"`}.</p>
+            {hasAssets && currentFolderId === 'root' && <p className="mt-2">Assets may be filtered out by your search criteria or stored in subfolders.</p>}
           </div>
           <AssetsEmptyState handleBatchUpload={handleBatchUpload} />
         </div>

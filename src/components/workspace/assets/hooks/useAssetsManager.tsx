@@ -11,6 +11,7 @@ export const useAssetsManager = (selectedProjectId: string | null) => {
   const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
   const [rightsPanelOpen, setRightsPanelOpen] = useState(false);
   const [selectedAssetForRights, setSelectedAssetForRights] = useState<string | null>(null);
+  const [currentFolderId, setCurrentFolderId] = useState<string>('root');
   
   useEffect(() => {
     if (selectedProjectId) {
@@ -20,8 +21,7 @@ export const useAssetsManager = (selectedProjectId: string | null) => {
       if (project) {
         console.log('Project found:', project.name);
         console.log('Root assets:', project.assets?.length || 0);
-        console.log('Project assets data:', JSON.stringify(project.assets, null, 2));
-        console.log('Project folders:', project.subfolders?.length || 0);
+        console.log('Current folder ID:', currentFolderId);
         
         // Make a deep copy to avoid reference issues
         setProjectData(JSON.parse(JSON.stringify(project)));
@@ -42,8 +42,8 @@ export const useAssetsManager = (selectedProjectId: string | null) => {
             });
           }
           
-          if (hasAssetsInSubfolders) {
-            toast.info(`This project has assets in subfolders. Navigate to a specific folder to view them.`);
+          if (hasAssetsInSubfolders && currentFolderId === 'root') {
+            toast.info(`This project has assets in subfolders. Select a specific folder to view them.`);
           }
         }
         
@@ -69,7 +69,7 @@ export const useAssetsManager = (selectedProjectId: string | null) => {
       console.log('No project selected, showing all assets');
       setProjectData(null);
     }
-  }, [selectedProjectId]);
+  }, [selectedProjectId, currentFolderId]);
 
   const handleAssetClick = (assetId: string, e: React.MouseEvent) => {
     // Check if shift key is pressed for multiple selection
@@ -118,66 +118,64 @@ export const useAssetsManager = (selectedProjectId: string | null) => {
     setRightsPanelOpen(true);
   };
 
-  // Get all assets from project and subfolders
-  const getAllProjectAssets = (project: any): any[] => {
+  // Get assets from the current folder
+  const getAssetsForCurrentFolder = (project: any): any[] => {
     if (!project) return [];
     
-    // Start with project root assets
-    let allAssets = [...(project.assets || [])];
-    console.log(`Getting all assets from project. Root assets: ${allAssets.length}`);
+    console.log(`Getting assets for current folder: ${currentFolderId}`);
     
-    // Function to recursively get assets from folders
-    const getAssetsFromFolders = (folders: any[]) => {
-      if (!folders || !Array.isArray(folders)) return;
-      
-      folders.forEach(folder => {
-        // Add assets from this folder
-        if (folder.assets && Array.isArray(folder.assets)) {
-          console.log(`Adding ${folder.assets.length} assets from folder ${folder.name}`);
-          // Add a folder reference to each asset
-          const assetsWithFolder = folder.assets.map((asset: any) => ({
-            ...asset,
-            folderName: folder.name
-          }));
-          allAssets = [...allAssets, ...assetsWithFolder];
-        }
-        
-        // Recursively process subfolders
-        if (folder.subfolders && folder.subfolders.length > 0) {
-          getAssetsFromFolders(folder.subfolders);
-        }
-      });
-    };
-    
-    // Process all folders in the project
-    if (project.subfolders && project.subfolders.length > 0) {
-      getAssetsFromFolders(project.subfolders);
+    // If viewing root folder, return root assets
+    if (currentFolderId === 'root') {
+      console.log(`Returning root assets: ${project.assets?.length || 0}`);
+      return [...(project.assets || [])];
     }
     
-    console.log(`Total assets found: ${allAssets.length}`);
-    return allAssets;
+    // Otherwise, search for the specified folder
+    if (project.subfolders && project.subfolders.length > 0) {
+      // First try direct match
+      const targetFolder = project.subfolders.find((folder: any) => folder.id === currentFolderId);
+      if (targetFolder) {
+        console.log(`Found folder ${targetFolder.name} with ${targetFolder.assets?.length || 0} assets`);
+        return [...(targetFolder.assets || [])];
+      }
+      
+      // If not found, try recursive search (for future nested folders)
+      const searchFolders = (folders: any[]): any[] => {
+        for (const folder of folders) {
+          if (folder.id === currentFolderId) {
+            console.log(`Found nested folder ${folder.name} with ${folder.assets?.length || 0} assets`);
+            return [...(folder.assets || [])];
+          }
+          
+          if (folder.subfolders && folder.subfolders.length > 0) {
+            const nestedResult = searchFolders(folder.subfolders);
+            if (nestedResult.length > 0) {
+              return nestedResult;
+            }
+          }
+        }
+        return [];
+      };
+      
+      const nestedAssets = searchFolders(project.subfolders);
+      if (nestedAssets.length > 0) {
+        return nestedAssets;
+      }
+    }
+    
+    console.log(`Folder ${currentFolderId} not found, returning empty array`);
+    return [];
   };
 
-  // Get all assets and filter by search query
-  const allAssets = getAllProjectAssets(projectData);
-  const filteredAssets = allAssets.filter((asset: any) => 
+  // Get assets based on current folder selection
+  const currentFolderAssets = getAssetsForCurrentFolder(projectData);
+  
+  console.log(`Current folder assets: ${currentFolderAssets.length}`);
+  
+  // Filter by search query
+  const filteredAssets = currentFolderAssets.filter((asset: any) => 
     asset && asset.name && asset.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  // Sort assets to show folder assets first
-  const sortedAssets = filteredAssets.sort((a, b) => {
-    // If only one has a folder name, prioritize it
-    if (a.folderName && !b.folderName) return -1;
-    if (!a.folderName && b.folderName) return 1;
-    
-    // If both have different folder names, sort alphabetically
-    if (a.folderName && b.folderName && a.folderName !== b.folderName) {
-      return a.folderName.localeCompare(b.folderName);
-    }
-    
-    // Otherwise, sort by name
-    return a.name.localeCompare(b.name);
-  });
 
   return {
     viewMode,
@@ -190,7 +188,9 @@ export const useAssetsManager = (selectedProjectId: string | null) => {
     setRightsPanelOpen,
     selectedAssetForRights,
     setSelectedAssetForRights,
-    filteredAssets: sortedAssets,
+    filteredAssets,
+    currentFolderId,
+    setCurrentFolderId,
     handleAssetClick,
     handleSelectAll,
     handleBatchUpload,

@@ -47,7 +47,7 @@ export const useCompletedUploads = () => {
             console.log(`Target folder "${targetFolder.name}" (${folderId}) assets: ${targetFolder.assets?.length || 0}`);
             if (targetFolder.assets && targetFolder.assets.length > 0) {
               assetsFoundInFolder = true;
-              console.log(`First few assets in folder:`, targetFolder.assets.slice(0, 3));
+              console.log(`First few assets in folder:`, JSON.stringify(targetFolder.assets.slice(0, 3), null, 2));
             }
           } else {
             console.log(`Target folder with ID ${folderId} not found in project`);
@@ -56,7 +56,7 @@ export const useCompletedUploads = () => {
           console.log(`Root folder assets: ${updatedProject.assets?.length || 0}`);
           if (updatedProject.assets && updatedProject.assets.length > 0) {
             assetsFoundInFolder = true;
-            console.log(`First few assets in root:`, updatedProject.assets.slice(0, 3));
+            console.log(`First few assets in root:`, JSON.stringify(updatedProject.assets.slice(0, 3), null, 2));
           }
         }
         
