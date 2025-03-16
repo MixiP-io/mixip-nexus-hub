@@ -5,7 +5,6 @@
 import { projects, updateProjects } from './projectState';
 import { defaultLicensing, defaultProject } from './defaultValues';
 import { saveProjectsToLocalStorage } from './storageSync';
-import { isPreviewValid } from '../../fileUtils';
 
 // Ensure asset data is properly structured with valid preview URLs
 const ensureAssetIntegrity = (asset: any) => {
@@ -15,32 +14,8 @@ const ensureAssetIntegrity = (asset: any) => {
   const fixedAsset = { ...asset };
   
   // Ensure preview is a valid string (if it exists)
-  if (fixedAsset.preview !== undefined) {
-    if (typeof fixedAsset.preview !== 'string') {
-      console.warn(`Asset ${fixedAsset.id} (${fixedAsset.name}) has invalid preview type: ${typeof fixedAsset.preview}`);
-      try {
-        // Try to convert non-string previews to strings
-        if (fixedAsset.preview) {
-          fixedAsset.preview = String(fixedAsset.preview);
-        } else {
-          fixedAsset.preview = undefined;
-        }
-      } catch (e) {
-        console.error(`Failed to convert preview for asset ${fixedAsset.id}:`, e);
-        fixedAsset.preview = undefined;
-      }
-    } else if (fixedAsset.preview.length > 10000) {
-      // For data URLs, they can be very long, but that's expected
-      if (!fixedAsset.preview.startsWith('data:')) {
-        console.warn(`Asset ${fixedAsset.id} has very long preview string (${fixedAsset.preview.length} chars)`);
-      }
-    }
-    
-    // Check if preview URL is valid (mostly applies to blob URLs that might be stale)
-    if (fixedAsset.preview.startsWith('blob:') && !isPreviewValid(fixedAsset.preview)) {
-      console.warn(`Asset ${fixedAsset.id} has invalid blob URL preview, clearing it`);
-      fixedAsset.preview = undefined;
-    }
+  if (fixedAsset.preview !== undefined && typeof fixedAsset.preview !== 'string') {
+    fixedAsset.preview = null;
   }
   
   return fixedAsset;
@@ -59,36 +34,6 @@ export const ensureFolderIntegrity = (folder: any) => {
   } else {
     // Fix assets in this folder
     folder.assets = folder.assets.map(asset => ensureAssetIntegrity(asset));
-    
-    // Log some debug info about assets and their previews
-    if (folder.assets.length > 0) {
-      console.log(`Folder "${folder.name || 'unknown'}" has ${folder.assets.length} assets`);
-      
-      // Count different types of previews for debugging
-      let dataUrls = 0;
-      let blobUrls = 0;
-      let noPreview = 0;
-      
-      folder.assets.forEach((asset: any) => {
-        if (!asset.preview) noPreview++;
-        else if (asset.preview.startsWith('data:')) dataUrls++;
-        else if (asset.preview.startsWith('blob:')) blobUrls++;
-      });
-      
-      console.log(`Preview stats: ${dataUrls} data URLs, ${blobUrls} blob URLs, ${noPreview} without preview`);
-      
-      // Debug first 2 assets' previews
-      folder.assets.slice(0, 2).forEach((asset: any, idx: number) => {
-        if (asset.preview) {
-          const previewType = asset.preview.startsWith('data:') ? 'data URL' : 
-                             asset.preview.startsWith('blob:') ? 'blob URL' : 'unknown';
-          const previewStart = asset.preview.substring(0, 30);
-          console.log(`Asset ${idx+1}: ${asset.name} - ${previewType} (${previewStart}...)`);
-        } else {
-          console.log(`Asset ${idx+1}: ${asset.name} - No preview`);
-        }
-      });
-    }
   }
   
   // Process subfolders recursively

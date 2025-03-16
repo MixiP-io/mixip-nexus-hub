@@ -18,18 +18,9 @@ const safeStringify = (data: any) => {
       if (value instanceof File) {
         return null;
       }
-      // Handle DataURLs and other preview types
-      if (typeof value === 'string' && key === 'preview') {
-        // Store data URLs directly - they're designed to be serialized
-        if (value.startsWith('data:')) {
-          return value;
-        }
-        // For blob URLs, add a marker to indicate they need regeneration
-        else if (value.startsWith('blob:')) {
-          console.log(`Storing blob URL reference: ${value.substring(0, 30)}...`);
-          return value;
-        }
-        return value;
+      // Handle DataURLs for images
+      if (typeof value === 'string' && key === 'preview' && value.startsWith('data:')) {
+        return value; // Preserve data URLs
       }
       return value;
     });
@@ -43,8 +34,6 @@ const safeStringify = (data: any) => {
 export const initializeFromLocalStorage = () => {
   try {
     const storedProjects = localStorage.getItem('projects');
-    console.log('Initializing from localStorage, data found:', !!storedProjects);
-    
     if (storedProjects) {
       const parsedProjects = JSON.parse(storedProjects);
       if (Array.isArray(parsedProjects) && parsedProjects.length > 0) {
@@ -71,16 +60,6 @@ export const saveProjectsToLocalStorage = () => {
     if (serialized) {
       localStorage.setItem('projects', serialized);
       console.log(`Saved ${projects.length} projects to localStorage`);
-      
-      // Check size used in localStorage (for debugging)
-      const usedSpace = new Blob([serialized]).size;
-      const usedSpaceMB = (usedSpace / (1024 * 1024)).toFixed(2);
-      console.log(`localStorage usage: ${usedSpaceMB} MB`);
-      
-      // Warn if getting close to localStorage limits (typically 5MB)
-      if (usedSpace > 4 * 1024 * 1024) {
-        console.warn('WARNING: localStorage usage approaching limit (4+ MB used)');
-      }
     }
   } catch (error) {
     console.error('Error saving to localStorage:', error);

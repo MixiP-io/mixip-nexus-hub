@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { X, Image, Video, File, Check, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
@@ -33,12 +32,6 @@ const FileCard: React.FC<FileCardProps> = ({
     }
   };
 
-  const handlePreviewError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    console.error(`Failed to load preview for ${file.name}`);
-    e.currentTarget.style.display = 'none';
-    e.currentTarget.parentElement?.classList.add('fallback-preview');
-  };
-
   return (
     <div className="bg-gray-700 rounded-lg overflow-hidden flex flex-col">
       <div className="relative h-32 bg-gray-800 flex items-center justify-center">
@@ -47,7 +40,6 @@ const FileCard: React.FC<FileCardProps> = ({
             src={file.preview} 
             alt={file.name}
             className="h-full w-full object-cover"
-            onError={handlePreviewError}
           />
         ) : (
           getFileIcon(file.type)

@@ -3,33 +3,6 @@ import { ProjectAsset } from '../types/projectTypes';
 import { UploadFile } from '../../types';
 
 /**
- * Safely serialize preview URLs to avoid circular references and ensure they're stored properly
- * @param preview - The preview URL to serialize
- * @returns A serialized string version of the preview URL
- */
-const serializePreview = (preview: unknown): string | undefined => {
-  if (!preview) return undefined;
-  
-  // If already a string, return it
-  if (typeof preview === 'string') {
-    return preview;
-  }
-  
-  // For blob URLs or other objects, try to convert to string
-  try {
-    if (preview instanceof Blob || preview instanceof URL) {
-      return preview.toString();
-    }
-    
-    // Last resort: try JSON stringify (but this might not work for complex objects)
-    return String(preview);
-  } catch (error) {
-    console.error("Failed to serialize preview:", error);
-    return undefined;
-  }
-};
-
-/**
  * Converts uploaded files to project assets
  * @param files - Array of uploaded files
  * @param licenseType - License type to apply to the assets
@@ -57,18 +30,18 @@ export const convertFilesToAssets = (
   
   // Convert uploaded files to project assets
   const assets = completedFiles.map(file => {
-    // Process the preview to ensure it's properly serialized
-    const serializedPreview = serializePreview(file.preview);
+    // Make sure preview is properly serialized as a string
+    const preview = typeof file.preview === 'string' ? file.preview : null;
     
-    console.log(`[assetConversionUtils] Processing file preview for ${file.name}:`, 
-      serializedPreview ? `Preview exists (${serializedPreview.substring(0, 30)}...)` : 'No preview available');
+    console.log(`[assetConversionUtils] Processing file preview:`, 
+      preview ? `Preview exists (${preview.substring(0, 30)}...)` : 'No preview available');
     
     const asset: ProjectAsset = {
       id: file.id,
       name: file.name,
       type: file.type,
       size: file.size,
-      preview: serializedPreview,
+      preview: preview,
       uploadedAt: new Date(),
       licenseType,
       // Always set folderId, even if it's 'root'

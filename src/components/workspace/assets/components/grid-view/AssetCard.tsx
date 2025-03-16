@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { File, User, MapPin, Lock, Settings } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -16,8 +16,6 @@ const AssetCard: React.FC<AssetCardProps> = ({
   onSelect,
   onOpenRightsPanel 
 }) => {
-  const [previewError, setPreviewError] = useState(false);
-  
   if (!asset) return null;
 
   // Format upload date (defaults to today if not valid)
@@ -30,12 +28,6 @@ const AssetCard: React.FC<AssetCardProps> = ({
     return <File className="w-12 h-12 text-gray-400" />;
   };
 
-  const handleImageError = () => {
-    console.error(`Failed to load preview for asset: ${asset.id}, ${asset.name}`);
-    console.log("Preview URL:", asset.preview ? asset.preview.substring(0, 50) + "..." : "undefined");
-    setPreviewError(true);
-  };
-
   return (
     <div
       className={`bg-gray-800 border rounded-lg overflow-hidden transition-all ${
@@ -44,12 +36,11 @@ const AssetCard: React.FC<AssetCardProps> = ({
       onClick={(e) => onSelect(asset.id, e)}
     >
       <div className="relative aspect-square bg-gray-900 flex items-center justify-center overflow-hidden">
-        {asset.preview && !previewError ? (
+        {asset.preview ? (
           <img 
             src={asset.preview} 
             alt={asset.name} 
             className="w-full h-full object-cover" 
-            onError={handleImageError}
           />
         ) : (
           getFileIcon()
