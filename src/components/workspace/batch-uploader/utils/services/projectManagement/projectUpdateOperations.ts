@@ -12,37 +12,45 @@ import { projects, updateProjects } from '../../data/projectStore';
 export const updateProject = (projectId: string, updates: Partial<ProjectData>): boolean => {
   console.log(`Updating project: ${projectId}`, updates);
   
-  // First get the current projects from localStorage
-  const localProjectsStr = localStorage.getItem('projects');
-  let currentProjects = [...projects]; // Create a copy of the in-memory projects
-  
-  if (localProjectsStr) {
-    try {
-      currentProjects = JSON.parse(localProjectsStr);
-    } catch (error) {
-      console.error('Error parsing projects from localStorage:', error);
+  try {
+    // First get the current projects from localStorage
+    const localProjectsStr = localStorage.getItem('projects');
+    let currentProjects = [...projects]; // Create a copy of the in-memory projects
+    
+    if (localProjectsStr) {
+      try {
+        currentProjects = JSON.parse(localProjectsStr);
+      } catch (error) {
+        console.error('Error parsing projects from localStorage:', error);
+      }
     }
-  }
-  
-  const projectIndex = currentProjects.findIndex(p => p.id === projectId);
-  
-  if (projectIndex === -1) {
-    console.log(`Project not found for update: ${projectId}`);
+    
+    const projectIndex = currentProjects.findIndex(p => p.id === projectId);
+    
+    if (projectIndex === -1) {
+      console.log(`Project not found for update: ${projectId}`);
+      toast.error("Project not found");
+      return false;
+    }
+    
+    // Create a deep copy with the updates applied
+    const updatedProjects = [...currentProjects];
+    updatedProjects[projectIndex] = {
+      ...updatedProjects[projectIndex],
+      ...updates,
+      updatedAt: new Date()
+    };
+    
+    // Update both in-memory and localStorage
+    updateProjects(updatedProjects);
+    localStorage.setItem('projects', JSON.stringify(updatedProjects));
+    
+    console.log(`Project updated: ${projectId}`);
+    toast.success("Project updated successfully");
+    return true;
+  } catch (error) {
+    console.error(`Error updating project: ${projectId}`, error);
+    toast.error("Failed to update project");
     return false;
   }
-  
-  // Create a deep copy with the updates applied
-  const updatedProjects = [...currentProjects];
-  updatedProjects[projectIndex] = {
-    ...updatedProjects[projectIndex],
-    ...updates,
-    updatedAt: new Date()
-  };
-  
-  // Update both in-memory and localStorage
-  updateProjects(updatedProjects);
-  localStorage.setItem('projects', JSON.stringify(updatedProjects));
-  
-  console.log(`Project updated: ${projectId}`);
-  return true;
 };

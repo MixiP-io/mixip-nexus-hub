@@ -54,13 +54,6 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
     loadProjects
   } = useProjectsManager();
 
-  // Wrapper for project update handling to prevent navigation
-  const handleUpdateProject = (updates: Partial<ProjectData>) => {
-    if (projectToEdit) {
-      handleProjectUpdated(projectToEdit.id, updates);
-    }
-  };
-
   return (
     <div className="p-6">
       {/* Header with search and actions */}
@@ -169,7 +162,11 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
           isOpen={editProjectOpen}
           setIsOpen={setEditProjectOpen}
           project={projectToEdit}
-          onUpdateProject={handleUpdateProject}
+          onUpdateProject={(updates) => {
+            if (projectToEdit) {
+              handleProjectUpdated(projectToEdit.id, updates);
+            }
+          }}
         />
       )}
       

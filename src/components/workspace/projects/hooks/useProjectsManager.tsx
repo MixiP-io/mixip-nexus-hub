@@ -138,7 +138,8 @@ export const useProjectsManager = (): UseProjectsManagerResult => {
     refreshProjects,
     createNewProject,
     deleteSelectedProject,
-    projectToDeleteName  // Add this missing prop
+    projectToDeleteName,
+    updateProjectDetails  // Add this to pass the updateProjectDetails function to the handlers
   });
 
   return {

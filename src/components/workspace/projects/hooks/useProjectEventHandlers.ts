@@ -1,7 +1,6 @@
-
 import { useCallback } from 'react';
 import { toast } from 'sonner';
-import { getProjectById, updateProject } from '../../batch-uploader/utils/services/projectService';
+import { getProjectById } from '../../batch-uploader/utils/services/projectService';
 import { ProjectData } from '../../batch-uploader/utils/types/projectTypes';
 
 export interface UseProjectEventHandlersProps {
@@ -20,6 +19,7 @@ export interface UseProjectEventHandlersProps {
   createNewProject: (name: string) => void;
   deleteSelectedProject: (id: string) => void;
   projectToDeleteName: string;
+  updateProjectDetails: (projectId: string, updates: Partial<ProjectData>) => void;
 }
 
 export interface UseProjectEventHandlersResult {
@@ -50,7 +50,8 @@ export const useProjectEventHandlers = ({
   refreshProjects,
   createNewProject,
   deleteSelectedProject,
-  projectToDeleteName
+  projectToDeleteName,
+  updateProjectDetails
 }: UseProjectEventHandlersProps): UseProjectEventHandlersResult => {
   
   const handleCreateProject = useCallback((name: string) => {
@@ -118,21 +119,13 @@ export const useProjectEventHandlers = ({
     console.log('Handling project update:', projectId, updates);
     
     try {
-      const success = updateProject(projectId, updates);
-      if (success) {
-        toast.success('Project updated successfully');
-        setEditProjectOpen(false);
-        setTimeout(() => {
-          refreshProjects();
-        }, 100);
-      } else {
-        toast.error('Failed to update project');
-      }
+      updateProjectDetails(projectId, updates);
+      setEditProjectOpen(false);
     } catch (err) {
       console.error('Error updating project:', err);
       toast.error('An error occurred while updating the project');
     }
-  }, [refreshProjects, setEditProjectOpen]);
+  }, [updateProjectDetails, setEditProjectOpen]);
 
   const searchProjects = useCallback((term: string) => {
     console.log('Searching for projects:', term);

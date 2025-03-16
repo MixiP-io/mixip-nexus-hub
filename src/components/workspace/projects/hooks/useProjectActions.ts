@@ -42,10 +42,18 @@ export const useProjectActions = (refreshProjects: () => void): UseProjectAction
 
   const updateProjectDetails = useCallback((projectId: string, updates: Partial<ProjectData>) => {
     try {
+      if (!projectId) {
+        toast.error("Invalid project ID");
+        return;
+      }
+      
       const success = updateProject(projectId, updates);
       if (success) {
         toast.success("Project updated successfully");
-        refreshProjects(); // Refresh to show updated project
+        // Add a small delay before refreshing to ensure state updates complete
+        setTimeout(() => {
+          refreshProjects(); // Refresh to show updated project
+        }, 100);
       } else {
         toast.error("Failed to update project");
       }
@@ -57,6 +65,11 @@ export const useProjectActions = (refreshProjects: () => void): UseProjectAction
 
   const deleteSelectedProject = useCallback((projectId: string) => {
     try {
+      if (!projectId) {
+        toast.error("Invalid project ID");
+        return;
+      }
+      
       const success = deleteProject(projectId);
       if (success) {
         toast.success("Project deleted successfully");
