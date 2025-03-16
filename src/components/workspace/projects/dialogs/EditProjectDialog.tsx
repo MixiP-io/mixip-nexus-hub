@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Dialog, 
@@ -14,12 +13,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { updateProject, getProjectById } from '../../batch-uploader/utils/services/projectService';
+import { ProjectData } from '../../batch-uploader/utils/types/projectTypes';
 
 interface EditProjectDialogProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  project: any;
-  onUpdateProject: () => void;
+  project: ProjectData;
+  onUpdateProject: (updates: Partial<ProjectData>) => void;
 }
 
 const EditProjectDialog: React.FC<EditProjectDialogProps> = ({
@@ -65,21 +65,16 @@ const EditProjectDialog: React.FC<EditProjectDialogProps> = ({
     
     console.log('Updating project:', project.id);
     
-    // Use the updateProject utility function instead of directly manipulating localStorage
-    const success = updateProject(project.id, {
+    const updates: Partial<ProjectData> = {
       name,
       description,
       tags,
       updatedAt: new Date()
-    });
+    };
     
-    if (success) {
-      toast.success('Project updated successfully');
-      onUpdateProject();
-      setIsOpen(false);
-    } else {
-      toast.error('Error updating project');
-    }
+    // Call the onUpdateProject prop with the updates
+    onUpdateProject(updates);
+    setIsOpen(false);
   };
   
   const handleAddTag = () => {

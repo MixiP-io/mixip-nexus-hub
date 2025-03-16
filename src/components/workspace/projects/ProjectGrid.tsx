@@ -11,6 +11,7 @@ import SetCoverImageDialog from './dialogs/SetCoverImageDialog';
 import EditProjectDialog from './dialogs/EditProjectDialog';
 import DeleteProjectDialog from './dialogs/DeleteProjectDialog';
 import { useProjectsManager } from './hooks/useProjectsManager';
+import { ProjectData } from '../batch-uploader/utils/types/projectTypes';
 
 interface ProjectGridProps {
   onProjectSelect: (projectId: string) => void;
@@ -139,7 +140,7 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
           isOpen={editProjectOpen}
           setIsOpen={setEditProjectOpen}
           project={projectToEdit}
-          onUpdateProject={handleProjectUpdated}
+          onUpdateProject={(updates) => handleProjectUpdated(projectToEdit.id, updates)}
         />
       )}
       
