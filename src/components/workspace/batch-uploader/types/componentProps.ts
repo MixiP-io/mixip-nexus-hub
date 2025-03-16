@@ -1,5 +1,7 @@
+
 import { ViewOption } from './viewOption';
 import { UploadFile, UploadSource } from '../types';
+import React, { ChangeEvent, RefObject } from 'react';
 
 export interface FileCardProps {
   file: UploadFile;
