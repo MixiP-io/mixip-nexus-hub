@@ -12,30 +12,20 @@ export const formatFileSize = (bytes: number): string => {
  */
 export const getFilePreview = async (file: File): Promise<string | undefined> => {
   try {
-    if (!file || !file.type.startsWith('image/')) {
-      console.log(`Not creating preview for ${file?.name}: Not an image or file is null`);
-      return undefined;
-    }
-    
-    // For smaller images (< 5MB), use data URLs for persistence across sessions
-    if (file.size < 5 * 1024 * 1024) {
-      try {
+    if (file.type.startsWith('image/')) {
+      // For smaller images (< 5MB), use data URLs for persistence across sessions
+      if (file.size < 5 * 1024 * 1024) {
         const preview = await createDataUrlPreview(file);
         console.log(`Created data URL preview for ${file.name} (length: ${preview.length})`);
         return preview;
-      } catch (error) {
-        console.error(`Failed to create data URL preview for ${file.name}:`, error);
-        // Fall back to blob URL if data URL creation fails
-        const blobUrl = URL.createObjectURL(file);
-        console.log(`Created fallback blob URL preview for ${file.name}: ${blobUrl}`);
-        return blobUrl;
+      } else {
+        // For larger images, use blob URLs for better performance
+        const preview = URL.createObjectURL(file);
+        console.log(`Created blob URL preview for ${file.name}: ${preview}`);
+        return preview;
       }
-    } else {
-      // For larger images, use blob URLs for better performance
-      const preview = URL.createObjectURL(file);
-      console.log(`Created blob URL preview for ${file.name}: ${preview}`);
-      return preview;
     }
+    return undefined;
   } catch (error) {
     console.error(`Failed to create preview for ${file.name}:`, error);
     return undefined;
@@ -56,7 +46,7 @@ const createDataUrlPreview = (file: File): Promise<string> => {
         console.log(`Created data URL preview for ${file.name} (length: ${dataUrl.length})`);
         resolve(dataUrl);
       } else {
-        reject(new Error('Failed to create data URL: No result from FileReader'));
+        reject(new Error('Failed to create data URL'));
       }
     };
     
@@ -75,10 +65,7 @@ const createDataUrlPreview = (file: File): Promise<string> => {
  * For data URLs, always returns true as they're always valid
  */
 export const isPreviewValid = (preview: string | undefined): boolean => {
-  if (!preview) {
-    console.log('Preview validation failed: No preview provided');
-    return false;
-  }
+  if (!preview) return false;
   
   // Data URLs are always valid
   if (preview.startsWith('data:')) {
@@ -86,31 +73,29 @@ export const isPreviewValid = (preview: string | undefined): boolean => {
   }
   
   // For blob URLs, need to check if they still exist
+  // Not a perfect check, but helps identify stale URLs
   if (preview.startsWith('blob:')) {
     try {
-      fetch(preview, { method: 'HEAD', mode: 'no-cors' })
-        .then(() => true)
-        .catch(() => false);
-      
-      // Default to true - we can't reliably check blob URLs
-      // We'll handle errors at the component level
-      return true;
+      // Try to fetch the blob URL - will fail if revoked
+      const xhr = new XMLHttpRequest();
+      xhr.open('HEAD', preview, false); // Synchronous request
+      try {
+        xhr.send();
+        return xhr.status !== 0;
+      } catch (e) {
+        return false;
+      }
     } catch (e) {
-      console.error('Error validating blob URL:', e);
       return false;
     }
   }
   
-  // If it's neither a data URL nor a blob URL, it's likely invalid
-  console.log(`Preview validation failed: Invalid URL format: ${preview.substring(0, 20)}...`);
   return false;
 };
 
 // Clean up blob URLs to prevent memory leaks
 export const revokeFilePreview = (preview: string | undefined): void => {
-  if (!preview) return;
-  
-  if (preview.startsWith('blob:')) {
+  if (preview && preview.startsWith('blob:')) {
     try {
       URL.revokeObjectURL(preview);
       console.log(`Revoked preview URL: ${preview}`);
