@@ -1,4 +1,3 @@
-
 import { useCallback } from 'react';
 import { toast } from 'sonner';
 import { ProjectData } from '../../../batch-uploader/utils/types/projectTypes';
@@ -48,16 +47,17 @@ export const useProjectCrudEvents = ({
   const confirmDeleteProject = useCallback(() => {
     try {
       // Find the project ID based on either stored ID or name
-      const projectId = projects.find(p => p.name === projectToDeleteName)?.id || projects.find(p => p.id === projectToDeleteName)?.id;
+      const projectId = projects.find(p => p.name === projectToDeleteName)?.id || 
+                       projects.find(p => p.id === projectToDeleteName)?.id;
       
-      // Only attempt to delete if we found a valid project ID
       if (projectId) {
-        // Clear the selected project ID if it's the one being deleted
-        setSelectedProjectId(prevId => prevId === projectId ? null : prevId);
+        // Clear the selected project ID if it matches the one being deleted
+        if (projectId === projectToDeleteName) {
+          setSelectedProjectId(null);
+        }
         
         // Delete the project
         deleteSelectedProject(projectId);
-        
         toast.success(`Project "${projectToDeleteName}" deleted successfully`);
       } else {
         toast.error("Project not found");
