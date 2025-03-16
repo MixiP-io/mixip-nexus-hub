@@ -63,6 +63,11 @@ export const addFilesToProject = async (
     console.log(`Adding ${assets.length} assets to project ${projectId} root folder`);
     console.log(`Project has ${updatedProjects[projectIndex].assets.length} existing assets`);
     
+    // Make sure we have a proper array
+    if (!Array.isArray(updatedProjects[projectIndex].assets)) {
+      updatedProjects[projectIndex].assets = [];
+    }
+    
     updatedProjects[projectIndex].assets = [
       ...updatedProjects[projectIndex].assets, 
       ...assets

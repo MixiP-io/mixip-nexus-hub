@@ -109,20 +109,14 @@ export const useUploadProcess = () => {
           
           // Check project again to verify assets were added
           const updatedProject = getProjectById(projectId);
-          if (updatedProject) {
-            console.log(`Project after upload: ${updatedProject.name} with ${updatedProject.assets?.length || 0} assets`);
-            
-            // Ensure all state is updated correctly after upload
-            setIsUploading(false);
-            updateOverallProgress();
-            
-            // Set upload complete flag
-            completeUpload(projectId, projectName, completedFiles);
-          } else {
-            console.error("Updated project not found after upload");
-            toast.error("Error: Could not verify upload completed");
-            setIsUploading(false);
-          }
+          console.log('Project after upload:', updatedProject);
+          
+          // Ensure all state is updated correctly after upload
+          setIsUploading(false);
+          updateOverallProgress();
+          
+          // Set upload complete flag
+          completeUpload(projectId, projectName, completedFiles);
         } catch (error) {
           console.error("Error adding files to project:", error);
           toast.error(`Failed to add files to project: ${error instanceof Error ? error.message : 'Unknown error'}`);

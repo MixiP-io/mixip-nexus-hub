@@ -34,6 +34,7 @@ export const useUploadValidation = () => {
       return false;
     }
     
+    console.log('Project validation passed:', project.name);
     return true;
   };
   

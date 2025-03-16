@@ -7,7 +7,7 @@ import SectionHeader from '../SectionHeader';
 import { useFileUpload } from './hooks/useFileUpload';
 import { useMetadataState } from './hooks/useMetadataState';
 import { formatFileSize } from './utils/fileUtils';
-import { logProjects } from './utils/projectUtils';
+import { logProjects, getProjectById } from './utils/projectUtils';
 import { toast } from 'sonner';
 
 const BatchUploader: React.FC = () => {
@@ -85,9 +85,19 @@ const BatchUploader: React.FC = () => {
       return;
     }
 
-    console.log(`Starting upload with: Project=${metadataSelectedProject}, Folder=${metadataSelectedFolder}, License=${licenseType}`);
+    console.log(`Starting upload with: Project=${metadataSelectedProject}, Folder=${metadataSelectedFolder || 'root'}, License=${licenseType}`);
+    
+    // Verify project exists one more time
+    const project = getProjectById(metadataSelectedProject);
+    if (!project) {
+      toast.error(`Selected project not found. Please select a different project.`);
+      return;
+    }
+    
     try {
-      await startUpload(licenseType, metadataSelectedProject, metadataSelectedFolder);
+      // Use 'root' as default folder if none selected
+      const folderToUse = metadataSelectedFolder || 'root';
+      await startUpload(licenseType, metadataSelectedProject, folderToUse);
       logProjects();
     } catch (error) {
       console.error('Error starting upload:', error);

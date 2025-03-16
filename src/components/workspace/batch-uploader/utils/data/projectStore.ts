@@ -97,6 +97,25 @@ export let projects: ProjectData[] = [
   },
 ];
 
+// Check if there's any data in localStorage
+const initializeFromLocalStorage = () => {
+  try {
+    const storedProjects = localStorage.getItem('projects');
+    if (storedProjects) {
+      const parsedProjects = JSON.parse(storedProjects);
+      if (Array.isArray(parsedProjects) && parsedProjects.length > 0) {
+        projects = parsedProjects;
+        console.log('Loaded projects from localStorage:', projects.length);
+      }
+    }
+  } catch (error) {
+    console.error('Error loading projects from localStorage:', error);
+  }
+};
+
+// Initialize on load
+initializeFromLocalStorage();
+
 // For debugging
 export const logProjects = () => {
   console.log('Current projects:', JSON.stringify(projects, null, 2));
@@ -106,3 +125,22 @@ export const logProjects = () => {
 export const updateProjects = (updatedProjects: ProjectData[]) => {
   projects = updatedProjects;
 };
+
+// Ensure all projects have properly initialized arrays
+export const ensureProjectDataIntegrity = () => {
+  projects = projects.map(project => ({
+    ...project,
+    assets: Array.isArray(project.assets) ? project.assets : [],
+    subfolders: Array.isArray(project.subfolders) ? project.subfolders : []
+  }));
+  
+  // Also save to localStorage
+  try {
+    localStorage.setItem('projects', JSON.stringify(projects));
+  } catch (error) {
+    console.error('Error saving projects to localStorage:', error);
+  }
+};
+
+// Run integrity check on startup
+ensureProjectDataIntegrity();
