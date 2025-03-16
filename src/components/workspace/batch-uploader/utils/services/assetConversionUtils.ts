@@ -13,15 +13,10 @@ const serializePreview = (preview: unknown): string | undefined => {
     return undefined;
   }
   
-  // If already a string URL, return it as is
+  // If already a string, verify it's a valid URL format
   if (typeof preview === 'string') {
-    if (preview.startsWith('http') || preview.startsWith('https')) {
-      console.log(`Preview already serialized as URL: ${preview.substring(0, 30)}...`);
-      return preview;
-    }
-    
-    if (preview.startsWith('data:') || preview.startsWith('blob:')) {
-      console.log(`Preview already serialized as data/blob: ${preview.substring(0, 30)}...`);
+    if (preview.startsWith('data:') || preview.startsWith('blob:') || preview.startsWith('http')) {
+      console.log(`Preview already serialized: ${preview.substring(0, 30)}...`);
       return preview;
     }
   }
@@ -84,11 +79,11 @@ export const convertFilesToAssets = (
   
   // Convert uploaded files to project assets
   const assets = completedFiles.map(file => {
-    // The preview should already be a Supabase URL at this point
-    const preview = file.preview;
+    // Process the preview to ensure it's properly serialized
+    const serializedPreview = serializePreview(file.preview);
     
-    if (preview) {
-      console.log(`[assetConversionUtils] Using Supabase URL for ${file.name}: ${preview.substring(0, 50)}...`);
+    if (serializedPreview) {
+      console.log(`[assetConversionUtils] Successfully serialized preview for ${file.name}: ${serializedPreview.substring(0, 30)}...`);
     } else {
       console.warn(`[assetConversionUtils] No preview available for ${file.name}`);
     }
@@ -98,7 +93,7 @@ export const convertFilesToAssets = (
       name: file.name,
       type: file.type,
       size: file.size,
-      preview: preview,
+      preview: serializedPreview,
       uploadedAt: new Date(),
       licenseType,
       // Always set folderId, even if it's 'root'
