@@ -47,7 +47,9 @@ export const useProjectActions = (refreshProjects: () => void): UseProjectAction
         return;
       }
       
+      console.log("Updating project with details:", updates);
       const success = updateProject(projectId, updates);
+      
       if (success) {
         toast.success("Project updated successfully");
         // Add a small delay before refreshing to ensure state updates complete

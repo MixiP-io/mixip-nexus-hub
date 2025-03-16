@@ -33,8 +33,10 @@ export const useProjectEditEvents = ({
     console.log('Handling project update:', projectId, updates);
     
     try {
-      updateProjectDetails(projectId, updates);
+      // Close dialog first to prevent UI freeze
       setEditProjectOpen(false);
+      // Then update the project
+      updateProjectDetails(projectId, updates);
     } catch (err) {
       console.error('Error updating project:', err);
       toast.error('An error occurred while updating the project');

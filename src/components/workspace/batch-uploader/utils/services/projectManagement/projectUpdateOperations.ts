@@ -46,7 +46,6 @@ export const updateProject = (projectId: string, updates: Partial<ProjectData>):
     localStorage.setItem('projects', JSON.stringify(updatedProjects));
     
     console.log(`Project updated: ${projectId}`);
-    toast.success("Project updated successfully");
     return true;
   } catch (error) {
     console.error(`Error updating project: ${projectId}`, error);

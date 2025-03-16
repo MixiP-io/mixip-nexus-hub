@@ -43,23 +43,16 @@ export const useEditProject = (
       return;
     }
     
-    if (!project || !project.id) {
-      toast.error('Project ID is missing');
-      return;
-    }
-    
     console.log('Updating project:', project.id);
     
     const updates: Partial<ProjectData> = {
       name,
       description,
-      tags,
-      updatedAt: new Date()
+      tags
     };
     
     // Call the onUpdateProject prop with the updates
     onUpdateProject(updates);
-    setIsOpen(false);
   };
   
   return {
