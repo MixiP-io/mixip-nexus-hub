@@ -1,3 +1,4 @@
+
 import { useCallback } from 'react';
 import { toast } from 'sonner';
 import { ProjectData } from '../../../batch-uploader/utils/types/projectTypes';
@@ -12,6 +13,7 @@ interface UseProjectCrudEventsProps {
   createNewProject: (name: string) => void;
   deleteSelectedProject: (projectId: string) => void;
   projectToDeleteName: string;
+  projectToDelete: string | null;
 }
 
 export const useProjectCrudEvents = ({
@@ -23,7 +25,8 @@ export const useProjectCrudEvents = ({
   setDeleteDialogOpen,
   createNewProject,
   deleteSelectedProject,
-  projectToDeleteName
+  projectToDeleteName,
+  projectToDelete
 }: UseProjectCrudEventsProps) => {
   
   const handleCreateProject = useCallback((name: string) => {
@@ -46,15 +49,17 @@ export const useProjectCrudEvents = ({
 
   const confirmDeleteProject = useCallback(() => {
     try {
-      // Find the project ID based on either stored ID or name
-      const projectId = projects.find(p => p.name === projectToDeleteName)?.id || 
-                       projects.find(p => p.id === projectToDeleteName)?.id;
+      // Find the project ID to delete - first try using projectToDelete directly
+      let projectId = projectToDelete;
+      
+      // If that's not available, try finding by name
+      if (!projectId) {
+        projectId = projects.find(p => p.name === projectToDeleteName)?.id;
+      }
       
       if (projectId) {
-        // Clear the selected project ID if it matches the one being deleted
-        if (projectId === projectToDeleteName) {
-          setSelectedProjectId(null);
-        }
+        // Clear the selected project ID before deletion
+        setSelectedProjectId(null);
         
         // Delete the project
         deleteSelectedProject(projectId);
@@ -73,7 +78,7 @@ export const useProjectCrudEvents = ({
       // Clear the state even on error to prevent UI from being stuck
       setProjectToDelete(null);
     }
-  }, [projects, projectToDeleteName, deleteSelectedProject, setProjectToDelete, setSelectedProjectId]);
+  }, [projects, projectToDeleteName, projectToDelete, deleteSelectedProject, setProjectToDelete, setSelectedProjectId]);
 
   return {
     handleCreateProject,

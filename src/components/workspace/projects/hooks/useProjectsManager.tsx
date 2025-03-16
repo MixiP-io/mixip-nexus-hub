@@ -139,7 +139,8 @@ export const useProjectsManager = (): UseProjectsManagerResult => {
     createNewProject,
     deleteSelectedProject,
     projectToDeleteName,
-    updateProjectDetails  // Add this to pass the updateProjectDetails function to the handlers
+    projectToDelete,
+    updateProjectDetails
   });
 
   return {

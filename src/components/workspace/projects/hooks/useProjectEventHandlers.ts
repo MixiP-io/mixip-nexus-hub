@@ -22,6 +22,7 @@ export interface UseProjectEventHandlersProps {
   createNewProject: (name: string) => void;
   deleteSelectedProject: (id: string) => void;
   projectToDeleteName: string;
+  projectToDelete: string | null;
   updateProjectDetails: (projectId: string, updates: Partial<ProjectData>) => void;
 }
 
@@ -54,6 +55,7 @@ export const useProjectEventHandlers = ({
   createNewProject,
   deleteSelectedProject,
   projectToDeleteName,
+  projectToDelete,
   updateProjectDetails
 }: UseProjectEventHandlersProps): UseProjectEventHandlersResult => {
   
@@ -72,7 +74,8 @@ export const useProjectEventHandlers = ({
     setDeleteDialogOpen,
     createNewProject,
     deleteSelectedProject,
-    projectToDeleteName
+    projectToDeleteName,
+    projectToDelete
   });
 
   const { 
