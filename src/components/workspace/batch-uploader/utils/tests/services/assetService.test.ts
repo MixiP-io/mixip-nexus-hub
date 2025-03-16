@@ -1,7 +1,7 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { toast } from 'sonner';
-import { addFilesToProject } from '../../services/assetService';
+import { addFilesToProject } from '../../services/assets/addFilesToProject';
 import { projects, updateProjects, logProjects } from '../../data/projectStore';
 import { UploadFile } from '../../../types';
 
