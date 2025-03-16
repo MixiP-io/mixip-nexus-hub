@@ -33,9 +33,13 @@ const FilesList: React.FC<FilesListProps> = ({
       uploadResults,
       selectedProject, 
       selectedProjectName,
-      uploadedFiles,
-      filesCount: files.length
+      filesCount: files.length,
+      completedFiles: files.filter(f => f.status === 'complete').length
     });
+    
+    if (uploadResults) {
+      console.log("Upload results folder information:", uploadResults.folderId || 'No folder ID in results');
+    }
     
     // Show a toast notification when upload completes
     if (uploadComplete && uploadResults) {
@@ -49,7 +53,7 @@ const FilesList: React.FC<FilesListProps> = ({
         toast.error(`Upload failed! No files were added to "${uploadResults.projectName}"`);
       }
     }
-  }, [uploadComplete, uploadResults, selectedProject, selectedProjectName, uploadedFiles, files.length]);
+  }, [uploadComplete, uploadResults, selectedProject, selectedProjectName, files]);
   
   return (
     <div className="bg-gray-800 rounded-lg p-4 mb-6">

@@ -16,16 +16,19 @@ const UploadComplete: React.FC<UploadCompleteProps> = ({
   navigateToProject,
   folderId
 }) => {
+  const normalizedFolderId = folderId || 'root';
+  
   const handleViewProject = () => {
-    navigateToProject(projectId);
+    console.log(`Navigating to project ${projectId}, folder: ${normalizedFolderId}`);
+    navigateToProject(projectId, normalizedFolderId);
     onClose();
   };
 
   const getFolderInfo = () => {
-    if (!folderId || folderId === 'root') {
+    if (!normalizedFolderId || normalizedFolderId === 'root') {
       return 'project root folder';
     }
-    return `folder "${folderId}"`;
+    return `folder "${normalizedFolderId}"`;
   };
 
   return (
@@ -62,6 +65,15 @@ const UploadComplete: React.FC<UploadCompleteProps> = ({
             <strong>Location:</strong> {getFolderInfo()}
           </p>
         </div>
+
+        {success && (
+          <div className="bg-blue-900/30 px-4 py-3 rounded border border-blue-800/50 mb-4">
+            <h3 className="text-sm font-medium mb-1 text-blue-200">Where to find your assets</h3>
+            <p className="text-sm text-blue-300">
+              Your files have been uploaded to the {getFolderInfo()}. Click "View Assets" below to see them.
+            </p>
+          </div>
+        )}
 
         <DialogFooter className="gap-2 sm:gap-0">
           {success && (

@@ -25,48 +25,84 @@ export const addAssetsToSpecificFolder = (
   if (updatedProjects[projectIndex].subfolders) {
     console.log(`[folderAssetOperations] Project has ${updatedProjects[projectIndex].subfolders.length} subfolders`);
     updatedProjects[projectIndex].subfolders.forEach((folder: any) => {
-      console.log(`[folderAssetOperations] Folder: ${folder.name} (${folder.id})`);
+      console.log(`[folderAssetOperations] Available folder: ${folder.name} (${folder.id})`);
     });
   }
   
   // Direct exact match first
   if (updatedProjects[projectIndex].subfolders) {
-    const exactMatch = updatedProjects[projectIndex].subfolders.find(
+    const folderIndex = updatedProjects[projectIndex].subfolders.findIndex(
       (folder: any) => folder.id === normalizedFolderId
     );
     
-    if (exactMatch) {
-      console.log(`[folderAssetOperations] Found exact folder match with ID: ${normalizedFolderId}`);
-      if (!Array.isArray(exactMatch.assets)) {
-        exactMatch.assets = [];
+    if (folderIndex !== -1) {
+      console.log(`[folderAssetOperations] Found exact folder match with ID: ${normalizedFolderId} at index ${folderIndex}`);
+      const folder = updatedProjects[projectIndex].subfolders[folderIndex];
+      
+      // Initialize assets array if it doesn't exist
+      if (!Array.isArray(folder.assets)) {
+        console.log(`[folderAssetOperations] Initializing assets array for folder: ${folder.name}`);
+        updatedProjects[projectIndex].subfolders[folderIndex].assets = [];
       }
       
-      exactMatch.assets = [...exactMatch.assets, ...assets];
-      exactMatch.updatedAt = new Date();
+      // Add assets to folder
+      console.log(`[folderAssetOperations] Adding ${assets.length} assets to folder ${folder.name}`);
+      console.log(`[folderAssetOperations] Before: Folder has ${updatedProjects[projectIndex].subfolders[folderIndex].assets.length} assets`);
+      
+      updatedProjects[projectIndex].subfolders[folderIndex].assets = [
+        ...updatedProjects[projectIndex].subfolders[folderIndex].assets,
+        ...assets
+      ];
+      
+      updatedProjects[projectIndex].subfolders[folderIndex].updatedAt = new Date();
+      
+      console.log(`[folderAssetOperations] After: Folder has ${updatedProjects[projectIndex].subfolders[folderIndex].assets.length} assets`);
+      
       folderFound = true;
-      locationAdded = exactMatch.id;
-      toast.success(`Added ${assets.length} files to folder "${exactMatch.name}"`);
+      locationAdded = updatedProjects[projectIndex].subfolders[folderIndex].id;
+      
+      // Update localStorage immediately
+      try {
+        localStorage.setItem('projects', JSON.stringify(updatedProjects));
+        console.log(`[folderAssetOperations] Updated localStorage after adding assets to folder`);
+      } catch (e) {
+        console.error(`[folderAssetOperations] Error saving to localStorage:`, e);
+      }
     }
   }
   
   // If not found by ID, try to find by case-insensitive name match
   if (!folderFound && updatedProjects[projectIndex].subfolders) {
-    const normalizedFolderName = normalizedFolderId.toLowerCase();
-    const nameMatch = updatedProjects[projectIndex].subfolders.find(
-      (folder: any) => folder.name.toLowerCase() === normalizedFolderName
+    const normalizedFolderName = typeof normalizedFolderId === 'string' ? normalizedFolderId.toLowerCase() : '';
+    const folderIndex = updatedProjects[projectIndex].subfolders.findIndex(
+      (folder: any) => folder.name && folder.name.toLowerCase() === normalizedFolderName
     );
     
-    if (nameMatch) {
-      console.log(`[folderAssetOperations] Found folder by name match: ${nameMatch.name}`);
-      if (!Array.isArray(nameMatch.assets)) {
-        nameMatch.assets = [];
+    if (folderIndex !== -1) {
+      console.log(`[folderAssetOperations] Found folder by name match: ${updatedProjects[projectIndex].subfolders[folderIndex].name}`);
+      
+      // Initialize assets array if it doesn't exist
+      if (!Array.isArray(updatedProjects[projectIndex].subfolders[folderIndex].assets)) {
+        updatedProjects[projectIndex].subfolders[folderIndex].assets = [];
       }
       
-      nameMatch.assets = [...nameMatch.assets, ...assets];
-      nameMatch.updatedAt = new Date();
+      // Add assets to folder
+      updatedProjects[projectIndex].subfolders[folderIndex].assets = [
+        ...updatedProjects[projectIndex].subfolders[folderIndex].assets,
+        ...assets
+      ];
+      
+      updatedProjects[projectIndex].subfolders[folderIndex].updatedAt = new Date();
       folderFound = true;
-      locationAdded = nameMatch.id;
-      toast.success(`Added ${assets.length} files to folder "${nameMatch.name}"`);
+      locationAdded = updatedProjects[projectIndex].subfolders[folderIndex].id;
+      
+      // Update localStorage immediately
+      try {
+        localStorage.setItem('projects', JSON.stringify(updatedProjects));
+        console.log(`[folderAssetOperations] Updated localStorage after adding assets to folder by name`);
+      } catch (e) {
+        console.error(`[folderAssetOperations] Error saving to localStorage:`, e);
+      }
     }
   }
   
@@ -80,7 +116,15 @@ export const addAssetsToSpecificFolder = (
     );
     
     if (folderFound) {
-      toast.success(`Added ${assets.length} files to folder successfully`);
+      console.log(`[folderAssetOperations] Added assets via addAssetsToFolder utility`);
+      
+      // Update localStorage immediately
+      try {
+        localStorage.setItem('projects', JSON.stringify(updatedProjects));
+        console.log(`[folderAssetOperations] Updated localStorage after adding assets via utility`);
+      } catch (e) {
+        console.error(`[folderAssetOperations] Error saving to localStorage:`, e);
+      }
     }
   }
   
@@ -120,6 +164,15 @@ export const createNewFolderWithAssets = (
   
   // Add the new folder
   updatedProjects[projectIndex].subfolders.push(newFolder);
+  
+  // Update localStorage immediately
+  try {
+    localStorage.setItem('projects', JSON.stringify(updatedProjects));
+    console.log(`[folderAssetOperations] Updated localStorage after creating new folder`);
+  } catch (e) {
+    console.error(`[folderAssetOperations] Error saving to localStorage:`, e);
+  }
+  
   toast.success(`Created new folder "${folderName}" and added ${assets.length} files`);
   
   return { folderFound: true, locationAdded: safeFolderId };
@@ -152,7 +205,14 @@ export const addAssetsToRootFolder = (
   ];
   
   console.log(`[folderAssetOperations] Project now has ${updatedProjects[projectIndex].assets.length} assets`);
-  toast.success(`Added ${assets.length} files to project root folder`);
+  
+  // Update localStorage immediately
+  try {
+    localStorage.setItem('projects', JSON.stringify(updatedProjects));
+    console.log(`[folderAssetOperations] Updated localStorage after adding assets to root folder`);
+  } catch (e) {
+    console.error(`[folderAssetOperations] Error saving to localStorage:`, e);
+  }
   
   return updatedProjects;
 };
