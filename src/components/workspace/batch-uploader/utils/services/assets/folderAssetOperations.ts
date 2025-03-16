@@ -49,9 +49,15 @@ export const addAssetsToSpecificFolder = (
       console.log(`[folderAssetOperations] Adding ${assets.length} assets to folder ${folder.name}`);
       console.log(`[folderAssetOperations] Before: Folder has ${updatedProjects[projectIndex].subfolders[folderIndex].assets.length} assets`);
       
+      // Make sure all assets have the folderId field set
+      const assetsWithFolder = assets.map(asset => ({
+        ...asset,
+        folderId: normalizedFolderId
+      }));
+      
       updatedProjects[projectIndex].subfolders[folderIndex].assets = [
         ...updatedProjects[projectIndex].subfolders[folderIndex].assets,
-        ...assets
+        ...assetsWithFolder
       ];
       
       updatedProjects[projectIndex].subfolders[folderIndex].updatedAt = new Date();
@@ -86,10 +92,16 @@ export const addAssetsToSpecificFolder = (
         updatedProjects[projectIndex].subfolders[folderIndex].assets = [];
       }
       
+      // Make sure all assets have the folderId field set
+      const assetsWithFolder = assets.map(asset => ({
+        ...asset,
+        folderId: updatedProjects[projectIndex].subfolders[folderIndex].id
+      }));
+      
       // Add assets to folder
       updatedProjects[projectIndex].subfolders[folderIndex].assets = [
         ...updatedProjects[projectIndex].subfolders[folderIndex].assets,
-        ...assets
+        ...assetsWithFolder
       ];
       
       updatedProjects[projectIndex].subfolders[folderIndex].updatedAt = new Date();
@@ -153,10 +165,16 @@ export const createNewFolderWithAssets = (
   
   console.log(`[folderAssetOperations] Creating new folder: ${folderName} (${safeFolderId})`);
   
+  // Make sure all assets have the folderId field set
+  const assetsWithFolder = assets.map(asset => ({
+    ...asset,
+    folderId: safeFolderId
+  }));
+  
   const newFolder = {
     id: safeFolderId,
     name: folderName,
-    assets: [...assets],
+    assets: assetsWithFolder,
     createdAt: new Date(),
     updatedAt: new Date(),
     subfolders: []
@@ -198,10 +216,16 @@ export const addAssetsToRootFolder = (
     updatedProjects[projectIndex].assets = [];
   }
   
+  // Make sure all assets have root folderId
+  const assetsWithFolder = assets.map(asset => ({
+    ...asset,
+    folderId: 'root'
+  }));
+  
   // Add new assets to the project's assets array
   updatedProjects[projectIndex].assets = [
     ...updatedProjects[projectIndex].assets, 
-    ...assets
+    ...assetsWithFolder
   ];
   
   console.log(`[folderAssetOperations] Project now has ${updatedProjects[projectIndex].assets.length} assets`);

@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 export const useNavigation = () => {
   const navigate = useNavigate();
   
-  // Navigate to project view
+  // Navigate to project view with optional folder
   const navigateToProject = useCallback((projectId: string, folderId?: string) => {
     console.log(`Navigating to project: ${projectId}, folder: ${folderId || 'root'}`);
     
@@ -24,9 +24,11 @@ export const useNavigation = () => {
     // Add folder parameter if provided and not root
     if (folderId && folderId !== 'root') {
       url += `&folder=${folderId}`;
+      console.log(`Adding folder parameter: ${folderId}`);
     }
     
     // Use react-router's navigate for better state handling
+    console.log(`Navigating to URL: ${url}`);
     navigate(url);
     
     // Add a small delay and then show a toast to guide the user

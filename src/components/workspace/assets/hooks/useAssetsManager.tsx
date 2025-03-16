@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -47,7 +46,7 @@ export const useAssetsManager = (selectedProjectId: string | null, initialFolder
             project.subfolders.forEach((folder: any) => {
               if (folder.assets && folder.assets.length > 0) {
                 hasAssetsInSubfolders = true;
-                console.log(`Found ${folder.assets.length} assets in folder "${folder.name}"`);
+                console.log(`Found ${folder.assets.length} assets in folder "${folder.name}" (ID: ${folder.id})`);
               }
             });
           }
@@ -57,19 +56,41 @@ export const useAssetsManager = (selectedProjectId: string | null, initialFolder
           }
         }
         
-        // Check subfolders for assets
+        // Check subfolders for assets, especially the one we're viewing
         let subfoldersWithAssets = 0;
         let totalSubfolderAssets = 0;
+        let currentFolderExists = false;
+        let currentFolderHasAssets = false;
+        
         if (project.subfolders && project.subfolders.length > 0) {
           project.subfolders.forEach((folder: any) => {
+            if (folder.id === currentFolderId) {
+              currentFolderExists = true;
+              if (folder.assets && folder.assets.length > 0) {
+                currentFolderHasAssets = true;
+                console.log(`Current folder ${folder.name} has ${folder.assets.length} assets`);
+              } else {
+                console.log(`Current folder ${folder.name} exists but has no assets`);
+              }
+            }
+            
             if (folder.assets && folder.assets.length > 0) {
               subfoldersWithAssets++;
               totalSubfolderAssets += folder.assets.length;
-              console.log(`Folder ${folder.name} has ${folder.assets.length} assets`);
+              console.log(`Folder ${folder.name} (${folder.id}) has ${folder.assets.length} assets`);
             }
           });
         }
+        
         console.log(`Found ${subfoldersWithAssets} folders with assets, total ${totalSubfolderAssets} assets in subfolders`);
+        
+        if (currentFolderId !== 'root' && !currentFolderExists) {
+          console.log(`WARNING: Current folder ${currentFolderId} does not exist in project!`);
+          toast.warning(`The folder you're trying to view doesn't exist in this project.`);
+        } else if (currentFolderId !== 'root' && !currentFolderHasAssets) {
+          console.log(`Current folder ${currentFolderId} exists but has no assets`);
+        }
+        
       } else {
         console.log('Project not found for ID:', selectedProjectId);
         setProjectData(null);

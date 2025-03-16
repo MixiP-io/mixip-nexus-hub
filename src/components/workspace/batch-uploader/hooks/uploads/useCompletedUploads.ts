@@ -64,10 +64,14 @@ export const useCompletedUploads = () => {
         if (updatedProject.subfolders) {
           updatedProject.subfolders.forEach(folder => {
             console.log(`Folder ${folder.name} (${folder.id}) assets: ${folder.assets?.length || 0}`);
+            if (folder.assets && folder.assets.length > 0) {
+              console.log(`Sample asset from folder ${folder.name}:`, folder.assets[0]);
+            }
           });
         }
         
         // Set upload complete with accurate folder information
+        console.log(`Setting upload complete with folder ID: ${folderId}`);
         completeUpload(projectId, projectName, completedFiles, folderId);
         
         // Show folder-specific toast
