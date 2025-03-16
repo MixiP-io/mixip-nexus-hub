@@ -10,7 +10,7 @@ import { projects, updateProjects } from '../../data/projectStore';
  * @returns Boolean indicating success
  */
 export const updateProject = (projectId: string, updates: Partial<ProjectData>): boolean => {
-  console.log(`Updating project: ${projectId}`, updates);
+  console.log(`Starting project update for: ${projectId}`, updates);
   
   try {
     // First get the current projects from localStorage
@@ -29,7 +29,6 @@ export const updateProject = (projectId: string, updates: Partial<ProjectData>):
     
     if (projectIndex === -1) {
       console.log(`Project not found for update: ${projectId}`);
-      toast.error("Project not found");
       return false;
     }
     
@@ -45,15 +44,20 @@ export const updateProject = (projectId: string, updates: Partial<ProjectData>):
     
     console.log('Updated project object:', updatedProjects[projectIndex]);
     
-    // Update both in-memory and localStorage
-    updateProjects(updatedProjects);
-    localStorage.setItem('projects', JSON.stringify(updatedProjects));
+    // Update both in-memory and localStorage without blocking UI
+    setTimeout(() => {
+      try {
+        updateProjects(updatedProjects);
+        localStorage.setItem('projects', JSON.stringify(updatedProjects));
+        console.log(`Project update completed successfully: ${projectId}`);
+      } catch (err) {
+        console.error('Error in delayed project update:', err);
+      }
+    }, 0);
     
-    console.log(`Project updated successfully: ${projectId}`, updatedProjects[projectIndex]);
     return true;
   } catch (error) {
     console.error(`Error updating project: ${projectId}`, error);
-    toast.error("Failed to update project");
     return false;
   }
 };

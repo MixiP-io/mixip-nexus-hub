@@ -39,15 +39,14 @@ export const useProjectEditEvents = ({
     }
     
     try {
-      // Add a longer delay before updating the project to ensure dialog is fully closed
-      // and all state transitions have completed
-      setTimeout(() => {
-        // Update the project
-        updateProjectDetails(projectId, updates);
-        
-        // Show success notification
-        toast.success('Project updated successfully');
-      }, 800);
+      // First close the dialog completely
+      console.log('Proceeding with update after validation');
+      
+      // Update the project with minimal delay
+      updateProjectDetails(projectId, updates);
+      
+      // Show success notification
+      toast.success('Project updated successfully');
     } catch (err) {
       console.error('Error updating project:', err);
       toast.error('An error occurred while updating the project');
