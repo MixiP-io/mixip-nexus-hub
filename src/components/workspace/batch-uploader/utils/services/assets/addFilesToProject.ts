@@ -8,7 +8,8 @@ import { validateProjectForAssets, ensureProjectStructure } from './projectAsset
 import { 
   addAssetsToRootFolder, 
   addAssetsToSpecificFolder, 
-  createNewFolderWithAssets 
+  createNewFolderWithAssets,
+  addReferenceAssetsToRoot 
 } from './folderAssetOperations';
 import { updateProjectCoverIfNeeded } from './coverImageOperations';
 import { saveProjectsToLocalStorage } from '../../data/store/storageSync';
@@ -82,6 +83,11 @@ export const addFilesToProject = async (
         const newFolderResult = createNewFolderWithAssets(updatedProjects, projectIndex, normalizedFolderId, assets);
         folderFound = newFolderResult.folderFound;
         locationAdded = newFolderResult.locationAdded;
+      }
+      
+      // Add reference assets to root for easier access
+      if (folderFound && locationAdded !== 'root') {
+        addReferenceAssetsToRoot(updatedProjects, projectIndex, assets);
       }
     }
     
