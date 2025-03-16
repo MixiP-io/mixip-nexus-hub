@@ -19,7 +19,9 @@ export const useAssetsManager = (selectedProjectId: string | null) => {
       const project = getProjectById(selectedProjectId);
       
       if (project) {
-        console.log('Project found:', project.name, 'with', project.assets.length, 'assets');
+        console.log('Project found:', project.name, 'with', project.assets?.length || 0, 'root assets');
+        console.log('Project data:', JSON.stringify(project, null, 2));
+        
         // Make a deep copy to avoid reference issues
         setProjectData(JSON.parse(JSON.stringify(project)));
       } else {
@@ -92,6 +94,7 @@ export const useAssetsManager = (selectedProjectId: string | null) => {
     
     // Start with project root assets
     let allAssets = [...(project.assets || [])];
+    console.log(`Getting all assets from project. Root assets: ${allAssets.length}`);
     
     // Function to recursively get assets from folders
     const getAssetsFromFolders = (folders: any[]) => {
@@ -100,6 +103,7 @@ export const useAssetsManager = (selectedProjectId: string | null) => {
       folders.forEach(folder => {
         // Add assets from this folder
         if (folder.assets && Array.isArray(folder.assets)) {
+          console.log(`Adding ${folder.assets.length} assets from folder ${folder.name}`);
           allAssets = [...allAssets, ...folder.assets];
         }
         
@@ -115,6 +119,7 @@ export const useAssetsManager = (selectedProjectId: string | null) => {
       getAssetsFromFolders(project.subfolders);
     }
     
+    console.log(`Total assets found: ${allAssets.length}`);
     return allAssets;
   };
 

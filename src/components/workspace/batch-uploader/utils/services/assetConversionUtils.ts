@@ -21,8 +21,10 @@ export const convertFilesToAssets = (
     return [];
   }
   
+  console.log(`Converting ${completedFiles.length} files to assets with license: ${licenseType}, folder: ${folderId}`);
+  
   // Convert uploaded files to project assets
-  return completedFiles.map(file => ({
+  const assets = completedFiles.map(file => ({
     id: file.id,
     name: file.name,
     type: file.type,
@@ -32,4 +34,7 @@ export const convertFilesToAssets = (
     licenseType,
     folderId: folderId === 'root' ? undefined : folderId
   }));
+  
+  console.log(`Created ${assets.length} assets`);
+  return assets;
 };

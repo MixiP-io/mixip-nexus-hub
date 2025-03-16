@@ -32,13 +32,21 @@ export const updateProjectCoverIfNeeded = (
   projectsCopy: typeof projects
 ): boolean => {
   // If this is the first asset being added to the project, set it as the cover image
+  const project = projectsCopy[projectIndex];
+  
+  // Ensure assets array exists
+  if (!project.assets) {
+    project.assets = [];
+  }
+  
   const shouldUpdateCoverImage = (
-    projectsCopy[projectIndex].assets.length === 0 && 
-    !projectsCopy[projectIndex].coverImage &&
+    (project.assets.length === 0 || project.assets.length === undefined) && 
+    !project.coverImage &&
     assets.some(asset => asset.preview)
   );
   
   if (shouldUpdateCoverImage) {
+    console.log('Setting first asset as cover image');
     const firstImageAsset = assets.find(asset => asset.preview);
     if (firstImageAsset) {
       projectsCopy[projectIndex].coverImage = firstImageAsset.preview;
@@ -59,21 +67,39 @@ export const findAssetInProject = (
   project: typeof projects[number], 
   assetId: string
 ): ProjectAsset | null => {
+  console.log(`Looking for asset ${assetId} in project ${project.name}`);
+  
+  // Ensure assets array exists
+  if (!project.assets) {
+    project.assets = [];
+  }
+  
   // Check project root assets
   const rootAsset = project.assets.find(a => a.id === assetId);
   if (rootAsset) {
+    console.log(`Found asset in root folder`);
     return rootAsset;
   }
   
   // Search in subfolders recursively
   const findInFolders = (folders: typeof project.subfolders): ProjectAsset | null => {
+    if (!folders || !Array.isArray(folders)) {
+      return null;
+    }
+    
     for (const folder of folders) {
+      // Ensure folder assets array exists
+      if (!folder.assets) {
+        folder.assets = [];
+      }
+      
       const folderAsset = folder.assets.find(a => a.id === assetId);
       if (folderAsset) {
+        console.log(`Found asset in folder ${folder.name}`);
         return folderAsset;
       }
       
-      if (folder.subfolders.length > 0) {
+      if (folder.subfolders && folder.subfolders.length > 0) {
         const nestedAsset = findInFolders(folder.subfolders);
         if (nestedAsset) {
           return nestedAsset;

@@ -13,18 +13,37 @@ export const addAssetsToFolder = (
   targetFolderId: string,
   assets: ProjectAsset[]
 ): boolean => {
+  if (!folders || !Array.isArray(folders)) {
+    console.log('No folders provided or folders is not an array');
+    return false;
+  }
+  
   for (let i = 0; i < folders.length; i++) {
-    if (folders[i].id === targetFolderId) {
-      folders[i].assets = [...folders[i].assets, ...assets];
-      folders[i].updatedAt = new Date();
+    const folder = folders[i];
+    
+    if (folder.id === targetFolderId) {
+      console.log(`Found folder ${folder.name} (${folder.id}). Adding ${assets.length} assets.`);
+      
+      // Initialize assets array if it doesn't exist
+      if (!folder.assets || !Array.isArray(folder.assets)) {
+        folder.assets = [];
+      }
+      
+      folder.assets = [...folder.assets, ...assets];
+      folder.updatedAt = new Date();
+      
+      console.log(`Folder now has ${folder.assets.length} assets`);
       return true;
     }
     
-    if (folders[i].subfolders.length > 0) {
-      if (addAssetsToFolder(folders[i].subfolders, targetFolderId, assets)) {
+    // Check subfolders recursively
+    if (folder.subfolders && folder.subfolders.length > 0) {
+      if (addAssetsToFolder(folder.subfolders, targetFolderId, assets)) {
         return true;
       }
     }
   }
+  
+  console.log(`Folder ${targetFolderId} not found in the provided folders`);
   return false;
 };
