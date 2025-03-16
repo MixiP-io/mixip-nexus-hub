@@ -1,5 +1,6 @@
 
-import React, { useState } from 'react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '@/components/dashboard/Header';
 import CollapsibleTabs from '@/components/dashboard/CollapsibleTabs';
 import ProjectGrid from '@/components/dashboard/ProjectGrid';

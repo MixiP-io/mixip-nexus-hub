@@ -1,58 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Image, FolderOpen } from 'lucide-react';
-import { getProjects } from '../workspace/batch-uploader/utils/services/projectService';
+import { useProjectsManager } from '../workspace/projects/hooks/useProjectsManager';
+import { useNavigate } from 'react-router-dom';
 
 const ProjectGrid: React.FC = () => {
-  const [projects, setProjects] = useState<any[]>([]);
-
-  useEffect(() => {
-    // Try to load projects from service, fallback to sample data if none
-    const loadedProjects = getProjects();
-    
-    if (loadedProjects && loadedProjects.length > 0) {
-      setProjects(loadedProjects);
-    } else {
-      // Use sample project data as fallback
-      setProjects([
-        {
-          id: 1,
-          name: "Belize Vacation",
-          assets: new Array(32),
-          updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-          coverImage: "/lovable-uploads/20e270e7-8a94-400d-a3c5-560f432fd5ba.png"
-        },
-        {
-          id: 2,
-          name: "Brand Photoshoot",
-          assets: new Array(18),
-          updatedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-          coverImage: "/placeholder.svg"
-        },
-        {
-          id: 3,
-          name: "Client Presentation",
-          assets: new Array(8),
-          updatedAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
-          coverImage: "/placeholder.svg"
-        },
-        {
-          id: 4,
-          name: "Nature Collection",
-          assets: new Array(56),
-          updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-          coverImage: "/placeholder.svg"
-        },
-        {
-          id: 5,
-          name: "Stock Collection",
-          assets: new Array(114),
-          updatedAt: new Date(),
-          coverImage: "/placeholder.svg"
-        }
-      ]);
-    }
-  }, []);
+  const { projects } = useProjectsManager();
+  const navigate = useNavigate();
 
   const formatUpdatedTime = (date: Date) => {
     const now = new Date();
@@ -65,10 +19,23 @@ const ProjectGrid: React.FC = () => {
     return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''} ago`;
   };
 
+  const handleProjectClick = (projectId: string) => {
+    // Navigate to the workspace with the selected project
+    navigate(`/workspace?tab=assets&project=${projectId}`);
+  };
+
+  const handleCreateProject = () => {
+    navigate('/workspace?tab=projects&action=new');
+  };
+
   return (
     <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {projects.map(project => (
-        <div key={project.id} className="bg-gray-800 rounded-xl overflow-hidden hover:ring-2 hover:ring-mixip-blue transition-all cursor-pointer">
+        <div 
+          key={project.id} 
+          className="bg-gray-800 rounded-xl overflow-hidden hover:ring-2 hover:ring-mixip-blue transition-all cursor-pointer"
+          onClick={() => handleProjectClick(project.id)}
+        >
           <div className="h-40 bg-gray-700 relative">
             {project.coverImage ? (
               <img 
@@ -86,7 +53,7 @@ const ProjectGrid: React.FC = () => {
             <h3 className="font-medium text-lg text-white mb-1">{project.name}</h3>
             <p className="text-sm text-gray-300">
               {project.assets ? project.assets.length : 0} assets • Updated {
-                project.updatedAt ? formatUpdatedTime(project.updatedAt) : "recently"
+                project.updatedAt ? formatUpdatedTime(new Date(project.updatedAt)) : "recently"
               }
             </p>
           </div>
@@ -100,7 +67,10 @@ const ProjectGrid: React.FC = () => {
       ))}
       
       {/* Create New Project Card */}
-      <div className="bg-gray-800 rounded-xl overflow-hidden hover:ring-2 hover:ring-mixip-blue transition-all cursor-pointer">
+      <div 
+        className="bg-gray-800 rounded-xl overflow-hidden hover:ring-2 hover:ring-mixip-blue transition-all cursor-pointer"
+        onClick={handleCreateProject}
+      >
         <div className="h-40 bg-gray-700 flex items-center justify-center">
           <Plus className="w-10 h-10 text-gray-400" />
         </div>
