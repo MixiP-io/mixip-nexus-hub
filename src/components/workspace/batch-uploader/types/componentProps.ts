@@ -39,7 +39,7 @@ export interface UploadCompleteProps {
   projectId: string;
   projectName: string;
   success: boolean;
-  navigateToProject: (projectId: string) => void;
+  navigateToProject: (projectId: string, folderId?: string) => void;
   folderId: string;
 }
 
