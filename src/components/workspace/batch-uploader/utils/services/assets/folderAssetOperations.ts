@@ -1,3 +1,4 @@
+
 import { toast } from 'sonner';
 import { ProjectAsset } from '../../types/projectTypes';
 import { addAssetsToFolder } from '../folderOperationUtils';
@@ -55,10 +56,11 @@ export const addAssetsToSpecificFolder = (
         folderName: folder.name // Add folder name for easy reference
       }));
       
-      // Log a sample asset for debugging
-      if (assetsWithFolder.length > 0) {
-        console.log(`[folderAssetOperations] Sample asset being added:`, JSON.stringify(assetsWithFolder[0], null, 2));
-      }
+      // Log all assets being added for debugging
+      console.log(`[folderAssetOperations] Assets being added to folder "${folder.name}":`);
+      assetsWithFolder.forEach((asset, index) => {
+        console.log(`Asset ${index + 1}: ID=${asset.id}, Name=${asset.name}, FolderId=${asset.folderId}`);
+      });
       
       updatedProjects[projectIndex].subfolders[folderIndex].assets = [
         ...updatedProjects[projectIndex].subfolders[folderIndex].assets,
@@ -68,6 +70,10 @@ export const addAssetsToSpecificFolder = (
       updatedProjects[projectIndex].subfolders[folderIndex].updatedAt = new Date();
       
       console.log(`[folderAssetOperations] After: Folder has ${updatedProjects[projectIndex].subfolders[folderIndex].assets.length} assets`);
+      
+      // Log some assets after adding for verification
+      const sampleAssets = updatedProjects[projectIndex].subfolders[folderIndex].assets.slice(0, 3);
+      console.log(`[folderAssetOperations] Sample assets after adding:`, JSON.stringify(sampleAssets, null, 2));
       
       folderFound = true;
       locationAdded = updatedProjects[projectIndex].subfolders[folderIndex].id;
@@ -110,8 +116,15 @@ export const createNewFolderWithAssets = (
   // Make sure all assets have the folderId field set
   const assetsWithFolder = assets.map(asset => ({
     ...asset,
-    folderId: safeFolderId
+    folderId: safeFolderId,
+    folderName: folderName
   }));
+  
+  // Log all assets being added to the new folder
+  console.log(`[folderAssetOperations] Assets being added to new folder "${folderName}":`);
+  assetsWithFolder.forEach((asset, index) => {
+    console.log(`Asset ${index + 1}: ID=${asset.id}, Name=${asset.name}, FolderId=${asset.folderId}`);
+  });
   
   const newFolder = {
     id: safeFolderId,
@@ -163,6 +176,12 @@ export const addAssetsToRootFolder = (
     ...asset,
     folderId: 'root'
   }));
+  
+  // Log all assets being added to the root folder
+  console.log(`[folderAssetOperations] Assets being added to root folder:`);
+  assetsWithFolder.forEach((asset, index) => {
+    console.log(`Asset ${index + 1}: ID=${asset.id}, Name=${asset.name}, FolderId=${asset.folderId}`);
+  });
   
   // Add new assets to the project's assets array
   updatedProjects[projectIndex].assets = [

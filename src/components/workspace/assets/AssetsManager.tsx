@@ -41,7 +41,7 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
   } = useAssetsManager(selectedProjectId, selectedFolderId);
 
   useEffect(() => {
-    console.log('AssetsManager rendered with:', { 
+    console.log('[AssetsManager] Component rendered with:', { 
       projectId: selectedProjectId, 
       folderId: selectedFolderId,
       currentFolderId
@@ -49,7 +49,7 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
     
     // Update current folder when selectedFolderId changes
     if (selectedFolderId && selectedFolderId !== currentFolderId) {
-      console.log('Setting current folder to:', selectedFolderId);
+      console.log('[AssetsManager] Setting current folder to:', selectedFolderId);
       setCurrentFolderId(selectedFolderId);
       
       // Show folder navigation toast
@@ -62,25 +62,31 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
     }
     
     if (projectData) {
-      console.log('Project data loaded:', projectData.name);
+      console.log('[AssetsManager] Project data loaded:', projectData.name);
       
       // Check if we're viewing a specific folder
       if (selectedFolderId && selectedFolderId !== 'root' && projectData.subfolders) {
         const folder = projectData.subfolders.find((f: any) => f.id === selectedFolderId);
         if (folder) {
-          console.log(`Viewing folder: ${folder.name} with ${folder.assets?.length || 0} assets`);
+          console.log(`[AssetsManager] Viewing folder: ${folder.name} with ${folder.assets?.length || 0} assets`);
           
           // Log assets in folder for debugging
           if (folder.assets && folder.assets.length > 0) {
-            console.log(`Sample assets in folder "${folder.name}":`, JSON.stringify(folder.assets.slice(0, 2), null, 2));
+            console.log(`[AssetsManager] Sample assets in folder "${folder.name}":`, JSON.stringify(folder.assets.slice(0, 2), null, 2));
+            
+            // Log all assets in the folder for debugging
+            console.log(`[AssetsManager] All assets in folder "${folder.name}":`);
+            folder.assets.forEach((asset: any, index: number) => {
+              console.log(`Asset ${index + 1}: ID=${asset.id}, Name=${asset.name}, FolderId=${asset.folderId}`);
+            });
           } else {
-            console.log(`Folder "${folder.name}" has no assets`);
+            console.log(`[AssetsManager] Folder "${folder.name}" has no assets`);
           }
         } else {
-          console.log('Selected folder not found:', selectedFolderId);
+          console.log('[AssetsManager] Selected folder not found:', selectedFolderId);
         }
       } else {
-        console.log('Viewing root folder with', projectData.assets?.length || 0, 'assets');
+        console.log('[AssetsManager] Viewing root folder with', projectData.assets?.length || 0, 'assets');
       }
     }
   }, [selectedProjectId, projectData, selectedFolderId, currentFolderId, setCurrentFolderId]);
@@ -111,6 +117,12 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
       if (folder.assets && folder.assets.length > 0) {
         hasAssetsInFolders = true;
         foldersWithAssets.push(folder.name);
+        
+        // Log assets in this folder for debugging
+        console.log(`[AssetsManager] Folder "${folder.name}" has ${folder.assets.length} assets`);
+        if (folder.id === currentFolderId) {
+          console.log(`[AssetsManager] This is the current folder`);
+        }
       }
     });
   }

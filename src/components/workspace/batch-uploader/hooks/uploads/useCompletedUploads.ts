@@ -48,9 +48,16 @@ export const useCompletedUploads = () => {
           if (targetFolder) {
             folderName = targetFolder.name;
             console.log(`Target folder "${targetFolder.name}" (${folderId}) assets: ${targetFolder.assets?.length || 0}`);
+            
+            // Log each asset in the folder for debugging
             if (targetFolder.assets && targetFolder.assets.length > 0) {
+              console.log(`All assets in folder "${folderName}":`);
+              targetFolder.assets.forEach((asset: any, index: number) => {
+                console.log(`Asset ${index + 1}: ID=${asset.id}, Name=${asset.name}, FolderId=${asset.folderId}`);
+              });
               foundAssetsInFolder = true;
-              console.log(`First few assets in folder:`, JSON.stringify(targetFolder.assets.slice(0, 3), null, 2));
+            } else {
+              console.log(`No assets found in folder "${folderName}" after upload. This is unexpected.`);
             }
           } else {
             console.log(`Target folder with ID ${folderId} not found in project`);
