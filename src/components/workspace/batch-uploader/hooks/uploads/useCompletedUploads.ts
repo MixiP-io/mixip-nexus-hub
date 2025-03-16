@@ -24,6 +24,22 @@ export const useCompletedUploads = () => {
   ) => {
     console.log(`Adding ${completedFiles.length} files to project ${projectId}, folder: ${folderId}`);
     
+    if (completedFiles.length === 0) {
+      console.error("No completed files to process");
+      toast.error("No files were processed successfully. Please check file formats and try again.");
+      setIsUploading(false);
+      setUploadComplete(true);
+      setUploadResults({
+        success: false,
+        count: 0,
+        projectId,
+        projectName,
+        folderId,
+        errorMessage: "No files were processed successfully"
+      });
+      return;
+    }
+    
     try {
       // Add files to project with proper error handling
       const result = await addFilesToProject(projectId, completedFiles, licenseType, folderId);
@@ -57,7 +73,7 @@ export const useCompletedUploads = () => {
             if (targetFolder.assets && targetFolder.assets.length > 0) {
               console.log(`[CRITICAL] All assets in folder "${folderName}":`);
               targetFolder.assets.forEach((asset: any, index: number) => {
-                console.log(`Asset ${index + 1}: ID=${asset.id}, Name=${asset.name}, FolderId=${asset.folderId}`);
+                console.log(`Asset ${index + 1}: ID=${asset.id}, Name=${asset.name}, FolderId=${asset.folderId || 'undefined'}`);
               });
               foundAssetsInFolder = true;
             } else {
@@ -131,7 +147,8 @@ export const useCompletedUploads = () => {
         count: 0,
         projectId,
         projectName,
-        folderId
+        folderId,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   };

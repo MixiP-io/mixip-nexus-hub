@@ -18,10 +18,15 @@ export const convertFilesToAssets = (
   const completedFiles = files.filter(file => file.status === 'complete');
   
   if (completedFiles.length === 0) {
+    console.error("[assetConversionUtils] No completed files found to convert to assets");
     return [];
   }
   
-  console.log(`Converting ${completedFiles.length} files to assets with license: ${licenseType}, folder: ${folderId}`);
+  console.log(`[assetConversionUtils] Converting ${completedFiles.length} files to assets with license: ${licenseType}, folder: ${folderId}`);
+  
+  // Normalize the folder ID
+  const normalizedFolderId = folderId || 'root';
+  console.log(`[assetConversionUtils] Using normalized folder ID: ${normalizedFolderId}`);
   
   // Convert uploaded files to project assets
   const assets = completedFiles.map(file => {
@@ -34,13 +39,13 @@ export const convertFilesToAssets = (
       uploadedAt: new Date(),
       licenseType,
       // Always set folderId, even if it's 'root'
-      folderId
+      folderId: normalizedFolderId
     };
     
-    console.log(`Created asset: ${asset.id}, with folder: ${folderId}`);
+    console.log(`[assetConversionUtils] Created asset: ${asset.name} (${asset.id}), with folder: ${asset.folderId}`);
     return asset;
   });
   
-  console.log(`Created ${assets.length} assets`);
+  console.log(`[assetConversionUtils] Created ${assets.length} assets`);
   return assets;
 };
