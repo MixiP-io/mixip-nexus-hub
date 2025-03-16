@@ -1,4 +1,5 @@
 
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { 
   getProjects, 
   getProjectById, 
@@ -33,10 +34,14 @@ Object.defineProperty(window, 'localStorage', {
 });
 
 // Mock project store
-jest.mock('../../../data/projectStore', () => ({
+vi.mock('../../../data/projectStore', () => ({
   projects: [],
-  updateProjects: jest.fn(),
-  currentUser: 'test-user'
+  updateProjects: vi.fn(),
+  currentUser: {
+    id: 'test-user',
+    name: 'Test User',
+    email: 'test@example.com'
+  }
 }));
 
 describe('Basic Project Operations', () => {
@@ -45,7 +50,7 @@ describe('Basic Project Operations', () => {
     window.localStorage.clear();
     
     // Reset mock functions
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // Reset in-memory projects (if needed)
     require('../../../data/projectStore').projects.length = 0;
