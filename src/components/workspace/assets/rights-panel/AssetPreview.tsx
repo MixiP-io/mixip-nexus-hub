@@ -16,11 +16,21 @@ const AssetPreview: React.FC<AssetPreviewProps> = ({ asset }) => {
   useEffect(() => {
     // Reset error state when asset changes
     setPreviewError(false);
+    
+    if (asset.preview) {
+      console.log(`AssetPreview: Preview URL for ${asset.name}: ${asset.preview.substring(0, 50)}...`);
+    } else {
+      console.log(`AssetPreview: No preview URL for ${asset.name}`);
+    }
+    
     setPreviewUrl(asset.preview);
   }, [asset]);
 
   const handleImageError = () => {
-    console.error(`Failed to load preview for ${asset.name}`);
+    console.error(`Failed to load preview for ${asset.name}`, {
+      previewType: previewUrl?.substring(0, 20),
+      assetType: asset.type
+    });
     setPreviewError(true);
   };
 
