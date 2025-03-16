@@ -27,6 +27,10 @@ export const addFilesToProject = async (
   // Force an integrity check before proceeding
   ensureProjectDataIntegrity();
   
+  // Normalize folder ID (use 'root' if undefined, null or empty string)
+  const normalizedFolderId = folderId || 'root';
+  console.log(`[assetService] Using normalized folder ID: ${normalizedFolderId}`);
+  
   // Find the project
   const projectData = findProject(projectId);
   if (!projectData) {
@@ -39,7 +43,7 @@ export const addFilesToProject = async (
   console.log(`[assetService] Project found at index ${projectIndex}: ${project.name}`);
   
   // Convert files to assets
-  const assets = convertFilesToAssets(files, licenseType, folderId);
+  const assets = convertFilesToAssets(files, licenseType, normalizedFolderId);
   console.log(`[assetService] Converted ${files.length} files to ${assets.length} assets`);
   
   if (assets.length === 0) {
@@ -51,7 +55,7 @@ export const addFilesToProject = async (
   // Create a deep copy of projects to avoid reference issues
   const updatedProjects = JSON.parse(JSON.stringify(projects));
   
-  // Ensure the project has properly initialized arrays
+  // Double-check that arrays are properly initialized
   if (!Array.isArray(updatedProjects[projectIndex].assets)) {
     console.log('[assetService] Initializing assets array for project');
     updatedProjects[projectIndex].assets = [];
@@ -66,11 +70,17 @@ export const addFilesToProject = async (
   updateProjectCoverIfNeeded(projectIndex, assets, updatedProjects);
   
   // If adding to root folder
-  if (folderId === 'root') {
+  if (normalizedFolderId === 'root') {
     // Update the project with new assets
     console.log(`[assetService] Adding ${assets.length} assets to project ${projectId} root folder`);
     console.log(`[assetService] Project has ${updatedProjects[projectIndex].assets.length} existing assets`);
     
+    // Ensure assets array exists
+    if (!Array.isArray(updatedProjects[projectIndex].assets)) {
+      updatedProjects[projectIndex].assets = [];
+    }
+    
+    // Add new assets to the project's assets array
     updatedProjects[projectIndex].assets = [
       ...updatedProjects[projectIndex].assets, 
       ...assets
@@ -82,18 +92,24 @@ export const addFilesToProject = async (
     // Try to add assets to the specified folder
     const folderFound = addAssetsToFolder(
       updatedProjects[projectIndex].subfolders, 
-      folderId, 
+      normalizedFolderId, 
       assets
     );
     
     if (!folderFound) {
       // If folder not found, add to project root
-      console.log(`[assetService] Folder ${folderId} not found, adding to project root instead`);
+      console.log(`[assetService] Folder ${normalizedFolderId} not found, adding to project root instead`);
+      
+      // Ensure assets array exists
+      if (!Array.isArray(updatedProjects[projectIndex].assets)) {
+        updatedProjects[projectIndex].assets = [];
+      }
+      
       updatedProjects[projectIndex].assets = [
         ...updatedProjects[projectIndex].assets, 
         ...assets
       ];
-      toast.warning(`Folder "${folderId}" not found, added files to project root instead`);
+      toast.warning(`Folder "${normalizedFolderId}" not found, added files to project root instead`);
     } else {
       toast.success(`Added ${assets.length} files to folder successfully`);
     }

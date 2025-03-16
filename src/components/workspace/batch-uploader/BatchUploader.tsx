@@ -7,7 +7,7 @@ import SectionHeader from '../SectionHeader';
 import { useFileUpload } from './hooks/useFileUpload';
 import { useMetadataState } from './hooks/useMetadataState';
 import { formatFileSize } from './utils/fileUtils';
-import { logProjects, getProjectById } from './utils/projectUtils';
+import { logProjects, getProjectById, ensureProjectDataIntegrity } from './utils/projectUtils';
 import { toast } from 'sonner';
 
 const BatchUploader: React.FC = () => {
@@ -48,6 +48,11 @@ const BatchUploader: React.FC = () => {
     setSelectedFolder: setMetadataSelectedFolder
   } = useMetadataState();
   
+  // Initial data integrity check on component mount
+  useEffect(() => {
+    ensureProjectDataIntegrity();
+  }, []);
+  
   // Synchronize upload state debugging
   useEffect(() => {
     if (uploadComplete) {
@@ -69,9 +74,12 @@ const BatchUploader: React.FC = () => {
   
   // Sync selected project between hooks
   useEffect(() => {
-    if (metadataSelectedProject !== selectedProject && metadataSelectedProject) {
+    if (metadataSelectedProject !== selectedProject) {
       console.log(`Syncing project selection from metadata (${metadataSelectedProject}) to fileUpload (${selectedProject})`);
-      setSelectedFolder('root'); // Reset folder when project changes
+      // Only reset folder if project actually changes
+      if (metadataSelectedProject && metadataSelectedProject !== selectedProject) {
+        setSelectedFolder('root'); // Reset folder when project changes
+      }
     }
   }, [metadataSelectedProject, selectedProject, setSelectedFolder]);
   
@@ -86,8 +94,12 @@ const BatchUploader: React.FC = () => {
       return;
     }
 
+    // Always use 'root' as fallback if folder is undefined or empty
     const folderToUse = metadataSelectedFolder || 'root';
     console.log(`Starting upload with: Project=${metadataSelectedProject}, Folder=${folderToUse}, License=${licenseType}`);
+    
+    // Run data integrity check before proceeding
+    ensureProjectDataIntegrity();
     
     // Verify project exists one more time
     const project = getProjectById(metadataSelectedProject);
@@ -154,7 +166,7 @@ const BatchUploader: React.FC = () => {
           startUpload={handleStartUpload}
           uploadComplete={uploadComplete}
           setUploadComplete={setUploadComplete}
-          selectedProject={metadataSelectedProject}
+          selectedProject={metadataSelectedProject || selectedProject}
           selectedProjectName={selectedProjectName}
           navigateToProject={navigateToProject}
         />

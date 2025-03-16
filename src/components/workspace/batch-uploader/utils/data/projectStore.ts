@@ -115,6 +115,8 @@ const initializeFromLocalStorage = () => {
     console.error('Error loading projects from localStorage:', error);
     // If localStorage is corrupted, use the default projects
     localStorage.removeItem('projects');
+    // Re-initialize with default values and save to localStorage
+    ensureProjectDataIntegrity();
   }
 };
 
@@ -131,24 +133,75 @@ export const updateProjects = (updatedProjects: ProjectData[]) => {
   ensureProjectDataIntegrity();
 };
 
+// Recursive function to ensure folder integrity
+const ensureFolderIntegrity = (folder: any) => {
+  // If subfolders is undefined, initialize it
+  if (!Array.isArray(folder.subfolders)) {
+    folder.subfolders = [];
+  }
+  
+  // If assets is undefined, initialize it
+  if (!Array.isArray(folder.assets)) {
+    folder.assets = [];
+  }
+  
+  // Process subfolders recursively
+  folder.subfolders = folder.subfolders.map((subfolder: any) => {
+    return ensureFolderIntegrity(subfolder);
+  });
+  
+  return folder;
+};
+
 // Ensure all projects have properly initialized arrays
 export const ensureProjectDataIntegrity = () => {
-  projects = projects.map(project => ({
-    ...project,
-    assets: Array.isArray(project.assets) ? project.assets : [],
-    subfolders: Array.isArray(project.subfolders) ? project.subfolders.map(subfolder => ({
-      ...subfolder,
-      assets: Array.isArray(subfolder.assets) ? subfolder.assets : [],
-      subfolders: Array.isArray(subfolder.subfolders) ? subfolder.subfolders : []
-    })) : []
-  }));
+  console.log("Running data integrity check on projects...");
+  
+  if (!Array.isArray(projects)) {
+    console.error("Projects is not an array, resetting to defaults");
+    // Reset to default projects
+    projects = [
+      {
+        id: 'project1',
+        name: 'Marketing Campaign Q1',
+        assets: [],
+        createdAt: new Date('2024-01-15'),
+        updatedAt: new Date('2024-02-20'),
+        createdBy: 'user1',
+        owners: [
+          { userId: 'user1', name: 'John Doe', email: 'john@example.com', royaltyPercentage: 100 }
+        ],
+        subfolders: []
+      }
+    ];
+  }
+  
+  projects = projects.map(project => {
+    // Creates a new object with guaranteed arrays
+    const fixedProject = {
+      ...project,
+      assets: Array.isArray(project.assets) ? project.assets : [],
+      subfolders: Array.isArray(project.subfolders) ? 
+        project.subfolders.map(subfolder => ensureFolderIntegrity(subfolder)) : []
+    };
+    
+    // Ensure project has an ID
+    if (!fixedProject.id) {
+      fixedProject.id = `project-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    }
+    
+    return fixedProject;
+  });
   
   // Also save to localStorage
   try {
     localStorage.setItem('projects', JSON.stringify(projects));
+    console.log("Projects saved to localStorage successfully");
   } catch (error) {
     console.error('Error saving projects to localStorage:', error);
   }
+  
+  console.log("Data integrity check complete");
 };
 
 // Initialize on load

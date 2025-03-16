@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { UploadFile } from '../../types';
 import { simulateFileUpload } from '../../utils/uploadUtils';
 import { addFilesToProject } from '../../utils/services/assetService';
-import { getProjectById, logProjects } from '../../utils/projectUtils';
+import { getProjectById, logProjects, ensureProjectDataIntegrity } from '../../utils/projectUtils';
 
 /**
  * Hook for managing the upload process logic
@@ -47,8 +47,11 @@ export const useUploadProcess = () => {
     updateFileStatus: (fileId: string, status: any, errorMessage?: string) => void,
     updateOverallProgress: () => void,
   ) => {
-    console.log(`Starting upload process to project: ${projectId}, folder: ${folderId}`);
+    console.log(`Starting upload process to project: ${projectId}, folder: ${folderId || 'root'}`);
     console.log(`Files to process: ${files.length}, License: ${licenseType}`);
+    
+    // First ensure project data integrity
+    ensureProjectDataIntegrity();
     
     setIsUploading(true);
     setUploadComplete(false);
@@ -57,6 +60,14 @@ export const useUploadProcess = () => {
     
     try {
       let hasErrors = false;
+      const folderToUse = folderId || 'root';
+      
+      // Double-check project exists before proceeding
+      const projectExists = getProjectById(projectId);
+      if (!projectExists) {
+        throw new Error(`Project ${projectId} not found before starting upload`);
+      }
+      
       // Process files one by one
       for (const file of files) {
         // Only process queued files
@@ -96,7 +107,7 @@ export const useUploadProcess = () => {
       console.log(`Completed files: ${completedFiles.length}`);
       
       if (completedFiles.length > 0) {
-        console.log(`Adding ${completedFiles.length} files to project ${projectId}, folder: ${folderId || 'root'}`);
+        console.log(`Adding ${completedFiles.length} files to project ${projectId}, folder: ${folderToUse}`);
         
         try {
           // Double-check project exists before adding files
@@ -105,8 +116,6 @@ export const useUploadProcess = () => {
             throw new Error(`Project ${projectId} not found`);
           }
           
-          // Use 'root' as default folder if none selected or if undefined
-          const folderToUse = folderId || 'root';
           console.log(`Using folder: ${folderToUse}`);
           
           // Add files to project with proper error handling

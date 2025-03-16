@@ -1,6 +1,7 @@
 
 import { toast } from 'sonner';
 import { getProjectById } from '../../utils/projectUtils';
+import { ensureProjectDataIntegrity } from '../../utils/data/projectStore';
 
 /**
  * Hook for validating upload parameters
@@ -13,6 +14,7 @@ export const useUploadValidation = () => {
   ): boolean => {
     console.log(`Validating upload params: files=${files.length}, license=${licenseType}, projectId=${projectId}`);
     
+    // Basic validations
     if (files.length === 0) {
       toast.error("Please add files to upload");
       return false;
@@ -28,7 +30,10 @@ export const useUploadValidation = () => {
       return false;
     }
     
-    // Validate project exists
+    // Force data integrity check before validation
+    ensureProjectDataIntegrity();
+    
+    // Validate project exists - get fresh project data
     const project = getProjectById(projectId);
     if (!project) {
       console.error(`Project not found: ${projectId}`);
@@ -36,19 +41,35 @@ export const useUploadValidation = () => {
       return false;
     }
     
-    // Validate project assets array exists
+    // Validate project structure explicitly
+    if (!project.assets) {
+      console.error(`Project ${projectId} assets array is missing completely`);
+      toast.error("Project structure is invalid. Please try a different project.");
+      return false;
+    }
+    
+    // Validate project assets array exists and is an array
     if (!Array.isArray(project.assets)) {
-      console.warn(`Project ${projectId} assets array is not initialized properly`);
-      project.assets = [];
+      console.error(`Project ${projectId} assets array is not an array`);
+      toast.error("Project structure is invalid. Please try a different project.");
+      return false;
     }
     
     // Validate project subfolders array exists
     if (!Array.isArray(project.subfolders)) {
-      console.warn(`Project ${projectId} subfolders array is not initialized properly`);
-      project.subfolders = [];
+      console.error(`Project ${projectId} subfolders array is not initialized properly`);
+      toast.error("Project structure is invalid. Please try a different project.");
+      return false;
     }
     
     console.log('Project validation passed:', project.name);
+    console.log('Project structure:', {
+      id: project.id,
+      name: project.name,
+      assetsLength: project.assets.length,
+      subfolderLength: project.subfolders.length
+    });
+    
     return true;
   };
   
