@@ -69,12 +69,18 @@ export const useProjectEventHandlers = ({
   }, [projects, setProjectToDelete, setProjectToDeleteName, setDeleteDialogOpen]);
 
   const confirmDeleteProject = useCallback(() => {
-    const projectId = setProjectToDelete(null);
-    if (projectId) {
-      deleteSelectedProject(projectId);
+    const projectToDelete = projects.find(p => 
+      p.id === projects.find(p => p.name === projectToDeleteName)?.id
+    )?.id;
+    
+    setProjectToDelete(null);
+    
+    if (projectToDelete) {
+      deleteSelectedProject(projectToDelete);
     }
+    
     setDeleteDialogOpen(false);
-  }, [deleteSelectedProject, setProjectToDelete, setDeleteDialogOpen]);
+  }, [projects, projectToDeleteName, deleteSelectedProject, setProjectToDelete, setDeleteDialogOpen]);
 
   const handleEditProject = useCallback((projectId: string) => {
     const project = projects.find(p => p.id === projectId);
