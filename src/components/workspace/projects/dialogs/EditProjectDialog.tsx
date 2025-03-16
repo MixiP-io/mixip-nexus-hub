@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Dialog, 
@@ -12,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { updateProject, getProjectById } from '../../batch-uploader/utils/services/projectService';
+import { getProjectById } from '../../batch-uploader/utils/services/projectService';
 import { ProjectData } from '../../batch-uploader/utils/types/projectTypes';
 
 interface EditProjectDialogProps {
@@ -52,7 +53,10 @@ const EditProjectDialog: React.FC<EditProjectDialogProps> = ({
     }
   }, [project, isOpen, setIsOpen]);
   
-  const handleSave = () => {
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault(); // Prevent form submission
+    e.stopPropagation(); // Stop event propagation
+    
     if (!name.trim()) {
       toast.error('Project name is required');
       return;
@@ -97,7 +101,7 @@ const EditProjectDialog: React.FC<EditProjectDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="bg-gray-800 border-gray-700 text-white">
+      <DialogContent className="bg-gray-800 border-gray-700 text-white" onClick={(e) => e.stopPropagation()}>
         <DialogHeader>
           <DialogTitle className="text-xl text-white">Edit Project Details</DialogTitle>
           <DialogDescription className="text-gray-300">
@@ -105,7 +109,7 @@ const EditProjectDialog: React.FC<EditProjectDialogProps> = ({
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-4 py-4">
+        <form onSubmit={handleSave} className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="name">Project Name</Label>
             <Input 
@@ -167,25 +171,27 @@ const EditProjectDialog: React.FC<EditProjectDialogProps> = ({
               </div>
             )}
           </div>
-        </div>
-        
-        <DialogFooter>
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={() => setIsOpen(false)}
-            className="bg-gray-700 border-gray-600 text-white hover:bg-gray-600"
-          >
-            Cancel
-          </Button>
-          <Button 
-            type="button" 
-            onClick={handleSave}
-            className="bg-green-600 hover:bg-green-700"
-          >
-            Save Changes
-          </Button>
-        </DialogFooter>
+          
+          <DialogFooter>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsOpen(false);
+              }}
+              className="bg-gray-700 border-gray-600 text-white hover:bg-gray-600"
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              className="bg-green-600 hover:bg-green-700"
+            >
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import {
@@ -202,8 +201,12 @@ export const useProjectsManager = (): UseProjectsManagerResult => {
   const handleEditProject = useCallback((projectId: string) => {
     const project = projects.find(p => p.id === projectId);
     if (project) {
+      console.log('Setting project for edit:', project.name);
       setProjectToEdit(project);
       setEditProjectOpen(true);
+    } else {
+      console.error('Project not found for edit:', projectId);
+      toast.error('Error: Project not found');
     }
   }, [projects]);
 
@@ -225,9 +228,26 @@ export const useProjectsManager = (): UseProjectsManagerResult => {
   }, []);
 
   const handleProjectUpdated = useCallback((projectId: string, updates: Partial<ProjectData>) => {
-    updateProjectDetails(projectId, updates);
-    setEditProjectOpen(false);
-  }, [updateProjectDetails]);
+    console.log('Handling project update:', projectId, updates);
+    
+    try {
+      const success = updateProject(projectId, updates);
+      if (success) {
+        toast.success('Project updated successfully');
+        // Important: Close the dialog first, then refresh
+        setEditProjectOpen(false);
+        // Refresh the project list after a short delay to ensure dialog is closed
+        setTimeout(() => {
+          refreshProjects();
+        }, 100);
+      } else {
+        toast.error('Failed to update project');
+      }
+    } catch (err) {
+      console.error('Error updating project:', err);
+      toast.error('An error occurred while updating the project');
+    }
+  }, [refreshProjects]);
 
   return {
     projects: filteredProjects, // Return filtered projects

@@ -53,6 +53,13 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
     loadProjects
   } = useProjectsManager();
 
+  // Wrapper for project update handling to prevent navigation
+  const handleUpdateProject = (updates: Partial<ProjectData>) => {
+    if (projectToEdit) {
+      handleProjectUpdated(projectToEdit.id, updates);
+    }
+  };
+
   return (
     <div className="p-6">
       {/* Header with search and actions */}
@@ -89,11 +96,23 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
             handleProjectClick(projectId);
             onProjectSelect(projectId);
           }}
-          onEditProject={handleEditProject}
-          onAddSubfolder={handleAddSubfolder}
-          onDeleteProject={handleDeleteProject}
+          onEditProject={(projectId, e) => {
+            e.stopPropagation();
+            handleEditProject(projectId);
+          }}
+          onAddSubfolder={(projectId, e) => {
+            e.stopPropagation();
+            handleAddSubfolder(projectId);
+          }}
+          onDeleteProject={(projectId, e) => {
+            e.stopPropagation();
+            handleDeleteProject(projectId);
+          }}
           onCreateProject={() => setCreateProjectOpen(true)}
-          onSetCoverImage={handleSetCoverImage}
+          onSetCoverImage={(projectId, e) => {
+            e.stopPropagation();
+            handleSetCoverImage(projectId);
+          }}
         />
       ) : (
         <ProjectListView 
@@ -102,9 +121,18 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
             handleProjectClick(projectId);
             onProjectSelect(projectId);
           }}
-          onEditProject={handleEditProject}
-          onAddSubfolder={handleAddSubfolder}
-          onDeleteProject={handleDeleteProject}
+          onEditProject={(projectId, e) => {
+            e.stopPropagation();
+            handleEditProject(projectId);
+          }}
+          onAddSubfolder={(projectId, e) => {
+            e.stopPropagation();
+            handleAddSubfolder(projectId);
+          }}
+          onDeleteProject={(projectId, e) => {
+            e.stopPropagation();
+            handleDeleteProject(projectId);
+          }}
         />
       )}
 
@@ -140,7 +168,7 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
           isOpen={editProjectOpen}
           setIsOpen={setEditProjectOpen}
           project={projectToEdit}
-          onUpdateProject={(updates) => handleProjectUpdated(projectToEdit.id, updates)}
+          onUpdateProject={handleUpdateProject}
         />
       )}
       
