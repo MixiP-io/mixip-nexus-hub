@@ -18,6 +18,7 @@ export interface UseProjectEventHandlersProps {
   refreshProjects: () => void;
   createNewProject: (name: string) => void;
   deleteSelectedProject: (id: string) => void;
+  projectToDeleteName: string;
 }
 
 export interface UseProjectEventHandlersResult {
@@ -47,7 +48,8 @@ export const useProjectEventHandlers = ({
   setSetCoverImageOpen,
   refreshProjects,
   createNewProject,
-  deleteSelectedProject
+  deleteSelectedProject,
+  projectToDeleteName
 }: UseProjectEventHandlersProps): UseProjectEventHandlersResult => {
   
   const handleCreateProject = useCallback((name: string) => {
