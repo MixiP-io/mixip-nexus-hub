@@ -21,7 +21,7 @@ export const useFileOperations = (
       const newFiles: UploadFile[] = [];
       
       for (const file of Array.from(selectedFiles)) {
-        // Create preview safely - getFilePreview returns a Promise for data URLs
+        // Create preview safely - now getFilePreview returns a Promise for data URLs
         const preview = await getFilePreview(file);
         
         const newFile: UploadFile = {

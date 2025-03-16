@@ -1,6 +1,5 @@
 
 import React, { useEffect, useState } from 'react';
-import { isPreviewValid } from '@/components/workspace/batch-uploader/utils/fileUtils';
 
 interface AssetPreviewProps {
   asset: {
@@ -19,21 +18,12 @@ const AssetPreview: React.FC<AssetPreviewProps> = ({ asset }) => {
     setPreviewError(false);
     
     if (asset.preview) {
-      // Validate the preview URL
-      const isValid = isPreviewValid(asset.preview);
-      
-      if (isValid) {
-        console.log(`AssetPreview: Valid preview URL for ${asset.name}: ${asset.preview.substring(0, 50)}...`);
-        setPreviewUrl(asset.preview);
-      } else {
-        console.error(`AssetPreview: Invalid preview URL for ${asset.name}`);
-        setPreviewUrl(undefined);
-        setPreviewError(true);
-      }
+      console.log(`AssetPreview: Preview URL for ${asset.name}: ${asset.preview.substring(0, 50)}...`);
     } else {
       console.log(`AssetPreview: No preview URL for ${asset.name}`);
-      setPreviewUrl(undefined);
     }
+    
+    setPreviewUrl(asset.preview);
   }, [asset]);
 
   const handleImageError = () => {

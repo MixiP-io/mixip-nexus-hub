@@ -60,11 +60,8 @@ export const convertFilesToAssets = (
     // Process the preview to ensure it's properly serialized
     const serializedPreview = serializePreview(file.preview);
     
-    if (serializedPreview) {
-      console.log(`[assetConversionUtils] Successfully serialized preview for ${file.name}: ${serializedPreview.substring(0, 30)}...`);
-    } else {
-      console.warn(`[assetConversionUtils] No preview available for ${file.name}`);
-    }
+    console.log(`[assetConversionUtils] Processing file preview for ${file.name}:`, 
+      serializedPreview ? `Preview exists (${serializedPreview.substring(0, 30)}...)` : 'No preview available');
     
     const asset: ProjectAsset = {
       id: file.id,

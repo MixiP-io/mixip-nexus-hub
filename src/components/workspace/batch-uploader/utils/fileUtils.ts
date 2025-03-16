@@ -15,9 +15,7 @@ export const getFilePreview = async (file: File): Promise<string | undefined> =>
     if (file.type.startsWith('image/')) {
       // For smaller images (< 5MB), use data URLs for persistence across sessions
       if (file.size < 5 * 1024 * 1024) {
-        const preview = await createDataUrlPreview(file);
-        console.log(`Created data URL preview for ${file.name} (length: ${preview.length})`);
-        return preview;
+        return createDataUrlPreview(file);
       } else {
         // For larger images, use blob URLs for better performance
         const preview = URL.createObjectURL(file);
