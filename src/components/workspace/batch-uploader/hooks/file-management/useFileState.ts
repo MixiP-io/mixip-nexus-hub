@@ -8,11 +8,20 @@ import { UploadFile, FileStatus } from '../../types';
 export const useFileState = () => {
   const [files, setFiles] = useState<UploadFile[]>([]);
   const [overallProgress, setOverallProgress] = useState(0);
+  const [successfulUploads, setSuccessfulUploads] = useState(0);
+  
+  const updateSuccessfulUploads = () => {
+    const completedFiles = files.filter(file => file.status === 'complete').length;
+    setSuccessfulUploads(completedFiles);
+    return completedFiles;
+  };
   
   return {
     files,
     setFiles,
     overallProgress,
-    setOverallProgress
+    setOverallProgress,
+    successfulUploads,
+    updateSuccessfulUploads
   };
 };

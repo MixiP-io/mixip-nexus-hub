@@ -8,7 +8,14 @@ import { useProgressTracking } from './file-management/useProgressTracking';
  */
 export const useFileManager = () => {
   // File state management
-  const { files, setFiles, overallProgress, setOverallProgress } = useFileState();
+  const { 
+    files, 
+    setFiles, 
+    overallProgress, 
+    setOverallProgress,
+    successfulUploads,
+    updateSuccessfulUploads
+  } = useFileState();
   
   // File operations like adding and removing files
   const { addFiles, removeFile, clearAll } = useFileOperations(files, setFiles);
@@ -24,6 +31,8 @@ export const useFileManager = () => {
     // File state
     files,
     overallProgress,
+    successfulUploads,
+    updateSuccessfulUploads,
     
     // File operations
     addFiles,

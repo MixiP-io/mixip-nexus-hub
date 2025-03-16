@@ -27,7 +27,11 @@ export const useUploadProcess = () => {
       console.log(`Project ${project.name} now has ${project.assets?.length || 0} assets at root level`);
       
       // Show a confirmation toast here too for redundancy
-      toast.success(`Upload complete! ${completedFiles.length} files added to ${project.name}`);
+      if (completedFiles.length > 0) {
+        toast.success(`Upload complete! ${completedFiles.length} files added to ${project.name}`);
+      } else {
+        toast.error(`No files were uploaded successfully to ${project.name}`);
+      }
     }
   }, []);
   
@@ -39,7 +43,7 @@ export const useUploadProcess = () => {
     folderId: string,
     licenseType: string,
     updateFileProgress: (fileId: string, progress: number) => void,
-    updateFileStatus: (fileId: string, status: any) => void,
+    updateFileStatus: (fileId: string, status: any, errorMessage?: string) => void,
     updateOverallProgress: () => void,
   ) => {
     console.log(`Starting upload process to project: ${projectId}, folder: ${folderId}`);
@@ -49,22 +53,29 @@ export const useUploadProcess = () => {
     updateOverallProgress(); // Calculate initial progress
     
     try {
+      let hasErrors = false;
       // Process files one by one
       for (const file of files) {
         // Only process queued files
         if (file.status !== 'queued') continue;
         
-        // Simulate upload - in a real app, replace with actual API calls
-        await simulateFileUpload(file.id, updateFileProgress);
-        
-        // Mark as processing
-        updateFileStatus(file.id, 'processing');
-        
-        // Simulate processing delay
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Mark as complete
-        updateFileStatus(file.id, 'complete');
+        try {
+          // Simulate upload - in a real app, replace with actual API calls
+          await simulateFileUpload(file.id, updateFileProgress);
+          
+          // Mark as processing
+          updateFileStatus(file.id, 'processing');
+          
+          // Simulate processing delay
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          // Mark as complete
+          updateFileStatus(file.id, 'complete');
+        } catch (error) {
+          console.error(`Error uploading file ${file.name}:`, error);
+          updateFileStatus(file.id, 'error', error instanceof Error ? error.message : 'Upload failed');
+          hasErrors = true;
+        }
         
         // Update overall progress after each file
         updateOverallProgress();
@@ -102,7 +113,11 @@ export const useUploadProcess = () => {
         }
       } else {
         console.log("No completed files to add to project");
-        toast.warning("No files were uploaded successfully");
+        if (hasErrors) {
+          toast.error("Upload failed: There were errors processing your files");
+        } else {
+          toast.warning("No files were uploaded successfully");
+        }
         setIsUploading(false);
       }
     } catch (error) {

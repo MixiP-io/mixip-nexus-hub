@@ -23,11 +23,11 @@ export const useProgressTracking = (
     setTimeout(() => updateOverallProgress(), 0);
   };
 
-  const updateFileStatus = (fileId: string, status: FileStatus) => {
+  const updateFileStatus = (fileId: string, status: FileStatus, errorMessage?: string) => {
     setFiles(prev => 
       prev.map(f => 
         f.id === fileId 
-          ? { ...f, status } 
+          ? { ...f, status, errorMessage } 
           : f
       )
     );
