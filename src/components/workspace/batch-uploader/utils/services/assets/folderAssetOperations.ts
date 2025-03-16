@@ -1,4 +1,3 @@
-
 import { toast } from 'sonner';
 import { ProjectAsset } from '../../types/projectTypes';
 import { addAssetsToFolder } from '../folderOperationUtils';
@@ -49,7 +48,7 @@ export const addAssetsToSpecificFolder = (
       console.log(`[folderAssetOperations] Adding ${assets.length} assets to folder ${folder.name}`);
       console.log(`[folderAssetOperations] Before: Folder has ${updatedProjects[projectIndex].subfolders[folderIndex].assets.length} assets`);
       
-      // Make sure all assets have the folderId field set
+      // Make sure all assets have the folderId field set correctly
       const assetsWithFolder = assets.map(asset => ({
         ...asset,
         folderId: normalizedFolderId,
@@ -77,73 +76,6 @@ export const addAssetsToSpecificFolder = (
       try {
         localStorage.setItem('projects', JSON.stringify(updatedProjects));
         console.log(`[folderAssetOperations] Updated localStorage after adding assets to folder`);
-      } catch (e) {
-        console.error(`[folderAssetOperations] Error saving to localStorage:`, e);
-      }
-    }
-  }
-  
-  // If not found by ID, try to find by case-insensitive name match
-  if (!folderFound && updatedProjects[projectIndex].subfolders) {
-    const normalizedFolderName = typeof normalizedFolderId === 'string' ? normalizedFolderId.toLowerCase() : '';
-    const folderIndex = updatedProjects[projectIndex].subfolders.findIndex(
-      (folder: any) => folder.name && folder.name.toLowerCase() === normalizedFolderName
-    );
-    
-    if (folderIndex !== -1) {
-      console.log(`[folderAssetOperations] Found folder by name match: ${updatedProjects[projectIndex].subfolders[folderIndex].name}`);
-      
-      // Initialize assets array if it doesn't exist
-      if (!Array.isArray(updatedProjects[projectIndex].subfolders[folderIndex].assets)) {
-        updatedProjects[projectIndex].subfolders[folderIndex].assets = [];
-      }
-      
-      const folderName = updatedProjects[projectIndex].subfolders[folderIndex].name;
-      const folderId = updatedProjects[projectIndex].subfolders[folderIndex].id;
-      
-      // Make sure all assets have the folderId field set
-      const assetsWithFolder = assets.map(asset => ({
-        ...asset,
-        folderId: folderId,
-        folderName: folderName // Add folder name for easy reference
-      }));
-      
-      // Add assets to folder
-      updatedProjects[projectIndex].subfolders[folderIndex].assets = [
-        ...updatedProjects[projectIndex].subfolders[folderIndex].assets,
-        ...assetsWithFolder
-      ];
-      
-      updatedProjects[projectIndex].subfolders[folderIndex].updatedAt = new Date();
-      folderFound = true;
-      locationAdded = updatedProjects[projectIndex].subfolders[folderIndex].id;
-      
-      // Update localStorage immediately
-      try {
-        localStorage.setItem('projects', JSON.stringify(updatedProjects));
-        console.log(`[folderAssetOperations] Updated localStorage after adding assets to folder by name`);
-      } catch (e) {
-        console.error(`[folderAssetOperations] Error saving to localStorage:`, e);
-      }
-    }
-  }
-  
-  // If still not found, use addAssetsToFolder as a fallback
-  if (!folderFound) {
-    // Try to add assets to the specified folder
-    folderFound = addAssetsToFolder(
-      updatedProjects[projectIndex].subfolders, 
-      normalizedFolderId, 
-      assets
-    );
-    
-    if (folderFound) {
-      console.log(`[folderAssetOperations] Added assets via addAssetsToFolder utility`);
-      
-      // Update localStorage immediately
-      try {
-        localStorage.setItem('projects', JSON.stringify(updatedProjects));
-        console.log(`[folderAssetOperations] Updated localStorage after adding assets via utility`);
       } catch (e) {
         console.error(`[folderAssetOperations] Error saving to localStorage:`, e);
       }

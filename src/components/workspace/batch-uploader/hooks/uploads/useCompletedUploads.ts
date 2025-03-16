@@ -40,8 +40,8 @@ export const useCompletedUploads = () => {
         console.log("Updated project assets count:", updatedProject.assets?.length || 0);
         
         // Debug folder assets
-        let assetsFoundInFolder = false;
         let folderName = "root";
+        let foundAssetsInFolder = false;
         
         if (folderId !== 'root' && updatedProject.subfolders) {
           const targetFolder = updatedProject.subfolders.find(folder => folder.id === folderId);
@@ -49,7 +49,7 @@ export const useCompletedUploads = () => {
             folderName = targetFolder.name;
             console.log(`Target folder "${targetFolder.name}" (${folderId}) assets: ${targetFolder.assets?.length || 0}`);
             if (targetFolder.assets && targetFolder.assets.length > 0) {
-              assetsFoundInFolder = true;
+              foundAssetsInFolder = true;
               console.log(`First few assets in folder:`, JSON.stringify(targetFolder.assets.slice(0, 3), null, 2));
             }
           } else {
@@ -58,31 +58,30 @@ export const useCompletedUploads = () => {
         } else if (folderId === 'root') {
           console.log(`Root folder assets: ${updatedProject.assets?.length || 0}`);
           if (updatedProject.assets && updatedProject.assets.length > 0) {
-            assetsFoundInFolder = true;
+            foundAssetsInFolder = true;
             console.log(`First few assets in root:`, JSON.stringify(updatedProject.assets.slice(0, 3), null, 2));
           }
-        }
-        
-        // Log all project folders and their assets
-        if (updatedProject.subfolders) {
-          updatedProject.subfolders.forEach(folder => {
-            console.log(`Folder ${folder.name} (${folder.id}) assets: ${folder.assets?.length || 0}`);
-            if (folder.assets && folder.assets.length > 0) {
-              console.log(`Sample asset from folder ${folder.name}:`, folder.assets[0]);
-            }
-          });
         }
         
         // Set upload complete with accurate folder information
         console.log(`Setting upload complete with folder ID: ${folderId}, folder name: ${folderName}`);
         completeUpload(projectId, projectName, completedFiles, folderId);
         
-        // Show folder-specific toast
+        // Show toast with clear folder navigation instructions
         if (folderId !== 'root') {
-          toast.success(`Added ${completedFiles.length} files to folder "${folderName}" in project "${projectName}"`);
+          toast.success(`Added ${completedFiles.length} files to folder "${folderName}" in project "${projectName}". Click "View Assets" to see them.`);
         } else {
-          toast.success(`Added ${completedFiles.length} files to root folder in project "${projectName}"`);
+          toast.success(`Added ${completedFiles.length} files to root folder in project "${projectName}". Click "View Assets" to see them.`);
         }
+        
+        setUploadResults({
+          success: true,
+          count: completedFiles.length,
+          projectId,
+          projectName,
+          folderId,
+          folderName
+        });
       } else {
         console.error("Project not found after upload");
         toast.error("Error: Project not found after upload");

@@ -41,14 +41,18 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
   } = useAssetsManager(selectedProjectId, selectedFolderId);
 
   useEffect(() => {
-    console.log('AssetsManager rendered with projectId:', selectedProjectId, 'folderId:', selectedFolderId);
+    console.log('AssetsManager rendered with:', { 
+      projectId: selectedProjectId, 
+      folderId: selectedFolderId,
+      currentFolderId
+    });
     
     // Update current folder when selectedFolderId changes
     if (selectedFolderId && selectedFolderId !== currentFolderId) {
       console.log('Setting current folder to:', selectedFolderId);
       setCurrentFolderId(selectedFolderId);
       
-      // If we're viewing a specific folder, show a toast
+      // Show folder navigation toast
       if (selectedFolderId !== 'root' && projectData && projectData.subfolders) {
         const folder = projectData.subfolders.find((f: any) => f.id === selectedFolderId);
         if (folder) {
@@ -65,8 +69,12 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
         const folder = projectData.subfolders.find((f: any) => f.id === selectedFolderId);
         if (folder) {
           console.log(`Viewing folder: ${folder.name} with ${folder.assets?.length || 0} assets`);
+          
+          // Log assets in folder for debugging
           if (folder.assets && folder.assets.length > 0) {
-            console.log('Sample assets in folder:', JSON.stringify(folder.assets.slice(0, 2), null, 2));
+            console.log(`Sample assets in folder "${folder.name}":`, JSON.stringify(folder.assets.slice(0, 2), null, 2));
+          } else {
+            console.log(`Folder "${folder.name}" has no assets`);
           }
         } else {
           console.log('Selected folder not found:', selectedFolderId);
@@ -74,36 +82,8 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
       } else {
         console.log('Viewing root folder with', projectData.assets?.length || 0, 'assets');
       }
-      
-      if (projectData.assets) {
-        console.log('Project has assets array of length:', projectData.assets.length);
-        if (projectData.assets.length > 0) {
-          console.log('First few assets:', JSON.stringify(projectData.assets.slice(0, 3), null, 2));
-        }
-      } else {
-        console.log('Project has no assets array or it is not initialized');
-      }
-      
-      // Check for assets in subfolders
-      let totalFolderAssets = 0;
-      if (projectData.subfolders && projectData.subfolders.length > 0) {
-        projectData.subfolders.forEach((folder: any) => {
-          if (folder.assets && folder.assets.length > 0) {
-            totalFolderAssets += folder.assets.length;
-            console.log(`Folder ${folder.name} has ${folder.assets.length} assets`);
-          }
-        });
-        
-        if (totalFolderAssets > 0) {
-          console.log(`Found ${totalFolderAssets} total assets in subfolders`);
-        }
-      }
-      
-      console.log('Filtered assets count:', filteredAssets?.length || 0);
-    } else {
-      console.log('No project data loaded');
     }
-  }, [selectedProjectId, projectData, filteredAssets, selectedFolderId, currentFolderId, setCurrentFolderId]);
+  }, [selectedProjectId, projectData, selectedFolderId, currentFolderId, setCurrentFolderId]);
 
   if (!selectedProjectId) {
     return <NoProjectSelected />;
@@ -120,7 +100,6 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
     );
   }
 
-  const hasAssets = projectData.assets && projectData.assets.length > 0;
   const hasFilteredAssets = filteredAssets && filteredAssets.length > 0;
   
   // Check for assets in folders
@@ -162,7 +141,9 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
           
           <div className="bg-yellow-500/20 border border-yellow-500/30 text-yellow-200 p-4 rounded-lg mb-4">
             <p>No assets found in {currentFolderId === 'root' ? `project "${projectData.name}"` : `folder "${currentFolderId}"`}.</p>
-            {hasAssets && currentFolderId === 'root' && <p className="mt-2">Assets may be filtered out by your search criteria or stored in subfolders.</p>}
+            {currentFolderId !== 'root' && (
+              <p className="mt-2">Try uploading files directly to this folder from the uploader tab.</p>
+            )}
           </div>
           <AssetsEmptyState handleBatchUpload={handleBatchUpload} />
         </div>
