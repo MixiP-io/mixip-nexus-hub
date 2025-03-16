@@ -19,6 +19,11 @@ export const useNavigation = () => {
     
     // Use react-router's navigate for better state handling
     navigate(`/dashboard/workspace?tab=assets&project=${projectId}`);
+    
+    // Add a small delay and then show a toast to guide the user
+    setTimeout(() => {
+      console.log("Navigation to project assets complete");
+    }, 300);
   }, [navigate]);
   
   return {

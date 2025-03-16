@@ -37,6 +37,13 @@ export const useCompletedUploads = () => {
       // Check project again to verify assets were added
       const updatedProject = getProjectById(projectId);
       if (updatedProject) {
+        console.log("Updated project assets count:", updatedProject.assets?.length || 0);
+        if (updatedProject.subfolders) {
+          updatedProject.subfolders.forEach(folder => {
+            console.log(`Folder ${folder.name} (${folder.id}) assets: ${folder.assets?.length || 0}`);
+          });
+        }
+        
         // Set upload complete
         completeUpload(projectId, projectName, completedFiles, folderId);
       } else {

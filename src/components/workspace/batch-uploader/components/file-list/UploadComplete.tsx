@@ -1,21 +1,9 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { FolderOpen, AlertTriangle, CheckCircle } from 'lucide-react';
-import { toast } from 'sonner';
-
-interface UploadCompleteProps {
-  isOpen: boolean;
-  onClose: () => void;
-  fileCount: number;
-  totalSize: string;
-  projectId: string;
-  projectName: string;
-  success: boolean;
-  navigateToProject: (projectId: string) => void;
-  folderId?: string;
-}
+import { CheckCircle, AlertCircle, FolderOpen } from 'lucide-react';
+import { UploadCompleteProps } from '../../types/componentProps';
 
 const UploadComplete: React.FC<UploadCompleteProps> = ({
   isOpen,
@@ -28,86 +16,73 @@ const UploadComplete: React.FC<UploadCompleteProps> = ({
   navigateToProject,
   folderId
 }) => {
-  console.log("UploadComplete rendering with:", { 
-    isOpen, 
-    fileCount, 
-    projectId, 
-    projectName, 
-    success, 
-    folderId 
-  });
+  const handleViewProject = () => {
+    navigateToProject(projectId);
+    onClose();
+  };
 
-  // Force the dialog to be visible when isOpen changes to true
-  useEffect(() => {
-    if (isOpen) {
-      console.log("UploadComplete is open, ensuring dialog is visible");
-      // Add a toast notification to ensure user knows the upload completed
-      if (success) {
-        const folderInfo = folderId && folderId !== 'root' ? ` in folder "${folderId}"` : '';
-        toast.success(`Upload complete: ${fileCount} files added to ${projectName}${folderInfo}`, {
-          description: `Click "View Project Folder" to see your files.`,
-          duration: 5000,
-        });
-      } else {
-        toast.error(`Upload failed: No files were added to ${projectName}`, {
-          description: `Please try again.`,
-          duration: 5000,
-        });
-      }
+  const getFolderInfo = () => {
+    if (!folderId || folderId === 'root') {
+      return 'project root folder';
     }
-  }, [isOpen, fileCount, projectName, success, folderId]);
-
-  const handleNavigate = () => {
-    console.log("Navigate to project:", projectId);
-    if (projectId) {
-      navigateToProject(projectId);
-      onClose();
-    } else {
-      console.error("Cannot navigate: No project ID provided");
-      toast.error("Error: Cannot navigate to project");
-    }
+    return `folder "${folderId}"`;
   };
 
   return (
-    <AlertDialog 
-      open={isOpen}
-      onOpenChange={(open) => {
-        console.log("AlertDialog onOpenChange:", open);
-        if (!open) onClose();
-      }}
-    >
-      <AlertDialogContent className={`border-gray-700 ${success ? 'bg-gray-800' : 'bg-gray-800 border-red-800/50'}`}>
-        <AlertDialogHeader>
-          <AlertDialogTitle className="flex items-center gap-2">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="bg-gray-900 border-gray-700 text-white">
+        <DialogHeader>
+          <div className="flex items-center justify-center mb-4">
             {success ? (
-              <><CheckCircle className="h-5 w-5 text-green-500" /> Upload Complete!</>
+              <CheckCircle className="w-16 h-16 text-green-500" />
             ) : (
-              <><AlertTriangle className="h-5 w-5 text-amber-500" /> Upload Failed</>
+              <AlertCircle className="w-16 h-16 text-red-500" />
             )}
-          </AlertDialogTitle>
-          <AlertDialogDescription>
+          </div>
+          <DialogTitle className="text-xl font-semibold text-center">
+            {success ? 'Upload Complete!' : 'Upload Failed'}
+          </DialogTitle>
+          <DialogDescription className="text-gray-400 text-center">
             {success ? (
               <>
-                Successfully uploaded {fileCount} file{fileCount !== 1 ? 's' : ''} ({totalSize}) to "{projectName}"
-                {folderId && folderId !== 'root' ? ` in folder "${folderId}"` : ''}.
+                Successfully uploaded {fileCount} files ({totalSize}) to <strong>{projectName}</strong> in the {getFolderInfo()}.
               </>
             ) : (
-              <>Failed to upload files to "{projectName}". No files were successfully processed.</>
+              <>
+                There was a problem with your upload. Please try again.
+              </>
             )}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <Button 
-            onClick={handleNavigate} 
-            className={success ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700"}
-            disabled={!projectId}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="bg-gray-800 px-4 py-3 rounded border border-gray-700 mb-4">
+          <h3 className="text-sm font-medium mb-1 text-gray-300">Project Details</h3>
+          <p className="text-sm text-gray-400">
+            <strong>Name:</strong> {projectName}<br />
+            <strong>Location:</strong> {getFolderInfo()}
+          </p>
+        </div>
+
+        <DialogFooter className="gap-2 sm:gap-0">
+          {success && (
+            <Button
+              className="w-full sm:w-auto flex items-center justify-center gap-2"
+              onClick={handleViewProject}
+            >
+              <FolderOpen className="w-4 h-4" />
+              View Assets
+            </Button>
+          )}
+          <Button
+            variant="secondary"
+            className="w-full sm:w-auto"
+            onClick={onClose}
           >
-            <FolderOpen className="mr-2 h-4 w-4" />
-            View Project Folder
+            {success ? 'Upload More' : 'Close'}
           </Button>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 
