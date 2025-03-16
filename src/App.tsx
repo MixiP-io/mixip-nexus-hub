@@ -14,6 +14,8 @@ import AuthCallback from '@/pages/AuthCallback'
 import '@/App.css'
 
 function App() {
+  console.log('Rendering App component with routes');
+  
   return (
     <AuthProvider>
       <Routes>

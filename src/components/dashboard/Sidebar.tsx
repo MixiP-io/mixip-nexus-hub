@@ -26,6 +26,12 @@ const Sidebar: React.FC = () => {
     await signOut();
   };
   
+  const handleNavigation = (path: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    console.log(`Navigating to: ${path}`);
+    navigate(path);
+  };
+  
   // Use data from auth profile instead of profile context
   const displayName = profile?.full_name || user?.email?.split('@')[0] || "User";
   const avatarUrl = profile?.avatar || null;
@@ -63,6 +69,7 @@ const Sidebar: React.FC = () => {
                   ? 'bg-gray-800 text-mixip-blue' 
                   : 'hover:bg-gray-800 transition-colors'
               }`}
+              onClick={handleNavigation('/dashboard')}
             >
               <LayoutDashboard className="w-5 h-5" />
               <span>Dashboard</span>
@@ -76,6 +83,7 @@ const Sidebar: React.FC = () => {
                   ? 'bg-gray-800 text-mixip-blue' 
                   : 'hover:bg-gray-800 transition-colors'
               }`}
+              onClick={handleNavigation('/dashboard/workspace')}
             >
               <FolderOpen className="w-5 h-5" />
               <span>Creative Workspace</span>
@@ -101,6 +109,7 @@ const Sidebar: React.FC = () => {
                   ? 'bg-gray-800 text-mixip-blue' 
                   : 'hover:bg-gray-800 transition-colors'
               }`}
+              onClick={handleNavigation('/profile/settings')}
             >
               <User className="w-5 h-5" />
               <span>My Profile</span>
