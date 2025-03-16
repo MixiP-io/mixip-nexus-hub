@@ -34,11 +34,17 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 }) => {
   const hasAssets = project.assets && project.assets.length > 0;
   
+  // Handle click on the project card
+  const handleClick = () => {
+    console.log('Project card clicked:', project.id);
+    onProjectClick(project.id);
+  };
+  
   return (
     <Card 
       key={project.id} 
       className="bg-gray-800 border-gray-700 overflow-hidden hover:ring-2 hover:ring-green-600 transition-all cursor-pointer"
-      onClick={() => onProjectClick(project.id)}
+      onClick={handleClick}
     >
       <div className="h-40 bg-gray-700 relative">
         {project.coverImage ? (

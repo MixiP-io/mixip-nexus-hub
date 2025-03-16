@@ -48,7 +48,11 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
   };
 
   const handleProjectClick = (projectId: string) => {
+    console.log(`Project clicked: ${projectId}`);
+    // Call the onProjectSelect callback to set the selected project
     onProjectSelect(projectId);
+    
+    // Navigate directly to the assets view for this project
     navigate(`/dashboard/workspace?tab=assets&project=${projectId}`);
   };
 

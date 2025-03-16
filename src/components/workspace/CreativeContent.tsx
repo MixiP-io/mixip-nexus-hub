@@ -47,36 +47,43 @@ const CreativeContent: React.FC = () => {
       if (project) {
         console.log('Project data loaded from URL:', project.name);
         console.log('Project assets count:', project.assets?.length || 0);
-        if (project.assets && project.assets.length > 0) {
-          console.log('Project has assets:', project.assets.length);
-          console.log('First few assets:', project.assets.slice(0, 3));
-        } else {
-          console.log('Project has no assets or assets array is not initialized');
-        }
       } else {
         console.log('Project not found:', projectParam);
         toast.error('Project not found or failed to load');
       }
-    } else {
-      // If switching to assets tab without a project, show a message
-      if (tabParam === 'assets' && !selectedProjectId) {
-        toast.info('Please select a project to view assets');
-      }
+    }
+    
+    // If switching to assets tab without a project, show a message
+    if (tabParam === 'assets' && !projectParam && !selectedProjectId) {
+      toast.info('Please select a project to view assets');
     }
   }, [searchParams]);
 
-  // Update URL params when selectedProjectId changes
-  useEffect(() => {
-    if (selectedProjectId) {
-      console.log('Setting project in URL:', selectedProjectId);
-      searchParams.set('project', selectedProjectId);
-      if (activeTab === 'projects') {
-        searchParams.set('tab', 'assets');
-        setActiveTab('assets');
-      }
-      setSearchParams(searchParams);
+  // Handle project selection and navigate to assets tab
+  const handleProjectSelect = (projectId: string) => {
+    console.log('Project selected via handler:', projectId);
+    
+    // Set the project ID in state
+    setSelectedProjectId(projectId);
+    
+    // Update URL and switch to assets tab
+    searchParams.set('project', projectId);
+    searchParams.set('tab', 'assets');
+    setSearchParams(searchParams);
+    setActiveTab('assets');
+    
+    // Debug the selected project
+    const project = getProjectById(projectId);
+    if (project) {
+      console.log('Project data loaded via handler:', project.name);
+      console.log('Project assets count:', project.assets?.length || 0);
+      
+      // Show a toast to confirm the project selection
+      toast.success(`Viewing project: ${project.name}`);
+    } else {
+      toast.error('Failed to load project data');
     }
-  }, [selectedProjectId]);
+  };
 
   // Render the appropriate content based on the active tab
   const renderContent = () => {
@@ -98,21 +105,6 @@ const CreativeContent: React.FC = () => {
       case 'projects':
       default:
         return <ProjectGrid onProjectSelect={handleProjectSelect} />;
-    }
-  };
-
-  const handleProjectSelect = (projectId: string) => {
-    console.log('Project selected via handler:', projectId);
-    setSelectedProjectId(projectId);
-    
-    // Debug the selected project
-    const project = getProjectById(projectId);
-    if (project) {
-      console.log('Project data loaded via handler:', project.name);
-      console.log('Project assets count:', project.assets?.length || 0);
-      
-      // Show a toast to confirm the project selection
-      toast.success(`Viewing project: ${project.name}`);
     }
   };
 
