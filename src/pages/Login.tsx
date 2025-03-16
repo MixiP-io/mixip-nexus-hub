@@ -15,6 +15,7 @@ const Login: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [accountType, setAccountType] = useState<string | null>(null);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const navigate = useNavigate();
@@ -88,8 +89,8 @@ const Login: React.FC = () => {
     
     try {
       if (isLogin) {
-        console.log('Signing in with:', email);
-        await signIn(email, password);
+        console.log('Signing in with:', email, 'Remember me:', rememberMe);
+        await signIn(email, password, rememberMe);
       } else {
         // Sign up with additional metadata
         console.log('Signing up with:', email, name, accountType);
@@ -145,6 +146,8 @@ const Login: React.FC = () => {
             setAccountType={setAccountType}
             agreeToTerms={agreeToTerms}
             setAgreeToTerms={setAgreeToTerms}
+            rememberMe={rememberMe}
+            setRememberMe={setRememberMe}
             handleSubmit={handleSubmit}
             handleSocialSignIn={handleSocialSignIn}
             isSubmitting={isSubmitting}

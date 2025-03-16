@@ -20,6 +20,8 @@ interface LoginFormContainerProps {
   setAccountType: (type: string) => void;
   agreeToTerms: boolean;
   setAgreeToTerms: (agree: boolean) => void;
+  rememberMe: boolean;
+  setRememberMe: (remember: boolean) => void;
   handleSubmit: (e: React.FormEvent) => void;
   handleSocialSignIn: (provider: 'google' | 'twitter' | 'instagram') => void;
   isSubmitting: boolean;
@@ -41,6 +43,8 @@ const LoginFormContainer: React.FC<LoginFormContainerProps> = ({
   setAccountType,
   agreeToTerms,
   setAgreeToTerms,
+  rememberMe,
+  setRememberMe,
   handleSubmit,
   handleSocialSignIn,
   isSubmitting,
@@ -83,6 +87,8 @@ const LoginFormContainer: React.FC<LoginFormContainerProps> = ({
           setPhone={setPhone}
           agreeToTerms={agreeToTerms}
           setAgreeToTerms={setAgreeToTerms}
+          rememberMe={rememberMe}
+          setRememberMe={setRememberMe}
           handleSubmit={handleSubmit}
           isSubmitting={isSubmitting}
           isLoading={isLoading}

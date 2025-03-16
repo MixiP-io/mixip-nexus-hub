@@ -6,7 +6,7 @@ export interface AuthContextType {
   user: User | null;
   profile: any | null;
   isLoading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
   signUp: (email: string, password: string, metadata?: any) => Promise<void>;
   signInWithSocial: (provider: 'google' | 'twitter' | 'instagram') => Promise<void>;
   signOut: () => Promise<void>;

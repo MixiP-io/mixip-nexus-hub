@@ -29,11 +29,20 @@ export function useAuthService() {
     }
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string, rememberMe: boolean = false) => {
     try {
-      console.log('Attempting sign in for email:', email);
+      console.log('Attempting sign in for email:', email, 'with remember me:', rememberMe);
       setIsLoading(true);
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      
+      const { data, error } = await supabase.auth.signInWithPassword({ 
+        email, 
+        password,
+        options: {
+          // Maintain session across browser restarts if rememberMe is true
+          persistSession: rememberMe
+        }
+      });
+      
       if (error) throw error;
       
       console.log('Sign in successful, response:', data);

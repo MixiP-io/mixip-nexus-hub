@@ -4,6 +4,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface LoginFormProps {
   email: string;
@@ -17,6 +18,8 @@ interface LoginFormProps {
   setPhone: (phone: string) => void;
   agreeToTerms: boolean;
   setAgreeToTerms: (agree: boolean) => void;
+  rememberMe?: boolean;
+  setRememberMe?: (remember: boolean) => void;
   handleSubmit: (e: React.FormEvent) => void;
   isSubmitting: boolean;
   isLoading: boolean;
@@ -34,6 +37,8 @@ const LoginForm: React.FC<LoginFormProps> = ({
   setPhone,
   agreeToTerms,
   setAgreeToTerms,
+  rememberMe = false,
+  setRememberMe,
   handleSubmit,
   isSubmitting,
   isLoading
@@ -129,6 +134,24 @@ const LoginForm: React.FC<LoginFormProps> = ({
           </button>
         </div>
       </div>
+      
+      {isLogin && setRememberMe && (
+        <div className="flex items-start">
+          <div className="flex items-center h-5">
+            <Checkbox
+              id="remember"
+              checked={rememberMe}
+              onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+              disabled={isSubmitting}
+            />
+          </div>
+          <div className="ml-3 text-sm">
+            <Label htmlFor="remember" className="text-mixip-gray-medium">
+              Remember me
+            </Label>
+          </div>
+        </div>
+      )}
       
       {!isLogin && (
         <div className="flex items-start">
