@@ -96,27 +96,44 @@ export const useUploadProcess = () => {
       console.log(`Completed files: ${completedFiles.length}`);
       
       if (completedFiles.length > 0) {
-        console.log(`Adding ${completedFiles.length} files to project ${projectId}, folder ${folderId}`);
+        console.log(`Adding ${completedFiles.length} files to project ${projectId}, folder: ${folderId || 'root'}`);
         
         try {
-          await addFilesToProject(projectId, completedFiles, licenseType, folderId);
+          // Double-check project exists before adding files
+          const projectExists = getProjectById(projectId);
+          if (!projectExists) {
+            throw new Error(`Project ${projectId} not found`);
+          }
+          
+          // Use 'root' as default folder if none selected or if undefined
+          const folderToUse = folderId || 'root';
+          console.log(`Using folder: ${folderToUse}`);
+          
+          // Add files to project with proper error handling
+          await addFilesToProject(projectId, completedFiles, licenseType, folderToUse);
           
           console.log("Upload complete, setting uploadComplete to true");
-          console.log("Project:", projectId, "Project name:", projectName, "Folder:", folderId);
+          console.log("Project:", projectId, "Project name:", projectName, "Folder:", folderToUse);
+          
+          // Set upload complete flag
+          setIsUploading(false);
+          updateOverallProgress();
           
           // Log projects after upload (for debugging)
           logProjects();
           
           // Check project again to verify assets were added
           const updatedProject = getProjectById(projectId);
-          console.log('Project after upload:', updatedProject);
-          
-          // Ensure all state is updated correctly after upload
-          setIsUploading(false);
-          updateOverallProgress();
-          
-          // Set upload complete flag
-          completeUpload(projectId, projectName, completedFiles);
+          if (updatedProject) {
+            console.log('Project after upload:', updatedProject);
+            console.log(`Project now has ${updatedProject.assets?.length || 0} assets at root level`);
+            
+            // Set upload complete flag
+            completeUpload(projectId, projectName, completedFiles);
+          } else {
+            console.error("Project not found after upload");
+            toast.error("Error: Project not found after upload");
+          }
         } catch (error) {
           console.error("Error adding files to project:", error);
           toast.error(`Failed to add files to project: ${error instanceof Error ? error.message : 'Unknown error'}`);

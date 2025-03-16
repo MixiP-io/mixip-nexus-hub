@@ -11,6 +11,8 @@ export const useUploadValidation = () => {
     licenseType: string,
     projectId: string
   ): boolean => {
+    console.log(`Validating upload params: files=${files.length}, license=${licenseType}, projectId=${projectId}`);
+    
     if (files.length === 0) {
       toast.error("Please add files to upload");
       return false;
@@ -32,6 +34,18 @@ export const useUploadValidation = () => {
       console.error(`Project not found: ${projectId}`);
       toast.error(`Project not found: ${projectId}`);
       return false;
+    }
+    
+    // Validate project assets array exists
+    if (!Array.isArray(project.assets)) {
+      console.warn(`Project ${projectId} assets array is not initialized properly`);
+      project.assets = [];
+    }
+    
+    // Validate project subfolders array exists
+    if (!Array.isArray(project.subfolders)) {
+      console.warn(`Project ${projectId} subfolders array is not initialized properly`);
+      project.subfolders = [];
     }
     
     console.log('Project validation passed:', project.name);

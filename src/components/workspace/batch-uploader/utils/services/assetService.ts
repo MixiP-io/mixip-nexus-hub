@@ -2,7 +2,7 @@
 import { toast } from 'sonner';
 import { ProjectAsset } from '../types/projectTypes';
 import { UploadFile } from '../../types';
-import { projects, updateProjects, logProjects } from '../data/projectStore';
+import { projects, updateProjects, logProjects, ensureProjectDataIntegrity } from '../data/projectStore';
 import { convertFilesToAssets } from './assetConversionUtils';
 import { findProject, updateProjectCoverIfNeeded, findAssetInProject } from './projectOperationUtils';
 import { addAssetsToFolder } from './folderOperationUtils';
@@ -21,26 +21,29 @@ export const addFilesToProject = async (
   licenseType: string = 'standard',
   folderId: string = 'root'
 ): Promise<void> => {
-  console.log(`Adding files to project: ${projectId}, folder: ${folderId}, license: ${licenseType}`);
-  console.log(`Files count: ${files.length}`);
+  console.log(`[assetService] Adding files to project: ${projectId}, folder: ${folderId}, license: ${licenseType}`);
+  console.log(`[assetService] Files count: ${files.length}`);
+  
+  // Force an integrity check before proceeding
+  ensureProjectDataIntegrity();
   
   // Find the project
   const projectData = findProject(projectId);
   if (!projectData) {
-    console.error(`Project not found: ${projectId}`);
+    console.error(`[assetService] Project not found: ${projectId}`);
     toast.error(`Project not found: ${projectId}`);
     return Promise.reject(new Error(`Project not found: ${projectId}`));
   }
   
   const { projectIndex, project } = projectData;
-  console.log(`Project found at index ${projectIndex}: ${project.name}`);
+  console.log(`[assetService] Project found at index ${projectIndex}: ${project.name}`);
   
   // Convert files to assets
   const assets = convertFilesToAssets(files, licenseType, folderId);
-  console.log(`Converted ${files.length} files to ${assets.length} assets`);
+  console.log(`[assetService] Converted ${files.length} files to ${assets.length} assets`);
   
   if (assets.length === 0) {
-    console.log('No completed files to add to project');
+    console.log('[assetService] No completed files to add to project');
     toast.warning('No files were processed successfully');
     return Promise.resolve();
   }
@@ -48,10 +51,15 @@ export const addFilesToProject = async (
   // Create a deep copy of projects to avoid reference issues
   const updatedProjects = JSON.parse(JSON.stringify(projects));
   
-  // Ensure the project has an assets array
-  if (!updatedProjects[projectIndex].assets) {
-    console.log('Initializing assets array for project');
+  // Ensure the project has properly initialized arrays
+  if (!Array.isArray(updatedProjects[projectIndex].assets)) {
+    console.log('[assetService] Initializing assets array for project');
     updatedProjects[projectIndex].assets = [];
+  }
+  
+  if (!Array.isArray(updatedProjects[projectIndex].subfolders)) {
+    console.log('[assetService] Initializing subfolders array for project');
+    updatedProjects[projectIndex].subfolders = [];
   }
   
   // Check if we need to update cover image
@@ -60,31 +68,17 @@ export const addFilesToProject = async (
   // If adding to root folder
   if (folderId === 'root') {
     // Update the project with new assets
-    console.log(`Adding ${assets.length} assets to project ${projectId} root folder`);
-    console.log(`Project has ${updatedProjects[projectIndex].assets.length} existing assets`);
-    
-    // Make sure we have a proper array
-    if (!Array.isArray(updatedProjects[projectIndex].assets)) {
-      updatedProjects[projectIndex].assets = [];
-    }
+    console.log(`[assetService] Adding ${assets.length} assets to project ${projectId} root folder`);
+    console.log(`[assetService] Project has ${updatedProjects[projectIndex].assets.length} existing assets`);
     
     updatedProjects[projectIndex].assets = [
       ...updatedProjects[projectIndex].assets, 
       ...assets
     ];
     
-    console.log(`Project now has ${updatedProjects[projectIndex].assets.length} assets`);
+    console.log(`[assetService] Project now has ${updatedProjects[projectIndex].assets.length} assets`);
     toast.success(`Added ${assets.length} files to project root folder`);
   } else {
-    // Make sure subfolders exists and is an array
-    if (!updatedProjects[projectIndex].subfolders) {
-      console.log('Project has no subfolders array, initializing it');
-      updatedProjects[projectIndex].subfolders = [];
-    }
-    
-    // Debug the subfolders
-    console.log(`Project has ${updatedProjects[projectIndex].subfolders.length} subfolders`);
-    
     // Try to add assets to the specified folder
     const folderFound = addAssetsToFolder(
       updatedProjects[projectIndex].subfolders, 
@@ -94,7 +88,7 @@ export const addFilesToProject = async (
     
     if (!folderFound) {
       // If folder not found, add to project root
-      console.log(`Folder ${folderId} not found, adding to project root instead`);
+      console.log(`[assetService] Folder ${folderId} not found, adding to project root instead`);
       updatedProjects[projectIndex].assets = [
         ...updatedProjects[projectIndex].assets, 
         ...assets
@@ -110,11 +104,11 @@ export const addFilesToProject = async (
   
   // Update the global projects store with the new projects array
   updateProjects(updatedProjects);
-  console.log(`Added ${assets.length} files to project ${projectId}`);
-  console.log(`Project now has ${updatedProjects[projectIndex].assets.length} assets at root level`);
+  console.log(`[assetService] Added ${assets.length} files to project ${projectId}`);
+  console.log(`[assetService] Project now has ${updatedProjects[projectIndex].assets.length} assets at root level`);
   
   // Debug project data after update
-  console.log(`Project data after update:`, JSON.stringify(updatedProjects[projectIndex], null, 2));
+  console.log(`[assetService] Project data after update:`, updatedProjects[projectIndex]);
   
   logProjects(); // Log the updated projects for debugging
   

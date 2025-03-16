@@ -106,15 +106,17 @@ const initializeFromLocalStorage = () => {
       if (Array.isArray(parsedProjects) && parsedProjects.length > 0) {
         projects = parsedProjects;
         console.log('Loaded projects from localStorage:', projects.length);
+        
+        // Ensure data integrity of loaded projects
+        ensureProjectDataIntegrity();
       }
     }
   } catch (error) {
     console.error('Error loading projects from localStorage:', error);
+    // If localStorage is corrupted, use the default projects
+    localStorage.removeItem('projects');
   }
 };
-
-// Initialize on load
-initializeFromLocalStorage();
 
 // For debugging
 export const logProjects = () => {
@@ -124,6 +126,9 @@ export const logProjects = () => {
 // Update the projects data
 export const updateProjects = (updatedProjects: ProjectData[]) => {
   projects = updatedProjects;
+  
+  // Ensure data integrity whenever projects are updated
+  ensureProjectDataIntegrity();
 };
 
 // Ensure all projects have properly initialized arrays
@@ -131,7 +136,11 @@ export const ensureProjectDataIntegrity = () => {
   projects = projects.map(project => ({
     ...project,
     assets: Array.isArray(project.assets) ? project.assets : [],
-    subfolders: Array.isArray(project.subfolders) ? project.subfolders : []
+    subfolders: Array.isArray(project.subfolders) ? project.subfolders.map(subfolder => ({
+      ...subfolder,
+      assets: Array.isArray(subfolder.assets) ? subfolder.assets : [],
+      subfolders: Array.isArray(subfolder.subfolders) ? subfolder.subfolders : []
+    })) : []
   }));
   
   // Also save to localStorage
@@ -141,6 +150,9 @@ export const ensureProjectDataIntegrity = () => {
     console.error('Error saving projects to localStorage:', error);
   }
 };
+
+// Initialize on load
+initializeFromLocalStorage();
 
 // Run integrity check on startup
 ensureProjectDataIntegrity();

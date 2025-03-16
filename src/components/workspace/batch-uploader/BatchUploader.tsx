@@ -48,9 +48,10 @@ const BatchUploader: React.FC = () => {
     setSelectedFolder: setMetadataSelectedFolder
   } = useMetadataState();
   
+  // Synchronize upload state debugging
   useEffect(() => {
     if (uploadComplete) {
-      console.log("BatchUploader: Upload complete state is true", { 
+      console.log("BatchUploader: Upload complete state detected", { 
         selectedProject, 
         selectedProjectName,
         selectedFolder 
@@ -62,7 +63,7 @@ const BatchUploader: React.FC = () => {
   useEffect(() => {
     if (metadataSelectedFolder !== selectedFolder) {
       console.log(`Syncing folder selection from metadata (${metadataSelectedFolder}) to fileUpload (${selectedFolder})`);
-      setSelectedFolder(metadataSelectedFolder);
+      setSelectedFolder(metadataSelectedFolder || 'root');
     }
   }, [metadataSelectedFolder, selectedFolder, setSelectedFolder]);
   
@@ -72,7 +73,7 @@ const BatchUploader: React.FC = () => {
       console.log(`Syncing project selection from metadata (${metadataSelectedProject}) to fileUpload (${selectedProject})`);
       setSelectedFolder('root'); // Reset folder when project changes
     }
-  }, [metadataSelectedProject, selectedProject]);
+  }, [metadataSelectedProject, selectedProject, setSelectedFolder]);
   
   const handleStartUpload = async () => {
     if (!files.length) {
@@ -85,7 +86,8 @@ const BatchUploader: React.FC = () => {
       return;
     }
 
-    console.log(`Starting upload with: Project=${metadataSelectedProject}, Folder=${metadataSelectedFolder || 'root'}, License=${licenseType}`);
+    const folderToUse = metadataSelectedFolder || 'root';
+    console.log(`Starting upload with: Project=${metadataSelectedProject}, Folder=${folderToUse}, License=${licenseType}`);
     
     // Verify project exists one more time
     const project = getProjectById(metadataSelectedProject);
@@ -94,9 +96,12 @@ const BatchUploader: React.FC = () => {
       return;
     }
     
+    // Ensure project has assets array initialized
+    if (!Array.isArray(project.assets)) {
+      console.warn("Project assets array not initialized, will be fixed during upload");
+    }
+    
     try {
-      // Use 'root' as default folder if none selected
-      const folderToUse = metadataSelectedFolder || 'root';
       await startUpload(licenseType, metadataSelectedProject, folderToUse);
       logProjects();
     } catch (error) {
@@ -149,7 +154,7 @@ const BatchUploader: React.FC = () => {
           startUpload={handleStartUpload}
           uploadComplete={uploadComplete}
           setUploadComplete={setUploadComplete}
-          selectedProject={selectedProject}
+          selectedProject={metadataSelectedProject}
           selectedProjectName={selectedProjectName}
           navigateToProject={navigateToProject}
         />
