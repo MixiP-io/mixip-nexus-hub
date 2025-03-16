@@ -49,11 +49,31 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({ selectedProjectId }) => {
         console.log('Project has no assets array or it is not initialized');
       }
       
+      // Check for assets in subfolders
+      let totalFolderAssets = 0;
+      if (projectData.subfolders && projectData.subfolders.length > 0) {
+        projectData.subfolders.forEach((folder: any) => {
+          if (folder.assets && folder.assets.length > 0) {
+            totalFolderAssets += folder.assets.length;
+            console.log(`Folder ${folder.name} has ${folder.assets.length} assets`);
+          }
+        });
+        
+        if (totalFolderAssets > 0) {
+          console.log(`Found ${totalFolderAssets} total assets in subfolders`);
+        }
+      }
+      
       console.log('Filtered assets count:', filteredAssets?.length || 0);
       
       // Show a toast when project data loads
       if (projectData.name) {
         toast.info(`Viewing assets for project: ${projectData.name}`);
+        
+        // If we have subfolder assets but no filtered assets, show a helpful message
+        if (totalFolderAssets > 0 && filteredAssets.length === 0) {
+          toast.info(`This project has ${totalFolderAssets} assets in subfolders, but they may not be visible in the current view.`);
+        }
       }
     } else {
       console.log('No project data loaded');
@@ -77,6 +97,19 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({ selectedProjectId }) => {
 
   const hasAssets = projectData.assets && projectData.assets.length > 0;
   const hasFilteredAssets = filteredAssets && filteredAssets.length > 0;
+  
+  // Check for assets in folders
+  let hasAssetsInFolders = false;
+  let foldersWithAssets: string[] = [];
+  
+  if (projectData.subfolders && projectData.subfolders.length > 0) {
+    projectData.subfolders.forEach((folder: any) => {
+      if (folder.assets && folder.assets.length > 0) {
+        hasAssetsInFolders = true;
+        foldersWithAssets.push(folder.name);
+      }
+    });
+  }
 
   return (
     <div className="p-6">
@@ -94,6 +127,14 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({ selectedProjectId }) => {
 
       {!hasFilteredAssets ? (
         <div>
+          {hasAssetsInFolders && (
+            <div className="bg-blue-500/20 border border-blue-500/30 text-blue-200 p-4 rounded-lg mb-4">
+              <p className="font-medium">Assets found in folders:</p>
+              <p className="mt-1">This project has assets in the following folders: {foldersWithAssets.join(', ')}</p>
+              <p className="mt-2">Check each folder to view its assets.</p>
+            </div>
+          )}
+          
           <div className="bg-yellow-500/20 border border-yellow-500/30 text-yellow-200 p-4 rounded-lg mb-4">
             <p>No assets found in project "{projectData.name}". Project has {hasAssets ? projectData.assets.length : 0} root assets.</p>
             {hasAssets && <p className="mt-2">Assets may be filtered out by your search criteria or stored in subfolders.</p>}

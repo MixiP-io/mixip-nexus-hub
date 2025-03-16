@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -30,6 +29,22 @@ export const useAssetsManager = (selectedProjectId: string | null) => {
         // Ensure there are assets being processed
         if (!project.assets || project.assets.length === 0) {
           console.log('No assets found in project root');
+          
+          // Check if this project has subfolders with assets
+          let hasAssetsInSubfolders = false;
+          if (project.subfolders && project.subfolders.length > 0) {
+            // Check each subfolder for assets
+            project.subfolders.forEach((folder: any) => {
+              if (folder.assets && folder.assets.length > 0) {
+                hasAssetsInSubfolders = true;
+                console.log(`Found ${folder.assets.length} assets in folder "${folder.name}"`);
+              }
+            });
+          }
+          
+          if (hasAssetsInSubfolders) {
+            toast.info(`This project has assets in subfolders. Navigate to a specific folder to view them.`);
+          }
         }
         
         // Check subfolders for assets
@@ -119,7 +134,12 @@ export const useAssetsManager = (selectedProjectId: string | null) => {
         // Add assets from this folder
         if (folder.assets && Array.isArray(folder.assets)) {
           console.log(`Adding ${folder.assets.length} assets from folder ${folder.name}`);
-          allAssets = [...allAssets, ...folder.assets];
+          // Add a folder reference to each asset
+          const assetsWithFolder = folder.assets.map((asset: any) => ({
+            ...asset,
+            folderName: folder.name
+          }));
+          allAssets = [...allAssets, ...assetsWithFolder];
         }
         
         // Recursively process subfolders
@@ -144,6 +164,21 @@ export const useAssetsManager = (selectedProjectId: string | null) => {
     asset && asset.name && asset.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Sort assets to show folder assets first
+  const sortedAssets = filteredAssets.sort((a, b) => {
+    // If only one has a folder name, prioritize it
+    if (a.folderName && !b.folderName) return -1;
+    if (!a.folderName && b.folderName) return 1;
+    
+    // If both have different folder names, sort alphabetically
+    if (a.folderName && b.folderName && a.folderName !== b.folderName) {
+      return a.folderName.localeCompare(b.folderName);
+    }
+    
+    // Otherwise, sort by name
+    return a.name.localeCompare(b.name);
+  });
+
   return {
     viewMode,
     setViewMode,
@@ -155,7 +190,7 @@ export const useAssetsManager = (selectedProjectId: string | null) => {
     setRightsPanelOpen,
     selectedAssetForRights,
     setSelectedAssetForRights,
-    filteredAssets,
+    filteredAssets: sortedAssets,
     handleAssetClick,
     handleSelectAll,
     handleBatchUpload,
