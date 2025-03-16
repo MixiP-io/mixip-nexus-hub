@@ -39,19 +39,19 @@ export const useProjectEditEvents = ({
     }
     
     try {
-      // Close dialog first to prevent UI freeze
-      setEditProjectOpen(false);
-      
-      // Add a small delay before updating the project
+      // Add a small delay before updating the project to ensure dialog is fully closed
       setTimeout(() => {
         // Then update the project
         updateProjectDetails(projectId, updates);
-      }, 50);
+        
+        // Notify user of success
+        toast.success('Project updated successfully');
+      }, 300);
     } catch (err) {
       console.error('Error updating project:', err);
       toast.error('An error occurred while updating the project');
     }
-  }, [updateProjectDetails, setEditProjectOpen]);
+  }, [updateProjectDetails]);
 
   return {
     handleEditProject,

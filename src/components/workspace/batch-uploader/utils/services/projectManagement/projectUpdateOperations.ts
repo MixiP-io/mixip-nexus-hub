@@ -35,6 +35,8 @@ export const updateProject = (projectId: string, updates: Partial<ProjectData>):
     
     // Create a deep copy with the updates applied
     const updatedProjects = [...currentProjects];
+    
+    // Make sure we preserve all existing properties
     updatedProjects[projectIndex] = {
       ...updatedProjects[projectIndex],
       ...updates,
@@ -45,7 +47,7 @@ export const updateProject = (projectId: string, updates: Partial<ProjectData>):
     updateProjects(updatedProjects);
     localStorage.setItem('projects', JSON.stringify(updatedProjects));
     
-    console.log(`Project updated: ${projectId}`);
+    console.log(`Project updated successfully: ${projectId}`, updatedProjects[projectIndex]);
     return true;
   } catch (error) {
     console.error(`Error updating project: ${projectId}`, error);

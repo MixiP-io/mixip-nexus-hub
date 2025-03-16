@@ -13,6 +13,7 @@ export const useEditProject = (
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Load project data when the dialog opens
   useEffect(() => {
@@ -25,7 +26,11 @@ export const useEditProject = (
         setName(currentProject.name || '');
         setDescription(currentProject.description || '');
         setTags(currentProject.tags || []);
-        console.log('Project loaded successfully for editing');
+        console.log('Project loaded successfully for editing', {
+          name: currentProject.name,
+          description: currentProject.description,
+          tags: currentProject.tags
+        });
       } else {
         console.error('Project not found for editing:', project.id);
         toast.error('Error: Project not found');
@@ -34,9 +39,14 @@ export const useEditProject = (
     }
   }, [project, isOpen, setIsOpen]);
   
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault(); // Prevent form submission
     e.stopPropagation(); // Stop event propagation
+    
+    if (isSubmitting) {
+      console.log('Already submitting, ignoring duplicate request');
+      return;
+    }
     
     if (!name.trim()) {
       toast.error('Project name is required');
@@ -49,6 +59,7 @@ export const useEditProject = (
       return;
     }
     
+    setIsSubmitting(true);
     console.log('Updating project:', project.id);
     
     const updates: Partial<ProjectData> = {
@@ -57,8 +68,21 @@ export const useEditProject = (
       tags
     };
     
-    // Pass both the project ID and updates to the handler
-    onUpdateProject(project.id, updates);
+    // First close the dialog
+    setIsOpen(false);
+    
+    // Wait for dialog animation to complete
+    setTimeout(() => {
+      try {
+        // Then pass both the project ID and updates to the handler
+        onUpdateProject(project.id, updates);
+      } catch (error) {
+        console.error('Error updating project:', error);
+        toast.error('Failed to update project');
+      } finally {
+        setIsSubmitting(false);
+      }
+    }, 300);
   };
   
   return {
@@ -68,6 +92,7 @@ export const useEditProject = (
     setDescription,
     tags,
     setTags,
-    handleSave
+    handleSave,
+    isSubmitting
   };
 };

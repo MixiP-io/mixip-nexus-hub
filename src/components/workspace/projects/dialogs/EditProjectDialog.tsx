@@ -32,7 +32,8 @@ const EditProjectDialog: React.FC<EditProjectDialogProps> = ({
     setDescription,
     tags,
     setTags,
-    handleSave
+    handleSave,
+    isSubmitting
   } = useEditProject(project, isOpen, setIsOpen, onUpdateProject);
 
   return (
@@ -54,6 +55,7 @@ const EditProjectDialog: React.FC<EditProjectDialogProps> = ({
           setTags={setTags}
           onSave={handleSave}
           setIsOpen={setIsOpen}
+          isSubmitting={isSubmitting}
         />
       </DialogContent>
     </Dialog>
