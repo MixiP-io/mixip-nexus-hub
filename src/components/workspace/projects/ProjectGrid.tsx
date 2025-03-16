@@ -18,6 +18,7 @@ interface ProjectGridProps {
 }
 
 const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
+  // All the properties and functions are still available from our refactored hook
   const {
     projects,
     searchQuery,
