@@ -1,4 +1,3 @@
-
 import { ChangeEvent, ReactNode, RefObject } from 'react';
 import { UploadFile, FileStatus } from '../types';
 
@@ -64,32 +63,32 @@ export interface UploadAreaProps {
 }
 
 export interface UploaderTabsProps {
-  activeView: string;
-  setActiveView: (view: string) => void;
-  activeSource: string;
-  setActiveSource: (source: string) => void;
+  activeView: 'source' | 'metadata' | 'project';
+  setActiveView: (view: 'source' | 'metadata' | 'project') => void;
+  activeSource: UploadSource;
+  setActiveSource: (source: UploadSource) => void;
   tags: string[];
   setTags: (tags: string[]) => void;
   licenseType: string;
-  setLicenseType: (type: string) => void;
+  setLicenseType: (license: string) => void;
   usageRights: Record<string, boolean>;
   setUsageRights: (rights: Record<string, boolean>) => void;
-  selectedProject: string | null;
-  setSelectedProject: (id: string | null) => void;
-  selectedFolder: string | null;
-  setSelectedFolder: (id: string | null) => void;
+  selectedProject: string;
+  setSelectedProject: (projectId: string) => void;
+  selectedFolder: string;
+  setSelectedFolder: (folderId: string) => void;
 }
 
 export interface SourceSelectionProps {
-  activeSource: string;
-  setActiveSource: (source: string) => void;
+  activeSource: UploadSource;
+  setActiveSource: (source: UploadSource) => void;
 }
 
 export interface MetadataSectionProps {
   tags: string[];
   setTags: (tags: string[]) => void;
   licenseType: string;
-  setLicenseType: (type: string) => void;
+  setLicenseType: (license: string) => void;
   usageRights: Record<string, boolean>;
   setUsageRights: (rights: Record<string, boolean>) => void;
 }
