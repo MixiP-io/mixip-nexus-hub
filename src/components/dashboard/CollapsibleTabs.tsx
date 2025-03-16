@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -22,6 +21,7 @@ const CollapsibleTabs: React.FC = () => {
     { id: 'assignments', label: 'Assignments', permanent: false, active: false },
     { id: 'collaborators', label: 'Collaborators', permanent: false, active: false },
     { id: 'uploader', label: 'Uploader', permanent: false, active: false },
+    { id: 'analytics', label: 'Analytics', permanent: false, active: false }
   ]);
   
   const [isCollapsed, setIsCollapsed] = useState(false);
