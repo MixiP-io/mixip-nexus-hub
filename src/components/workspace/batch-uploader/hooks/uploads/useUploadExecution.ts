@@ -1,6 +1,6 @@
 
 import { toast } from 'sonner';
-import { UploadFile } from '../../types';
+import { UploadFile, FileStatus } from '../../types';
 import { simulateFileUpload } from '../../utils/uploadUtils';
 
 /**
@@ -9,7 +9,7 @@ import { simulateFileUpload } from '../../utils/uploadUtils';
 export const executeFileUploads = async (
   files: UploadFile[],
   updateFileProgress: (fileId: string, progress: number) => void,
-  updateFileStatus: (fileId: string, status: any, errorMessage?: string) => void,
+  updateFileStatus: (fileId: string, status: FileStatus, errorMessage?: string) => void,
   updateOverallProgress: () => void
 ) => {
   const completedFiles: UploadFile[] = [];
@@ -44,7 +44,11 @@ export const executeFileUploads = async (
       console.log(`File ${file.name} is complete`);
       
       // Add to completed files - create a fresh copy to avoid reference issues
-      const completedFile = { ...file, status: 'complete', progress: 100 };
+      const completedFile: UploadFile = { 
+        ...file, 
+        status: 'complete' as FileStatus, 
+        progress: 100 
+      };
       completedFiles.push(completedFile);
       processedCount++;
     } catch (error) {
