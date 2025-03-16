@@ -23,6 +23,7 @@ const Login: React.FC = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
+      console.log('User is logged in, redirecting to dashboard');
       navigate('/dashboard');
     }
   }, [user, navigate]);
@@ -87,9 +88,11 @@ const Login: React.FC = () => {
     
     try {
       if (isLogin) {
+        console.log('Signing in with:', email);
         await signIn(email, password);
       } else {
         // Sign up with additional metadata
+        console.log('Signing up with:', email, name, accountType);
         const metadata = {
           full_name: name,
           phone: phone,
@@ -110,6 +113,7 @@ const Login: React.FC = () => {
     setIsSubmitting(true);
     
     try {
+      console.log(`Signing in with ${provider}`);
       await signInWithSocial(provider);
     } catch (error) {
       console.error(`${provider} sign in error:`, error);

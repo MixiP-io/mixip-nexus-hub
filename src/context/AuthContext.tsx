@@ -40,6 +40,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
         setIsLoading(false);
@@ -50,6 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             title: "Signed in successfully",
             description: "Welcome back!",
           });
+          navigate('/dashboard');
         }
         
         if (event === 'SIGNED_OUT') {
@@ -58,6 +60,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             title: "Signed out",
             description: "You have been signed out.",
           });
+          navigate('/login');
+        }
+
+        if (event === 'USER_UPDATED') {
+          if (session?.user) {
+            fetchProfile(session.user.id);
+          }
         }
       }
     );
@@ -87,7 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(true);
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      navigate('/dashboard');
+      // Navigation will be handled by the auth state change listener
     } catch (error: any) {
       toast({
         title: "Sign in failed",
@@ -102,7 +111,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUp = async (email: string, password: string, metadata?: any) => {
     try {
       setIsLoading(true);
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -112,13 +121,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) throw error;
       
-      toast({
-        title: "Sign up successful",
-        description: "Please check your email for verification.",
-      });
-      
-      // Don't navigate - user needs to verify email first
+      if (data.user && data.session) {
+        // If the user is immediately signed in after signup
+        setUser(data.user);
+        setSession(data.session);
+        toast({
+          title: "Sign up successful",
+          description: "Your account has been created successfully!",
+        });
+        navigate('/dashboard');
+      } else {
+        // If email confirmation is required
+        toast({
+          title: "Sign up successful",
+          description: "Please check your email for verification.",
+        });
+      }
     } catch (error: any) {
+      console.error("Signup error:", error);
       toast({
         title: "Sign up failed",
         description: error.message || "An error occurred during sign up.",
@@ -142,6 +162,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       
       if (error) throw error;
+      // Redirection will be handled by the OAuth provider
     } catch (error: any) {
       toast({
         title: "Social sign in failed",
@@ -157,7 +178,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(true);
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      navigate('/login');
+      // Navigation will be handled by the auth state change listener
     } catch (error: any) {
       toast({
         title: "Sign out failed",
