@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { UploadFile } from '../../types';
 import { addFilesToProject } from '../../utils/services/assetService';
 import { logProjects, getProjectById } from '../../utils/projectUtils';
+import { updateProject } from '../../utils/services/projectManagement/projectUpdateOperations';
 
 /**
  * Hook for handling completed uploads
@@ -31,13 +32,16 @@ export const useCompletedUploads = () => {
       setIsUploading(false);
       updateOverallProgress();
       
-      // Log projects after upload (for debugging)
+      // Log projects after upload for debugging
       logProjects();
       
       // Check project again to verify assets were added
       const updatedProject = getProjectById(projectId);
       if (updatedProject) {
         console.log("Updated project assets count:", updatedProject.assets?.length || 0);
+        
+        // Force project timestamp update to trigger re-renders
+        updateProject(projectId, { updatedAt: new Date() });
         
         // Debug folder assets
         let folderName = "root";
@@ -51,16 +55,16 @@ export const useCompletedUploads = () => {
             
             // Log each asset in the folder for debugging
             if (targetFolder.assets && targetFolder.assets.length > 0) {
-              console.log(`All assets in folder "${folderName}":`);
+              console.log(`[CRITICAL] All assets in folder "${folderName}":`);
               targetFolder.assets.forEach((asset: any, index: number) => {
                 console.log(`Asset ${index + 1}: ID=${asset.id}, Name=${asset.name}, FolderId=${asset.folderId}`);
               });
               foundAssetsInFolder = true;
             } else {
-              console.log(`No assets found in folder "${folderName}" after upload. This is unexpected.`);
+              console.log(`[ERROR] No assets found in folder "${folderName}" after upload. This is unexpected.`);
             }
           } else {
-            console.log(`Target folder with ID ${folderId} not found in project`);
+            console.log(`[ERROR] Target folder with ID ${folderId} not found in project`);
           }
         } else if (folderId === 'root') {
           console.log(`Root folder assets: ${updatedProject.assets?.length || 0}`);
@@ -71,7 +75,7 @@ export const useCompletedUploads = () => {
         }
         
         // Set upload complete with accurate folder information
-        console.log(`Setting upload complete with folder ID: ${folderId}, folder name: ${folderName}`);
+        console.log(`[CRITICAL] Setting upload complete with folder ID: ${folderId}, folder name: ${folderName}`);
         completeUpload(projectId, projectName, completedFiles, folderId);
         
         // Show toast with clear folder navigation instructions
@@ -89,6 +93,22 @@ export const useCompletedUploads = () => {
           folderId,
           folderName
         });
+        
+        // Force localStorage update to ensure persistence
+        try {
+          const projectsJson = localStorage.getItem('projects');
+          if (projectsJson) {
+            const projects = JSON.parse(projectsJson);
+            const projectIndex = projects.findIndex((p: any) => p.id === projectId);
+            if (projectIndex !== -1) {
+              // Make sure we save back to localStorage with the updated folder assets
+              localStorage.setItem('projects', JSON.stringify(projects));
+              console.log("[CRITICAL] Force-updated localStorage with project data");
+            }
+          }
+        } catch (e) {
+          console.error("Error updating localStorage:", e);
+        }
       } else {
         console.error("Project not found after upload");
         toast.error("Error: Project not found after upload");
