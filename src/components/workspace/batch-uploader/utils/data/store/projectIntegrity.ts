@@ -4,6 +4,22 @@
  */
 import { projects, updateProjects } from './projectState';
 import { defaultLicensing, defaultProject } from './defaultValues';
+import { saveProjectsToLocalStorage } from './storageSync';
+
+// Ensure asset data is properly structured with valid preview URLs
+const ensureAssetIntegrity = (asset: any) => {
+  if (!asset) return asset;
+  
+  // Deep copy to avoid reference issues
+  const fixedAsset = { ...asset };
+  
+  // Ensure preview is a valid string (if it exists)
+  if (fixedAsset.preview !== undefined && typeof fixedAsset.preview !== 'string') {
+    fixedAsset.preview = null;
+  }
+  
+  return fixedAsset;
+};
 
 // Recursive function to ensure folder integrity
 export const ensureFolderIntegrity = (folder: any) => {
@@ -15,6 +31,9 @@ export const ensureFolderIntegrity = (folder: any) => {
   // If assets is undefined, initialize it
   if (!Array.isArray(folder.assets)) {
     folder.assets = [];
+  } else {
+    // Fix assets in this folder
+    folder.assets = folder.assets.map(asset => ensureAssetIntegrity(asset));
   }
   
   // Process subfolders recursively
@@ -36,10 +55,15 @@ export const ensureProjectDataIntegrity = () => {
   }
   
   const fixedProjects = projects.map(project => {
+    // Fix any assets at the root level
+    const fixedAssets = Array.isArray(project.assets) 
+      ? project.assets.map(asset => ensureAssetIntegrity(asset))
+      : [];
+    
     // Creates a new object with guaranteed arrays and required fields
     const fixedProject = {
       ...project,
-      assets: Array.isArray(project.assets) ? project.assets : [],
+      assets: fixedAssets,
       subfolders: Array.isArray(project.subfolders) ? 
         project.subfolders.map(subfolder => ensureFolderIntegrity(subfolder)) : [],
       // Ensure licensing is present and valid
@@ -57,13 +81,8 @@ export const ensureProjectDataIntegrity = () => {
   // Update the projects array with fixed projects
   updateProjects(fixedProjects);
   
-  // Also save to localStorage
-  try {
-    localStorage.setItem('projects', JSON.stringify(fixedProjects));
-    console.log("Projects saved to localStorage successfully");
-  } catch (error) {
-    console.error('Error saving projects to localStorage:', error);
-  }
+  // Save to localStorage with improved serialization
+  saveProjectsToLocalStorage();
   
   console.log("Data integrity check complete");
 };

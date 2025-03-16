@@ -4,6 +4,7 @@ import { UploadFile } from '../../types';
 import { addFilesToProject } from '../../utils/services/assetService';
 import { logProjects, getProjectById } from '../../utils/projectUtils';
 import { updateProject } from '../../utils/services/projectManagement/projectUpdateOperations';
+import { saveProjectsToLocalStorage } from '../../utils/data/store/storageSync';
 
 /**
  * Hook for handling completed uploads
@@ -23,6 +24,12 @@ export const useCompletedUploads = () => {
     completeUpload: (projectId: string, projectName: string, completedFiles: UploadFile[], folderId: string) => void
   ) => {
     console.log(`Adding ${completedFiles.length} files to project ${projectId}, folder: ${folderId}`);
+    
+    // Log the file previews to check if they're valid
+    completedFiles.forEach((file, index) => {
+      console.log(`File ${index + 1} preview:`, 
+        file.preview ? `exists (starts with ${file.preview.substring(0, 30)}...)` : 'no preview');
+    });
     
     if (completedFiles.length === 0) {
       console.error("No completed files to process");
@@ -73,7 +80,7 @@ export const useCompletedUploads = () => {
             if (targetFolder.assets && targetFolder.assets.length > 0) {
               console.log(`[CRITICAL] All assets in folder "${folderName}":`);
               targetFolder.assets.forEach((asset: any, index: number) => {
-                console.log(`Asset ${index + 1}: ID=${asset.id}, Name=${asset.name}, FolderId=${asset.folderId || 'undefined'}`);
+                console.log(`Asset ${index + 1}: ID=${asset.id}, Name=${asset.name}, Preview=${asset.preview ? 'exists' : 'missing'}`);
               });
               foundAssetsInFolder = true;
             } else {
@@ -94,6 +101,9 @@ export const useCompletedUploads = () => {
         console.log(`[CRITICAL] Setting upload complete with folder ID: ${folderId}, folder name: ${folderName}`);
         completeUpload(projectId, projectName, completedFiles, folderId);
         
+        // Force one more save to localStorage to ensure all data is persisted
+        saveProjectsToLocalStorage();
+        
         // Show toast with clear folder navigation instructions
         if (folderId !== 'root') {
           toast.success(`Added ${completedFiles.length} files to folder "${folderName}" in project "${projectName}". Click "View Assets" to see them.`);
@@ -110,21 +120,7 @@ export const useCompletedUploads = () => {
           folderName
         });
         
-        // Force localStorage update to ensure persistence
-        try {
-          const projectsJson = localStorage.getItem('projects');
-          if (projectsJson) {
-            const projects = JSON.parse(projectsJson);
-            const projectIndex = projects.findIndex((p: any) => p.id === projectId);
-            if (projectIndex !== -1) {
-              // Make sure we save back to localStorage with the updated folder assets
-              localStorage.setItem('projects', JSON.stringify(projects));
-              console.log("[CRITICAL] Force-updated localStorage with project data");
-            }
-          }
-        } catch (e) {
-          console.error("Error updating localStorage:", e);
-        }
+        setUploadComplete(true);
       } else {
         console.error("Project not found after upload");
         toast.error("Error: Project not found after upload");

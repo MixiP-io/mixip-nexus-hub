@@ -30,12 +30,18 @@ export const convertFilesToAssets = (
   
   // Convert uploaded files to project assets
   const assets = completedFiles.map(file => {
+    // Make sure preview is properly serialized as a string
+    const preview = typeof file.preview === 'string' ? file.preview : null;
+    
+    console.log(`[assetConversionUtils] Processing file preview:`, 
+      preview ? `Preview exists (${preview.substring(0, 30)}...)` : 'No preview available');
+    
     const asset: ProjectAsset = {
       id: file.id,
       name: file.name,
       type: file.type,
       size: file.size,
-      preview: file.preview,
+      preview: preview,
       uploadedAt: new Date(),
       licenseType,
       // Always set folderId, even if it's 'root'

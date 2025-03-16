@@ -11,6 +11,7 @@ import {
   createNewFolderWithAssets 
 } from './folderAssetOperations';
 import { updateProjectCoverIfNeeded } from './coverImageOperations';
+import { saveProjectsToLocalStorage } from '../../data/store/storageSync';
 
 /**
  * Add files to a project
@@ -90,13 +91,8 @@ export const addFilesToProject = async (
     // Update the global projects store with the new projects array
     updateProjects(updatedProjects);
     
-    // Also update localStorage
-    try {
-      localStorage.setItem('projects', JSON.stringify(updatedProjects));
-      console.log(`[assetService] Projects saved to localStorage`);
-    } catch (e) {
-      console.error(`[assetService] Error saving to localStorage:`, e);
-    }
+    // Save to localStorage using our improved serialization
+    saveProjectsToLocalStorage();
     
     console.log(`[assetService] Added ${assets.length} files to project ${projectId}`);
     logProjects(); // Log the updated projects for debugging
