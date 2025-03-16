@@ -24,6 +24,17 @@ const DeleteProjectDialog: React.FC<DeleteProjectDialogProps> = ({
   projectName,
   onConfirm
 }) => {
+  // Function to handle the delete confirmation
+  const handleConfirm = () => {
+    // First close the dialog to avoid UI freezes
+    setIsOpen(false);
+    
+    // Then trigger the delete operation
+    setTimeout(() => {
+      onConfirm();
+    }, 100);
+  };
+
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogContent className="bg-gray-800 border-gray-700 text-white">
@@ -38,7 +49,7 @@ const DeleteProjectDialog: React.FC<DeleteProjectDialogProps> = ({
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
-            onClick={onConfirm}
+            onClick={handleConfirm}
             className="bg-red-600 text-white hover:bg-red-700"
           >
             Delete

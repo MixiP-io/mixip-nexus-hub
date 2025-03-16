@@ -20,6 +20,7 @@ const CreativeContent: React.FC = () => {
   const [action, setAction] = useState<string | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>('root');
+  const [projectExists, setProjectExists] = useState<boolean>(true);
   
   useEffect(() => {
     // Get the tab from URL params if available
@@ -41,22 +42,25 @@ const CreativeContent: React.FC = () => {
     const projectParam = searchParams.get('project');
     if (projectParam) {
       console.log('Project selected from URL:', projectParam);
-      setSelectedProjectId(projectParam);
       
       // Get folder parameter if available
       const folderParam = searchParams.get('folder');
-      if (folderParam) {
-        console.log('Folder selected from URL:', folderParam);
-        setSelectedFolderId(folderParam);
-      } else {
-        setSelectedFolderId('root');
-      }
       
-      // Debug the selected project
+      // Check if project exists
       const project = getProjectById(projectParam);
+      
       if (project) {
         console.log('Project data loaded from URL:', project.name);
-        console.log('Project assets count:', project.assets?.length || 0);
+        setSelectedProjectId(projectParam);
+        
+        if (folderParam) {
+          console.log('Folder selected from URL:', folderParam);
+          setSelectedFolderId(folderParam);
+        } else {
+          setSelectedFolderId('root');
+        }
+        
+        setProjectExists(true);
         
         // Log assets in folder if folder is selected
         if (folderParam && folderParam !== 'root' && project.subfolders) {
@@ -69,15 +73,30 @@ const CreativeContent: React.FC = () => {
         }
       } else {
         console.log('Project not found:', projectParam);
-        toast.error('Project not found or failed to load');
+        // If project doesn't exist, clear the selection and go back to projects tab
+        setSelectedProjectId(null);
+        setProjectExists(false);
+        
+        if (activeTab === 'assets') {
+          // Redirect to projects tab if currently in assets and project doesn't exist
+          searchParams.delete('project');
+          searchParams.delete('folder');
+          searchParams.set('tab', 'projects');
+          setSearchParams(searchParams);
+          setActiveTab('projects');
+          toast.error('Project not found or was deleted');
+        }
       }
+    } else {
+      // No project selected in URL
+      setSelectedProjectId(null);
     }
     
     // If switching to assets tab without a project, show a message
     if (tabParam === 'assets' && !projectParam && !selectedProjectId) {
       toast.info('Please select a project to view assets');
     }
-  }, [searchParams]);
+  }, [searchParams, setSearchParams]);
 
   // Handle project selection and navigate to assets tab
   const handleProjectSelect = (projectId: string) => {
@@ -86,6 +105,7 @@ const CreativeContent: React.FC = () => {
     // Set the project ID in state
     setSelectedProjectId(projectId);
     setSelectedFolderId('root'); // Reset to root folder when changing projects
+    setProjectExists(true);
     
     // Update URL and switch to assets tab
     searchParams.set('project', projectId);
@@ -110,6 +130,11 @@ const CreativeContent: React.FC = () => {
   // Render the appropriate content based on the active tab
   const renderContent = () => {
     console.log('Rendering content for tab:', activeTab, 'with selected project:', selectedProjectId, 'folder:', selectedFolderId);
+    
+    // If we're on the assets tab but the project doesn't exist, show project grid
+    if (activeTab === 'assets' && !projectExists) {
+      return <ProjectGrid onProjectSelect={handleProjectSelect} />;
+    }
     
     switch (activeTab) {
       case 'campaigns':

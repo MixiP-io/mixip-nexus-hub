@@ -1,6 +1,7 @@
 
 import { toast } from 'sonner';
 import { projects, updateProjects } from '../../data/projectStore';
+import { saveProjectsToLocalStorage } from '../../data/store/storageSync';
 
 /**
  * Delete a project
@@ -34,7 +35,7 @@ export const deleteProject = (projectId: string): boolean => {
   
   // Update both in-memory and localStorage
   updateProjects(updatedProjects);
-  localStorage.setItem('projects', JSON.stringify(updatedProjects));
+  saveProjectsToLocalStorage();
   
   console.log(`Project deleted: ${projectId}`);
   return true;
