@@ -16,51 +16,82 @@ export const useFileOperations = (
       return;
     }
     
+    // Show loading toast
+    const loadingToast = toast.loading(`Processing ${selectedFiles.length} files...`);
+    
     try {
       // Process files one by one and generate previews
       const newFiles: UploadFile[] = [];
+      let successCount = 0;
       
-      for (const file of Array.from(selectedFiles)) {
-        try {
-          // Create preview safely - getFilePreview returns a Promise for data URLs
-          const preview = await getFilePreview(file);
-          
-          const newFile: UploadFile = {
-            id: `file-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-            name: file.name,
-            size: file.size,
-            type: file.type,
-            progress: 0,
-            status: 'queued',
-            source: 'computer',
-            file: file,
-            preview: preview
-          };
-          
-          newFiles.push(newFile);
-          
-          // Debug log the preview
-          if (preview) {
-            const previewType = preview.startsWith('data:') ? 'data URL' : 'blob URL';
-            console.log(`Preview created for ${file.name}: ${previewType} (${preview.substring(0, 50)}...)`);
-          } else {
-            console.log(`No preview created for ${file.name}`);
-          }
-        } catch (error) {
-          console.error(`Error processing file ${file.name}:`, error);
-          // Continue with the next file even if this one fails
-        }
+      // Convert FileList to array for easier handling
+      const filesArray = Array.from(selectedFiles);
+      
+      // Process files in parallel with a limit
+      const BATCH_SIZE = 3; // Process 3 files at a time
+      for (let i = 0; i < filesArray.length; i += BATCH_SIZE) {
+        const batch = filesArray.slice(i, i + BATCH_SIZE);
+        
+        // Process batch in parallel
+        const batchResults = await Promise.all(
+          batch.map(async (file) => {
+            try {
+              // Upload to Supabase and get the public URL
+              const preview = await getFilePreview(file);
+              
+              const newFile: UploadFile = {
+                id: `file-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                progress: 0,
+                status: 'queued',
+                source: 'computer',
+                file: file,
+                preview: preview
+              };
+              
+              // Debug log the preview
+              if (preview) {
+                console.log(`Preview created for ${file.name}: ${preview.substring(0, 50)}...`);
+                successCount++;
+                return newFile;
+              } else {
+                console.log(`No preview created for ${file.name}`);
+                return null;
+              }
+            } catch (error) {
+              console.error(`Error processing file ${file.name}:`, error);
+              return null;
+            }
+          })
+        );
+        
+        // Filter out nulls (failed uploads)
+        const validFiles = batchResults.filter(Boolean) as UploadFile[];
+        newFiles.push(...validFiles);
+        
+        // Update loading toast
+        toast.loading(`Processed ${newFiles.length}/${selectedFiles.length} files...`, {
+          id: loadingToast
+        });
       }
       
       if (newFiles.length > 0) {
         setFiles(prev => [...prev, ...newFiles]);
-        toast.success(`${newFiles.length} files added to upload queue`);
+        toast.success(`${newFiles.length} files added to upload queue`, {
+          id: loadingToast
+        });
       } else {
-        toast.error("No files could be processed");
+        toast.error("No files could be processed", {
+          id: loadingToast
+        });
       }
     } catch (error) {
       console.error("Error adding files:", error);
-      toast.error("Failed to add files");
+      toast.error(`Failed to add files: ${error instanceof Error ? error.message : 'Unknown error'}`, {
+        id: loadingToast
+      });
     }
   };
   

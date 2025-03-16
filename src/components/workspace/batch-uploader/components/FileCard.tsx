@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { X, Image, Video, File, Check, CheckCircle2, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Image, Video, File, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { FileCardProps } from '../types/componentProps';
 import { FileStatus } from '../types';
@@ -12,6 +12,13 @@ const FileCard: React.FC<FileCardProps> = ({
   formatFileSize 
 }) => {
   const [previewError, setPreviewError] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | undefined>(file.preview);
+  
+  // Update preview URL when file.preview changes
+  useEffect(() => {
+    setPreviewUrl(file.preview);
+    setPreviewError(false);
+  }, [file.preview]);
   
   const getFileIcon = (fileType: string) => {
     if (fileType.startsWith('image/')) {
@@ -44,9 +51,9 @@ const FileCard: React.FC<FileCardProps> = ({
   return (
     <div className="bg-gray-700 rounded-lg overflow-hidden flex flex-col">
       <div className="relative h-32 bg-gray-800 flex items-center justify-center">
-        {file.preview && !previewError ? (
+        {previewUrl && !previewError ? (
           <img 
-            src={file.preview} 
+            src={previewUrl} 
             alt={file.name}
             className="h-full w-full object-cover"
             onError={handlePreviewError}
