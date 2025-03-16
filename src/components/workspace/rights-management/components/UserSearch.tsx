@@ -4,8 +4,9 @@ import { Search, X, UserPlus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
+// Updated User interface to match the structure used in OwnershipManagement
 interface User {
-  id: string;
+  userId: string;
   name: string;
   email: string;
   avatar?: string;
@@ -52,7 +53,7 @@ const UserSearch: React.FC<UserSearchProps> = ({
       {filteredUsers.length > 0 ? (
         <div className={`max-h-${compact ? '24' : '32'} overflow-y-auto space-y-2`}>
           {filteredUsers.map(user => (
-            <div key={user.id} className="flex items-center justify-between bg-gray-700 p-2 rounded-lg">
+            <div key={user.userId} className="flex items-center justify-between bg-gray-700 p-2 rounded-lg">
               <div className="flex items-center">
                 <div className={`${compact ? 'w-6 h-6' : 'w-8 h-8'} bg-gray-600 rounded-full flex items-center justify-center text-white font-medium mr-2`}>
                   {user.avatar ? (

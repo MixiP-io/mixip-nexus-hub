@@ -2,6 +2,14 @@
 import { useState } from 'react';
 import { ProjectOwner } from '../../batch-uploader/utils/types/projectTypes';
 
+// Define a consistent User type that matches our needs
+interface User {
+  userId: string;
+  name: string;
+  email: string;
+  avatar?: string;
+}
+
 interface UseOwnershipManagementProps {
   primaryOwner: ProjectOwner;
   additionalOwners: ProjectOwner[];
@@ -28,8 +36,8 @@ export const useOwnershipManagement = ({
   
   const primaryOwnerPercentage = 100 - additionalOwnersTotal;
   
-  // Sample users for demo - in a real app, this would come from an API
-  const sampleUsers = [
+  // Sample users for demo - updated to match the User interface
+  const sampleUsers: User[] = [
     { userId: 'user2', name: 'Jane Smith', email: 'jane@example.com' },
     { userId: 'user3', name: 'Alex Johnson', email: 'alex@example.com' },
     { userId: 'user4', name: 'Maria Garcia', email: 'maria@example.com' },
@@ -48,7 +56,8 @@ export const useOwnershipManagement = ({
     setSearchQuery('');
   };
 
-  const addOwner = (user: { userId: string; name: string; email: string }) => {
+  // Updated addOwner to use the same User type
+  const addOwner = (user: User) => {
     // Default to adding 5% ownership
     const newOwnerPercentage = 5;
     
