@@ -38,7 +38,9 @@ export interface UploadCompleteProps {
   totalSize: string;
   projectId: string;
   projectName: string;
+  success: boolean;
   navigateToProject: (projectId: string) => void;
+  folderId: string;
 }
 
 export interface FilesListProps {
@@ -52,7 +54,7 @@ export interface FilesListProps {
   startUpload: () => void;
   uploadComplete: boolean;
   setUploadComplete: (isComplete: boolean) => void;
-  uploadResults: { success: boolean; count: number; projectId: string; projectName: string; } | null;
+  uploadResults: { success: boolean; count: number; projectId: string; projectName: string; folderId: string; } | null;
   selectedProject: string | null;
   selectedProjectName: string | null;
   navigateToProject: (projectId: string) => void;

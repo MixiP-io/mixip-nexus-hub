@@ -26,7 +26,7 @@ export const useUploadErrorHandling = () => {
       count: 0,
       projectId: "",
       projectName,
-      folderId: ""
+      folderId: "root"
     });
   };
   
@@ -47,7 +47,7 @@ export const useUploadErrorHandling = () => {
       count: 0,
       projectId: projectId || "",
       projectName: projectName || "",
-      folderId: ""
+      folderId: "root"
     });
     setIsUploading(false);
   };
