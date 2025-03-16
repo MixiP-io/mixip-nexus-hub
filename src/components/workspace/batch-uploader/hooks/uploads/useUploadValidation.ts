@@ -67,7 +67,8 @@ export const useUploadValidation = () => {
       id: project.id,
       name: project.name,
       assetsLength: project.assets.length,
-      subfolderLength: project.subfolders.length
+      subfolderLength: project.subfolders.length,
+      licensing: project.licensing
     });
     
     return true;

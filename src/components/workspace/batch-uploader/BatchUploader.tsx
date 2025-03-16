@@ -7,7 +7,8 @@ import SectionHeader from '../SectionHeader';
 import { useFileUpload } from './hooks/useFileUpload';
 import { useMetadataState } from './hooks/useMetadataState';
 import { formatFileSize } from './utils/fileUtils';
-import { logProjects, getProjectById, ensureProjectDataIntegrity } from './utils/projectUtils';
+import { logProjects, getProjectById } from './utils/projectUtils';
+import { ensureProjectDataIntegrity } from './utils/data/projectStore';
 import { toast } from 'sonner';
 
 const BatchUploader: React.FC = () => {
@@ -51,6 +52,7 @@ const BatchUploader: React.FC = () => {
   // Initial data integrity check on component mount
   useEffect(() => {
     ensureProjectDataIntegrity();
+    console.log("BatchUploader: Running initial data integrity check");
   }, []);
   
   // Synchronize upload state debugging

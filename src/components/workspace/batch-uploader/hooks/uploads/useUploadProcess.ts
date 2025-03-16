@@ -4,7 +4,8 @@ import { toast } from 'sonner';
 import { UploadFile } from '../../types';
 import { simulateFileUpload } from '../../utils/uploadUtils';
 import { addFilesToProject } from '../../utils/services/assetService';
-import { getProjectById, logProjects, ensureProjectDataIntegrity } from '../../utils/projectUtils';
+import { getProjectById, logProjects } from '../../utils/projectUtils';
+import { ensureProjectDataIntegrity } from '../../utils/data/projectStore';
 
 /**
  * Hook for managing the upload process logic

@@ -53,4 +53,7 @@ export {
 } from './services/folderOperationUtils';
 
 // Re-export debugging functions
-export { logProjects } from './data/projectStore';
+export { 
+  logProjects,
+  ensureProjectDataIntegrity // Add the missing export
+} from './data/projectStore';

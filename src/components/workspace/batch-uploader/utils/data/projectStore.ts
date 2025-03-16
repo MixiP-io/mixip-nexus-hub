@@ -8,6 +8,21 @@ export const currentUser = {
   email: 'john@example.com'
 };
 
+// Default licensing structure to use when needed
+const defaultLicensing = {
+  type: 'standard',
+  usageRights: {
+    primaryCampaign: true,
+    secondaryBrand: false,
+    extendedMarketing: false,
+    derivativeWorks: false,
+    merchandising: false,
+    publicity: false,
+    socialMedia: true,
+    aiTraining: false
+  }
+};
+
 // Projects storage
 export let projects: ProjectData[] = [
   {
@@ -153,7 +168,7 @@ const ensureFolderIntegrity = (folder: any) => {
   return folder;
 };
 
-// Ensure all projects have properly initialized arrays
+// Ensure all projects have properly initialized arrays and required fields
 export const ensureProjectDataIntegrity = () => {
   console.log("Running data integrity check on projects...");
   
@@ -171,18 +186,21 @@ export const ensureProjectDataIntegrity = () => {
         owners: [
           { userId: 'user1', name: 'John Doe', email: 'john@example.com', royaltyPercentage: 100 }
         ],
+        licensing: defaultLicensing,
         subfolders: []
       }
     ];
   }
   
   projects = projects.map(project => {
-    // Creates a new object with guaranteed arrays
+    // Creates a new object with guaranteed arrays and required fields
     const fixedProject = {
       ...project,
       assets: Array.isArray(project.assets) ? project.assets : [],
       subfolders: Array.isArray(project.subfolders) ? 
-        project.subfolders.map(subfolder => ensureFolderIntegrity(subfolder)) : []
+        project.subfolders.map(subfolder => ensureFolderIntegrity(subfolder)) : [],
+      // Ensure licensing is present and valid
+      licensing: project.licensing || {...defaultLicensing}
     };
     
     // Ensure project has an ID

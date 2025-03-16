@@ -55,6 +55,13 @@ export const addFilesToProject = async (
   // Create a deep copy of projects to avoid reference issues
   const updatedProjects = JSON.parse(JSON.stringify(projects));
   
+  // Ensure project is properly structured before proceeding
+  if (!updatedProjects[projectIndex]) {
+    console.error('[assetService] Project index is invalid');
+    toast.error('Internal error: Project not found at index');
+    return Promise.reject(new Error('Project index is invalid'));
+  }
+  
   // Double-check that arrays are properly initialized
   if (!Array.isArray(updatedProjects[projectIndex].assets)) {
     console.log('[assetService] Initializing assets array for project');
@@ -118,17 +125,23 @@ export const addFilesToProject = async (
   // Update the project timestamp
   updatedProjects[projectIndex].updatedAt = new Date();
   
-  // Update the global projects store with the new projects array
-  updateProjects(updatedProjects);
-  console.log(`[assetService] Added ${assets.length} files to project ${projectId}`);
-  console.log(`[assetService] Project now has ${updatedProjects[projectIndex].assets.length} assets at root level`);
-  
-  // Debug project data after update
-  console.log(`[assetService] Project data after update:`, updatedProjects[projectIndex]);
-  
-  logProjects(); // Log the updated projects for debugging
-  
-  return Promise.resolve();
+  try {
+    // Update the global projects store with the new projects array
+    updateProjects(updatedProjects);
+    console.log(`[assetService] Added ${assets.length} files to project ${projectId}`);
+    console.log(`[assetService] Project now has ${updatedProjects[projectIndex].assets.length} assets at root level`);
+    
+    // Debug project data after update
+    console.log(`[assetService] Project data after update:`, updatedProjects[projectIndex]);
+    
+    logProjects(); // Log the updated projects for debugging
+    
+    return Promise.resolve();
+  } catch (error) {
+    console.error('[assetService] Error updating projects:', error);
+    toast.error('Failed to update project with new files');
+    return Promise.reject(error);
+  }
 };
 
 /**
