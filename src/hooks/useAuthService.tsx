@@ -38,8 +38,8 @@ export function useAuthService() {
         email, 
         password,
         options: {
-          // Maintain session across browser restarts if rememberMe is true
-          persistSession: rememberMe
+          // Pass the rememberMe flag as persistSession
+          ...(rememberMe !== undefined && { persistSession: rememberMe })
         }
       });
       

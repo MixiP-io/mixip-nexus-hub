@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
 import { useAuthService } from '@/hooks/useAuthService';
@@ -8,6 +8,7 @@ import AuthContext from './context';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     session,
     setSession,
@@ -34,6 +35,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (session?.user) {
         console.log('User has session, fetching profile');
         fetchProfile(session.user.id);
+        
+        // If user is on login page but already has a session, redirect to dashboard
+        if (location.pathname === '/login') {
+          console.log('User already logged in and on login page, redirecting to dashboard');
+          navigate('/dashboard');
+        }
       }
     });
 
@@ -52,7 +59,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             title: "Signed in successfully",
             description: "Welcome back!",
           });
-          navigate('/dashboard');
+          
+          // Force navigation to dashboard on sign in
+          console.log('Navigating to dashboard after sign in');
+          navigate('/dashboard', { replace: true });
         }
         
         if (event === 'SIGNED_OUT') {
@@ -76,7 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate, setSession, setUser, setIsLoading, fetchProfile]);
+  }, [navigate, location.pathname, setSession, setUser, setIsLoading, fetchProfile]);
 
   return (
     <AuthContext.Provider

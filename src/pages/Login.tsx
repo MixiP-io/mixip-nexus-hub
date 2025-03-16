@@ -25,7 +25,7 @@ const Login: React.FC = () => {
   useEffect(() => {
     if (user) {
       console.log('User is logged in, redirecting to dashboard');
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     }
   }, [user, navigate]);
   
@@ -91,6 +91,7 @@ const Login: React.FC = () => {
       if (isLogin) {
         console.log('Signing in with:', email, 'Remember me:', rememberMe);
         await signIn(email, password, rememberMe);
+        // Navigation is now handled in the auth state change listener
       } else {
         // Sign up with additional metadata
         console.log('Signing up with:', email, name, accountType);
