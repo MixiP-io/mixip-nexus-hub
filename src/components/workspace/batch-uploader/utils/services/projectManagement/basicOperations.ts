@@ -1,7 +1,7 @@
 
 import { toast } from 'sonner';
 import { ProjectData } from '../../types/projectTypes';
-import { projects, updateProjects } from '../../data/projectStore';
+import { projects, updateProjects, currentUser } from '../../data/projectStore';
 
 /**
  * Get all projects
@@ -64,21 +64,44 @@ export const getProjectById = (projectId: string): ProjectData | null => {
 /**
  * Create a new project
  * @param name - Name of the project
- * @param description - Optional description
+ * @param options - Optional project properties
  * @returns The newly created project
  */
-export const createProject = (name: string, description?: string): ProjectData => {
+export const createProject = (name: string, options?: Partial<Omit<ProjectData, 'id' | 'createdAt' | 'updatedAt'>>): ProjectData => {
   console.log(`Creating new project: ${name}`);
   
   const newProject: ProjectData = {
     id: `project-${Date.now()}`,
     name,
-    description: description || '',
+    description: options?.description || '',
+    tags: options?.tags || [],
     assets: [],
     createdAt: new Date(),
     updatedAt: new Date(),
-    createdBy: 'user1', // In a real app, this would be the current user's ID
-    subfolders: []
+    createdBy: currentUser.id,
+    owners: options?.owners || [
+      {
+        userId: currentUser.id,
+        name: currentUser.name,
+        email: currentUser.email,
+        royaltyPercentage: 100
+      }
+    ],
+    licensing: options?.licensing || {
+      type: 'standard',
+      usageRights: {
+        primaryCampaign: true,
+        secondaryBrand: false,
+        extendedMarketing: false,
+        derivativeWorks: false,
+        merchandising: false,
+        publicity: false,
+        socialMedia: true,
+        aiTraining: false
+      }
+    },
+    subfolders: [],
+    parentId: options?.parentId
   };
   
   // Create a deep copy of the projects array with the new project added
