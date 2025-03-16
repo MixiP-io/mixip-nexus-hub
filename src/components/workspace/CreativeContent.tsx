@@ -9,6 +9,7 @@ import CampaignGrid from '@/components/workspace/campaign-grid';
 import AssignmentContent from '@/components/workspace/assignments/AssignmentContent';
 import CollaboratorContent from '@/components/workspace/collaborators/CollaboratorContent';
 import BatchUploader from '@/components/workspace/batch-uploader/BatchUploader';
+import AnalyticsView from '@/components/workspace/analytics';
 import { Toaster } from 'sonner';
 
 const CreativeContent: React.FC = () => {
@@ -54,8 +55,9 @@ const CreativeContent: React.FC = () => {
       case 'collaborators':
         return <CollaboratorContent />;
       case 'uploader':
-        console.log('Rendering BatchUploader component for uploader tab');
         return <BatchUploader />;
+      case 'analytics':
+        return <AnalyticsView />;
       case 'projects':
       default:
         return <ProjectGrid onProjectSelect={handleProjectSelect} />;
