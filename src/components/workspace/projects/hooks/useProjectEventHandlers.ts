@@ -1,4 +1,3 @@
-
 import { useCallback } from 'react';
 import { toast } from 'sonner';
 import { getProjectById, updateProject } from '../../batch-uploader/utils/services/projectService';
@@ -70,12 +69,10 @@ export const useProjectEventHandlers = ({
   }, [projects, setProjectToDelete, setProjectToDeleteName, setDeleteDialogOpen]);
 
   const confirmDeleteProject = useCallback(() => {
-    const projectId = setProjectToDelete(prevId => {
-      if (prevId) {
-        deleteSelectedProject(prevId);
-      }
-      return null;
-    });
+    const projectId = setProjectToDelete(null);
+    if (projectId) {
+      deleteSelectedProject(projectId);
+    }
     setDeleteDialogOpen(false);
   }, [deleteSelectedProject, setProjectToDelete, setDeleteDialogOpen]);
 
@@ -103,7 +100,6 @@ export const useProjectEventHandlers = ({
 
   const handleSetCoverImage = useCallback((projectId: string) => {
     setProjectForCoverImage(projectId);
-    // Ideally we would load the actual project assets here
     setSetCoverImageOpen(true);
   }, [setProjectForCoverImage, setSetCoverImageOpen]);
 
@@ -114,9 +110,7 @@ export const useProjectEventHandlers = ({
       const success = updateProject(projectId, updates);
       if (success) {
         toast.success('Project updated successfully');
-        // Important: Close the dialog first, then refresh
         setEditProjectOpen(false);
-        // Refresh the project list after a short delay to ensure dialog is closed
         setTimeout(() => {
           refreshProjects();
         }, 100);
@@ -130,7 +124,6 @@ export const useProjectEventHandlers = ({
   }, [refreshProjects, setEditProjectOpen]);
 
   const searchProjects = useCallback((term: string) => {
-    // This is just a placeholder as the actual search is handled in useProjectLoading
     console.log('Searching for projects:', term);
   }, []);
 
