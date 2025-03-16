@@ -6,7 +6,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { DialogFooter } from '@/components/ui/dialog';
 import TagsInput from './TagsInput';
-import { ProjectData } from '../../../batch-uploader/utils/types/projectTypes';
 
 interface EditProjectFormProps {
   name: string;
@@ -31,6 +30,12 @@ const EditProjectForm: React.FC<EditProjectFormProps> = ({
   setIsOpen,
   isSubmitting
 }) => {
+  const handleCancel = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsOpen(false);
+  };
+
   return (
     <form onSubmit={onSave} className="space-y-4 py-4">
       <div className="space-y-2">
@@ -42,6 +47,7 @@ const EditProjectForm: React.FC<EditProjectFormProps> = ({
           placeholder="Enter project name"
           className="bg-gray-700 border-gray-600 text-white"
           required
+          disabled={isSubmitting}
         />
       </div>
       
@@ -53,21 +59,25 @@ const EditProjectForm: React.FC<EditProjectFormProps> = ({
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Enter project description"
           className="bg-gray-700 border-gray-600 text-white min-h-[100px]"
+          disabled={isSubmitting}
         />
       </div>
       
       <div className="space-y-2">
-        <TagsInput tags={tags} setTags={setTags} />
+        <Label htmlFor="tags">Tags</Label>
+        <TagsInput 
+          tags={tags} 
+          setTags={setTags}
+          disabled={isSubmitting}
+        />
+        <p className="text-xs text-gray-400">Press Enter to add a new tag</p>
       </div>
       
-      <DialogFooter>
+      <DialogFooter className="pt-4">
         <Button 
           type="button" 
           variant="outline" 
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsOpen(false);
-          }}
+          onClick={handleCancel}
           className="bg-gray-700 border-gray-600 text-white hover:bg-gray-600"
           disabled={isSubmitting}
         >

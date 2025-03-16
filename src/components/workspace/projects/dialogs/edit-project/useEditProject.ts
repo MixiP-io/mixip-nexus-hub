@@ -71,18 +71,19 @@ export const useEditProject = (
     // First close the dialog
     setIsOpen(false);
     
-    // Wait for dialog animation to complete
+    // Wait for dialog animation to complete before updating the project
     setTimeout(() => {
       try {
         // Then pass both the project ID and updates to the handler
         onUpdateProject(project.id, updates);
+        console.log('Project update request sent successfully', updates);
       } catch (error) {
         console.error('Error updating project:', error);
         toast.error('Failed to update project');
       } finally {
         setIsSubmitting(false);
       }
-    }, 300);
+    }, 500); // Increased timeout to ensure dialog is fully closed
   };
   
   return {

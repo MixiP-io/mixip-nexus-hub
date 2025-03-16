@@ -36,9 +36,17 @@ const EditProjectDialog: React.FC<EditProjectDialogProps> = ({
     isSubmitting
   } = useEditProject(project, isOpen, setIsOpen, onUpdateProject);
 
+  // Prevent dialog clicks from bubbling to parent elements
+  const handleDialogClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="bg-gray-800 border-gray-700 text-white" onClick={(e) => e.stopPropagation()}>
+      <DialogContent 
+        className="bg-gray-800 border-gray-700 text-white max-w-md w-full" 
+        onClick={handleDialogClick}
+      >
         <DialogHeader>
           <DialogTitle className="text-xl text-white">Edit Project Details</DialogTitle>
           <DialogDescription className="text-gray-300">

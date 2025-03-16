@@ -43,6 +43,8 @@ export const updateProject = (projectId: string, updates: Partial<ProjectData>):
       updatedAt: new Date()
     };
     
+    console.log('Updated project object:', updatedProjects[projectIndex]);
+    
     // Update both in-memory and localStorage
     updateProjects(updatedProjects);
     localStorage.setItem('projects', JSON.stringify(updatedProjects));

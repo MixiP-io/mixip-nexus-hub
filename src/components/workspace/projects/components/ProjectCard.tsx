@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Eye, FolderOpen, Users, User, Image } from 'lucide-react';
+import { Eye, FolderOpen, Users, User, Image, Folder } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -35,11 +35,26 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   onSetCoverImage
 }) => {
   const hasAssets = project.assets && project.assets.length > 0;
+  const hasSubfolders = project.subfolders && project.subfolders.length > 0;
   
   // Handle click on the project card
   const handleClick = () => {
     console.log('Project card clicked:', project.id);
     onProjectClick(project.id);
+  };
+  
+  // Format the updated date
+  const formatUpdatedDate = (date: Date | string) => {
+    try {
+      const dateObj = typeof date === 'string' ? new Date(date) : date;
+      return dateObj.toLocaleDateString(undefined, { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      });
+    } catch (error) {
+      return 'Unknown date';
+    }
   };
   
   return (
@@ -76,32 +91,52 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             hasAssets={hasAssets}
           />
         </div>
+        
+        {/* Subfolder indicator */}
+        {hasSubfolders && (
+          <div className="absolute bottom-2 left-2">
+            <Badge variant="outline" className="bg-blue-600/50 text-blue-200 border-blue-500 flex items-center">
+              <Folder className="mr-1 h-3 w-3" />
+              {project.subfolders.length} {project.subfolders.length === 1 ? 'subfolder' : 'subfolders'}
+            </Badge>
+          </div>
+        )}
       </div>
       <CardContent className="p-4">
         <div className="flex justify-between items-start">
-          <div>
+          <div className="space-y-1">
             <div className="flex items-center">
               <h3 className="font-medium text-lg mb-1 text-white">{project.name}</h3>
-              {project.subfolders && project.subfolders.length > 0 && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Badge variant="outline" className="ml-2 bg-blue-600/20 text-blue-400 border-blue-600/30">
-                        {project.subfolders.length} {project.subfolders.length === 1 ? 'folder' : 'folders'}
-                      </Badge>
-                    </TooltipTrigger>
-                    <TooltipContent className="bg-gray-800 border-gray-700">
-                      <p>Contains subfolders</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
             </div>
-            <p className="text-sm text-gray-300">
-              {project.assets ? project.assets.length : 0} assets • Updated {new Date(project.updatedAt).toLocaleDateString()}
+            
+            {/* Display project description with truncation */}
+            {project.description && (
+              <p className="text-sm text-gray-300 line-clamp-2 max-w-[90%]">
+                {project.description}
+              </p>
+            )}
+            
+            <p className="text-sm text-gray-400">
+              {project.assets ? project.assets.length : 0} assets • Updated {formatUpdatedDate(project.updatedAt)}
             </p>
           </div>
         </div>
+        
+        {/* Tags display */}
+        {project.tags && project.tags.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1">
+            {project.tags.slice(0, 3).map((tag: string, index: number) => (
+              <Badge key={index} variant="outline" className="bg-gray-700 text-gray-300 border-gray-600">
+                {tag}
+              </Badge>
+            ))}
+            {project.tags.length > 3 && (
+              <Badge variant="outline" className="bg-gray-700 text-gray-300 border-gray-600">
+                +{project.tags.length - 3}
+              </Badge>
+            )}
+          </div>
+        )}
         
         {/* Ownership indicators */}
         {project.owners && project.owners.length > 0 && (

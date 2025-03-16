@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Eye, Pencil, Trash, FolderOpen, Users, User, FolderPlus } from 'lucide-react';
+import { Eye, Pencil, Trash, FolderOpen, Users, User, FolderPlus, Folder } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -25,17 +25,32 @@ const ProjectListView: React.FC<ProjectListViewProps> = ({
   onAddSubfolder,
   onDeleteProject
 }) => {
+  // Format the updated date
+  const formatUpdatedDate = (date: Date | string) => {
+    try {
+      const dateObj = typeof date === 'string' ? new Date(date) : date;
+      return dateObj.toLocaleDateString(undefined, { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      });
+    } catch (error) {
+      return 'Unknown date';
+    }
+  };
+
   return (
     <div className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
       <table className="w-full">
         <thead className="bg-gray-900 border-b border-gray-700">
           <tr>
             <th className="text-left p-4 font-medium text-gray-400">Name</th>
+            <th className="text-left p-4 font-medium text-gray-400">Description</th>
             <th className="text-left p-4 font-medium text-gray-400">Assets</th>
             <th className="text-left p-4 font-medium text-gray-400">Subfolders</th>
             <th className="text-left p-4 font-medium text-gray-400">Ownership</th>
             <th className="text-left p-4 font-medium text-gray-400">Last Updated</th>
-            <th className="text-left p-4 font-medium text-gray-400">Rights Status</th>
+            <th className="text-left p-4 font-medium text-gray-400">Tags</th>
             <th className="text-right p-4 font-medium text-gray-400">Actions</th>
           </tr>
         </thead>
@@ -52,12 +67,32 @@ const ProjectListView: React.FC<ProjectListViewProps> = ({
                   <span>{project.name}</span>
                 </div>
               </td>
+              <td className="p-4 max-w-xs">
+                <p className="line-clamp-1 text-gray-300">{project.description || '—'}</p>
+              </td>
               <td className="p-4">{project.assets ? project.assets.length : 0}</td>
               <td className="p-4">
                 {project.subfolders && project.subfolders.length > 0 ? (
-                  <Badge variant="outline" className="bg-blue-600/20 text-blue-400 border-blue-600/30">
-                    {project.subfolders.length}
-                  </Badge>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Badge variant="outline" className="bg-blue-600/20 text-blue-400 border-blue-600/30 flex items-center">
+                          <Folder className="mr-1 h-3 w-3" />
+                          {project.subfolders.length}
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-gray-800 border-gray-700 p-2 max-w-sm">
+                        <div className="space-y-1">
+                          <p className="font-medium">Subfolders:</p>
+                          {project.subfolders.map((folder: any) => (
+                            <div key={folder.id} className="text-xs pl-2 border-l border-gray-700">
+                              {folder.name}
+                            </div>
+                          ))}
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 ) : (
                   "0"
                 )}
@@ -94,11 +129,24 @@ const ProjectListView: React.FC<ProjectListViewProps> = ({
                   </TooltipProvider>
                 )}
               </td>
-              <td className="p-4">{new Date(project.updatedAt).toLocaleDateString()}</td>
+              <td className="p-4">{formatUpdatedDate(project.updatedAt)}</td>
               <td className="p-4">
-                <Badge className="bg-yellow-600 hover:bg-yellow-700">
-                  {project.licensing?.type || 'Standard'}
-                </Badge>
+                {project.tags && project.tags.length > 0 ? (
+                  <div className="flex flex-wrap gap-1">
+                    {project.tags.slice(0, 2).map((tag: string, index: number) => (
+                      <Badge key={index} variant="outline" className="bg-gray-700 text-gray-300 border-gray-600">
+                        {tag}
+                      </Badge>
+                    ))}
+                    {project.tags.length > 2 && (
+                      <Badge variant="outline" className="bg-gray-700 text-gray-300 border-gray-600">
+                        +{project.tags.length - 2}
+                      </Badge>
+                    )}
+                  </div>
+                ) : (
+                  "—"
+                )}
               </td>
               <td className="p-4 text-right">
                 <div className="flex justify-end">

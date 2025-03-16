@@ -39,14 +39,19 @@ export const useProjectEditEvents = ({
     }
     
     try {
-      // Add a small delay before updating the project to ensure dialog is fully closed
+      // Add a longer delay before updating the project to ensure dialog is fully closed
+      // and all state transitions have completed
       setTimeout(() => {
-        // Then update the project
-        updateProjectDetails(projectId, updates);
+        // Update the project
+        const result = updateProjectDetails(projectId, updates);
         
-        // Notify user of success
-        toast.success('Project updated successfully');
-      }, 300);
+        if (result) {
+          // Notify user of success
+          toast.success('Project updated successfully');
+        } else {
+          toast.error('Failed to update project');
+        }
+      }, 800);
     } catch (err) {
       console.error('Error updating project:', err);
       toast.error('An error occurred while updating the project');
