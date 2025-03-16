@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useFileManager } from './useFileManager';
 import { useFileInput } from './useFileInput';

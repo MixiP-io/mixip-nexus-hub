@@ -1,101 +1,36 @@
 
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { UploadFile, FileStatus } from '../types';
-import { getFilePreview } from '../utils/fileUtils';
-import { calculateTotalProgress } from '../utils/uploadUtils';
+import { useFileState } from './file-management/useFileState';
+import { useFileOperations } from './file-management/useFileOperations';
+import { useProgressTracking } from './file-management/useProgressTracking';
 
+/**
+ * Hook for managing file uploads, including file state, operations and progress tracking
+ */
 export const useFileManager = () => {
-  const [files, setFiles] = useState<UploadFile[]>([]);
-  const [overallProgress, setOverallProgress] = useState(0);
+  // File state management
+  const { files, setFiles, overallProgress, setOverallProgress } = useFileState();
   
-  const addFiles = (selectedFiles: FileList | null) => {
-    if (!selectedFiles || selectedFiles.length === 0) {
-      console.log("No files selected");
-      return;
-    }
-    
-    const newFiles: UploadFile[] = Array.from(selectedFiles).map(file => {
-      return {
-        id: `file-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        progress: 0,
-        status: 'queued',
-        source: 'computer',
-        file: file,
-        preview: getFilePreview(file)
-      };
-    });
-    
-    setFiles(prev => [...prev, ...newFiles]);
-    toast.success(`${newFiles.length} files added to upload queue`);
-  };
+  // File operations like adding and removing files
+  const { addFiles, removeFile, clearAll } = useFileOperations(files, setFiles);
   
-  const removeFile = (id: string) => {
-    setFiles(prev => {
-      const file = prev.find(f => f.id === id);
-      if (file?.preview) {
-        URL.revokeObjectURL(file.preview);
-      }
-      return prev.filter(file => file.id !== id);
-    });
-    
-    // Update overall progress after removing a file
-    setTimeout(() => updateOverallProgress(), 0);
-  };
-  
-  const clearAll = () => {
-    files.forEach(file => {
-      if (file.preview) {
-        URL.revokeObjectURL(file.preview);
-      }
-    });
-    setFiles([]);
-    setOverallProgress(0);
-  };
-  
-  const updateFileProgress = (fileId: string, progress: number) => {
-    setFiles(prev => 
-      prev.map(f => 
-        f.id === fileId 
-          ? { ...f, progress, status: progress === 100 ? 'processing' : 'uploading' } 
-          : f
-      )
-    );
-    
-    // Recalculate overall progress immediately
-    setTimeout(() => updateOverallProgress(), 0);
-  };
-
-  const updateFileStatus = (fileId: string, status: FileStatus) => {
-    setFiles(prev => 
-      prev.map(f => 
-        f.id === fileId 
-          ? { ...f, status } 
-          : f
-      )
-    );
-    
-    // Recalculate overall progress immediately
-    setTimeout(() => updateOverallProgress(), 0);
-  };
-  
-  const updateOverallProgress = () => {
-    setFiles(currentFiles => {
-      const newProgress = calculateTotalProgress(currentFiles);
-      setOverallProgress(newProgress);
-      return currentFiles;
-    });
-  };
+  // Progress tracking for files
+  const { updateFileProgress, updateFileStatus, updateOverallProgress } = useProgressTracking(
+    files, 
+    setFiles, 
+    setOverallProgress
+  );
   
   return {
+    // File state
     files,
     overallProgress,
+    
+    // File operations
     addFiles,
     removeFile,
     clearAll,
+    
+    // Progress tracking
     updateFileProgress,
     updateFileStatus,
     updateOverallProgress
