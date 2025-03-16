@@ -20,8 +20,8 @@ const UploadComplete: React.FC<UploadCompleteProps> = ({
   
   const handleViewProject = () => {
     console.log(`Navigating to project ${projectId}, folder: ${normalizedFolderId}`);
-    // Pass only projectId to navigateToProject as per its type definition
-    navigateToProject(projectId);
+    // Pass both projectId and folderId to navigateToProject
+    navigateToProject(projectId, normalizedFolderId);
     onClose();
   };
 

@@ -38,7 +38,7 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
     handleBatchRights,
     setCurrentFolderId,
     currentFolderId
-  } = useAssetsManager(selectedProjectId);
+  } = useAssetsManager(selectedProjectId, selectedFolderId);
 
   useEffect(() => {
     console.log('AssetsManager rendered with projectId:', selectedProjectId, 'folderId:', selectedFolderId);

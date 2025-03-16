@@ -19,7 +19,7 @@ const CreativeContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState('projects');
   const [action, setAction] = useState<string | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
-  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>('root');
   
   useEffect(() => {
     // Get the tab from URL params if available

@@ -1,9 +1,10 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { getProjectById } from '../../batch-uploader/utils/projectUtils';
 
-export const useAssetsManager = (selectedProjectId: string | null) => {
+export const useAssetsManager = (selectedProjectId: string | null, initialFolderId?: string | null) => {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
@@ -11,17 +12,26 @@ export const useAssetsManager = (selectedProjectId: string | null) => {
   const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
   const [rightsPanelOpen, setRightsPanelOpen] = useState(false);
   const [selectedAssetForRights, setSelectedAssetForRights] = useState<string | null>(null);
-  const [currentFolderId, setCurrentFolderId] = useState<string>('root');
+  const [currentFolderId, setCurrentFolderId] = useState<string>(initialFolderId || 'root');
+  
+  useEffect(() => {
+    // Update current folder when initialFolderId changes
+    if (initialFolderId) {
+      console.log('Setting current folder to initial value:', initialFolderId);
+      setCurrentFolderId(initialFolderId);
+    }
+  }, [initialFolderId]);
   
   useEffect(() => {
     if (selectedProjectId) {
       console.log('Fetching project data for ID:', selectedProjectId);
+      console.log('Current folder ID:', currentFolderId);
+      
       const project = getProjectById(selectedProjectId);
       
       if (project) {
         console.log('Project found:', project.name);
         console.log('Root assets:', project.assets?.length || 0);
-        console.log('Current folder ID:', currentFolderId);
         
         // Make a deep copy to avoid reference issues
         setProjectData(JSON.parse(JSON.stringify(project)));
