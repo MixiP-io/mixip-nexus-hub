@@ -3,11 +3,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { useFileManager } from './useFileManager';
 import { useFileInput } from './useFileInput';
 import { calculateTotalSize } from '../utils/uploadUtils';
-import { logProjects, getProjectById } from '../utils/projectUtils';
+import { logProjects } from '../utils/projectUtils';
 import { useUploadProcess } from './uploads/useUploadProcess';
 import { useProjectSelection } from './uploads/useProjectSelection';
 import { useNavigation } from './uploads/useNavigation';
-import { useUploadValidation } from './uploads/useUploadValidation';
+import { useUploadPreparation } from './uploads/useUploadPreparation';
 
 export const useFileUpload = () => {
   // Import sub-hooks
@@ -46,7 +46,7 @@ export const useFileUpload = () => {
   
   const { navigateToProject } = useNavigation();
   
-  const { validateUploadParams } = useUploadValidation();
+  const { prepareUpload } = useUploadPreparation();
   
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     handleInputChange(event);
@@ -78,8 +78,8 @@ export const useFileUpload = () => {
   }, [uploadComplete, uploadResults, selectedProject, selectedProjectName, selectedFolder, files]);
   
   const startUpload = async (licenseType: string, projectId: string, folderId: string = 'root') => {
-    // Validate upload parameters
-    if (!validateUploadParams(files, licenseType, projectId)) {
+    // Validate and prepare upload
+    if (!prepareUpload(files, licenseType, projectId, folderId)) {
       return;
     }
     
@@ -90,7 +90,7 @@ export const useFileUpload = () => {
     setSelectedFolder(folderId);
     
     // Get project name for messages
-    const projectName = selectedProjectName || getProjectById(projectId)?.name || "Project";
+    const projectName = selectedProjectName || "Project";
     
     // Process the upload
     await processUpload(

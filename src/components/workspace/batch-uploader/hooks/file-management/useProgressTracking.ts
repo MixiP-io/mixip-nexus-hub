@@ -1,6 +1,7 @@
 
 import { UploadFile, FileStatus } from '../../types';
 import { calculateTotalProgress } from '../../utils/uploadUtils';
+import { ProgressTrackingProps } from './types';
 
 /**
  * Hook for tracking and updating file progress

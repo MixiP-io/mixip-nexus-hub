@@ -1,6 +1,7 @@
 
 import { toast } from 'sonner';
-import { getProjectById, ensureProjectDataIntegrity } from '../../utils/data/projectStore';
+import { getProjectById } from '../../utils/projectUtils';
+import { ensureProjectDataIntegrity } from '../../utils/data/projectStore';
 
 /**
  * Validates project before upload

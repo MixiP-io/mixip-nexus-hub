@@ -1,5 +1,5 @@
-import { ChangeEvent, ReactNode, RefObject } from 'react';
-import { UploadFile, FileStatus } from '../types';
+import { ViewOption } from './viewOption';
+import { UploadFile, UploadSource } from '../types';
 
 export interface FileCardProps {
   file: UploadFile;

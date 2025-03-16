@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import UploaderTabs from './components/UploaderTabs';
 import UploadArea from './components/UploadArea';
@@ -50,13 +49,11 @@ const BatchUploader: React.FC = () => {
     setSelectedFolder: setMetadataSelectedFolder
   } = useMetadataState();
   
-  // Initial data integrity check on component mount
   useEffect(() => {
     ensureProjectDataIntegrity();
     console.log("BatchUploader: Running initial data integrity check");
   }, []);
   
-  // Synchronize upload state debugging
   useEffect(() => {
     if (uploadComplete) {
       console.log("BatchUploader: Upload complete state detected", { 
@@ -69,7 +66,6 @@ const BatchUploader: React.FC = () => {
     }
   }, [uploadComplete, uploadResults, selectedProject, selectedProjectName, selectedFolder]);
   
-  // Sync selected folder between hooks
   useEffect(() => {
     if (metadataSelectedFolder !== selectedFolder) {
       console.log(`Syncing folder selection from metadata (${metadataSelectedFolder}) to fileUpload (${selectedFolder})`);
@@ -77,13 +73,11 @@ const BatchUploader: React.FC = () => {
     }
   }, [metadataSelectedFolder, selectedFolder, setSelectedFolder]);
   
-  // Sync selected project between hooks
   useEffect(() => {
     if (metadataSelectedProject !== selectedProject) {
       console.log(`Syncing project selection from metadata (${metadataSelectedProject}) to fileUpload (${selectedProject})`);
-      // Only reset folder if project actually changes
       if (metadataSelectedProject && metadataSelectedProject !== selectedProject) {
-        setSelectedFolder('root'); // Reset folder when project changes
+        setSelectedFolder('root');
       }
     }
   }, [metadataSelectedProject, selectedProject, setSelectedFolder]);
@@ -99,28 +93,11 @@ const BatchUploader: React.FC = () => {
       return;
     }
 
-    // Always use 'root' as fallback if folder is undefined or empty
     const folderToUse = metadataSelectedFolder || 'root';
     console.log(`Starting upload with: Project=${metadataSelectedProject}, Folder=${folderToUse}, License=${licenseType}`);
     
-    // Run data integrity check before proceeding
-    ensureProjectDataIntegrity();
-    
-    // Verify project exists one more time
-    const project = getProjectById(metadataSelectedProject);
-    if (!project) {
-      toast.error(`Selected project not found. Please select a different project.`);
-      return;
-    }
-    
-    // Ensure project has assets array initialized
-    if (!Array.isArray(project.assets)) {
-      console.warn("Project assets array not initialized, will be fixed during upload");
-    }
-    
     try {
       await startUpload(licenseType, metadataSelectedProject, folderToUse);
-      logProjects();
     } catch (error) {
       console.error('Error starting upload:', error);
       toast.error(`Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
