@@ -8,22 +8,42 @@ import CreativeWorkspace from '@/pages/CreativeWorkspace'
 import ProfileSettings from '@/pages/profile/index'
 import ProfileSetup from '@/pages/ProfileSetup'
 import { Toaster } from '@/components/ui/toaster'
+import { AuthProvider } from '@/context/AuthContext'
+import AuthGuard from '@/components/auth/AuthGuard'
+import AuthCallback from '@/pages/AuthCallback'
 import '@/App.css'
 
 function App() {
   return (
-    <>
+    <AuthProvider>
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/dashboard/workspace" element={<CreativeWorkspace />} />
-        <Route path="/profile/setup" element={<ProfileSetup />} />
-        <Route path="/profile/settings" element={<ProfileSettings />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/dashboard" element={
+          <AuthGuard>
+            <Dashboard />
+          </AuthGuard>
+        } />
+        <Route path="/dashboard/workspace" element={
+          <AuthGuard>
+            <CreativeWorkspace />
+          </AuthGuard>
+        } />
+        <Route path="/profile/setup" element={
+          <AuthGuard>
+            <ProfileSetup />
+          </AuthGuard>
+        } />
+        <Route path="/profile/settings" element={
+          <AuthGuard>
+            <ProfileSettings />
+          </AuthGuard>
+        } />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />
-    </>
+    </AuthProvider>
   )
 }
 
