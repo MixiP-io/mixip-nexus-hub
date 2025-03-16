@@ -1,7 +1,10 @@
-import { useCallback } from 'react';
-import { toast } from 'sonner';
-import { getProjectById } from '../../batch-uploader/utils/services/projectService';
+
 import { ProjectData } from '../../batch-uploader/utils/types/projectTypes';
+import { useProjectCrudEvents } from './events/useProjectCrudEvents';
+import { useFolderEvents } from './events/useFolderEvents';
+import { useProjectEditEvents } from './events/useProjectEditEvents';
+import { useCoverImageEvents } from './events/useCoverImageEvents';
+import { useSearchEvents } from './events/useSearchEvents';
 
 export interface UseProjectEventHandlersProps {
   projects: ProjectData[];
@@ -54,82 +57,53 @@ export const useProjectEventHandlers = ({
   updateProjectDetails
 }: UseProjectEventHandlersProps): UseProjectEventHandlersResult => {
   
-  const handleCreateProject = useCallback((name: string) => {
-    createNewProject(name);
-    setCreateProjectOpen(false);
-  }, [createNewProject, setCreateProjectOpen]);
+  // Use our smaller, focused hooks
+  const { 
+    handleCreateProject, 
+    handleProjectClick, 
+    handleDeleteProject, 
+    confirmDeleteProject 
+  } = useProjectCrudEvents({
+    projects,
+    setCreateProjectOpen,
+    setSelectedProjectId,
+    setProjectToDelete,
+    setProjectToDeleteName,
+    setDeleteDialogOpen,
+    createNewProject,
+    deleteSelectedProject,
+    projectToDeleteName
+  });
 
-  const handleProjectClick = useCallback((projectId: string) => {
-    setSelectedProjectId(projectId);
-  }, [setSelectedProjectId]);
+  const { 
+    handleAddSubfolder, 
+    handleFolderCreated 
+  } = useFolderEvents({
+    setSelectedProjectId,
+    setCreateSubfolderOpen,
+    refreshProjects
+  });
 
-  const handleDeleteProject = useCallback((projectId: string) => {
-    const project = projects.find(p => p.id === projectId);
-    if (project) {
-      setProjectToDelete(projectId);
-      setProjectToDeleteName(project.name || "Untitled Project");
-      setDeleteDialogOpen(true);
-    }
-  }, [projects, setProjectToDelete, setProjectToDeleteName, setDeleteDialogOpen]);
+  const { 
+    handleEditProject, 
+    handleProjectUpdated 
+  } = useProjectEditEvents({
+    projects,
+    setProjectToEdit,
+    setEditProjectOpen,
+    updateProjectDetails
+  });
 
-  const confirmDeleteProject = useCallback(() => {
-    // Find the project ID based on the name we stored
-    const projectId = projects.find(p => p.name === projectToDeleteName)?.id;
-    
-    // Clear the project to delete state
-    setProjectToDelete(null);
-    
-    // Only attempt to delete if we found a valid project ID
-    if (projectId) {
-      deleteSelectedProject(projectId);
-    }
-    
-    // Close the dialog
-    setDeleteDialogOpen(false);
-  }, [projects, projectToDeleteName, deleteSelectedProject, setProjectToDelete, setDeleteDialogOpen]);
+  const { 
+    handleSetCoverImage 
+  } = useCoverImageEvents({
+    setProjectForCoverImage,
+    setSetCoverImageOpen
+  });
 
-  const handleEditProject = useCallback((projectId: string) => {
-    const project = projects.find(p => p.id === projectId);
-    if (project) {
-      console.log('Setting project for edit:', project.name);
-      setProjectToEdit(project);
-      setEditProjectOpen(true);
-    } else {
-      console.error('Project not found for edit:', projectId);
-      toast.error('Error: Project not found');
-    }
-  }, [projects, setProjectToEdit, setEditProjectOpen]);
-
-  const handleAddSubfolder = useCallback((projectId: string) => {
-    setSelectedProjectId(projectId);
-    setCreateSubfolderOpen(true);
-  }, [setSelectedProjectId, setCreateSubfolderOpen]);
-
-  const handleFolderCreated = useCallback(() => {
-    setCreateSubfolderOpen(false);
-    refreshProjects();
-  }, [setCreateSubfolderOpen, refreshProjects]);
-
-  const handleSetCoverImage = useCallback((projectId: string) => {
-    setProjectForCoverImage(projectId);
-    setSetCoverImageOpen(true);
-  }, [setProjectForCoverImage, setSetCoverImageOpen]);
-
-  const handleProjectUpdated = useCallback((projectId: string, updates: Partial<ProjectData>) => {
-    console.log('Handling project update:', projectId, updates);
-    
-    try {
-      updateProjectDetails(projectId, updates);
-      setEditProjectOpen(false);
-    } catch (err) {
-      console.error('Error updating project:', err);
-      toast.error('An error occurred while updating the project');
-    }
-  }, [updateProjectDetails, setEditProjectOpen]);
-
-  const searchProjects = useCallback((term: string) => {
-    console.log('Searching for projects:', term);
-  }, []);
+  const { 
+    searchProjects 
+  } = useSearchEvents();
 
   return {
     handleCreateProject,
