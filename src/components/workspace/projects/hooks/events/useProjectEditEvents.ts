@@ -43,14 +43,10 @@ export const useProjectEditEvents = ({
       // and all state transitions have completed
       setTimeout(() => {
         // Update the project
-        const result = updateProjectDetails(projectId, updates);
+        updateProjectDetails(projectId, updates);
         
-        if (result) {
-          // Notify user of success
-          toast.success('Project updated successfully');
-        } else {
-          toast.error('Failed to update project');
-        }
+        // Show success notification
+        toast.success('Project updated successfully');
       }, 800);
     } catch (err) {
       console.error('Error updating project:', err);

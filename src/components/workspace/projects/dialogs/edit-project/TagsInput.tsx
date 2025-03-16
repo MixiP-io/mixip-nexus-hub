@@ -7,9 +7,10 @@ import { Label } from '@/components/ui/label';
 interface TagsInputProps {
   tags: string[];
   setTags: (tags: string[]) => void;
+  disabled?: boolean;
 }
 
-const TagsInput: React.FC<TagsInputProps> = ({ tags, setTags }) => {
+const TagsInput: React.FC<TagsInputProps> = ({ tags, setTags, disabled = false }) => {
   const [tagInput, setTagInput] = React.useState('');
 
   const handleAddTag = () => {
@@ -41,11 +42,13 @@ const TagsInput: React.FC<TagsInputProps> = ({ tags, setTags }) => {
           onKeyDown={handleKeyDown}
           placeholder="Add tags (press Enter)"
           className="bg-gray-700 border-gray-600 text-white"
+          disabled={disabled}
         />
         <Button 
           type="button" 
           onClick={handleAddTag}
           className="ml-2 bg-gray-600 hover:bg-gray-500 text-white"
+          disabled={disabled}
         >
           Add
         </Button>
@@ -61,6 +64,7 @@ const TagsInput: React.FC<TagsInputProps> = ({ tags, setTags }) => {
                 variant="ghost"
                 onClick={() => removeTag(tag)}
                 className="ml-1 h-5 w-5 p-0 hover:bg-gray-500 rounded-full"
+                disabled={disabled}
               >
                 <span className="sr-only">Remove</span>
                 ×
