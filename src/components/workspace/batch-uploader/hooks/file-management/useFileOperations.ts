@@ -21,35 +21,46 @@ export const useFileOperations = (
       const newFiles: UploadFile[] = [];
       
       for (const file of Array.from(selectedFiles)) {
-        // Create preview safely - getFilePreview returns a Promise for data URLs
-        const preview = await getFilePreview(file);
-        
-        const newFile: UploadFile = {
-          id: `file-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          progress: 0,
-          status: 'queued',
-          source: 'computer',
-          file: file,
-          preview: preview
-        };
-        
-        newFiles.push(newFile);
+        try {
+          // Create preview safely - getFilePreview returns a Promise for data URLs
+          const preview = await getFilePreview(file);
+          
+          const newFile: UploadFile = {
+            id: `file-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            progress: 0,
+            status: 'queued',
+            source: 'computer',
+            file: file,
+            preview: preview
+          };
+          
+          newFiles.push(newFile);
+          
+          // Debug log the preview
+          if (preview) {
+            const previewType = preview.startsWith('data:') ? 'data URL' : 'blob URL';
+            console.log(`Preview created for ${file.name}: ${previewType} (${preview.substring(0, 50)}...)`);
+          } else {
+            console.log(`No preview created for ${file.name}`);
+          }
+        } catch (error) {
+          console.error(`Error processing file ${file.name}:`, error);
+          // Continue with the next file even if this one fails
+        }
       }
       
-      setFiles(prev => [...prev, ...newFiles]);
-      toast.success(`${newFiles.length} files added to upload queue`);
-      
-      // Debug log the first file's preview
-      if (newFiles.length > 0 && newFiles[0].preview) {
-        const previewType = newFiles[0].preview.startsWith('data:') ? 'data URL' : 'blob URL';
-        console.log(`Preview created for ${newFiles[0].name}: ${previewType} (${newFiles[0].preview.substring(0, 50)}...)`);
+      if (newFiles.length > 0) {
+        setFiles(prev => [...prev, ...newFiles]);
+        toast.success(`${newFiles.length} files added to upload queue`);
+      } else {
+        toast.error("No files could be processed");
       }
     } catch (error) {
       console.error("Error adding files:", error);
-      toast.error("Failed to add some files");
+      toast.error("Failed to add files");
     }
   };
   
