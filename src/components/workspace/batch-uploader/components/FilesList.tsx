@@ -41,7 +41,10 @@ const FilesList: React.FC<FilesListProps> = ({
     if (uploadComplete && uploadResults) {
       console.log("Upload complete detected in FilesList, showing toast");
       if (uploadResults.success) {
-        toast.success(`Upload complete! ${uploadResults.count} files added to ${uploadResults.projectName}`);
+        const folderInfo = uploadResults.folderId && uploadResults.folderId !== 'root' 
+          ? ` in folder "${uploadResults.folderId}"` 
+          : '';
+        toast.success(`Upload complete! ${uploadResults.count} files added to ${uploadResults.projectName}${folderInfo}`);
       } else {
         toast.error(`Upload failed! No files were added to ${uploadResults.projectName}`);
       }
@@ -86,6 +89,7 @@ const FilesList: React.FC<FilesListProps> = ({
           projectName={uploadResults.projectName || ""}
           success={uploadResults.success}
           navigateToProject={navigateToProject}
+          folderId={uploadResults.folderId}
         />
       )}
     </div>

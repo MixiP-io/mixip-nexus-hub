@@ -51,6 +51,7 @@ export const useUploadProcess = () => {
     
     try {
       const normalizedFolderId = folderId || 'root';
+      console.log(`Using normalized folder ID for upload: ${normalizedFolderId}`);
       
       // Execute file uploads
       const { completedFiles, hasErrors } = await executeFileUploads(
@@ -109,7 +110,7 @@ export const useUploadProcess = () => {
       const updatedProject = getProjectById(projectId);
       if (updatedProject) {
         // Set upload complete
-        completeUpload(projectId, projectName, completedFiles);
+        completeUpload(projectId, projectName, completedFiles, folderId);
       } else {
         console.error("Project not found after upload");
         toast.error("Error: Project not found after upload");
@@ -118,7 +119,8 @@ export const useUploadProcess = () => {
           success: false,
           count: 0,
           projectId,
-          projectName
+          projectName,
+          folderId
         });
       }
     } catch (error) {
@@ -130,7 +132,8 @@ export const useUploadProcess = () => {
         success: false,
         count: 0,
         projectId,
-        projectName
+        projectName,
+        folderId
       });
     }
   };
@@ -149,7 +152,8 @@ export const useUploadProcess = () => {
       success: false,
       count: 0,
       projectId: "",
-      projectName
+      projectName,
+      folderId: ""
     });
   };
   
@@ -162,7 +166,8 @@ export const useUploadProcess = () => {
       success: false,
       count: 0,
       projectId: projectId || "",
-      projectName: projectName || ""
+      projectName: projectName || "",
+      folderId: ""
     });
     setIsUploading(false);
   };

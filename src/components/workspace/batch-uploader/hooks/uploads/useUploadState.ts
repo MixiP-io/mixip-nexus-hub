@@ -1,34 +1,43 @@
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
+import { UploadFile } from '../../types';
 
 /**
- * Hook for managing upload state (progress, completion, results)
+ * Hook for managing upload state
  */
 export const useUploadState = () => {
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadComplete, setUploadComplete] = useState(false);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [uploadComplete, setUploadComplete] = useState<boolean>(false);
   const [uploadResults, setUploadResults] = useState<{
     success: boolean;
     count: number;
     projectId: string;
     projectName: string;
+    folderId?: string;
   } | null>(null);
   
-  // Function to set upload complete and handle final steps
-  const completeUpload = useCallback((
-    selectedProject: string, 
-    selectedProjectName: string, 
-    completedFiles: any[]
+  /**
+   * Set upload to complete state
+   */
+  const completeUpload = (
+    projectId: string, 
+    projectName: string, 
+    completedFiles: UploadFile[],
+    folderId?: string
   ) => {
-    console.log(`Setting uploadComplete state to true with ${completedFiles.length} files`);
+    console.log(`Setting upload complete for project: ${projectId} (${projectName}), folder: ${folderId || 'root'}`);
+    
     setUploadComplete(true);
     setUploadResults({
-      success: completedFiles.length > 0,
+      success: true,
       count: completedFiles.length,
-      projectId: selectedProject,
-      projectName: selectedProjectName
+      projectId,
+      projectName,
+      folderId
     });
-  }, []);
+    
+    setIsUploading(false);
+  };
   
   return {
     isUploading,

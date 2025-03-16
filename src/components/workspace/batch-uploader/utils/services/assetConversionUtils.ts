@@ -33,11 +33,11 @@ export const convertFilesToAssets = (
       preview: file.preview,
       uploadedAt: new Date(),
       licenseType,
-      // Only set folderId if it's not 'root'
-      ...(folderId !== 'root' && { folderId })
+      // Always set folderId, even if it's 'root'
+      folderId
     };
     
-    console.log(`Created asset: ${asset.id}, with folder: ${folderId !== 'root' ? folderId : 'root (undefined)'}`);
+    console.log(`Created asset: ${asset.id}, with folder: ${folderId}`);
     return asset;
   });
   

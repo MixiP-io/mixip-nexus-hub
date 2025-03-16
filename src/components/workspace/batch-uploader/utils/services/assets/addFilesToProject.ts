@@ -128,6 +128,7 @@ export const addFilesToProject = async (
         exactMatch.assets = [...exactMatch.assets, ...assets];
         exactMatch.updatedAt = new Date();
         folderFound = true;
+        locationAdded = exactMatch.id;
         toast.success(`Added ${assets.length} files to folder "${exactMatch.name}"`);
       }
     }

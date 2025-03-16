@@ -14,6 +14,7 @@ interface UploadCompleteProps {
   projectName: string;
   success: boolean;
   navigateToProject: (projectId: string) => void;
+  folderId?: string;
 }
 
 const UploadComplete: React.FC<UploadCompleteProps> = ({
@@ -24,9 +25,17 @@ const UploadComplete: React.FC<UploadCompleteProps> = ({
   projectId,
   projectName,
   success,
-  navigateToProject
+  navigateToProject,
+  folderId
 }) => {
-  console.log("UploadComplete rendering with:", { isOpen, fileCount, projectId, projectName, success });
+  console.log("UploadComplete rendering with:", { 
+    isOpen, 
+    fileCount, 
+    projectId, 
+    projectName, 
+    success, 
+    folderId 
+  });
 
   // Force the dialog to be visible when isOpen changes to true
   useEffect(() => {
@@ -34,7 +43,8 @@ const UploadComplete: React.FC<UploadCompleteProps> = ({
       console.log("UploadComplete is open, ensuring dialog is visible");
       // Add a toast notification to ensure user knows the upload completed
       if (success) {
-        toast.success(`Upload complete: ${fileCount} files added to ${projectName}`, {
+        const folderInfo = folderId && folderId !== 'root' ? ` in folder "${folderId}"` : '';
+        toast.success(`Upload complete: ${fileCount} files added to ${projectName}${folderInfo}`, {
           description: `Click "View Project Folder" to see your files.`,
           duration: 5000,
         });
@@ -45,7 +55,7 @@ const UploadComplete: React.FC<UploadCompleteProps> = ({
         });
       }
     }
-  }, [isOpen, fileCount, projectName, success]);
+  }, [isOpen, fileCount, projectName, success, folderId]);
 
   const handleNavigate = () => {
     console.log("Navigate to project:", projectId);
@@ -77,7 +87,10 @@ const UploadComplete: React.FC<UploadCompleteProps> = ({
           </AlertDialogTitle>
           <AlertDialogDescription>
             {success ? (
-              <>Successfully uploaded {fileCount} file{fileCount !== 1 ? 's' : ''} ({totalSize}) to "{projectName}".</>
+              <>
+                Successfully uploaded {fileCount} file{fileCount !== 1 ? 's' : ''} ({totalSize}) to "{projectName}"
+                {folderId && folderId !== 'root' ? ` in folder "${folderId}"` : ''}.
+              </>
             ) : (
               <>Failed to upload files to "{projectName}". No files were successfully processed.</>
             )}
@@ -87,6 +100,7 @@ const UploadComplete: React.FC<UploadCompleteProps> = ({
           <Button 
             onClick={handleNavigate} 
             className={success ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700"}
+            disabled={!projectId}
           >
             <FolderOpen className="mr-2 h-4 w-4" />
             View Project Folder

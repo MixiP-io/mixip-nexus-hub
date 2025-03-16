@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import UploaderTabs from './components/UploaderTabs';
 import UploadArea from './components/UploadArea';
@@ -93,6 +94,7 @@ const BatchUploader: React.FC = () => {
       return;
     }
 
+    // Log the folder ID that we're using to make sure it's correct
     const folderToUse = metadataSelectedFolder || 'root';
     console.log(`Starting upload with: Project=${metadataSelectedProject}, Folder=${folderToUse}, License=${licenseType}`);
     
