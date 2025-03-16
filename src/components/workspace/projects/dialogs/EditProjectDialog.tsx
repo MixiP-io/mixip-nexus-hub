@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import { updateProject, getProjectById } from '../../batch-uploader/utils/projectUtils';
 
 interface EditProjectDialogProps {
   isOpen: boolean;
@@ -33,12 +34,23 @@ const EditProjectDialog: React.FC<EditProjectDialogProps> = ({
   const [tagInput, setTagInput] = useState('');
   
   useEffect(() => {
-    if (project) {
-      setName(project.name || '');
-      setDescription(project.description || '');
-      setTags(project.tags || []);
+    if (project && isOpen) {
+      console.log('Loading project for editing:', project.id);
+      // Fetch the latest project data to ensure we're working with current state
+      const currentProject = getProjectById(project.id);
+      
+      if (currentProject) {
+        setName(currentProject.name || '');
+        setDescription(currentProject.description || '');
+        setTags(currentProject.tags || []);
+        console.log('Project loaded successfully for editing');
+      } else {
+        console.error('Project not found for editing:', project.id);
+        toast.error('Error: Project not found');
+        setIsOpen(false);
+      }
     }
-  }, [project]);
+  }, [project, isOpen, setIsOpen]);
   
   const handleSave = () => {
     if (!name.trim()) {
@@ -46,29 +58,27 @@ const EditProjectDialog: React.FC<EditProjectDialogProps> = ({
       return;
     }
     
-    // Get all projects from localStorage
-    const projectsJSON = localStorage.getItem('projects');
-    let projects = projectsJSON ? JSON.parse(projectsJSON) : [];
+    if (!project || !project.id) {
+      toast.error('Project ID is missing');
+      return;
+    }
     
-    // Find and update the project
-    const projectIndex = projects.findIndex((p: any) => p.id === project.id);
+    console.log('Updating project:', project.id);
     
-    if (projectIndex !== -1) {
-      projects[projectIndex] = {
-        ...projects[projectIndex],
-        name,
-        description,
-        tags,
-        updatedAt: new Date()
-      };
-      
-      // Save back to localStorage
-      localStorage.setItem('projects', JSON.stringify(projects));
-      
+    // Use the updateProject utility function instead of directly manipulating localStorage
+    const success = updateProject(project.id, {
+      name,
+      description,
+      tags,
+      updatedAt: new Date()
+    });
+    
+    if (success) {
       toast.success('Project updated successfully');
       onUpdateProject();
+      setIsOpen(false);
     } else {
-      toast.error('Error updating project: Project not found');
+      toast.error('Error updating project');
     }
   };
   
