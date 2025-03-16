@@ -1,3 +1,4 @@
+
 import { useCallback } from 'react';
 import { toast } from 'sonner';
 import { getProjectById, updateProject } from '../../batch-uploader/utils/services/projectService';
@@ -71,16 +72,18 @@ export const useProjectEventHandlers = ({
   }, [projects, setProjectToDelete, setProjectToDeleteName, setDeleteDialogOpen]);
 
   const confirmDeleteProject = useCallback(() => {
-    const projectToDelete = projects.find(p => 
-      p.id === projects.find(p => p.name === projectToDeleteName)?.id
-    )?.id;
+    // Find the project ID based on the name we stored
+    const projectId = projects.find(p => p.name === projectToDeleteName)?.id;
     
+    // Clear the project to delete state
     setProjectToDelete(null);
     
-    if (projectToDelete) {
-      deleteSelectedProject(projectToDelete);
+    // Only attempt to delete if we found a valid project ID
+    if (projectId) {
+      deleteSelectedProject(projectId);
     }
     
+    // Close the dialog
     setDeleteDialogOpen(false);
   }, [projects, projectToDeleteName, deleteSelectedProject, setProjectToDelete, setDeleteDialogOpen]);
 

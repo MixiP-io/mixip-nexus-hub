@@ -137,7 +137,8 @@ export const useProjectsManager = (): UseProjectsManagerResult => {
     setSetCoverImageOpen,
     refreshProjects,
     createNewProject,
-    deleteSelectedProject
+    deleteSelectedProject,
+    projectToDeleteName  // Add this missing prop
   });
 
   return {
