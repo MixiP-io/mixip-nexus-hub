@@ -1,79 +1,102 @@
 
-import { UploadFile, UploadSource, FileStatus } from '../types';
-import { ViewOption } from './viewOption';
+import { ChangeEvent, ReactNode, RefObject } from 'react';
+import { UploadFile, FileStatus } from '../types';
 
-/**
- * Props for the FilesList component
- */
+export interface FileCardProps {
+  file: UploadFile;
+  removeFile: (id: string) => void;
+  isUploading: boolean;
+  formatFileSize: (size: number) => string;
+}
+
+export interface FileGridProps {
+  files: UploadFile[];
+  removeFile: (id: string) => void;
+  isUploading: boolean;
+  formatFileSize: (size: number) => string;
+}
+
+export interface FileListHeaderProps {
+  filesCount: number;
+  totalSize: string;
+  uploadedFiles: number;
+  isUploading: boolean;
+  clearAll: () => void;
+  startUpload: () => void;
+}
+
+export interface OverallProgressProps {
+  progress: number;
+  isUploading: boolean;
+}
+
+export interface UploadCompleteProps {
+  isOpen: boolean;
+  onClose: () => void;
+  fileCount: number;
+  totalSize: string;
+  projectId: string;
+  projectName: string;
+  navigateToProject: (projectId: string) => void;
+}
+
 export interface FilesListProps {
   files: UploadFile[];
   isUploading: boolean;
   overallProgress: number;
-  formatFileSize: (bytes: number) => string;
+  formatFileSize: (size: number) => string;
   calculateTotalSize: () => number;
   removeFile: (id: string) => void;
   clearAll: () => void;
   startUpload: () => void;
   uploadComplete: boolean;
-  setUploadComplete: (value: boolean) => void;
-  selectedProject: string;
-  selectedProjectName: string | undefined;
+  setUploadComplete: (isComplete: boolean) => void;
+  uploadResults: { success: boolean; count: number; projectId: string; projectName: string; } | null;
+  selectedProject: string | null;
+  selectedProjectName: string | null;
   navigateToProject: (projectId: string) => void;
 }
 
-/**
- * Props for the FileCard component
- */
-export interface FileCardProps {
-  file: UploadFile;
-  removeFile: (id: string) => void;
-  isUploading: boolean;
-  formatFileSize: (bytes: number) => string;
-}
-
-/**
- * Props for the MetadataSection component
- */
-export interface MetadataSectionProps {
-  tags: string;
-  setTags: (tags: string) => void;
-  licenseType: string;
-  setLicenseType: (licenseType: string) => void;
-  usageRights: string;
-  setUsageRights: (usageRights: string) => void;
-}
-
-/**
- * Props for the ProjectSection component
- */
-export interface ProjectSectionProps {
-  selectedProject: string;
-  setSelectedProject: (project: string) => void;
-  selectedFolder: string;
-  setSelectedFolder: (folder: string) => void;
-}
-
-/**
- * Props for the SourceSelection component
- */
-export interface SourceSelectionProps {
-  activeSource: UploadSource;
-  setActiveSource: (source: UploadSource) => void;
-}
-
-/**
- * Props for the UploaderTabs component
- */
-export interface UploaderTabsProps {
-  activeView: ViewOption;
-  setActiveView: (view: ViewOption) => void;
-}
-
-/**
- * Props for the UploadArea component
- */
 export interface UploadAreaProps {
-  handleFileSelect: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  triggerFileInput: (e?: React.MouseEvent) => void;
-  fileInputRef: React.RefObject<HTMLInputElement>;
+  handleFileSelect: (event: ChangeEvent<HTMLInputElement>) => void;
+  triggerFileInput: () => void;
+  fileInputRef: RefObject<HTMLInputElement>;
+}
+
+export interface UploaderTabsProps {
+  activeView: string;
+  setActiveView: (view: string) => void;
+  activeSource: string;
+  setActiveSource: (source: string) => void;
+  tags: string[];
+  setTags: (tags: string[]) => void;
+  licenseType: string;
+  setLicenseType: (type: string) => void;
+  usageRights: Record<string, boolean>;
+  setUsageRights: (rights: Record<string, boolean>) => void;
+  selectedProject: string | null;
+  setSelectedProject: (id: string | null) => void;
+  selectedFolder: string | null;
+  setSelectedFolder: (id: string | null) => void;
+}
+
+export interface SourceSelectionProps {
+  activeSource: string;
+  setActiveSource: (source: string) => void;
+}
+
+export interface MetadataSectionProps {
+  tags: string[];
+  setTags: (tags: string[]) => void;
+  licenseType: string;
+  setLicenseType: (type: string) => void;
+  usageRights: Record<string, boolean>;
+  setUsageRights: (rights: Record<string, boolean>) => void;
+}
+
+export interface ProjectSectionProps {
+  selectedProject: string | null;
+  setSelectedProject: (id: string | null) => void;
+  selectedFolder: string | null;
+  setSelectedFolder: (id: string | null) => void;
 }

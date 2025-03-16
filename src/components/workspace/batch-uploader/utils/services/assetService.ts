@@ -13,14 +13,14 @@ import { addAssetsToFolder } from './folderOperationUtils';
  * @param files - Files to add to the project
  * @param licenseType - License type to apply to the assets
  * @param folderId - ID of the folder to add files to
- * @returns Promise that resolves when files are added
+ * @returns Promise that resolves with result info when files are added
  */
 export const addFilesToProject = async (
   projectId: string, 
   files: UploadFile[],
   licenseType: string = 'standard',
   folderId: string = 'root'
-): Promise<void> => {
+): Promise<{ success: boolean, count: number, location: string }> => {
   console.log(`[assetService] Adding files to project: ${projectId}, folder: ${folderId}, license: ${licenseType}`);
   console.log(`[assetService] Files count: ${files.length}`);
   
@@ -49,7 +49,7 @@ export const addFilesToProject = async (
   if (assets.length === 0) {
     console.log('[assetService] No completed files to add to project');
     toast.warning('No files were processed successfully');
-    return Promise.resolve();
+    return { success: false, count: 0, location: 'none' };
   }
   
   // Create a deep copy of projects to avoid reference issues
@@ -76,6 +76,9 @@ export const addFilesToProject = async (
   // Check if we need to update cover image
   updateProjectCoverIfNeeded(projectIndex, assets, updatedProjects);
   
+  let locationAdded = 'root';
+  let folderFound = false;
+  
   // If adding to root folder
   if (normalizedFolderId === 'root') {
     // Update the project with new assets
@@ -95,10 +98,11 @@ export const addFilesToProject = async (
     
     console.log(`[assetService] Project now has ${updatedProjects[projectIndex].assets.length} assets`);
     toast.success(`Added ${assets.length} files to project root folder`);
+    folderFound = true;
+    locationAdded = 'root';
   } else {
-    // Check if this is a new test folder (common issue with test folders not being found)
-    let folderFound = false;
-    const normalizedFolderName = normalizedFolderId.toLowerCase();
+    // Check if this is a test folder (common issue with test folders not being found)
+    locationAdded = normalizedFolderId;
     
     // Debug folder names
     console.log(`[assetService] Looking for folder with ID: ${normalizedFolderId}`);
@@ -109,53 +113,84 @@ export const addFilesToProject = async (
       });
     }
     
-    // Try to add assets to the specified folder
-    folderFound = addAssetsToFolder(
-      updatedProjects[projectIndex].subfolders, 
-      normalizedFolderId, 
-      assets
-    );
-    
-    if (!folderFound) {
-      // If folder not found, try to create it as a new folder or add to root
-      console.log(`[assetService] Folder ${normalizedFolderId} not found, checking if it's a test folder`);
+    // Direct exact match first
+    if (updatedProjects[projectIndex].subfolders) {
+      const exactMatch = updatedProjects[projectIndex].subfolders.find(
+        folder => folder.id === normalizedFolderId
+      );
       
-      // Check if it's a test folder by looking at the name
-      if (normalizedFolderName.includes('test') || normalizedFolderName.includes('folder')) {
-        // Try to create the folder dynamically
-        console.log(`[assetService] Creating dynamic test folder: ${normalizedFolderId}`);
-        
-        const newFolder = {
-          id: normalizedFolderId,
-          name: normalizedFolderId,
-          assets: [...assets],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          subfolders: []
-        };
-        
-        // Add the new folder
-        updatedProjects[projectIndex].subfolders.push(newFolder);
-        toast.success(`Created new folder "${normalizedFolderId}" and added ${assets.length} files`);
-        folderFound = true;
-      } else {
-        // Fall back to adding to project root
-        console.log(`[assetService] Adding to project root instead`);
-        
-        // Ensure assets array exists
-        if (!Array.isArray(updatedProjects[projectIndex].assets)) {
-          updatedProjects[projectIndex].assets = [];
+      if (exactMatch) {
+        console.log(`[assetService] Found exact folder match with ID: ${normalizedFolderId}`);
+        if (!Array.isArray(exactMatch.assets)) {
+          exactMatch.assets = [];
         }
         
-        updatedProjects[projectIndex].assets = [
-          ...updatedProjects[projectIndex].assets, 
-          ...assets
-        ];
-        
-        toast.warning(`Folder "${normalizedFolderId}" not found, added files to project root instead`);
+        exactMatch.assets = [...exactMatch.assets, ...assets];
+        exactMatch.updatedAt = new Date();
+        folderFound = true;
+        toast.success(`Added ${assets.length} files to folder "${exactMatch.name}"`);
       }
-    } else {
-      toast.success(`Added ${assets.length} files to folder successfully`);
+    }
+    
+    // If not found by ID, try to find by case-insensitive name match
+    if (!folderFound && updatedProjects[projectIndex].subfolders) {
+      const normalizedFolderName = normalizedFolderId.toLowerCase();
+      const nameMatch = updatedProjects[projectIndex].subfolders.find(
+        folder => folder.name.toLowerCase() === normalizedFolderName
+      );
+      
+      if (nameMatch) {
+        console.log(`[assetService] Found folder by name match: ${nameMatch.name}`);
+        if (!Array.isArray(nameMatch.assets)) {
+          nameMatch.assets = [];
+        }
+        
+        nameMatch.assets = [...nameMatch.assets, ...assets];
+        nameMatch.updatedAt = new Date();
+        folderFound = true;
+        locationAdded = nameMatch.id;
+        toast.success(`Added ${assets.length} files to folder "${nameMatch.name}"`);
+      }
+    }
+    
+    // If still not found, use addAssetsToFolder as a fallback 
+    if (!folderFound) {
+      // Try to add assets to the specified folder
+      folderFound = addAssetsToFolder(
+        updatedProjects[projectIndex].subfolders, 
+        normalizedFolderId, 
+        assets
+      );
+      
+      if (folderFound) {
+        toast.success(`Added ${assets.length} files to folder successfully`);
+      }
+    }
+      
+    // If folder still not found, create it as a new folder or add to root
+    if (!folderFound) {
+      console.log(`[assetService] Folder ${normalizedFolderId} not found, creating a new folder`);
+      
+      // Create a safe folder ID and name
+      const safeFolderId = normalizedFolderId.replace(/[^a-z0-9-_]/gi, '-').toLowerCase();
+      const folderName = normalizedFolderId;
+      
+      console.log(`[assetService] Creating new folder: ${folderName} (${safeFolderId})`);
+      
+      const newFolder = {
+        id: safeFolderId,
+        name: folderName,
+        assets: [...assets],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        subfolders: []
+      };
+      
+      // Add the new folder
+      updatedProjects[projectIndex].subfolders.push(newFolder);
+      toast.success(`Created new folder "${folderName}" and added ${assets.length} files`);
+      folderFound = true;
+      locationAdded = safeFolderId;
     }
   }
   
@@ -175,14 +210,27 @@ export const addFilesToProject = async (
     }
     
     console.log(`[assetService] Added ${assets.length} files to project ${projectId}`);
-    console.log(`[assetService] Project now has ${updatedProjects[projectIndex].assets.length} assets at root level`);
+    
+    // Log details about where assets were added
+    if (normalizedFolderId === 'root') {
+      console.log(`[assetService] Project now has ${updatedProjects[projectIndex].assets.length} assets at root level`);
+    } else {
+      const targetFolder = updatedProjects[projectIndex].subfolders.find(f => f.id === locationAdded);
+      if (targetFolder) {
+        console.log(`[assetService] Folder ${targetFolder.name} now has ${targetFolder.assets?.length || 0} assets`);
+      }
+    }
     
     // Debug project data after update
     console.log(`[assetService] Project data after update:`, updatedProjects[projectIndex]);
     
     logProjects(); // Log the updated projects for debugging
     
-    return Promise.resolve();
+    return { 
+      success: true, 
+      count: assets.length, 
+      location: locationAdded
+    };
   } catch (error) {
     console.error('[assetService] Error updating projects:', error);
     toast.error('Failed to update project with new files');

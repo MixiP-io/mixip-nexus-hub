@@ -24,6 +24,7 @@ const BatchUploader: React.FC = () => {
     startUpload,
     calculateTotalSize,
     uploadComplete,
+    uploadResults,
     setUploadComplete,
     selectedProject,
     selectedProjectName,
@@ -59,12 +60,14 @@ const BatchUploader: React.FC = () => {
   useEffect(() => {
     if (uploadComplete) {
       console.log("BatchUploader: Upload complete state detected", { 
+        uploadComplete,
+        uploadResults,
         selectedProject, 
         selectedProjectName,
         selectedFolder 
       });
     }
-  }, [uploadComplete, selectedProject, selectedProjectName, selectedFolder]);
+  }, [uploadComplete, uploadResults, selectedProject, selectedProjectName, selectedFolder]);
   
   // Sync selected folder between hooks
   useEffect(() => {
@@ -168,6 +171,7 @@ const BatchUploader: React.FC = () => {
           startUpload={handleStartUpload}
           uploadComplete={uploadComplete}
           setUploadComplete={setUploadComplete}
+          uploadResults={uploadResults}
           selectedProject={metadataSelectedProject || selectedProject}
           selectedProjectName={selectedProjectName}
           navigateToProject={navigateToProject}

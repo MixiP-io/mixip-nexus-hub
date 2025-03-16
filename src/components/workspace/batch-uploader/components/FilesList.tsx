@@ -18,6 +18,7 @@ const FilesList: React.FC<FilesListProps> = ({
   startUpload,
   uploadComplete,
   setUploadComplete,
+  uploadResults,
   selectedProject,
   selectedProjectName,
   navigateToProject
@@ -29,6 +30,7 @@ const FilesList: React.FC<FilesListProps> = ({
   useEffect(() => {
     console.log("FilesList render state:", { 
       uploadComplete, 
+      uploadResults,
       selectedProject, 
       selectedProjectName,
       uploadedFiles,
@@ -36,10 +38,15 @@ const FilesList: React.FC<FilesListProps> = ({
     });
     
     // Show a toast notification when upload completes
-    if (uploadComplete && selectedProject && uploadedFiles > 0) {
+    if (uploadComplete && uploadResults) {
       console.log("Upload complete detected in FilesList, showing toast");
+      if (uploadResults.success) {
+        toast.success(`Upload complete! ${uploadResults.count} files added to ${uploadResults.projectName}`);
+      } else {
+        toast.error(`Upload failed! No files were added to ${uploadResults.projectName}`);
+      }
     }
-  }, [uploadComplete, selectedProject, selectedProjectName, uploadedFiles, files.length]);
+  }, [uploadComplete, uploadResults, selectedProject, selectedProjectName, uploadedFiles, files.length]);
   
   return (
     <div className="bg-gray-800 rounded-lg p-4 mb-6">
@@ -66,17 +73,18 @@ const FilesList: React.FC<FilesListProps> = ({
       />
 
       {/* Show upload complete dialog when upload is complete and we have a project */}
-      {uploadComplete && selectedProject && (
+      {uploadComplete && uploadResults && (
         <UploadComplete 
           isOpen={uploadComplete}
           onClose={() => {
             console.log("Closing upload complete dialog");
             setUploadComplete(false);
           }}
-          fileCount={uploadedFiles}
+          fileCount={uploadResults.count}
           totalSize={totalSize}
-          projectId={selectedProject}
-          projectName={selectedProjectName || "Project"}
+          projectId={uploadResults.projectId}
+          projectName={uploadResults.projectName}
+          success={uploadResults.success}
           navigateToProject={navigateToProject}
         />
       )}

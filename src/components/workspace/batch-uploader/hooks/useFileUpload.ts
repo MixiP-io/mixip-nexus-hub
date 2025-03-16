@@ -31,6 +31,7 @@ export const useFileUpload = () => {
   const {
     isUploading,
     uploadComplete,
+    uploadResults,
     setUploadComplete,
     processUpload
   } = useUploadProcess();
@@ -66,14 +67,15 @@ export const useFileUpload = () => {
   // Log state changes for debugging
   useEffect(() => {
     console.log("useFileUpload state:", { 
-      uploadComplete, 
+      uploadComplete,
+      uploadResults,
       selectedProject, 
       selectedProjectName,
       selectedFolder,
       filesCount: files.length,
       completedFiles: files.filter(f => f.status === 'complete').length
     });
-  }, [uploadComplete, selectedProject, selectedProjectName, selectedFolder, files]);
+  }, [uploadComplete, uploadResults, selectedProject, selectedProjectName, selectedFolder, files]);
   
   const startUpload = async (licenseType: string, projectId: string, folderId: string = 'root') => {
     // Validate upload parameters
@@ -118,6 +120,7 @@ export const useFileUpload = () => {
     startUpload,
     calculateTotalSize: () => calculateTotalSize(files),
     uploadComplete,
+    uploadResults,
     setUploadComplete,
     selectedProject,
     selectedProjectName,

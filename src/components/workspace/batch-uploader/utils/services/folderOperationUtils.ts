@@ -1,110 +1,80 @@
 
-import { toast } from 'sonner';
-import { ProjectAsset, ProjectFolder } from '../types/projectTypes';
+import { ProjectAsset } from '../types/projectTypes';
 
 /**
- * Add assets to a specific folder recursively
- * @param folders - Array of folders to search in
+ * Recursively add assets to a folder in a project
+ * @param folders - Array of folders to search for the target folder
  * @param targetFolderId - ID of the folder to add assets to
- * @param assets - Assets to add to the folder
+ * @param assets - Array of assets to add to the folder
  * @returns Boolean indicating if the folder was found and assets were added
  */
 export const addAssetsToFolder = (
-  folders: ProjectFolder[],
-  targetFolderId: string,
+  folders: any[] = [], 
+  targetFolderId: string, 
   assets: ProjectAsset[]
 ): boolean => {
-  if (!folders || !Array.isArray(folders)) {
-    console.log('No folders provided or folders is not an array');
+  if (!Array.isArray(folders) || folders.length === 0 || !targetFolderId) {
+    console.log(`[folderOperationUtils] Invalid input: folders=${!!folders}, targetFolderId=${targetFolderId}`);
     return false;
   }
   
-  // Debug the input parameters
-  console.log(`Attempting to add ${assets.length} assets to folder ID: ${targetFolderId}`);
-  console.log(`Searching through ${folders.length} folders`);
+  console.log(`[folderOperationUtils] Looking for folder ${targetFolderId} in ${folders.length} folders`);
   
-  // Special case for "Product Photoshoot Test Folder" - hardcoded ID match
-  if (targetFolderId.includes('test') && targetFolderId.includes('folder')) {
-    console.log(`Special handling for test folder: ${targetFolderId}`);
-    
-    // Look for a folder with a name that contains 'test' and 'folder'
-    for (let i = 0; i < folders.length; i++) {
-      const folder = folders[i];
+  // Check for exact ID match first
+  for (const folder of folders) {
+    if (folder.id === targetFolderId) {
+      console.log(`[folderOperationUtils] Found folder (exact match): ${folder.name} (${folder.id})`);
       
-      // Check if folder name contains 'test' and 'folder' (case insensitive)
-      if (folder && folder.name && 
-          folder.name.toLowerCase().includes('test') && 
-          folder.name.toLowerCase().includes('folder')) {
-        console.log(`Found matching test folder by name: ${folder.name} (${folder.id})`);
-        
-        // Initialize assets array if it doesn't exist
-        if (!folder.assets) {
-          folder.assets = [];
-        } else if (!Array.isArray(folder.assets)) {
-          console.log(`Folder's assets property is not an array, initializing it`);
-          folder.assets = [];
-        }
-        
-        // Add the assets
-        folder.assets = [...folder.assets, ...assets];
-        folder.updatedAt = new Date();
-        
-        console.log(`Folder ${folder.name} now has ${folder.assets.length} assets`);
-        return true;
-      }
-    }
-  }
-  
-  // Normal folder search
-  for (let i = 0; i < folders.length; i++) {
-    const folder = folders[i];
-    
-    // Check if the folder is valid
-    if (!folder || typeof folder !== 'object') {
-      console.log(`Invalid folder at index ${i}`);
-      continue;
-    }
-    
-    // Debug each folder being checked
-    console.log(`Checking folder: ${folder.name} (${folder.id})`);
-    
-    // Special check for any folder with "Test Folder" in the name
-    const folderNameMatches = folder.name && 
-                           folder.name.toLowerCase().includes('test') && 
-                           folder.name.toLowerCase().includes('folder');
-                           
-    const idMatches = folder.id === targetFolderId;
-    
-    // Match either by ID or by name for test folders
-    if (idMatches || folderNameMatches) {
-      console.log(`Found folder ${folder.name} (${folder.id}). Adding ${assets.length} assets.`);
-      
-      // Initialize assets array if it doesn't exist
-      if (!folder.assets) {
-        folder.assets = [];
-      } else if (!Array.isArray(folder.assets)) {
-        console.log(`Folder's assets property is not an array, initializing it`);
+      // Initialize assets array if not present
+      if (!Array.isArray(folder.assets)) {
         folder.assets = [];
       }
       
-      // Add the assets
+      // Add assets to the folder
       folder.assets = [...folder.assets, ...assets];
       folder.updatedAt = new Date();
       
-      console.log(`Folder ${folder.name} now has ${folder.assets.length} assets`);
-      toast.success(`Added ${assets.length} files to folder "${folder.name}"`);
+      console.log(`[folderOperationUtils] Added ${assets.length} assets to folder ${folder.name}, now has ${folder.assets.length} assets`);
       return true;
     }
+  }
+  
+  // If no exact match is found, try case-insensitive name matching
+  const targetFolderLower = targetFolderId.toLowerCase();
+  for (const folder of folders) {
+    const folderIdLower = folder.id.toLowerCase();
+    const folderNameLower = folder.name?.toLowerCase() || '';
     
-    // Check subfolders recursively
-    if (folder.subfolders && Array.isArray(folder.subfolders) && folder.subfolders.length > 0) {
-      console.log(`Checking ${folder.subfolders.length} subfolders of ${folder.name}`);
-      if (addAssetsToFolder(folder.subfolders, targetFolderId, assets)) {
+    // Check for similar ID or name match
+    if (folderIdLower === targetFolderLower || folderNameLower === targetFolderLower) {
+      console.log(`[folderOperationUtils] Found folder (case-insensitive match): ${folder.name} (${folder.id})`);
+      
+      // Initialize assets array if not present
+      if (!Array.isArray(folder.assets)) {
+        folder.assets = [];
+      }
+      
+      // Add assets to the folder
+      folder.assets = [...folder.assets, ...assets];
+      folder.updatedAt = new Date();
+      
+      console.log(`[folderOperationUtils] Added ${assets.length} assets to folder ${folder.name}, now has ${folder.assets.length} assets`);
+      return true;
+    }
+  }
+  
+  // No match found at this level, search recursively in subfolders
+  for (const folder of folders) {
+    if (Array.isArray(folder.subfolders) && folder.subfolders.length > 0) {
+      console.log(`[folderOperationUtils] Checking subfolders of ${folder.name}`);
+      
+      const found = addAssetsToFolder(folder.subfolders, targetFolderId, assets);
+      if (found) {
         return true;
       }
     }
   }
   
-  console.log(`Folder ${targetFolderId} not found in the provided folders`);
+  console.log(`[folderOperationUtils] Folder ${targetFolderId} not found in any level`);
   return false;
 };

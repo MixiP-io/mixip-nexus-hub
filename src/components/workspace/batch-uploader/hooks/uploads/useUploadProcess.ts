@@ -13,6 +13,12 @@ import { ensureProjectDataIntegrity } from '../../utils/data/projectStore';
 export const useUploadProcess = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadComplete, setUploadComplete] = useState(false);
+  const [uploadResults, setUploadResults] = useState<{
+    success: boolean;
+    count: number;
+    projectId: string;
+    projectName: string;
+  } | null>(null);
   
   // Function to set upload complete and handle final steps
   const completeUpload = useCallback((
@@ -20,8 +26,14 @@ export const useUploadProcess = () => {
     selectedProjectName: string, 
     completedFiles: UploadFile[]
   ) => {
-    console.log("Setting uploadComplete state to true");
+    console.log(`Setting uploadComplete state to true with ${completedFiles.length} files`);
     setUploadComplete(true);
+    setUploadResults({
+      success: completedFiles.length > 0,
+      count: completedFiles.length,
+      projectId: selectedProject,
+      projectName: selectedProjectName
+    });
     
     // Debug the project state after upload
     const project = getProjectById(selectedProject);
@@ -56,6 +68,7 @@ export const useUploadProcess = () => {
     
     setIsUploading(true);
     setUploadComplete(false);
+    setUploadResults(null);
     
     updateOverallProgress(); // Calculate initial progress
     
@@ -120,7 +133,8 @@ export const useUploadProcess = () => {
           console.log(`Using folder: ${folderToUse}`);
           
           // Add files to project with proper error handling
-          await addFilesToProject(projectId, completedFiles, licenseType, folderToUse);
+          const result = await addFilesToProject(projectId, completedFiles, licenseType, folderToUse);
+          console.log("addFilesToProject result:", result);
           
           console.log("Upload complete, setting uploadComplete to true");
           console.log("Project:", projectId, "Project name:", projectName, "Folder:", folderToUse);
@@ -138,16 +152,59 @@ export const useUploadProcess = () => {
             console.log('Project after upload:', updatedProject);
             console.log(`Project now has ${updatedProject.assets?.length || 0} assets at root level`);
             
-            // Set upload complete flag
-            completeUpload(projectId, projectName, completedFiles);
+            // Check if assets were actually added
+            let assetsAdded = false;
+            
+            // Check root assets
+            if (folderToUse === 'root' && updatedProject.assets && updatedProject.assets.length > 0) {
+              assetsAdded = true;
+            }
+            
+            // Check folder assets if uploading to a folder
+            if (folderToUse !== 'root' && updatedProject.subfolders) {
+              const targetFolder = updatedProject.subfolders.find(f => f.id === folderToUse);
+              if (targetFolder && targetFolder.assets && targetFolder.assets.length > 0) {
+                assetsAdded = true;
+                console.log(`Found ${targetFolder.assets.length} assets in folder ${targetFolder.name}`);
+              }
+            }
+            
+            if (assetsAdded) {
+              // Set upload complete flag
+              completeUpload(projectId, projectName, completedFiles);
+            } else {
+              console.error("No assets were found after upload");
+              toast.error("Upload completed but no assets were found. Please try again.");
+              setUploadComplete(true);
+              setUploadResults({
+                success: false,
+                count: 0,
+                projectId,
+                projectName
+              });
+            }
           } else {
             console.error("Project not found after upload");
             toast.error("Error: Project not found after upload");
+            setUploadComplete(true);
+            setUploadResults({
+              success: false,
+              count: 0,
+              projectId,
+              projectName
+            });
           }
         } catch (error) {
           console.error("Error adding files to project:", error);
           toast.error(`Failed to add files to project: ${error instanceof Error ? error.message : 'Unknown error'}`);
           setIsUploading(false);
+          setUploadComplete(true);
+          setUploadResults({
+            success: false,
+            count: 0,
+            projectId,
+            projectName
+          });
         }
       } else {
         console.log("No completed files to add to project");
@@ -157,11 +214,24 @@ export const useUploadProcess = () => {
           toast.warning("No files were uploaded successfully");
         }
         setIsUploading(false);
+        setUploadComplete(true);
+        setUploadResults({
+          success: false,
+          count: 0,
+          projectId,
+          projectName
+        });
       }
     } catch (error) {
       console.error('Upload error:', error);
       toast.error(`There was a problem with the upload: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      setUploadComplete(false);
+      setUploadComplete(true);
+      setUploadResults({
+        success: false,
+        count: 0,
+        projectId: projectId || "",
+        projectName: projectName || ""
+      });
       setIsUploading(false);
     } finally {
       // Force a final update to overall progress
@@ -172,6 +242,7 @@ export const useUploadProcess = () => {
   return {
     isUploading,
     uploadComplete,
+    uploadResults,
     setUploadComplete,
     processUpload
   };
