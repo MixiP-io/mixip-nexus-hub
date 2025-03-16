@@ -11,12 +11,10 @@ import {
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import AnimatedLogo from '@/components/ui/AnimatedLogo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useProfile } from '@/pages/profile/context/ProfileContext';
 import { useAuth } from '@/context/AuthContext';
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
-  const { profileData } = useProfile();
   const { signOut, user, profile } = useAuth();
   const navigate = useNavigate();
   
@@ -28,8 +26,9 @@ const Sidebar: React.FC = () => {
     await signOut();
   };
   
-  const displayName = profile?.full_name || profileData?.fullName || user?.email?.split('@')[0] || "User";
-  const avatarUrl = profile?.avatar || profileData?.avatar || "";
+  // Use data from auth profile instead of profile context
+  const displayName = profile?.full_name || user?.email?.split('@')[0] || "User";
+  const avatarUrl = profile?.avatar || null;
   const accountType = profile?.account_type || "Creator Pro";
   
   return (
@@ -42,7 +41,7 @@ const Sidebar: React.FC = () => {
       <div className="p-4 border-b border-gray-800">
         <Link to="/profile/settings" className="flex items-center space-x-3 hover:bg-gray-800 p-2 rounded-lg transition-colors">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={avatarUrl} />
+            <AvatarImage src={avatarUrl || ""} />
             <AvatarFallback className="bg-gray-700 text-gray-300">
               {displayName.split(' ').map(name => name[0]).join('') || "U"}
             </AvatarFallback>
