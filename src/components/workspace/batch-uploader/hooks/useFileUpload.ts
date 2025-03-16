@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { useFileManager } from './useFileManager';
 import { useFileInput } from './useFileInput';
@@ -86,11 +87,14 @@ export const useFileUpload = () => {
     selectProject(projectId);
     setSelectedFolder(folderId);
     
+    // Get project name for messages
+    const projectName = selectedProjectName || getProjectById(projectId)?.name || "Project";
+    
     // Process the upload
     await processUpload(
       files,
       projectId,
-      selectedProjectName || getProjectById(projectId)?.name || "Project",
+      projectName,
       folderId,
       licenseType,
       updateFileProgress,

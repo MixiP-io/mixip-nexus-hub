@@ -29,6 +29,7 @@ const ProjectSection: React.FC<ProjectSectionProps> = ({
   // Load projects
   useEffect(() => {
     const projectData = getProjects();
+    console.log('Loading projects:', projectData.length);
     setProjects(projectData.map(p => ({ id: p.id, name: p.name })));
     
     // Set default selected project if none is selected
@@ -40,11 +41,14 @@ const ProjectSection: React.FC<ProjectSectionProps> = ({
   // Load folders for selected project
   useEffect(() => {
     if (selectedProject) {
+      console.log(`Loading folders for project: ${selectedProject}`);
       const folderData = getAllFoldersForProject(selectedProject);
+      console.log('Folders data:', folderData);
       setFolders(folderData);
       
       // Set default selected folder if none is selected or if selected folder doesn't exist
       if (!selectedFolder || !folderData.find(f => f.id === selectedFolder)) {
+        console.log('Setting default folder to root');
         setSelectedFolder('root');
       }
     }
@@ -66,13 +70,17 @@ const ProjectSection: React.FC<ProjectSectionProps> = ({
   const handleCreateFolder = () => {
     if (!newFolderName.trim() || !selectedProject) return;
     
+    console.log(`Creating new folder: ${newFolderName} in project: ${selectedProject}`);
     const newFolder = createSubfolder(selectedProject, newFolderName);
     
     if (newFolder) {
+      console.log(`New folder created: ${newFolder.id}`);
       // Refresh folders
       const updatedFolders = getAllFoldersForProject(selectedProject);
       setFolders(updatedFolders);
       setSelectedFolder(newFolder.id);
+    } else {
+      console.error('Failed to create folder');
     }
     
     setNewFolderName('');
@@ -92,9 +100,15 @@ const ProjectSection: React.FC<ProjectSectionProps> = ({
   
   // Open subfolder dialog
   const handleSubfolderClick = (parentId: string) => {
+    console.log(`Opening subfolder dialog for parent: ${parentId}`);
     setParentFolderId(parentId);
     setNewSubfolderDialogOpen(true);
   };
+  
+  // Debug current selections
+  useEffect(() => {
+    console.log(`Current selection - Project: ${selectedProject}, Folder: ${selectedFolder}`);
+  }, [selectedProject, selectedFolder]);
   
   return (
     <div className="bg-gray-800 rounded-lg p-4">
@@ -102,14 +116,22 @@ const ProjectSection: React.FC<ProjectSectionProps> = ({
         <ProjectSelector 
           projects={projects}
           selectedProject={selectedProject}
-          setSelectedProject={setSelectedProject}
+          setSelectedProject={(projectId) => {
+            console.log(`Project selector changed to: ${projectId}`);
+            setSelectedProject(projectId);
+            // Reset folder selection when project changes
+            setSelectedFolder('root');
+          }}
           onAddNewClick={() => setNewProjectDialogOpen(true)}
         />
         
         <FolderSelector 
           folders={folders}
           selectedFolder={selectedFolder}
-          setSelectedFolder={setSelectedFolder}
+          setSelectedFolder={(folderId) => {
+            console.log(`Folder selector changed to: ${folderId}`);
+            setSelectedFolder(folderId);
+          }}
           onAddNewClick={() => setNewFolderDialogOpen(true)}
           onCreateSubfolderClick={handleSubfolderClick}
         />

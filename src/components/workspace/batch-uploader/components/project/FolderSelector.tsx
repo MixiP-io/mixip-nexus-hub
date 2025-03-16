@@ -35,13 +35,24 @@ const FolderSelector: React.FC<FolderSelectorProps> = ({
     return parent ? parent.name : '';
   };
 
+  // Debug folders
+  React.useEffect(() => {
+    console.log('FolderSelector - Folders:', folders);
+    console.log('FolderSelector - Selected Folder:', selectedFolder);
+    console.log('FolderSelector - Root Folders:', rootFolders);
+    console.log('FolderSelector - Child Folders:', childFolders);
+  }, [folders, selectedFolder]);
+
   return (
     <div>
       <label className="block text-gray-300 mb-2 text-sm">Target Folder</label>
       <div className="flex gap-2">
         <Select 
           value={selectedFolder} 
-          onValueChange={setSelectedFolder}
+          onValueChange={(value) => {
+            console.log('Folder selection changed to:', value);
+            setSelectedFolder(value);
+          }}
           defaultValue="root"
         >
           <SelectTrigger className="w-full bg-gray-700 border-gray-600 text-white">
@@ -50,6 +61,14 @@ const FolderSelector: React.FC<FolderSelectorProps> = ({
           <SelectContent className="bg-gray-700 border-gray-600 max-h-60">
             <div className="max-h-60 overflow-auto">
               {/* Root folder */}
+              <SelectItem key="root" value="root" className="text-white hover:bg-gray-600">
+                <div className="flex items-center">
+                  <FolderTree className="mr-2 h-4 w-4" />
+                  Project Root
+                </div>
+              </SelectItem>
+              
+              {/* Root folders */}
               {rootFolders.map((folder) => (
                 <SelectItem key={folder.id} value={folder.id} className="text-white hover:bg-gray-600">
                   <div className="flex items-center">
@@ -89,7 +108,10 @@ const FolderSelector: React.FC<FolderSelectorProps> = ({
           <Button 
             variant="outline" 
             size="icon"
-            onClick={() => onCreateSubfolderClick(selectedFolder)}
+            onClick={() => {
+              console.log(`Create subfolder for ${selectedFolder}`);
+              onCreateSubfolderClick(selectedFolder);
+            }}
             className="bg-gray-700 border-gray-600 text-white hover:bg-gray-600"
             title="Add subfolder to selected folder"
           >

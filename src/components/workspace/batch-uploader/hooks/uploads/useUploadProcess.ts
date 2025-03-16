@@ -3,7 +3,8 @@ import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { UploadFile } from '../../types';
 import { simulateFileUpload } from '../../utils/uploadUtils';
-import { addFilesToProject, getProjectById, logProjects } from '../../utils/projectUtils';
+import { addFilesToProject } from '../../utils/services/assetService';
+import { getProjectById, logProjects } from '../../utils/projectUtils';
 
 /**
  * Hook for managing the upload process logic
@@ -47,6 +48,8 @@ export const useUploadProcess = () => {
     updateOverallProgress: () => void,
   ) => {
     console.log(`Starting upload process to project: ${projectId}, folder: ${folderId}`);
+    console.log(`Files to process: ${files.length}, License: ${licenseType}`);
+    
     setIsUploading(true);
     setUploadComplete(false);
     
@@ -57,7 +60,12 @@ export const useUploadProcess = () => {
       // Process files one by one
       for (const file of files) {
         // Only process queued files
-        if (file.status !== 'queued') continue;
+        if (file.status !== 'queued') {
+          console.log(`Skipping file ${file.name} with status ${file.status}`);
+          continue;
+        }
+        
+        console.log(`Processing file: ${file.name}`);
         
         try {
           // Simulate upload - in a real app, replace with actual API calls
@@ -65,12 +73,14 @@ export const useUploadProcess = () => {
           
           // Mark as processing
           updateFileStatus(file.id, 'processing');
+          console.log(`File ${file.name} is processing`);
           
           // Simulate processing delay
           await new Promise(resolve => setTimeout(resolve, 500));
           
           // Mark as complete
           updateFileStatus(file.id, 'complete');
+          console.log(`File ${file.name} is complete`);
         } catch (error) {
           console.error(`Error uploading file ${file.name}:`, error);
           updateFileStatus(file.id, 'error', error instanceof Error ? error.message : 'Upload failed');
@@ -86,29 +96,36 @@ export const useUploadProcess = () => {
       console.log(`Completed files: ${completedFiles.length}`);
       
       if (completedFiles.length > 0) {
-        console.log(`Adding ${completedFiles.length} files to project ${projectId}`);
-        await addFilesToProject(projectId, completedFiles, licenseType, folderId);
+        console.log(`Adding ${completedFiles.length} files to project ${projectId}, folder ${folderId}`);
         
-        console.log("Upload complete, setting uploadComplete to true");
-        console.log("Project:", projectId, "Project name:", projectName, "Folder:", folderId);
-        
-        // Log projects after upload (for debugging)
-        logProjects();
-        
-        // Check project again to verify assets were added
-        const updatedProject = getProjectById(projectId);
-        if (updatedProject) {
-          console.log(`Project after upload: ${updatedProject.name} with ${updatedProject.assets?.length || 0} assets`);
+        try {
+          await addFilesToProject(projectId, completedFiles, licenseType, folderId);
           
-          // Ensure all state is updated correctly after upload
-          setIsUploading(false);
-          updateOverallProgress();
+          console.log("Upload complete, setting uploadComplete to true");
+          console.log("Project:", projectId, "Project name:", projectName, "Folder:", folderId);
           
-          // Set upload complete flag
-          completeUpload(projectId, projectName, completedFiles);
-        } else {
-          console.error("Updated project not found after upload");
-          toast.error("Error: Could not verify upload completed");
+          // Log projects after upload (for debugging)
+          logProjects();
+          
+          // Check project again to verify assets were added
+          const updatedProject = getProjectById(projectId);
+          if (updatedProject) {
+            console.log(`Project after upload: ${updatedProject.name} with ${updatedProject.assets?.length || 0} assets`);
+            
+            // Ensure all state is updated correctly after upload
+            setIsUploading(false);
+            updateOverallProgress();
+            
+            // Set upload complete flag
+            completeUpload(projectId, projectName, completedFiles);
+          } else {
+            console.error("Updated project not found after upload");
+            toast.error("Error: Could not verify upload completed");
+            setIsUploading(false);
+          }
+        } catch (error) {
+          console.error("Error adding files to project:", error);
+          toast.error("Failed to add files to project");
           setIsUploading(false);
         }
       } else {

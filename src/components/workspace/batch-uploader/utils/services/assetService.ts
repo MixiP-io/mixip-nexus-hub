@@ -70,6 +70,15 @@ export const addFilesToProject = async (
     
     console.log(`Project now has ${updatedProjects[projectIndex].assets.length} assets`);
   } else {
+    // Make sure subfolders exists and is an array
+    if (!updatedProjects[projectIndex].subfolders) {
+      console.log('Project has no subfolders array, initializing it');
+      updatedProjects[projectIndex].subfolders = [];
+    }
+    
+    // Debug the subfolders
+    console.log(`Project has ${updatedProjects[projectIndex].subfolders.length} subfolders`);
+    
     // Try to add assets to the specified folder
     const folderFound = addAssetsToFolder(
       updatedProjects[projectIndex].subfolders, 
@@ -85,6 +94,8 @@ export const addFilesToProject = async (
         ...assets
       ];
       toast.warning(`Folder not found, added to project root`);
+    } else {
+      toast.success(`Added files to folder successfully`);
     }
   }
   

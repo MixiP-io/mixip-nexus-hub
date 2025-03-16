@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import UploaderTabs from './components/UploaderTabs';
 import UploadArea from './components/UploadArea';
@@ -56,13 +57,24 @@ const BatchUploader: React.FC = () => {
     }
   }, [uploadComplete, selectedProject, selectedProjectName, selectedFolder]);
   
+  // Sync selected folder between hooks
   useEffect(() => {
     if (metadataSelectedFolder !== selectedFolder) {
+      console.log(`Syncing folder selection from metadata (${metadataSelectedFolder}) to fileUpload (${selectedFolder})`);
       setSelectedFolder(metadataSelectedFolder);
     }
   }, [metadataSelectedFolder, selectedFolder, setSelectedFolder]);
   
+  // Sync selected project between hooks
+  useEffect(() => {
+    if (metadataSelectedProject !== selectedProject && metadataSelectedProject) {
+      console.log(`Syncing project selection from metadata (${metadataSelectedProject}) to fileUpload (${selectedProject})`);
+      setSelectedFolder('root'); // Reset folder when project changes
+    }
+  }, [metadataSelectedProject, selectedProject]);
+  
   const handleStartUpload = async () => {
+    console.log(`Starting upload with: Project=${metadataSelectedProject}, Folder=${metadataSelectedFolder}, License=${licenseType}`);
     await startUpload(licenseType, metadataSelectedProject, metadataSelectedFolder);
     logProjects();
   };

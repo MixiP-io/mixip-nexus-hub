@@ -24,16 +24,22 @@ export const convertFilesToAssets = (
   console.log(`Converting ${completedFiles.length} files to assets with license: ${licenseType}, folder: ${folderId}`);
   
   // Convert uploaded files to project assets
-  const assets = completedFiles.map(file => ({
-    id: file.id,
-    name: file.name,
-    type: file.type,
-    size: file.size,
-    preview: file.preview,
-    uploadedAt: new Date(),
-    licenseType,
-    folderId: folderId === 'root' ? undefined : folderId
-  }));
+  const assets = completedFiles.map(file => {
+    const asset: ProjectAsset = {
+      id: file.id,
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      preview: file.preview,
+      uploadedAt: new Date(),
+      licenseType,
+      // Only set folderId if it's not 'root'
+      ...(folderId !== 'root' && { folderId })
+    };
+    
+    console.log(`Created asset: ${asset.id}, with folder: ${folderId !== 'root' ? folderId : 'root (undefined)'}`);
+    return asset;
+  });
   
   console.log(`Created ${assets.length} assets`);
   return assets;
