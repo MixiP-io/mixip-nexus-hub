@@ -1,9 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Eye, User, Download, MapPin, File } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { isPreviewValid } from '@/components/workspace/batch-uploader/utils/fileUtils';
 
 interface AssetListItemProps {
   asset: any;
@@ -19,6 +20,25 @@ const AssetListItem: React.FC<AssetListItemProps> = ({
   onOpenRightsPanel
 }) => {
   const [previewError, setPreviewError] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | undefined>(asset?.preview);
+
+  useEffect(() => {
+    setPreviewError(false);
+    
+    if (asset?.preview) {
+      // Validate preview URL
+      const valid = isPreviewValid(asset.preview);
+      if (valid) {
+        setPreviewUrl(asset.preview);
+      } else {
+        console.error(`Asset preview validation failed for ${asset.id}, ${asset.name}`);
+        setPreviewUrl(undefined);
+        setPreviewError(true);
+      }
+    } else {
+      setPreviewUrl(undefined);
+    }
+  }, [asset]);
 
   const handleImageError = () => {
     console.error(`Failed to load preview for asset in list: ${asset.id}, ${asset.name}`);
@@ -52,9 +72,9 @@ const AssetListItem: React.FC<AssetListItemProps> = ({
       <td className="p-4">
         <div className="flex items-center">
           <div className="w-10 h-10 rounded bg-gray-700 mr-3 overflow-hidden flex-shrink-0">
-            {asset.preview && !previewError ? (
+            {previewUrl && !previewError ? (
               <img 
-                src={asset.preview} 
+                src={previewUrl} 
                 alt={asset.name} 
                 className="w-full h-full object-cover"
                 onError={handleImageError}

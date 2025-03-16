@@ -8,21 +8,43 @@ import { UploadFile } from '../../types';
  * @returns A serialized string version of the preview URL
  */
 const serializePreview = (preview: unknown): string | undefined => {
-  if (!preview) return undefined;
-  
-  // If already a string, return it
-  if (typeof preview === 'string') {
-    return preview;
+  if (!preview) {
+    console.log('No preview to serialize');
+    return undefined;
   }
   
-  // For blob URLs or other objects, try to convert to string
+  // If already a string, verify it's a valid URL format
+  if (typeof preview === 'string') {
+    if (preview.startsWith('data:') || preview.startsWith('blob:') || preview.startsWith('http')) {
+      console.log(`Preview already serialized: ${preview.substring(0, 30)}...`);
+      return preview;
+    }
+  }
+  
   try {
-    if (preview instanceof Blob || preview instanceof URL) {
-      return preview.toString();
+    // For blob URLs or other objects, try to convert to string
+    if (preview instanceof Blob) {
+      const url = URL.createObjectURL(preview);
+      console.log(`Serialized Blob to URL: ${url}`);
+      return url;
+    }
+    
+    if (preview instanceof URL) {
+      const url = preview.toString();
+      console.log(`Serialized URL object to string: ${url}`);
+      return url;
+    }
+    
+    // If it's a Promise (shouldn't happen at this point, but just in case)
+    if (preview instanceof Promise) {
+      console.error('Cannot serialize Promise directly - this should have been awaited earlier');
+      return undefined;
     }
     
     // Last resort: try JSON stringify (but this might not work for complex objects)
-    return String(preview);
+    const serialized = String(preview);
+    console.log(`Serialized using String(): ${serialized.substring(0, 30)}...`);
+    return serialized;
   } catch (error) {
     console.error("Failed to serialize preview:", error);
     return undefined;

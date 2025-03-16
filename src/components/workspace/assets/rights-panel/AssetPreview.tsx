@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
+import { File } from 'lucide-react';
 import { isPreviewValid } from '@/components/workspace/batch-uploader/utils/fileUtils';
 
 interface AssetPreviewProps {
@@ -43,6 +44,14 @@ const AssetPreview: React.FC<AssetPreviewProps> = ({ asset }) => {
     });
     setPreviewError(true);
   };
+  
+  const getFileIcon = () => {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <File className="h-12 w-12 text-gray-400" />
+      </div>
+    );
+  };
 
   return (
     <div className="relative w-full h-48 bg-gray-700 rounded-lg overflow-hidden mb-4">
@@ -55,7 +64,8 @@ const AssetPreview: React.FC<AssetPreviewProps> = ({ asset }) => {
         />
       ) : (
         <div className="w-full h-full flex items-center justify-center">
-          <div className="text-gray-500 text-lg uppercase">
+          {getFileIcon()}
+          <div className="text-gray-500 text-sm uppercase mt-2">
             {asset.type.split('/')[1] || asset.type}
           </div>
         </div>

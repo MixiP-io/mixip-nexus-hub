@@ -1,7 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { File, User, MapPin, Lock, Settings } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { isPreviewValid } from '@/components/workspace/batch-uploader/utils/fileUtils';
 
 interface AssetCardProps {
   asset: any;
@@ -17,6 +18,25 @@ const AssetCard: React.FC<AssetCardProps> = ({
   onOpenRightsPanel 
 }) => {
   const [previewError, setPreviewError] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | undefined>(asset?.preview);
+  
+  useEffect(() => {
+    setPreviewError(false);
+    
+    if (asset?.preview) {
+      // Validate preview URL
+      const valid = isPreviewValid(asset.preview);
+      if (valid) {
+        setPreviewUrl(asset.preview);
+      } else {
+        console.error(`Asset preview validation failed for ${asset.id}, ${asset.name}`);
+        setPreviewUrl(undefined);
+        setPreviewError(true);
+      }
+    } else {
+      setPreviewUrl(undefined);
+    }
+  }, [asset]);
   
   if (!asset) return null;
 
@@ -44,9 +64,9 @@ const AssetCard: React.FC<AssetCardProps> = ({
       onClick={(e) => onSelect(asset.id, e)}
     >
       <div className="relative aspect-square bg-gray-900 flex items-center justify-center overflow-hidden">
-        {asset.preview && !previewError ? (
+        {previewUrl && !previewError ? (
           <img 
-            src={asset.preview} 
+            src={previewUrl} 
             alt={asset.name} 
             className="w-full h-full object-cover" 
             onError={handleImageError}
