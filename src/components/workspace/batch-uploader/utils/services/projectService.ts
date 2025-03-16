@@ -7,7 +7,9 @@ import { projects, updateProjects, currentUser } from '../data/projectStore';
 export {
   getProjects,
   getProjectById,
-  createProject
+  createProject,
+  deleteProject,
+  updateProject
 } from './projectManagement/basicOperations';
 
 export {

@@ -14,6 +14,7 @@ interface ProjectListViewProps {
   projects: any[];
   onProjectClick: (projectId: string) => void;
   onEditProject: (projectId: string, e: React.MouseEvent) => void;
+  onAddSubfolder: (projectId: string, e: React.MouseEvent) => void;
   onDeleteProject: (projectId: string, e: React.MouseEvent) => void;
 }
 
@@ -21,6 +22,7 @@ const ProjectListView: React.FC<ProjectListViewProps> = ({
   projects,
   onProjectClick,
   onEditProject,
+  onAddSubfolder,
   onDeleteProject
 }) => {
   return (
@@ -99,33 +101,47 @@ const ProjectListView: React.FC<ProjectListViewProps> = ({
                 </Badge>
               </td>
               <td className="p-4 text-right">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="mr-2"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onProjectClick(project.id);
-                  }}
-                >
-                  <Eye className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="mr-2"
-                  onClick={(e) => onEditProject(project.id, e)}
-                  title="Add Subfolder"
-                >
-                  <FolderPlus className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={(e) => onDeleteProject(project.id, e)}
-                >
-                  <Trash className="h-4 w-4" />
-                </Button>
+                <div className="flex justify-end">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="mr-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onProjectClick(project.id);
+                    }}
+                    title="View Project"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="mr-2"
+                    onClick={(e) => onEditProject(project.id, e)}
+                    title="Edit Project Details"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="mr-2"
+                    onClick={(e) => onAddSubfolder(project.id, e)}
+                    title="Add Subfolder"
+                  >
+                    <FolderPlus className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={(e) => onDeleteProject(project.id, e)}
+                    title="Delete Project"
+                    className="text-red-400 hover:text-red-300 hover:bg-red-900/40"
+                  >
+                    <Trash className="h-4 w-4" />
+                  </Button>
+                </div>
               </td>
             </tr>
           ))}

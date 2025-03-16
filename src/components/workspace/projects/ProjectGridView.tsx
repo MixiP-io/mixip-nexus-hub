@@ -7,6 +7,7 @@ interface ProjectGridViewProps {
   projects: any[];
   onProjectClick: (projectId: string) => void;
   onEditProject: (projectId: string, e: React.MouseEvent) => void;
+  onAddSubfolder: (projectId: string, e: React.MouseEvent) => void;
   onDeleteProject: (projectId: string, e: React.MouseEvent) => void;
   onCreateProject: () => void;
   onSetCoverImage?: (projectId: string, e: React.MouseEvent) => void;
@@ -16,6 +17,7 @@ const ProjectGridView: React.FC<ProjectGridViewProps> = ({
   projects,
   onProjectClick,
   onEditProject,
+  onAddSubfolder,
   onDeleteProject,
   onCreateProject,
   onSetCoverImage
@@ -28,6 +30,7 @@ const ProjectGridView: React.FC<ProjectGridViewProps> = ({
           project={project}
           onProjectClick={onProjectClick}
           onEditProject={onEditProject}
+          onAddSubfolder={onAddSubfolder}
           onDeleteProject={onDeleteProject}
           onSetCoverImage={onSetCoverImage}
         />

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getProjects } from '../batch-uploader/utils/projectUtils';
+import { getProjects, getProjectById, filterAndSortProjects } from '../batch-uploader/utils/projectUtils';
 import SectionHeader from '../SectionHeader';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { toast } from 'sonner';
@@ -11,6 +11,17 @@ import ProjectListView from './ProjectListView';
 import CreateProjectDialog from './CreateProjectDialog';
 import CreateSubfolderDialog from './CreateSubfolderDialog';
 import SetCoverImageDialog from './dialogs/SetCoverImageDialog';
+import EditProjectDialog from './dialogs/EditProjectDialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface ProjectGridProps {
   onProjectSelect: (projectId: string) => void;
@@ -30,6 +41,15 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
   const [setCoverImageOpen, setSetCoverImageOpen] = useState(false);
   const [projectForCoverImage, setProjectForCoverImage] = useState<string | null>(null);
   const [projectAssets, setProjectAssets] = useState<any[]>([]);
+  
+  // Edit project state
+  const [editProjectOpen, setEditProjectOpen] = useState(false);
+  const [projectToEdit, setProjectToEdit] = useState<any>(null);
+  
+  // Delete project confirmation
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
+  const [projectToDeleteName, setProjectToDeleteName] = useState<string>('');
 
   useEffect(() => {
     loadProjects();
@@ -58,15 +78,46 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
 
   const handleDeleteProject = (projectId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    // In a real implementation, this would call an API to delete the project
-    console.log(`Delete project: ${projectId}`);
-    // Then reload projects
+    // Open delete confirmation dialog
+    const project = projects.find(p => p.id === projectId);
+    if (project) {
+      setProjectToDelete(projectId);
+      setProjectToDeleteName(project.name);
+      setDeleteDialogOpen(true);
+    }
+  };
+  
+  const confirmDeleteProject = () => {
+    if (!projectToDelete) return;
+    
+    // Remove project from projects array
+    const updatedProjects = projects.filter(p => p.id !== projectToDelete);
+    
+    // Update local state and localStorage
+    const projectsJSON = JSON.stringify(updatedProjects);
+    localStorage.setItem('projects', projectsJSON);
+    
+    // Reload projects
     loadProjects();
+    
+    // Close dialog and show toast
+    setDeleteDialogOpen(false);
+    toast.success(`Project "${projectToDeleteName}" deleted successfully`);
   };
 
   const handleEditProject = (projectId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    // In this implementation, we open the subfolder dialog
+    // Get project details
+    const project = projects.find(p => p.id === projectId);
+    if (project) {
+      setProjectToEdit(project);
+      setEditProjectOpen(true);
+    }
+  };
+  
+  const handleAddSubfolder = (projectId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Open the subfolder dialog
     setSelectedProjectId(projectId);
     setCreateSubfolderOpen(true);
   };
@@ -95,6 +146,12 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
     setProjectForCoverImage(projectId);
     setProjectAssets(project.assets.filter((asset: any) => asset.preview));
     setSetCoverImageOpen(true);
+  };
+  
+  const handleProjectUpdated = () => {
+    // Reload projects after updating
+    loadProjects();
+    setEditProjectOpen(false);
   };
 
   const filteredProjects = projects.filter(project => 
@@ -135,6 +192,7 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
           projects={filteredProjects}
           onProjectClick={handleProjectClick}
           onEditProject={handleEditProject}
+          onAddSubfolder={handleAddSubfolder}
           onDeleteProject={handleDeleteProject}
           onCreateProject={() => setCreateProjectOpen(true)}
           onSetCoverImage={handleSetCoverImage}
@@ -144,6 +202,7 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
           projects={filteredProjects}
           onProjectClick={handleProjectClick}
           onEditProject={handleEditProject}
+          onAddSubfolder={handleAddSubfolder}
           onDeleteProject={handleDeleteProject}
         />
       )}
@@ -172,6 +231,39 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
         projectAssets={projectAssets}
         onSuccess={loadProjects}
       />
+      
+      {/* Dialog for editing project */}
+      {projectToEdit && (
+        <EditProjectDialog
+          isOpen={editProjectOpen}
+          setIsOpen={setEditProjectOpen}
+          project={projectToEdit}
+          onUpdateProject={handleProjectUpdated}
+        />
+      )}
+      
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent className="bg-gray-800 border-gray-700 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">Delete Project</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-300">
+              Are you sure you want to delete "{projectToDeleteName}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-gray-700 text-white border-gray-600 hover:bg-gray-600">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteProject}
+              className="bg-red-600 text-white hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

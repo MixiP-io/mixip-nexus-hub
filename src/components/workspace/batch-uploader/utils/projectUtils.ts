@@ -18,6 +18,8 @@ export {
   getProjects,
   getProjectById,
   createProject,
+  deleteProject,
+  updateProject,
   updateProjectOwnership,
   updateProjectLicensing,
   filterAndSortProjects

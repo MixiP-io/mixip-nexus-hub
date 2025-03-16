@@ -21,6 +21,7 @@ interface ProjectCardProps {
   project: any;
   onProjectClick: (projectId: string) => void;
   onEditProject: (projectId: string, e: React.MouseEvent) => void;
+  onAddSubfolder: (projectId: string, e: React.MouseEvent) => void;
   onDeleteProject: (projectId: string, e: React.MouseEvent) => void;
   onSetCoverImage?: (projectId: string, e: React.MouseEvent) => void;
 }
@@ -29,6 +30,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   project,
   onProjectClick,
   onEditProject,
+  onAddSubfolder,
   onDeleteProject,
   onSetCoverImage
 }) => {
@@ -68,6 +70,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           <ProjectCardDropdownMenu 
             projectId={project.id}
             onEditProject={onEditProject}
+            onAddSubfolder={onAddSubfolder}
             onDeleteProject={onDeleteProject}
             onSetCoverImage={onSetCoverImage}
             hasAssets={hasAssets}
