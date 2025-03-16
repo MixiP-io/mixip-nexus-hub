@@ -19,25 +19,40 @@ export const useAssetsManager = (selectedProjectId: string | null) => {
       const project = getProjectById(selectedProjectId);
       
       if (project) {
-        console.log('Project found:', project.name, 'with', project.assets?.length || 0, 'root assets');
-        console.log('Project data:', JSON.stringify(project, null, 2));
+        console.log('Project found:', project.name);
+        console.log('Root assets:', project.assets?.length || 0);
+        console.log('Project assets data:', JSON.stringify(project.assets, null, 2));
+        console.log('Project folders:', project.subfolders?.length || 0);
         
         // Make a deep copy to avoid reference issues
         setProjectData(JSON.parse(JSON.stringify(project)));
+        
+        // Ensure there are assets being processed
+        if (!project.assets || project.assets.length === 0) {
+          console.log('No assets found in project root');
+        }
+        
+        // Check subfolders for assets
+        let subfoldersWithAssets = 0;
+        let totalSubfolderAssets = 0;
+        if (project.subfolders && project.subfolders.length > 0) {
+          project.subfolders.forEach((folder: any) => {
+            if (folder.assets && folder.assets.length > 0) {
+              subfoldersWithAssets++;
+              totalSubfolderAssets += folder.assets.length;
+              console.log(`Folder ${folder.name} has ${folder.assets.length} assets`);
+            }
+          });
+        }
+        console.log(`Found ${subfoldersWithAssets} folders with assets, total ${totalSubfolderAssets} assets in subfolders`);
       } else {
         console.log('Project not found for ID:', selectedProjectId);
         setProjectData(null);
         toast.error('Project not found');
       }
     } else {
-      // If no project is selected, show all assets from all projects
-      // In a real implementation, this would fetch all assets
       console.log('No project selected, showing all assets');
-      const allProjects = [] as any[];
-      setProjectData({
-        name: 'All Assets',
-        assets: allProjects.flatMap(p => p.assets || [])
-      });
+      setProjectData(null);
     }
   }, [selectedProjectId]);
 

@@ -37,8 +37,9 @@ export const useFileUpload = () => {
   const navigateToProject = (projectId: string) => {
     // In a real app, this would navigate to the project page
     console.log(`Navigating to project: ${projectId}`);
-    // This is where you'd implement navigation to the project folder
-    // For example: router.push(`/dashboard/projects/${projectId}`);
+    
+    // Force window navigation to ensure fresh load
+    window.location.href = `/dashboard/workspace?tab=assets&project=${projectId}`;
   };
 
   // Reset upload complete when files change or component unmounts
@@ -69,7 +70,13 @@ export const useFileUpload = () => {
   const completeUpload = useCallback(() => {
     console.log("Setting uploadComplete state to true");
     setUploadComplete(true);
-  }, []);
+    
+    // Debug the project state after upload
+    const project = getProjectById(selectedProject);
+    if (project) {
+      console.log(`Project ${project.name} now has ${project.assets?.length || 0} assets at root level`);
+    }
+  }, [selectedProject]);
   
   const startUpload = async (licenseType: string, projectId: string, folderId: string = 'root') => {
     if (files.length === 0) {
@@ -87,6 +94,8 @@ export const useFileUpload = () => {
       return;
     }
     
+    console.log(`Starting upload to project: ${projectId}, folder: ${folderId}, license: ${licenseType}`);
+    
     // Reset the upload complete state at the beginning of upload
     setUploadComplete(false);
     setIsUploading(true);
@@ -97,6 +106,12 @@ export const useFileUpload = () => {
     const project = getProjectById(projectId);
     if (project) {
       setSelectedProjectName(project.name);
+      console.log(`Project before upload: ${project.name} with ${project.assets?.length || 0} assets`);
+    } else {
+      console.error(`Project not found: ${projectId}`);
+      toast.error(`Project not found: ${projectId}`);
+      setIsUploading(false);
+      return;
     }
     
     updateOverallProgress(); // Calculate initial progress
@@ -125,8 +140,10 @@ export const useFileUpload = () => {
       
       // Add files to project after processing all files
       const completedFiles = files.filter(f => f.status === 'complete');
+      console.log(`Completed files: ${completedFiles.length}`);
       
       if (completedFiles.length > 0) {
+        console.log(`Adding ${completedFiles.length} files to project ${projectId}`);
         await addFilesToProject(projectId, completedFiles, licenseType, folderId);
         
         console.log("Upload complete, setting uploadComplete to true");
@@ -134,6 +151,12 @@ export const useFileUpload = () => {
         
         // Log projects after upload (for debugging)
         logProjects();
+        
+        // Check project again to verify assets were added
+        const updatedProject = getProjectById(projectId);
+        if (updatedProject) {
+          console.log(`Project after upload: ${updatedProject.name} with ${updatedProject.assets?.length || 0} assets`);
+        }
         
         // Ensure all state is updated correctly after upload
         setIsUploading(false);

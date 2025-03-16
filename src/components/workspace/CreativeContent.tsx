@@ -11,6 +11,8 @@ import CollaboratorContent from '@/components/workspace/collaborators/Collaborat
 import BatchUploader from '@/components/workspace/batch-uploader/BatchUploader';
 import AnalyticsView from '@/components/workspace/analytics';
 import { Toaster } from 'sonner';
+import { toast } from 'sonner';
+import { getProjectById } from './batch-uploader/utils/projectUtils';
 
 const CreativeContent: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -37,13 +39,25 @@ const CreativeContent: React.FC = () => {
     // Check if there's a project selection
     const projectParam = searchParams.get('project');
     if (projectParam) {
+      console.log('Project selected:', projectParam);
       setSelectedProjectId(projectParam);
+      
+      // Debug the selected project
+      const project = getProjectById(projectParam);
+      if (project) {
+        console.log('Project data loaded:', project.name);
+        console.log('Project assets count:', project.assets?.length || 0);
+        console.log('Project assets:', JSON.stringify(project.assets, null, 2));
+      } else {
+        console.log('Project not found:', projectParam);
+        toast.error('Project not found or failed to load');
+      }
     }
   }, [searchParams]);
 
   // Render the appropriate content based on the active tab
   const renderContent = () => {
-    console.log('Rendering content for tab:', activeTab);
+    console.log('Rendering content for tab:', activeTab, 'with selected project:', selectedProjectId);
     
     switch (activeTab) {
       case 'campaigns':
@@ -65,7 +79,15 @@ const CreativeContent: React.FC = () => {
   };
 
   const handleProjectSelect = (projectId: string) => {
+    console.log('Project selected via handler:', projectId);
     setSelectedProjectId(projectId);
+    
+    // Debug the selected project
+    const project = getProjectById(projectId);
+    if (project) {
+      console.log('Project data loaded via handler:', project.name);
+      console.log('Project assets count:', project.assets?.length || 0);
+    }
   };
 
   return (

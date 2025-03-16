@@ -22,17 +22,22 @@ export const addFilesToProject = async (
   folderId: string = 'root'
 ): Promise<void> => {
   console.log(`Adding files to project: ${projectId}, folder: ${folderId}, license: ${licenseType}`);
+  console.log(`Files count: ${files.length}`);
   
   // Find the project
   const projectData = findProject(projectId);
   if (!projectData) {
+    console.error(`Project not found: ${projectId}`);
+    toast.error(`Project not found: ${projectId}`);
     return Promise.reject(new Error(`Project not found: ${projectId}`));
   }
   
   const { projectIndex, project } = projectData;
+  console.log(`Project found at index ${projectIndex}: ${project.name}`);
   
   // Convert files to assets
   const assets = convertFilesToAssets(files, licenseType, folderId);
+  console.log(`Converted ${files.length} files to ${assets.length} assets`);
   
   if (assets.length === 0) {
     console.log('No completed files to add to project');
@@ -42,6 +47,12 @@ export const addFilesToProject = async (
   // Create a deep copy of projects to avoid reference issues
   const updatedProjects = JSON.parse(JSON.stringify(projects));
   
+  // Ensure the project has an assets array
+  if (!updatedProjects[projectIndex].assets) {
+    console.log('Initializing assets array for project');
+    updatedProjects[projectIndex].assets = [];
+  }
+  
   // Check if we need to update cover image
   updateProjectCoverIfNeeded(projectIndex, assets, updatedProjects);
   
@@ -49,10 +60,14 @@ export const addFilesToProject = async (
   if (folderId === 'root') {
     // Update the project with new assets
     console.log(`Adding ${assets.length} assets to project ${projectId} root folder`);
+    console.log(`Project has ${updatedProjects[projectIndex].assets.length} existing assets`);
+    
     updatedProjects[projectIndex].assets = [
       ...updatedProjects[projectIndex].assets, 
       ...assets
     ];
+    
+    console.log(`Project now has ${updatedProjects[projectIndex].assets.length} assets`);
   } else {
     // Try to add assets to the specified folder
     const folderFound = addAssetsToFolder(
@@ -79,6 +94,8 @@ export const addFilesToProject = async (
   updateProjects(updatedProjects);
   console.log(`Added ${assets.length} files to project ${projectId}`);
   console.log(`Project now has ${updatedProjects[projectIndex].assets.length} assets at root level`);
+  
+  // Debug project data after update
   console.log(`Project data after update:`, JSON.stringify(updatedProjects[projectIndex], null, 2));
   
   toast.success(`Added ${assets.length} files to project`);
