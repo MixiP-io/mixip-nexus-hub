@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { FolderOpen } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface UploadCompleteProps {
   isOpen: boolean;
@@ -29,8 +30,13 @@ const UploadComplete: React.FC<UploadCompleteProps> = ({
   useEffect(() => {
     if (isOpen) {
       console.log("UploadComplete is open, ensuring dialog is visible");
+      // Add a toast notification to ensure user knows the upload completed
+      toast.success(`Upload complete: ${fileCount} files added to ${projectName}`, {
+        description: `Click "View Project Folder" to see your files.`,
+        duration: 5000,
+      });
     }
-  }, [isOpen]);
+  }, [isOpen, fileCount, projectName]);
 
   const handleNavigate = () => {
     console.log("Navigate to project:", projectId);
@@ -38,8 +44,6 @@ const UploadComplete: React.FC<UploadCompleteProps> = ({
     onClose();
   };
 
-  // With shadcn/ui AlertDialog, we need to ensure open is directly controlled by the isOpen prop
-  // and that we're not accidentally overriding the dialog's internal state
   return (
     <AlertDialog 
       open={isOpen}

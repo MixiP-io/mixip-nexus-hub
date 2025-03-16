@@ -5,6 +5,7 @@ import OverallProgress from './file-list/OverallProgress';
 import FileGrid from './file-list/FileGrid';
 import UploadComplete from './file-list/UploadComplete';
 import { FilesListProps } from '../types/componentProps';
+import { toast } from 'sonner';
 
 const FilesList: React.FC<FilesListProps> = ({
   files,
@@ -33,6 +34,11 @@ const FilesList: React.FC<FilesListProps> = ({
       uploadedFiles,
       filesCount: files.length
     });
+    
+    // Show a toast notification when upload completes
+    if (uploadComplete && selectedProject && uploadedFiles > 0) {
+      console.log("Upload complete detected in FilesList, showing toast");
+    }
   }, [uploadComplete, selectedProject, selectedProjectName, uploadedFiles, files.length]);
   
   return (
@@ -49,7 +55,7 @@ const FilesList: React.FC<FilesListProps> = ({
       {/* Always show progress bar, regardless of upload state */}
       <OverallProgress 
         progress={overallProgress}
-        isUploading={true}
+        isUploading={isUploading || uploadComplete}
       />
       
       <FileGrid 

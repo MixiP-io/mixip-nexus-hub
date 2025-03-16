@@ -41,6 +41,7 @@ export const addFilesToProject = async (
   
   if (assets.length === 0) {
     console.log('No completed files to add to project');
+    toast.warning('No files were processed successfully');
     return Promise.resolve();
   }
   
@@ -98,7 +99,7 @@ export const addFilesToProject = async (
   // Debug project data after update
   console.log(`Project data after update:`, JSON.stringify(updatedProjects[projectIndex], null, 2));
   
-  toast.success(`Added ${assets.length} files to project`);
+  toast.success(`Added ${assets.length} files to project ${project.name}`);
   logProjects(); // Log the updated projects for debugging
   
   return Promise.resolve();

@@ -36,8 +36,28 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({ selectedProjectId }) => {
 
   useEffect(() => {
     console.log('AssetsManager rendered with projectId:', selectedProjectId);
-    console.log('Project data loaded:', projectData?.name);
-    console.log('Filtered assets count:', filteredAssets?.length || 0);
+    
+    if (projectData) {
+      console.log('Project data loaded:', projectData.name);
+      
+      if (projectData.assets) {
+        console.log('Project has assets array of length:', projectData.assets.length);
+        if (projectData.assets.length > 0) {
+          console.log('First few assets:', JSON.stringify(projectData.assets.slice(0, 3), null, 2));
+        }
+      } else {
+        console.log('Project has no assets array or it is not initialized');
+      }
+      
+      console.log('Filtered assets count:', filteredAssets?.length || 0);
+      
+      // Show a toast when project data loads
+      if (projectData.name) {
+        toast.info(`Viewing assets for project: ${projectData.name}`);
+      }
+    } else {
+      console.log('No project data loaded');
+    }
   }, [selectedProjectId, projectData, filteredAssets]);
 
   if (!selectedProjectId) {
@@ -55,6 +75,9 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({ selectedProjectId }) => {
     );
   }
 
+  const hasAssets = projectData.assets && projectData.assets.length > 0;
+  const hasFilteredAssets = filteredAssets && filteredAssets.length > 0;
+
   return (
     <div className="p-6">
       <AssetsHeader
@@ -69,10 +92,11 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({ selectedProjectId }) => {
 
       <AssetsTabs />
 
-      {filteredAssets.length === 0 ? (
+      {!hasFilteredAssets ? (
         <div>
           <div className="bg-yellow-500/20 border border-yellow-500/30 text-yellow-200 p-4 rounded-lg mb-4">
-            <p>No assets found in project "{projectData.name}". Project has {projectData.assets?.length || 0} root assets.</p>
+            <p>No assets found in project "{projectData.name}". Project has {hasAssets ? projectData.assets.length : 0} root assets.</p>
+            {hasAssets && <p className="mt-2">Assets may be filtered out by your search criteria or stored in subfolders.</p>}
           </div>
           <AssetsEmptyState handleBatchUpload={handleBatchUpload} />
         </div>

@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import { getProjectById } from './batch-uploader/utils/projectUtils';
 
 const CreativeContent: React.FC = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('projects');
   const [action, setAction] = useState<string | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
@@ -39,21 +39,44 @@ const CreativeContent: React.FC = () => {
     // Check if there's a project selection
     const projectParam = searchParams.get('project');
     if (projectParam) {
-      console.log('Project selected:', projectParam);
+      console.log('Project selected from URL:', projectParam);
       setSelectedProjectId(projectParam);
       
       // Debug the selected project
       const project = getProjectById(projectParam);
       if (project) {
-        console.log('Project data loaded:', project.name);
+        console.log('Project data loaded from URL:', project.name);
         console.log('Project assets count:', project.assets?.length || 0);
-        console.log('Project assets:', JSON.stringify(project.assets, null, 2));
+        if (project.assets && project.assets.length > 0) {
+          console.log('Project has assets:', project.assets.length);
+          console.log('First few assets:', project.assets.slice(0, 3));
+        } else {
+          console.log('Project has no assets or assets array is not initialized');
+        }
       } else {
         console.log('Project not found:', projectParam);
         toast.error('Project not found or failed to load');
       }
+    } else {
+      // If switching to assets tab without a project, show a message
+      if (tabParam === 'assets' && !selectedProjectId) {
+        toast.info('Please select a project to view assets');
+      }
     }
   }, [searchParams]);
+
+  // Update URL params when selectedProjectId changes
+  useEffect(() => {
+    if (selectedProjectId) {
+      console.log('Setting project in URL:', selectedProjectId);
+      searchParams.set('project', selectedProjectId);
+      if (activeTab === 'projects') {
+        searchParams.set('tab', 'assets');
+        setActiveTab('assets');
+      }
+      setSearchParams(searchParams);
+    }
+  }, [selectedProjectId]);
 
   // Render the appropriate content based on the active tab
   const renderContent = () => {
@@ -87,6 +110,9 @@ const CreativeContent: React.FC = () => {
     if (project) {
       console.log('Project data loaded via handler:', project.name);
       console.log('Project assets count:', project.assets?.length || 0);
+      
+      // Show a toast to confirm the project selection
+      toast.success(`Viewing project: ${project.name}`);
     }
   };
 

@@ -75,8 +75,11 @@ export const useFileUpload = () => {
     const project = getProjectById(selectedProject);
     if (project) {
       console.log(`Project ${project.name} now has ${project.assets?.length || 0} assets at root level`);
+      
+      // Show a confirmation toast here too for redundancy
+      toast.success(`Upload complete! ${files.filter(f => f.status === 'complete').length} files added to ${project.name}`);
     }
-  }, [selectedProject]);
+  }, [selectedProject, files]);
   
   const startUpload = async (licenseType: string, projectId: string, folderId: string = 'root') => {
     if (files.length === 0) {
@@ -156,24 +159,29 @@ export const useFileUpload = () => {
         const updatedProject = getProjectById(projectId);
         if (updatedProject) {
           console.log(`Project after upload: ${updatedProject.name} with ${updatedProject.assets?.length || 0} assets`);
-        }
-        
-        // Ensure all state is updated correctly after upload
-        setIsUploading(false);
-        updateOverallProgress();
-        
-        // Use setTimeout with a longer delay to ensure all state updates are processed
-        // and the component has re-rendered before showing the dialog
-        setTimeout(() => {
+          
+          // Ensure all state is updated correctly after upload
+          setIsUploading(false);
+          updateOverallProgress();
+          
+          // Set upload complete flag immediately instead of using setTimeout
           completeUpload();
-        }, 500);
+        } else {
+          console.error("Updated project not found after upload");
+          toast.error("Error: Could not verify upload completed");
+          setIsUploading(false);
+        }
+      } else {
+        console.log("No completed files to add to project");
+        toast.warning("No files were uploaded successfully");
+        setIsUploading(false);
       }
     } catch (error) {
       console.error('Upload error:', error);
       toast.error('There was a problem with the upload');
       setUploadComplete(false);
-    } finally {
       setIsUploading(false);
+    } finally {
       // Force a final update to overall progress
       updateOverallProgress();
     }
