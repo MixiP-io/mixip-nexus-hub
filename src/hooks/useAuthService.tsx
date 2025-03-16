@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -37,10 +36,6 @@ export function useAuthService() {
       const { data, error } = await supabase.auth.signInWithPassword({ 
         email, 
         password,
-        options: {
-          // Pass the rememberMe flag as persistSession
-          ...(rememberMe !== undefined && { persistSession: rememberMe })
-        }
       });
       
       if (error) throw error;
