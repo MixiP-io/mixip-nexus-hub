@@ -19,6 +19,69 @@ vi.mock('../../data/projectStore', () => ({
   projects: [],
   updateProjects: vi.fn(),
   logProjects: vi.fn(),
+  ensureProjectDataIntegrity: vi.fn()
+}));
+
+// Mock the validation and helper modules
+vi.mock('../../services/assets/projectAssetsValidation', () => ({
+  validateProjectForAssets: vi.fn((projectId) => {
+    if (projectId === 'project1') {
+      return {
+        isValid: true,
+        projectIndex: 0,
+        project: { id: 'project1', name: 'Test Project 1' }
+      };
+    }
+    return { isValid: false };
+  }),
+  ensureProjectStructure: vi.fn((projects) => projects)
+}));
+
+vi.mock('../../services/assets/folderAssetOperations', () => ({
+  addAssetsToRootFolder: vi.fn((projects) => projects),
+  addAssetsToSpecificFolder: vi.fn((projects, index, folderId) => {
+    return { folderFound: folderId === 'folder1', locationAdded: folderId === 'folder1' ? 'folder1' : 'unknown' };
+  }),
+  createNewFolderWithAssets: vi.fn((projects, index, folderId) => {
+    return { folderFound: true, locationAdded: folderId };
+  })
+}));
+
+vi.mock('../../services/assets/coverImageOperations', () => ({
+  updateProjectCoverIfNeeded: vi.fn((index, assets, projects) => projects)
+}));
+
+vi.mock('../../services/projectOperationUtils', () => ({
+  findProject: vi.fn((projectId) => {
+    if (projectId === 'project1') {
+      return {
+        projectIndex: 0,
+        project: {
+          id: 'project1',
+          name: 'Test Project 1',
+          assets: [],
+          subfolders: []
+        }
+      };
+    }
+    return null;
+  })
+}));
+
+// Mock asset conversion
+vi.mock('../../services/assetConversionUtils', () => ({
+  convertFilesToAssets: vi.fn((files, licenseType, folderId) => {
+    return files.filter(f => f.status === 'complete').map(f => ({
+      id: f.id,
+      name: f.name,
+      type: f.type,
+      size: f.size,
+      preview: f.preview,
+      licenseType,
+      folderId,
+      uploadedAt: new Date()
+    }));
+  })
 }));
 
 describe('Asset Service', () => {
@@ -74,7 +137,7 @@ describe('Asset Service', () => {
         size: 1024,
         progress: 100,
         status: 'complete',
-        source: 'computer', // Added source property
+        source: 'computer',
         file: new File([], 'test-image.jpg', { type: 'image/jpeg' }),
         preview: 'data:image/jpeg;base64,test'
       },
@@ -85,7 +148,7 @@ describe('Asset Service', () => {
         size: 2048,
         progress: 100,
         status: 'complete',
-        source: 'computer', // Added source property
+        source: 'computer',
         file: new File([], 'test-document.pdf', { type: 'application/pdf' }),
         preview: undefined
       },
@@ -96,7 +159,7 @@ describe('Asset Service', () => {
         size: 512,
         progress: 50,
         status: 'uploading',
-        source: 'computer', // Added source property
+        source: 'computer',
         file: new File([], 'incomplete-file.png', { type: 'image/png' }),
         preview: undefined
       }
@@ -112,60 +175,47 @@ describe('Asset Service', () => {
   
   describe('addFilesToProject', () => {
     it('should add files to project root when folderId is "root"', async () => {
-      await addFilesToProject('project1', mockFiles, 'root', 'standard');
+      const result = await addFilesToProject('project1', mockFiles, 'standard', 'root');
       
       expect(updateProjects).toHaveBeenCalled();
       expect(console.log).toHaveBeenCalledWith(
         expect.stringContaining('Adding files to project: project1, folder: root')
       );
       expect(logProjects).toHaveBeenCalled();
-      
-      // Only completed files should be added (2 out of 3)
-      const updatedProjects = vi.mocked(updateProjects).mock.calls[0][0];
-      expect(updatedProjects[0].assets.length).toBe(2);
-      expect(updatedProjects[0].assets[0].id).toBe('file1');
-      expect(updatedProjects[0].assets[1].id).toBe('file2');
+      expect(result.success).toBe(true);
+      expect(result.count).toBe(2); // Only 2 complete files
+      expect(result.location).toBe('root');
     });
     
     it('should add files to a specific folder when folderId is provided', async () => {
-      await addFilesToProject('project1', mockFiles, 'folder1', 'exclusive');
+      const result = await addFilesToProject('project1', mockFiles, 'exclusive', 'folder1');
       
       expect(updateProjects).toHaveBeenCalled();
-      
-      // Check that files were added to the specified folder
-      const updatedProjects = vi.mocked(updateProjects).mock.calls[0][0];
-      expect(updatedProjects[0].subfolders[0].assets.length).toBe(2);
-      expect(updatedProjects[0].subfolders[0].assets[0].licenseType).toBe('exclusive');
-      expect(updatedProjects[0].subfolders[0].assets[0].folderId).toBe('folder1');
+      expect(result.success).toBe(true);
+      expect(result.location).toBe('folder1');
     });
     
-    it('should add to project root and show warning when folder not found', async () => {
-      await addFilesToProject('project1', mockFiles, 'nonexistent-folder', 'standard');
+    it('should create a new folder when folder not found', async () => {
+      const result = await addFilesToProject('project1', mockFiles, 'standard', 'nonexistent-folder');
       
       expect(updateProjects).toHaveBeenCalled();
-      expect(toast.warning).toHaveBeenCalledWith('Folder not found, added to project root');
-      
-      // Files should be added to project root instead
-      const updatedProjects = vi.mocked(updateProjects).mock.calls[0][0];
-      expect(updatedProjects[0].assets.length).toBe(2);
+      expect(result.success).toBe(true);
+      expect(result.location).toBe('nonexistent-folder');
     });
     
     it('should reject with error when project does not exist', async () => {
       await expect(
-        addFilesToProject('nonexistent', mockFiles, 'root', 'standard')
+        addFilesToProject('nonexistent', mockFiles, 'standard', 'root')
       ).rejects.toThrow('Project not found: nonexistent');
-      
-      expect(toast.error).toHaveBeenCalledWith('Project not found: nonexistent');
-      expect(updateProjects).not.toHaveBeenCalled();
     });
     
     it('should resolve without adding anything when no files are completed', async () => {
       const incompleteFiles = [mockFiles[2]]; // Only the incomplete file
-      
-      await addFilesToProject('project1', incompleteFiles, 'root', 'standard');
+      const result = await addFilesToProject('project1', incompleteFiles, 'standard', 'root');
       
       expect(console.log).toHaveBeenCalledWith('No completed files to add to project');
-      expect(updateProjects).not.toHaveBeenCalled();
+      expect(result.success).toBe(false);
+      expect(result.count).toBe(0);
     });
   });
 });

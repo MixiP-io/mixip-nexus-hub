@@ -13,7 +13,7 @@ export const useUploadState = () => {
     count: number;
     projectId: string;
     projectName: string;
-    folderId?: string;
+    folderId: string;
   } | null>(null);
   
   /**
@@ -23,7 +23,7 @@ export const useUploadState = () => {
     projectId: string, 
     projectName: string, 
     completedFiles: UploadFile[],
-    folderId?: string
+    folderId: string = 'root'
   ) => {
     console.log(`Setting upload complete for project: ${projectId} (${projectName}), folder: ${folderId || 'root'}`);
     
@@ -33,7 +33,7 @@ export const useUploadState = () => {
       count: completedFiles.length,
       projectId,
       projectName,
-      folderId
+      folderId: folderId || 'root'
     });
     
     setIsUploading(false);

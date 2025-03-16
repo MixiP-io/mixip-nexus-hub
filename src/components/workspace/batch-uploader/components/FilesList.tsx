@@ -89,7 +89,7 @@ const FilesList: React.FC<FilesListProps> = ({
           projectName={uploadResults.projectName || ""}
           success={uploadResults.success}
           navigateToProject={navigateToProject}
-          folderId={uploadResults.folderId}
+          folderId={uploadResults.folderId || "root"}
         />
       )}
     </div>
