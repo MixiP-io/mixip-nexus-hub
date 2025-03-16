@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { updateProject, getProjectById } from '../../batch-uploader/utils/projectUtils';
+import { updateProject, getProjectById } from '../../batch-uploader/utils/services/projectService';
 
 interface EditProjectDialogProps {
   isOpen: boolean;
