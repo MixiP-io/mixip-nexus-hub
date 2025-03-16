@@ -10,7 +10,7 @@ export const formatFileSize = (bytes: number): string => {
  * Creates a preview URL for an image file
  * Returns either a blob URL or a data URL depending on the file size
  */
-export const getFilePreview = (file: File): string | undefined => {
+export const getFilePreview = async (file: File): Promise<string | undefined> => {
   try {
     if (file.type.startsWith('image/')) {
       // For smaller images (< 5MB), use data URLs for persistence across sessions
