@@ -14,8 +14,24 @@ const ensureAssetIntegrity = (asset: any) => {
   const fixedAsset = { ...asset };
   
   // Ensure preview is a valid string (if it exists)
-  if (fixedAsset.preview !== undefined && typeof fixedAsset.preview !== 'string') {
-    fixedAsset.preview = null;
+  if (fixedAsset.preview !== undefined) {
+    if (typeof fixedAsset.preview !== 'string') {
+      console.warn(`Asset ${fixedAsset.id} (${fixedAsset.name}) has invalid preview type: ${typeof fixedAsset.preview}`);
+      try {
+        // Try to convert non-string previews to strings
+        if (fixedAsset.preview) {
+          fixedAsset.preview = String(fixedAsset.preview);
+        } else {
+          fixedAsset.preview = undefined;
+        }
+      } catch (e) {
+        console.error(`Failed to convert preview for asset ${fixedAsset.id}:`, e);
+        fixedAsset.preview = undefined;
+      }
+    } else if (fixedAsset.preview.length > 10000) {
+      // Check if the preview string is unreasonably long, which might indicate a data issue
+      console.warn(`Asset ${fixedAsset.id} has very long preview string (${fixedAsset.preview.length} chars)`);
+    }
   }
   
   return fixedAsset;
@@ -34,6 +50,19 @@ export const ensureFolderIntegrity = (folder: any) => {
   } else {
     // Fix assets in this folder
     folder.assets = folder.assets.map(asset => ensureAssetIntegrity(asset));
+    
+    // Log some debug info about assets and their previews
+    if (folder.assets.length > 0) {
+      console.log(`Folder "${folder.name || 'unknown'}" has ${folder.assets.length} assets`);
+      
+      // Debug first 2 assets' previews
+      folder.assets.slice(0, 2).forEach((asset: any, idx: number) => {
+        const previewInfo = asset.preview 
+          ? `Preview exists (${typeof asset.preview}, ${asset.preview.substring(0, 30)}...)`
+          : 'No preview';
+        console.log(`Asset ${idx+1}: ${asset.name} - ${previewInfo}`);
+      });
+    }
   }
   
   // Process subfolders recursively

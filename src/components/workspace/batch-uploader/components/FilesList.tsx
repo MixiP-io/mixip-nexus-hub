@@ -6,6 +6,7 @@ import FileGrid from './file-list/FileGrid';
 import UploadComplete from './file-list/UploadComplete';
 import { FilesListProps } from '../types/componentProps';
 import { toast } from 'sonner';
+import { ensureProjectDataIntegrity } from '../utils/data/store/projectIntegrity';
 
 const FilesList: React.FC<FilesListProps> = ({
   files,
@@ -44,6 +45,10 @@ const FilesList: React.FC<FilesListProps> = ({
     // Show a toast notification when upload completes
     if (uploadComplete && uploadResults) {
       console.log("Upload complete detected in FilesList, showing toast");
+      
+      // Run data integrity check to ensure all previews are properly stored
+      ensureProjectDataIntegrity();
+      
       if (uploadResults.success) {
         const folderInfo = uploadResults.folderId && uploadResults.folderId !== 'root' 
           ? ` in folder "${uploadResults.folderId}"` 
