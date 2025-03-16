@@ -15,7 +15,7 @@ interface EditProjectDialogProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   project: ProjectData;
-  onUpdateProject: (updates: Partial<ProjectData>) => void;
+  onUpdateProject: (projectId: string, updates: Partial<ProjectData>) => void;
 }
 
 const EditProjectDialog: React.FC<EditProjectDialogProps> = ({

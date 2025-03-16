@@ -8,7 +8,7 @@ export const useEditProject = (
   project: ProjectData, 
   isOpen: boolean, 
   setIsOpen: (open: boolean) => void,
-  onUpdateProject: (updates: Partial<ProjectData>) => void
+  onUpdateProject: (projectId: string, updates: Partial<ProjectData>) => void
 ) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -43,6 +43,12 @@ export const useEditProject = (
       return;
     }
     
+    if (!project || !project.id) {
+      console.error('Invalid project for update');
+      toast.error('Error: Invalid project');
+      return;
+    }
+    
     console.log('Updating project:', project.id);
     
     const updates: Partial<ProjectData> = {
@@ -51,8 +57,8 @@ export const useEditProject = (
       tags
     };
     
-    // Call the onUpdateProject prop with the updates
-    onUpdateProject(updates);
+    // Pass both the project ID and updates to the handler
+    onUpdateProject(project.id, updates);
   };
   
   return {

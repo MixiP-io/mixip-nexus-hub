@@ -32,11 +32,21 @@ export const useProjectEditEvents = ({
   const handleProjectUpdated = useCallback((projectId: string, updates: Partial<ProjectData>) => {
     console.log('Handling project update:', projectId, updates);
     
+    if (!projectId || !updates) {
+      console.error('Invalid update parameters:', { projectId, updates });
+      toast.error('Invalid update parameters');
+      return;
+    }
+    
     try {
       // Close dialog first to prevent UI freeze
       setEditProjectOpen(false);
-      // Then update the project
-      updateProjectDetails(projectId, updates);
+      
+      // Add a small delay before updating the project
+      setTimeout(() => {
+        // Then update the project
+        updateProjectDetails(projectId, updates);
+      }, 50);
     } catch (err) {
       console.error('Error updating project:', err);
       toast.error('An error occurred while updating the project');

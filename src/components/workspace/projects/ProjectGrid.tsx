@@ -162,11 +162,7 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
           isOpen={editProjectOpen}
           setIsOpen={setEditProjectOpen}
           project={projectToEdit}
-          onUpdateProject={(updates) => {
-            if (projectToEdit) {
-              handleProjectUpdated(projectToEdit.id, updates);
-            }
-          }}
+          onUpdateProject={handleProjectUpdated}
         />
       )}
       
