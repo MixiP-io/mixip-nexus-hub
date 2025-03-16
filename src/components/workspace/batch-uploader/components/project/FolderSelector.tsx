@@ -25,8 +25,8 @@ const FolderSelector: React.FC<FolderSelectorProps> = ({
   onAddNewClick,
   onCreateSubfolderClick
 }) => {
-  // Group folders by parent to show hierarchy
-  const childFolders = folders.filter(f => f.id !== 'root' && f.parentId && f.parentId !== 'root');
+  // Filter non-root folders for display in the hierarchy
+  const childFolders = folders.filter(f => f.id !== 'root' && f.parentId);
   
   // Helper to get parent folder name
   const getParentName = (parentId: string): string => {

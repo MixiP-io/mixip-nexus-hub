@@ -1,5 +1,6 @@
 
-import { ProjectAsset } from '../types/projectTypes';
+import { toast } from 'sonner';
+import { ProjectAsset, ProjectFolder } from '../types/projectTypes';
 
 /**
  * Add assets to a specific folder recursively
@@ -9,7 +10,7 @@ import { ProjectAsset } from '../types/projectTypes';
  * @returns Boolean indicating if the folder was found and assets were added
  */
 export const addAssetsToFolder = (
-  folders: any[],
+  folders: ProjectFolder[],
   targetFolderId: string,
   assets: ProjectAsset[]
 ): boolean => {
@@ -49,7 +50,8 @@ export const addAssetsToFolder = (
       folder.assets = [...folder.assets, ...assets];
       folder.updatedAt = new Date();
       
-      console.log(`Folder now has ${folder.assets.length} assets`);
+      console.log(`Folder ${folder.name} now has ${folder.assets.length} assets`);
+      toast.success(`Added ${assets.length} files to folder "${folder.name}"`);
       return true;
     }
     

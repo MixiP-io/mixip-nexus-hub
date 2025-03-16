@@ -125,7 +125,7 @@ export const useUploadProcess = () => {
           }
         } catch (error) {
           console.error("Error adding files to project:", error);
-          toast.error("Failed to add files to project");
+          toast.error(`Failed to add files to project: ${error instanceof Error ? error.message : 'Unknown error'}`);
           setIsUploading(false);
         }
       } else {
@@ -139,7 +139,7 @@ export const useUploadProcess = () => {
       }
     } catch (error) {
       console.error('Upload error:', error);
-      toast.error('There was a problem with the upload');
+      toast.error(`There was a problem with the upload: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setUploadComplete(false);
       setIsUploading(false);
     } finally {

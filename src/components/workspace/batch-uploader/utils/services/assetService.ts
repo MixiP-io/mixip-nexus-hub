@@ -69,6 +69,7 @@ export const addFilesToProject = async (
     ];
     
     console.log(`Project now has ${updatedProjects[projectIndex].assets.length} assets`);
+    toast.success(`Added ${assets.length} files to project root folder`);
   } else {
     // Make sure subfolders exists and is an array
     if (!updatedProjects[projectIndex].subfolders) {
@@ -93,9 +94,9 @@ export const addFilesToProject = async (
         ...updatedProjects[projectIndex].assets, 
         ...assets
       ];
-      toast.warning(`Folder not found, added to project root`);
+      toast.warning(`Folder "${folderId}" not found, added files to project root instead`);
     } else {
-      toast.success(`Added files to folder successfully`);
+      toast.success(`Added ${assets.length} files to folder successfully`);
     }
   }
   
@@ -110,7 +111,6 @@ export const addFilesToProject = async (
   // Debug project data after update
   console.log(`Project data after update:`, JSON.stringify(updatedProjects[projectIndex], null, 2));
   
-  toast.success(`Added ${assets.length} files to project ${project.name}`);
   logProjects(); // Log the updated projects for debugging
   
   return Promise.resolve();

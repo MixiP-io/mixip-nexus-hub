@@ -8,6 +8,7 @@ import { useFileUpload } from './hooks/useFileUpload';
 import { useMetadataState } from './hooks/useMetadataState';
 import { formatFileSize } from './utils/fileUtils';
 import { logProjects } from './utils/projectUtils';
+import { toast } from 'sonner';
 
 const BatchUploader: React.FC = () => {
   const {
@@ -74,9 +75,24 @@ const BatchUploader: React.FC = () => {
   }, [metadataSelectedProject, selectedProject]);
   
   const handleStartUpload = async () => {
+    if (!files.length) {
+      toast.error('Please add files to upload');
+      return;
+    }
+
+    if (!metadataSelectedProject) {
+      toast.error('Please select a project to upload to');
+      return;
+    }
+
     console.log(`Starting upload with: Project=${metadataSelectedProject}, Folder=${metadataSelectedFolder}, License=${licenseType}`);
-    await startUpload(licenseType, metadataSelectedProject, metadataSelectedFolder);
-    logProjects();
+    try {
+      await startUpload(licenseType, metadataSelectedProject, metadataSelectedFolder);
+      logProjects();
+    } catch (error) {
+      console.error('Error starting upload:', error);
+      toast.error(`Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   };
   
   return (
