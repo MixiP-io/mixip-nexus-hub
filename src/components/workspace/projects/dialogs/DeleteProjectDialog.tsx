@@ -26,13 +26,16 @@ const DeleteProjectDialog: React.FC<DeleteProjectDialogProps> = ({
 }) => {
   // Function to handle the delete confirmation
   const handleConfirm = () => {
+    console.log("Delete confirmation clicked for project:", projectName);
+    
     // First close the dialog to avoid UI freezes
     setIsOpen(false);
     
-    // Then trigger the delete operation
+    // Then trigger the delete operation with a slight delay
+    // to ensure dialog closing animation completes first
     setTimeout(() => {
       onConfirm();
-    }, 100);
+    }, 150);
   };
 
   return (

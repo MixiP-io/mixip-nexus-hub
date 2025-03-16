@@ -61,16 +61,6 @@ const CreativeContent: React.FC = () => {
         }
         
         setProjectExists(true);
-        
-        // Log assets in folder if folder is selected
-        if (folderParam && folderParam !== 'root' && project.subfolders) {
-          const folder = project.subfolders.find(f => f.id === folderParam);
-          if (folder) {
-            console.log(`Folder ${folder.name} assets:`, folder.assets?.length || 0);
-          } else {
-            console.log('Selected folder not found in project');
-          }
-        }
       } else {
         console.log('Project not found:', projectParam);
         // If project doesn't exist, clear the selection and go back to projects tab
@@ -102,6 +92,14 @@ const CreativeContent: React.FC = () => {
   const handleProjectSelect = (projectId: string) => {
     console.log('Project selected via handler:', projectId);
     
+    // Verify the project exists before selection
+    const project = getProjectById(projectId);
+    if (!project) {
+      console.error("Attempted to select non-existent project:", projectId);
+      toast.error("The selected project could not be found");
+      return;
+    }
+    
     // Set the project ID in state
     setSelectedProjectId(projectId);
     setSelectedFolderId('root'); // Reset to root folder when changing projects
@@ -115,16 +113,11 @@ const CreativeContent: React.FC = () => {
     setActiveTab('assets');
     
     // Debug the selected project
-    const project = getProjectById(projectId);
-    if (project) {
-      console.log('Project data loaded via handler:', project.name);
-      console.log('Project assets count:', project.assets?.length || 0);
-      
-      // Show a toast to confirm the project selection
-      toast.success(`Viewing project: ${project.name}`);
-    } else {
-      toast.error('Failed to load project data');
-    }
+    console.log('Project data loaded via handler:', project.name);
+    console.log('Project assets count:', project.assets?.length || 0);
+    
+    // Show a toast to confirm the project selection
+    toast.success(`Viewing project: ${project.name}`);
   };
 
   // Render the appropriate content based on the active tab

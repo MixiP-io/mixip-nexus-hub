@@ -49,36 +49,32 @@ export const useProjectCrudEvents = ({
 
   const confirmDeleteProject = useCallback(() => {
     try {
-      // Find the project ID to delete - first try using projectToDelete directly
-      let projectId = projectToDelete;
-      
-      // If that's not available, try finding by name
-      if (!projectId) {
-        projectId = projects.find(p => p.name === projectToDeleteName)?.id;
-      }
-      
-      if (projectId) {
-        // Clear the selected project ID before deletion
+      // First ensure we have a valid projectId to delete
+      if (projectToDelete) {
+        console.log("Starting project deletion process for ID:", projectToDelete);
+        
+        // Always clear the selected project ID before deletion to prevent UI issues
         setSelectedProjectId(null);
         
         // Delete the project
-        deleteSelectedProject(projectId);
+        deleteSelectedProject(projectToDelete);
         toast.success(`Project "${projectToDeleteName}" deleted successfully`);
       } else {
+        console.error("No project ID to delete:", { projectToDelete, projectToDeleteName });
         toast.error("Project not found");
       }
       
       // Clear the project to delete state
       setProjectToDelete(null);
-      
     } catch (error) {
       console.error("Error deleting project:", error);
       toast.error("Failed to delete project");
       
       // Clear the state even on error to prevent UI from being stuck
       setProjectToDelete(null);
+      setSelectedProjectId(null);
     }
-  }, [projects, projectToDeleteName, projectToDelete, deleteSelectedProject, setProjectToDelete, setSelectedProjectId]);
+  }, [projectToDeleteName, projectToDelete, deleteSelectedProject, setProjectToDelete, setSelectedProjectId]);
 
   return {
     handleCreateProject,
