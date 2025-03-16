@@ -1,131 +1,119 @@
 
 import React from 'react';
-import { Percent, Info, Check } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { UsageRights } from './types';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { 
+  FileImage, 
+  Megaphone, 
+  Building, 
+  PenTool, 
+  ShoppingBag, 
+  Radio, 
+  Share2, 
+  Brain
+} from 'lucide-react';
 
 interface UsageRightsMatrixProps {
   usageRights: UsageRights;
   onUsageRightsChange: (key: keyof UsageRights) => void;
+  compact?: boolean;
 }
 
-const UsageRightsMatrix: React.FC<UsageRightsMatrixProps> = ({
-  usageRights,
-  onUsageRightsChange
+const UsageRightsMatrix: React.FC<UsageRightsMatrixProps> = ({ 
+  usageRights, 
+  onUsageRightsChange,
+  compact = false
 }) => {
-  const getDescriptionForRight = (key: string): string => {
-    switch(key) {
-      case 'primaryCampaign':
-        return "Use in the primary campaign (always included)";
-      case 'secondaryBrand':
-        return "Use in internal presentations, company archives, etc.";
-      case 'extendedMarketing':
-        return "Use in additional marketing beyond primary campaign";
-      case 'derivativeWorks':
-        return "Create edited versions or derivatives from content";
-      case 'merchandising':
-        return "Use on physical products for sale";
-      case 'publicity':
-        return "Use in PR, press releases, and media relations";
-      case 'socialMedia':
-        return "Use across social media platforms";
-      case 'aiTraining':
-        return "Use content to train AI systems";
-      default:
-        return "Additional usage rights";
+  // Define rights in our matrix
+  const rightsDefinitions = [
+    { 
+      key: 'primaryCampaign', 
+      label: 'Primary Campaign', 
+      description: 'Use in main marketing campaign',
+      icon: Megaphone
+    },
+    { 
+      key: 'secondaryBrand', 
+      label: 'Secondary Brand', 
+      description: 'Use for other brands in portfolio',
+      icon: Building
+    },
+    { 
+      key: 'extendedMarketing', 
+      label: 'Extended Marketing', 
+      description: 'Use beyond initial campaign',
+      icon: FileImage
+    },
+    { 
+      key: 'derivativeWorks', 
+      label: 'Derivative Works', 
+      description: 'Create new works based on this',
+      icon: PenTool
+    },
+    { 
+      key: 'merchandising', 
+      label: 'Merchandising', 
+      description: 'Use on products for sale',
+      icon: ShoppingBag
+    },
+    { 
+      key: 'publicity', 
+      label: 'Publicity', 
+      description: 'Use in PR and press',
+      icon: Radio
+    },
+    { 
+      key: 'socialMedia', 
+      label: 'Social Media', 
+      description: 'Use on social platforms',
+      icon: Share2
+    },
+    { 
+      key: 'aiTraining', 
+      label: 'AI Training', 
+      description: 'Use to train AI models',
+      icon: Brain
     }
-  };
-
-  const formatLabel = (key: string): string => {
-    return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-  };
+  ];
 
   return (
-    <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
-      <h3 className="font-medium mb-4 flex items-center text-white">
-        <Percent className="w-5 h-5 mr-2" />
-        Usage Rights Matrix
+    <div className={`bg-gray-800 p-${compact ? '3' : '4'} rounded-lg border border-gray-700`}>
+      <h3 className="font-medium text-white mb-4 flex items-center">
+        <FileImage className="w-5 h-5 mr-2" />
+        Usage Rights
       </h3>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className={cn(
-          "p-3 rounded-lg border",
-          "bg-gray-700 border-green-500 opacity-100"
-        )}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Check className="w-4 h-4 mr-2 text-green-500" />
-              <span className="font-medium text-white">Primary Campaign Usage</span>
-            </div>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button className="text-gray-300 hover:text-white">
-                    <Info className="w-4 h-4" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="text-xs max-w-[200px]">
-                    Use of content for the primary campaign purpose. This right is always granted.
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-          <p className="text-xs text-gray-300 mt-1 ml-6">Use in the primary campaign (always included)</p>
-        </div>
-        
-        {Object.entries(usageRights)
-          .filter(([key]) => key !== 'primaryCampaign')
-          .map(([key, value]) => {
-            const label = formatLabel(key);
-            const description = getDescriptionForRight(key);
-            
-            return (
-              <div 
-                key={key}
-                className={cn(
-                  "p-3 rounded-lg border cursor-pointer hover:border-gray-500",
-                  value 
-                    ? "bg-gray-700 border-green-500" 
-                    : "bg-gray-700 border-gray-600"
-                )}
-                onClick={() => onUsageRightsChange(key as keyof UsageRights)}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    {value ? (
-                      <Check className="w-4 h-4 mr-2 text-green-500" />
-                    ) : (
-                      <div className="w-4 h-4 mr-2 rounded-sm border border-gray-500" />
-                    )}
-                    <span className="font-medium text-white">{label}</span>
-                  </div>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button className="text-gray-300 hover:text-white">
-                          <Info className="w-4 h-4" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="text-xs max-w-[200px]">
-                          {description}
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+      <div className={`grid ${compact ? 'grid-cols-1 gap-3' : 'grid-cols-2 gap-4'}`}>
+        {rightsDefinitions.map(right => {
+          const key = right.key as keyof UsageRights;
+          return (
+            <div key={key} className="flex items-center justify-between bg-gray-700 p-3 rounded-lg">
+              <div className="flex items-start">
+                <div className="mr-2 mt-0.5">
+                  <right.icon className={`${compact ? 'w-4 h-4' : 'w-5 h-5'} text-gray-400`} />
                 </div>
-                <p className="text-xs text-gray-300 mt-1 ml-6">{description}</p>
+                <div>
+                  <Label 
+                    htmlFor={`right-${key}`} 
+                    className="text-white cursor-pointer font-medium"
+                  >
+                    {right.label}
+                  </Label>
+                  {!compact && (
+                    <p className="text-xs text-gray-400 mt-1">{right.description}</p>
+                  )}
+                </div>
               </div>
-            );
-          })}
+              <Switch
+                id={`right-${key}`}
+                checked={usageRights[key]}
+                onCheckedChange={() => onUsageRightsChange(key)}
+                className={`${usageRights[key] ? 'bg-green-500' : 'bg-gray-600'}`}
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );

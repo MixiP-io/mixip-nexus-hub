@@ -1,19 +1,14 @@
 
 import React from 'react';
-import { Search, Trash2, Plus } from 'lucide-react';
+import { Search, X, UserPlus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import {
-  TooltipProvider,
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from "@/components/ui/tooltip";
 
 interface User {
-  userId: string;
+  id: string;
   name: string;
   email: string;
+  avatar?: string;
 }
 
 interface UserSearchProps {
@@ -22,6 +17,7 @@ interface UserSearchProps {
   filteredUsers: User[];
   onAddUser: (user: User) => void;
   onCancel: () => void;
+  compact?: boolean;
 }
 
 const UserSearch: React.FC<UserSearchProps> = ({
@@ -29,82 +25,68 @@ const UserSearch: React.FC<UserSearchProps> = ({
   setSearchQuery,
   filteredUsers,
   onAddUser,
-  onCancel
+  onCancel,
+  compact = false
 }) => {
   return (
-    <div className="p-3 bg-gray-700 rounded-lg space-y-3">
-      <div className="flex items-center">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-          <Input 
-            placeholder="Search by name or email..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-gray-600 border-gray-500 pl-9 text-white"
-          />
-        </div>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={onCancel}
-          className="ml-2 text-gray-400 hover:text-white hover:bg-gray-600"
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
+    <div className="space-y-3">
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+        <Input
+          type="text"
+          placeholder="Search users by name or email"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-9 pr-9 bg-gray-700 border-gray-600 text-white"
+        />
+        {searchQuery && (
+          <button 
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+            onClick={() => setSearchQuery('')}
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
       </div>
       
       {filteredUsers.length > 0 ? (
-        <div className="max-h-48 overflow-y-auto">
+        <div className={`max-h-${compact ? '24' : '32'} overflow-y-auto space-y-2`}>
           {filteredUsers.map(user => (
-            <div 
-              key={user.userId} 
-              className="flex items-center justify-between p-2 hover:bg-gray-600 rounded cursor-pointer"
-              onClick={() => onAddUser(user)}
-            >
+            <div key={user.id} className="flex items-center justify-between bg-gray-700 p-2 rounded-lg">
               <div className="flex items-center">
-                <div className="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center text-white font-medium mr-2 text-xs">
-                  {user.name.charAt(0)}
+                <div className={`${compact ? 'w-6 h-6' : 'w-8 h-8'} bg-gray-600 rounded-full flex items-center justify-center text-white font-medium mr-2`}>
+                  {user.avatar ? (
+                    <img src={user.avatar} alt={user.name} className="w-full h-full rounded-full object-cover" />
+                  ) : (
+                    user.name.charAt(0)
+                  )}
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-white">{user.name}</p>
-                  <p className="text-xs text-gray-400">{user.email}</p>
+                  <p className={`${compact ? 'text-xs' : 'text-sm'} font-medium text-white`}>{user.name}</p>
+                  {!compact && <p className="text-xs text-gray-400">{user.email}</p>}
                 </div>
               </div>
               <Button 
-                variant="ghost" 
-                size="sm"
-                className="text-gray-400 hover:text-white"
+                size="sm" 
+                variant="ghost"
+                onClick={() => onAddUser(user)}
+                className="text-green-500 hover:text-white hover:bg-green-600"
               >
-                <Plus className="h-3 w-3 mr-1" />
-                Add
+                <UserPlus className="h-4 w-4" />
               </Button>
             </div>
           ))}
         </div>
-      ) : (
+      ) : searchQuery ? (
         <div className="text-center py-2 text-gray-400 text-sm">
-          No users found. Try a different search.
+          No users found matching "{searchQuery}"
         </div>
-      )}
+      ) : null}
       
-      <div className="flex justify-between items-center pt-2 border-t border-gray-600">
-        <p className="text-xs text-gray-400">Can't find who you're looking for?</p>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                variant="link" 
-                size="sm"
-                className="text-blue-400 hover:text-blue-300 p-0 h-auto"
-              >
-                Invite via email
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="text-xs">Coming soon</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+      <div className="flex justify-end">
+        <Button variant="outline" size="sm" onClick={onCancel} className="text-gray-300 border-gray-600">
+          Cancel
+        </Button>
       </div>
     </div>
   );

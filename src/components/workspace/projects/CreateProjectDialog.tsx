@@ -119,7 +119,7 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="bg-gray-800 border-gray-700 max-w-3xl">
+      <DialogContent className="bg-gray-800 border-gray-700 max-w-3xl max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="text-white text-xl">Create New Project</DialogTitle>
           <DialogDescription className="text-gray-300">
@@ -143,7 +143,7 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
             </TabsTrigger>
           </TabsList>
           
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="overflow-y-auto">
             <TabsContent value="basic">
               <BasicInfoTab 
                 projectName={projectName}
@@ -157,7 +157,7 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
               />
             </TabsContent>
             
-            <TabsContent value="rights">
+            <TabsContent value="rights" className="overflow-visible">
               <RightsManagementTab 
                 ownershipSplit={ownershipSplit}
                 setOwnershipSplit={setOwnershipSplit}

@@ -18,6 +18,7 @@ interface RightsManagementProps {
   additionalOwners?: ProjectOwner[];
   setAdditionalOwners?: (owners: ProjectOwner[]) => void;
   showOwnershipManagement?: boolean;
+  compact?: boolean;
 }
 
 const RightsManagement: React.FC<RightsManagementProps> = ({
@@ -30,7 +31,8 @@ const RightsManagement: React.FC<RightsManagementProps> = ({
   primaryOwner,
   additionalOwners = [],
   setAdditionalOwners,
-  showOwnershipManagement = false
+  showOwnershipManagement = false,
+  compact = false
 }) => {
   // Default primary owner if none provided
   const defaultPrimaryOwner: ProjectOwner = primaryOwner || {
@@ -41,7 +43,7 @@ const RightsManagement: React.FC<RightsManagementProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-${compact ? '4' : '6'}`}>
       {showOwnershipManagement && setAdditionalOwners ? (
         <OwnershipManagement 
           primaryOwner={defaultPrimaryOwner}
@@ -49,6 +51,7 @@ const RightsManagement: React.FC<RightsManagementProps> = ({
           setAdditionalOwners={setAdditionalOwners}
           ownershipSplit={ownershipSplit}
           setOwnershipSplit={setOwnershipSplit}
+          compact={compact}
         />
       ) : (
         <OwnershipStructure 
@@ -56,12 +59,14 @@ const RightsManagement: React.FC<RightsManagementProps> = ({
           setOwnershipSplit={setOwnershipSplit}
           primaryOwnerName={primaryOwner?.name}
           additionalOwnersCount={additionalOwners.length}
+          compact={compact}
         />
       )}
       
       <UsageRightsMatrix 
         usageRights={usageRights}
         onUsageRightsChange={onUsageRightsChange}
+        compact={compact}
       />
       
       {(onBack || onNext) && (

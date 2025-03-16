@@ -14,6 +14,7 @@ interface OwnershipManagementProps {
   setAdditionalOwners: (owners: ProjectOwner[]) => void;
   ownershipSplit: number;
   setOwnershipSplit: (value: number) => void;
+  compact?: boolean;
 }
 
 const OwnershipManagement: React.FC<OwnershipManagementProps> = ({
@@ -21,7 +22,8 @@ const OwnershipManagement: React.FC<OwnershipManagementProps> = ({
   additionalOwners,
   setAdditionalOwners,
   ownershipSplit,
-  setOwnershipSplit
+  setOwnershipSplit,
+  compact = false
 }) => {
   const {
     searchQuery,
@@ -42,25 +44,27 @@ const OwnershipManagement: React.FC<OwnershipManagementProps> = ({
   });
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-${compact ? '3' : '6'}`}>
       <OwnershipStructure 
         ownershipSplit={ownershipSplit}
         setOwnershipSplit={setOwnershipSplit}
         primaryOwnerName={primaryOwner.name}
         additionalOwnersCount={additionalOwners.length}
+        compact={compact}
       />
       
-      <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
-        <h3 className="font-medium text-white mb-4 flex items-center">
+      <div className={`bg-gray-800 p-${compact ? '3' : '4'} rounded-lg border border-gray-700`}>
+        <h3 className="font-medium text-white mb-3 flex items-center">
           <UserPlus className="w-5 h-5 mr-2" />
           Project Owners
         </h3>
         
-        <div className="space-y-3">
+        <div className={`space-y-${compact ? '2' : '3'}`}>
           {/* Primary Owner (Creator) */}
           <OwnerCard 
             owner={{...primaryOwner, royaltyPercentage: primaryOwnerPercentage}} 
             isPrimary={true} 
+            compact={compact}
           />
           
           {/* Additional Owners */}
@@ -70,6 +74,7 @@ const OwnershipManagement: React.FC<OwnershipManagementProps> = ({
               owner={owner}
               onRemove={() => removeOwner(index)}
               onPercentageChange={(percentage) => updateOwnerPercentage(index, percentage)}
+              compact={compact}
             />
           ))}
           
@@ -90,11 +95,12 @@ const OwnershipManagement: React.FC<OwnershipManagementProps> = ({
               filteredUsers={filteredUsers}
               onAddUser={addOwner}
               onCancel={toggleSearch}
+              compact={compact}
             />
           )}
         </div>
         
-        <div className="mt-4 pt-3 border-t border-gray-700">
+        <div className="mt-3 pt-2 border-t border-gray-700">
           <div className="flex justify-between items-center">
             <p className="text-sm text-gray-300">Total</p>
             <p className="text-sm font-medium text-white">100%</p>

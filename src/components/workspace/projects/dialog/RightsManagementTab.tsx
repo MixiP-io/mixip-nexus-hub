@@ -5,6 +5,7 @@ import { DialogFooter } from '@/components/ui/dialog';
 import RightsManagement from '../../rights-management';
 import { UsageRights } from '../../rights-management/types';
 import { ProjectOwner } from '../../batch-uploader/utils/types/projectTypes';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface RightsManagementTabProps {
   ownershipSplit: number;
@@ -33,8 +34,10 @@ const RightsManagementTab: React.FC<RightsManagementTabProps> = ({
   additionalOwners,
   setAdditionalOwners
 }) => {
+  const isMobile = useIsMobile();
+
   return (
-    <div className="space-y-4 py-4">
+    <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto">
       <div className="space-y-4">
         <RightsManagement
           ownershipSplit={ownershipSplit}
@@ -45,10 +48,11 @@ const RightsManagementTab: React.FC<RightsManagementTabProps> = ({
           additionalOwners={additionalOwners}
           setAdditionalOwners={setAdditionalOwners}
           showOwnershipManagement={true}
+          compact={isMobile}
         />
       </div>
       
-      <DialogFooter className="pt-4 flex justify-between">
+      <DialogFooter className="sticky bottom-0 pt-4 flex justify-between bg-gray-800 border-t border-gray-700 mt-6 py-3">
         <Button 
           type="button" 
           variant="outline" 

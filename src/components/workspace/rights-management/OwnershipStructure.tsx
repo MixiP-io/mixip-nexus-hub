@@ -13,13 +13,15 @@ interface OwnershipStructureProps {
   setOwnershipSplit: (value: number) => void;
   primaryOwnerName?: string;
   additionalOwnersCount?: number;
+  compact?: boolean;
 }
 
 const OwnershipStructure: React.FC<OwnershipStructureProps> = ({
   ownershipSplit,
   setOwnershipSplit,
   primaryOwnerName = "Brand",
-  additionalOwnersCount = 0
+  additionalOwnersCount = 0,
+  compact = false
 }) => {
   const [showFractionalOwnershipInfo, setShowFractionalOwnershipInfo] = useState(false);
 
@@ -33,8 +35,8 @@ const OwnershipStructure: React.FC<OwnershipStructureProps> = ({
     : "Creator";
 
   return (
-    <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
-      <div className="flex items-center justify-between mb-4">
+    <div className={`bg-gray-800 p-${compact ? '3' : '4'} rounded-lg border border-gray-700`}>
+      <div className="flex items-center justify-between mb-3">
         <h3 className="font-medium text-white flex items-center">
           <DollarSign className="w-5 h-5 mr-2" />
           Ownership Structure
@@ -57,7 +59,7 @@ const OwnershipStructure: React.FC<OwnershipStructureProps> = ({
         </TooltipProvider>
       </div>
       
-      {showFractionalOwnershipInfo && (
+      {showFractionalOwnershipInfo && !compact && (
         <div className="mb-4 p-3 bg-gray-700 rounded-lg border border-blue-500 relative">
           <button 
             onClick={toggleFractionalOwnershipInfo} 
@@ -79,14 +81,29 @@ const OwnershipStructure: React.FC<OwnershipStructureProps> = ({
         </div>
       )}
       
-      <div className="space-y-4">
+      {showFractionalOwnershipInfo && compact && (
+        <div className="mb-3 p-2 bg-gray-700 rounded-lg border border-blue-500 relative">
+          <button 
+            onClick={toggleFractionalOwnershipInfo} 
+            className="absolute top-1 right-1 text-gray-300 hover:text-white"
+          >
+            <X className="w-3 h-3" />
+          </button>
+          <h4 className="text-xs font-medium text-blue-400 mb-1">Fractional Ownership</h4>
+          <p className="text-xs text-gray-200">
+            Shares rights between brands & creators, creating better incentives and ongoing revenue.
+          </p>
+        </div>
+      )}
+      
+      <div className={`space-y-${compact ? '3' : '4'}`}>
         <div>
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm text-gray-200">{creatorLabel}</span>
             <span className="text-sm text-gray-200">{contributorsLabel}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="font-medium text-xl text-white">{ownershipSplit}%</span>
+            <span className="font-medium text-lg text-white">{ownershipSplit}%</span>
             <div className="w-full mx-4">
               <input
                 type="range"
@@ -97,23 +114,23 @@ const OwnershipStructure: React.FC<OwnershipStructureProps> = ({
                 className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-green-500"
               />
             </div>
-            <span className="font-medium text-xl text-white">{100 - ownershipSplit}%</span>
+            <span className="font-medium text-lg text-white">{100 - ownershipSplit}%</span>
           </div>
         </div>
         
-        <div className="flex justify-between bg-gray-700 p-3 rounded-lg">
+        <div className="flex justify-between bg-gray-700 p-2 rounded-lg">
           <div className="text-center w-1/2 border-r border-gray-600 pr-2">
-            <h4 className="text-sm mb-1 text-gray-200">{creatorLabel} Revenue Share</h4>
+            <h4 className="text-sm mb-1 text-gray-200">{creatorLabel}</h4>
             <div className="flex items-center justify-center">
               <DollarSign className="h-4 w-4 text-green-500" />
-              <span className="text-lg font-medium text-white">{ownershipSplit}%</span>
+              <span className="text-md font-medium text-white">{ownershipSplit}%</span>
             </div>
           </div>
           <div className="text-center w-1/2 pl-2">
-            <h4 className="text-sm mb-1 text-gray-200">{contributorsLabel} Revenue Share</h4>
+            <h4 className="text-sm mb-1 text-gray-200">{contributorsLabel}</h4>
             <div className="flex items-center justify-center">
               <DollarSign className="h-4 w-4 text-green-500" />
-              <span className="text-lg font-medium text-white">{100 - ownershipSplit}%</span>
+              <span className="text-md font-medium text-white">{100 - ownershipSplit}%</span>
             </div>
           </div>
         </div>
