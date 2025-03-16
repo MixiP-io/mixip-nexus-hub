@@ -9,7 +9,9 @@ export {
   getProjectById,
   createProject,
   deleteProject,
-  updateProject
+  updateProject,
+  syncProjectsWithLocalStorage,
+  persistProjectsToLocalStorage
 } from './projectManagement/basicOperations';
 
 export {

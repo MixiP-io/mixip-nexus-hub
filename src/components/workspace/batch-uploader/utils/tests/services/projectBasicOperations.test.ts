@@ -1,7 +1,11 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { toast } from 'sonner';
-import { getProjects, getProjectById, createProject } from '../../services/projectManagement/basicOperations';
+import { 
+  getProjects, 
+  getProjectById, 
+  createProject 
+} from '../../services/projectManagement/basicOperations';
 import { projects, updateProjects, currentUser } from '../../data/projectStore';
 
 // Mock the toast module
@@ -21,6 +25,17 @@ vi.mock('../../data/projectStore', () => ({
     name: 'Test User',
     email: 'test@example.com'
   }
+}));
+
+// Mock the retrieval operations
+vi.mock('../../services/projectManagement/projectRetrievalOperations', () => ({
+  getProjects: vi.fn(),
+  getProjectById: vi.fn()
+}));
+
+// Mock the create operations
+vi.mock('../../services/projectManagement/projectCreateOperations', () => ({
+  createProject: vi.fn()
 }));
 
 describe('Project Service - Basic Operations', () => {
@@ -87,6 +102,15 @@ describe('Project Service - Basic Operations', () => {
         subfolders: []
       }
     ];
+    
+    // Import the actual implementations for tests
+    const actualModule = jest.requireActual('../../services/projectManagement/projectRetrievalOperations');
+    const actualCreateModule = jest.requireActual('../../services/projectManagement/projectCreateOperations');
+    
+    // Setup the mocked implementation
+    vi.mocked(getProjects).mockImplementation(() => mockProjects);
+    vi.mocked(getProjectById).mockImplementation((id) => mockProjects.find(p => p.id === id) || null);
+    vi.mocked(createProject).mockImplementation(actualCreateModule.createProject);
     
     // Set up the mocked projects array
     vi.mocked(projects).splice(0, projects.length, ...mockProjects);

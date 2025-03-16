@@ -1,0 +1,41 @@
+
+import { toast } from 'sonner';
+import { projects, updateProjects } from '../../data/projectStore';
+
+/**
+ * Delete a project
+ * @param projectId - ID of the project to delete
+ * @returns Boolean indicating success
+ */
+export const deleteProject = (projectId: string): boolean => {
+  console.log(`Deleting project: ${projectId}`);
+  
+  // First get the current projects from localStorage
+  const localProjectsStr = localStorage.getItem('projects');
+  let currentProjects = projects;
+  
+  if (localProjectsStr) {
+    try {
+      currentProjects = JSON.parse(localProjectsStr);
+    } catch (error) {
+      console.error('Error parsing projects from localStorage:', error);
+    }
+  }
+  
+  const projectIndex = currentProjects.findIndex(p => p.id === projectId);
+  
+  if (projectIndex === -1) {
+    console.log(`Project not found: ${projectId}`);
+    return false;
+  }
+  
+  // Create a deep copy without the deleted project
+  const updatedProjects = currentProjects.filter(p => p.id !== projectId);
+  
+  // Update both in-memory and localStorage
+  updateProjects(updatedProjects);
+  localStorage.setItem('projects', JSON.stringify(updatedProjects));
+  
+  console.log(`Project deleted: ${projectId}`);
+  return true;
+};
