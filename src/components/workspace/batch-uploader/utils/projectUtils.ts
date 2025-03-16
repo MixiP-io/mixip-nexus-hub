@@ -52,8 +52,14 @@ export {
   addAssetsToFolder
 } from './services/folderOperationUtils';
 
-// Re-export debugging functions
+// Re-export debugging and data integrity functions
 export { 
   logProjects,
-  ensureProjectDataIntegrity // Add the missing export
+  ensureProjectDataIntegrity,
+  projects,
+  updateProjects,
+  currentUser,
+  ensureFolderIntegrity,
+  initializeFromLocalStorage,
+  defaultLicensing
 } from './data/projectStore';

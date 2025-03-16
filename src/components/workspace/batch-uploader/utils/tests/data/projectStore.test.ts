@@ -1,6 +1,7 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { projects, updateProjects, currentUser, logProjects } from '../../data/projectStore';
+import { ensureProjectDataIntegrity } from '../../data/store/projectIntegrity';
 
 describe('Project Store', () => {
   beforeEach(() => {
@@ -69,6 +70,39 @@ describe('Project Store', () => {
       expect(currentUser).toHaveProperty('id');
       expect(currentUser).toHaveProperty('name');
       expect(currentUser).toHaveProperty('email');
+    });
+  });
+  
+  describe('ensureProjectDataIntegrity', () => {
+    it('should fix project data structure issues', () => {
+      // Setup test with a broken project
+      const brokenProjects = [
+        {
+          id: 'broken-project',
+          name: 'Broken Project',
+          // Missing assets array
+          // Missing subfolders array
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          createdBy: 'user1',
+          owners: []
+          // Missing licensing
+        }
+      ];
+      
+      updateProjects(brokenProjects);
+      
+      // Run integrity check
+      ensureProjectDataIntegrity();
+      
+      // Verify fixed project
+      expect(projects[0]).toHaveProperty('assets');
+      expect(Array.isArray(projects[0].assets)).toBe(true);
+      expect(projects[0]).toHaveProperty('subfolders');
+      expect(Array.isArray(projects[0].subfolders)).toBe(true);
+      expect(projects[0]).toHaveProperty('licensing');
+      expect(projects[0].licensing).toHaveProperty('type');
+      expect(projects[0].licensing).toHaveProperty('usageRights');
     });
   });
 });
