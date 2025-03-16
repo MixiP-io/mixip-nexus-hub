@@ -44,10 +44,16 @@ const ProjectSection: React.FC<ProjectSectionProps> = ({
       console.log(`Loading folders for project: ${selectedProject}`);
       const folderData = getAllFoldersForProject(selectedProject);
       console.log('Folders data:', folderData);
-      setFolders(folderData);
+      
+      // Filter out any potential duplicate root entries
+      const uniqueFolders = folderData.filter((folder, index, self) => 
+        index === self.findIndex(f => f.id === folder.id)
+      );
+      
+      setFolders(uniqueFolders);
       
       // Set default selected folder if none is selected or if selected folder doesn't exist
-      if (!selectedFolder || !folderData.find(f => f.id === selectedFolder)) {
+      if (!selectedFolder || !uniqueFolders.find(f => f.id === selectedFolder)) {
         console.log('Setting default folder to root');
         setSelectedFolder('root');
       }
@@ -94,7 +100,11 @@ const ProjectSection: React.FC<ProjectSectionProps> = ({
     // Refresh folders after creation
     if (selectedProject) {
       const updatedFolders = getAllFoldersForProject(selectedProject);
-      setFolders(updatedFolders);
+      // Filter out any potential duplicate entries
+      const uniqueFolders = updatedFolders.filter((folder, index, self) => 
+        index === self.findIndex(f => f.id === folder.id)
+      );
+      setFolders(uniqueFolders);
     }
   };
   

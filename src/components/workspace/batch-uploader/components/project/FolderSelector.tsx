@@ -26,8 +26,7 @@ const FolderSelector: React.FC<FolderSelectorProps> = ({
   onCreateSubfolderClick
 }) => {
   // Group folders by parent to show hierarchy
-  const rootFolders = folders.filter(f => !f.parentId || f.parentId === 'root');
-  const childFolders = folders.filter(f => f.parentId && f.parentId !== 'root');
+  const childFolders = folders.filter(f => f.id !== 'root' && f.parentId && f.parentId !== 'root');
   
   // Helper to get parent folder name
   const getParentName = (parentId: string): string => {
@@ -39,7 +38,6 @@ const FolderSelector: React.FC<FolderSelectorProps> = ({
   React.useEffect(() => {
     console.log('FolderSelector - Folders:', folders);
     console.log('FolderSelector - Selected Folder:', selectedFolder);
-    console.log('FolderSelector - Root Folders:', rootFolders);
     console.log('FolderSelector - Child Folders:', childFolders);
   }, [folders, selectedFolder]);
 
@@ -60,7 +58,7 @@ const FolderSelector: React.FC<FolderSelectorProps> = ({
           </SelectTrigger>
           <SelectContent className="bg-gray-700 border-gray-600 max-h-60">
             <div className="max-h-60 overflow-auto">
-              {/* Root folder */}
+              {/* Root folder - only show once */}
               <SelectItem key="root" value="root" className="text-white hover:bg-gray-600">
                 <div className="flex items-center">
                   <FolderTree className="mr-2 h-4 w-4" />
@@ -68,25 +66,17 @@ const FolderSelector: React.FC<FolderSelectorProps> = ({
                 </div>
               </SelectItem>
               
-              {/* Root folders */}
-              {rootFolders.map((folder) => (
-                <SelectItem key={folder.id} value={folder.id} className="text-white hover:bg-gray-600">
-                  <div className="flex items-center">
-                    <FolderTree className="mr-2 h-4 w-4" />
-                    {folder.name}
-                  </div>
-                </SelectItem>
-              ))}
-              
               {/* Child folders with indentation */}
               {childFolders.map((folder) => (
                 <SelectItem key={folder.id} value={folder.id} className="text-white hover:bg-gray-600 pl-6">
                   <div className="flex items-center">
                     <FolderTree className="mr-2 h-4 w-4" />
                     {folder.name}
-                    <span className="ml-1 text-xs text-gray-300">
-                      ({getParentName(folder.parentId || '')})
-                    </span>
+                    {folder.parentId && folder.parentId !== 'root' && (
+                      <span className="ml-1 text-xs text-gray-300">
+                        ({getParentName(folder.parentId)})
+                      </span>
+                    )}
                   </div>
                 </SelectItem>
               ))}

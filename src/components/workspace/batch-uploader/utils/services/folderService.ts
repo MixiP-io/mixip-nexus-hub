@@ -96,7 +96,7 @@ export const getAllFoldersForProject = (projectId: string): { id: string, name: 
     return [];
   }
   
-  // Start with root folder
+  // Start with just one root folder entry
   const result: { id: string, name: string, parentId?: string }[] = [
     { id: 'root', name: 'Project Root' }
   ];
