@@ -52,8 +52,14 @@ export const addAssetsToSpecificFolder = (
       // Make sure all assets have the folderId field set
       const assetsWithFolder = assets.map(asset => ({
         ...asset,
-        folderId: normalizedFolderId
+        folderId: normalizedFolderId,
+        folderName: folder.name // Add folder name for easy reference
       }));
+      
+      // Log a sample asset for debugging
+      if (assetsWithFolder.length > 0) {
+        console.log(`[folderAssetOperations] Sample asset being added:`, JSON.stringify(assetsWithFolder[0], null, 2));
+      }
       
       updatedProjects[projectIndex].subfolders[folderIndex].assets = [
         ...updatedProjects[projectIndex].subfolders[folderIndex].assets,
@@ -92,10 +98,14 @@ export const addAssetsToSpecificFolder = (
         updatedProjects[projectIndex].subfolders[folderIndex].assets = [];
       }
       
+      const folderName = updatedProjects[projectIndex].subfolders[folderIndex].name;
+      const folderId = updatedProjects[projectIndex].subfolders[folderIndex].id;
+      
       // Make sure all assets have the folderId field set
       const assetsWithFolder = assets.map(asset => ({
         ...asset,
-        folderId: updatedProjects[projectIndex].subfolders[folderIndex].id
+        folderId: folderId,
+        folderName: folderName // Add folder name for easy reference
       }));
       
       // Add assets to folder

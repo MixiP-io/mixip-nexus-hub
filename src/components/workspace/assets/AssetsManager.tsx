@@ -47,6 +47,14 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
     if (selectedFolderId && selectedFolderId !== currentFolderId) {
       console.log('Setting current folder to:', selectedFolderId);
       setCurrentFolderId(selectedFolderId);
+      
+      // If we're viewing a specific folder, show a toast
+      if (selectedFolderId !== 'root' && projectData && projectData.subfolders) {
+        const folder = projectData.subfolders.find((f: any) => f.id === selectedFolderId);
+        if (folder) {
+          toast.info(`Viewing folder: ${folder.name}`);
+        }
+      }
     }
     
     if (projectData) {
@@ -57,7 +65,9 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
         const folder = projectData.subfolders.find((f: any) => f.id === selectedFolderId);
         if (folder) {
           console.log(`Viewing folder: ${folder.name} with ${folder.assets?.length || 0} assets`);
-          toast.info(`Viewing folder: ${folder.name}`);
+          if (folder.assets && folder.assets.length > 0) {
+            console.log('Sample assets in folder:', JSON.stringify(folder.assets.slice(0, 2), null, 2));
+          }
         } else {
           console.log('Selected folder not found:', selectedFolderId);
         }
@@ -90,16 +100,6 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
       }
       
       console.log('Filtered assets count:', filteredAssets?.length || 0);
-      
-      // Show a toast when project data loads
-      if (projectData.name) {
-        toast.info(`Viewing assets for project: ${projectData.name}`);
-        
-        // If we have subfolder assets but no filtered assets, show a helpful message
-        if (totalFolderAssets > 0 && filteredAssets.length === 0 && selectedFolderId === 'root') {
-          toast.info(`This project has ${totalFolderAssets} assets in subfolders, but they may not be visible in the current view.`);
-        }
-      }
     } else {
       console.log('No project data loaded');
     }

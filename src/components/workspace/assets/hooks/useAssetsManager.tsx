@@ -13,6 +13,11 @@ export const useAssetsManager = (selectedProjectId: string | null, initialFolder
   const [selectedAssetForRights, setSelectedAssetForRights] = useState<string | null>(null);
   const [currentFolderId, setCurrentFolderId] = useState<string>(initialFolderId || 'root');
   
+  // Debug logging for initial folder
+  useEffect(() => {
+    console.log('useAssetsManager initialized with initialFolderId:', initialFolderId);
+  }, []);
+  
   useEffect(() => {
     // Update current folder when initialFolderId changes
     if (initialFolderId) {
@@ -61,14 +66,20 @@ export const useAssetsManager = (selectedProjectId: string | null, initialFolder
         let totalSubfolderAssets = 0;
         let currentFolderExists = false;
         let currentFolderHasAssets = false;
+        let currentFolderName = "root";
+        let currentFolderAssets: any[] = [];
         
         if (project.subfolders && project.subfolders.length > 0) {
           project.subfolders.forEach((folder: any) => {
             if (folder.id === currentFolderId) {
               currentFolderExists = true;
+              currentFolderName = folder.name;
+              
               if (folder.assets && folder.assets.length > 0) {
                 currentFolderHasAssets = true;
+                currentFolderAssets = folder.assets;
                 console.log(`Current folder ${folder.name} has ${folder.assets.length} assets`);
+                console.log(`Sample assets in folder ${folder.name}:`, JSON.stringify(folder.assets.slice(0, 2), null, 2));
               } else {
                 console.log(`Current folder ${folder.name} exists but has no assets`);
               }
@@ -87,10 +98,15 @@ export const useAssetsManager = (selectedProjectId: string | null, initialFolder
         if (currentFolderId !== 'root' && !currentFolderExists) {
           console.log(`WARNING: Current folder ${currentFolderId} does not exist in project!`);
           toast.warning(`The folder you're trying to view doesn't exist in this project.`);
-        } else if (currentFolderId !== 'root' && !currentFolderHasAssets) {
-          console.log(`Current folder ${currentFolderId} exists but has no assets`);
+        } else if (currentFolderId !== 'root' && currentFolderExists) {
+          if (currentFolderHasAssets) {
+            console.log(`Current folder ${currentFolderName} exists and has assets`);
+            toast.info(`Viewing folder "${currentFolderName}" with ${currentFolderAssets.length} assets`);
+          } else {
+            console.log(`Current folder ${currentFolderName} exists but has no assets`);
+            toast.info(`Folder "${currentFolderName}" has no assets yet`);
+          }
         }
-        
       } else {
         console.log('Project not found for ID:', selectedProjectId);
         setProjectData(null);
@@ -149,7 +165,7 @@ export const useAssetsManager = (selectedProjectId: string | null, initialFolder
     setRightsPanelOpen(true);
   };
 
-  // Get assets from the current folder
+  // Get assets from the current folder - improved implementation with better logging
   const getAssetsForCurrentFolder = (project: any): any[] => {
     if (!project) return [];
     
@@ -158,16 +174,27 @@ export const useAssetsManager = (selectedProjectId: string | null, initialFolder
     // If viewing root folder, return root assets
     if (currentFolderId === 'root') {
       console.log(`Returning root assets: ${project.assets?.length || 0}`);
-      return [...(project.assets || [])];
+      return project.assets ? [...project.assets] : [];
     }
     
     // Otherwise, search for the specified folder
     if (project.subfolders && project.subfolders.length > 0) {
+      console.log(`Searching for folder with ID: ${currentFolderId} among ${project.subfolders.length} folders`);
+      
       // First try direct match
       const targetFolder = project.subfolders.find((folder: any) => folder.id === currentFolderId);
       if (targetFolder) {
         console.log(`Found folder ${targetFolder.name} with ${targetFolder.assets?.length || 0} assets`);
-        return [...(targetFolder.assets || [])];
+        
+        if (targetFolder.assets && targetFolder.assets.length > 0) {
+          console.log('Sample asset from folder:', JSON.stringify(targetFolder.assets[0], null, 2));
+          return [...targetFolder.assets];
+        } else {
+          console.log('Folder exists but has no assets');
+          return [];
+        }
+      } else {
+        console.log(`No folder found with ID ${currentFolderId}`);
       }
       
       // If not found, try recursive search (for future nested folders)
@@ -175,7 +202,7 @@ export const useAssetsManager = (selectedProjectId: string | null, initialFolder
         for (const folder of folders) {
           if (folder.id === currentFolderId) {
             console.log(`Found nested folder ${folder.name} with ${folder.assets?.length || 0} assets`);
-            return [...(folder.assets || [])];
+            return folder.assets ? [...folder.assets] : [];
           }
           
           if (folder.subfolders && folder.subfolders.length > 0) {
@@ -199,9 +226,12 @@ export const useAssetsManager = (selectedProjectId: string | null, initialFolder
   };
 
   // Get assets based on current folder selection
-  const currentFolderAssets = getAssetsForCurrentFolder(projectData);
+  const currentFolderAssets = projectData ? getAssetsForCurrentFolder(projectData) : [];
   
-  console.log(`Current folder assets: ${currentFolderAssets.length}`);
+  console.log(`Current folder (${currentFolderId}) assets: ${currentFolderAssets.length}`);
+  if (currentFolderAssets.length > 0) {
+    console.log('First asset in current folder:', JSON.stringify(currentFolderAssets[0], null, 2));
+  }
   
   // Filter by search query
   const filteredAssets = currentFolderAssets.filter((asset: any) => 

@@ -41,9 +41,12 @@ export const useCompletedUploads = () => {
         
         // Debug folder assets
         let assetsFoundInFolder = false;
+        let folderName = "root";
+        
         if (folderId !== 'root' && updatedProject.subfolders) {
           const targetFolder = updatedProject.subfolders.find(folder => folder.id === folderId);
           if (targetFolder) {
+            folderName = targetFolder.name;
             console.log(`Target folder "${targetFolder.name}" (${folderId}) assets: ${targetFolder.assets?.length || 0}`);
             if (targetFolder.assets && targetFolder.assets.length > 0) {
               assetsFoundInFolder = true;
@@ -71,12 +74,11 @@ export const useCompletedUploads = () => {
         }
         
         // Set upload complete with accurate folder information
-        console.log(`Setting upload complete with folder ID: ${folderId}`);
+        console.log(`Setting upload complete with folder ID: ${folderId}, folder name: ${folderName}`);
         completeUpload(projectId, projectName, completedFiles, folderId);
         
         // Show folder-specific toast
         if (folderId !== 'root') {
-          const folderName = updatedProject.subfolders?.find(f => f.id === folderId)?.name || folderId;
           toast.success(`Added ${completedFiles.length} files to folder "${folderName}" in project "${projectName}"`);
         } else {
           toast.success(`Added ${completedFiles.length} files to root folder in project "${projectName}"`);
