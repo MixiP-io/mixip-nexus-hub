@@ -64,20 +64,39 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				mixip: {
-					blue: '#007AFF',
+					blue: '#007AFF', // SF Blue
 					'blue-dark': '#0055B3',
-					mint: '#35C759',
-					purple: '#AF52DE',
-					orange: '#FF9500',
-					'gray-light': '#F5F5F7',
-					'gray-medium': '#86868B',
-					'gray-dark': '#1D1D1F',
+					mint: '#34C759', // SF Mint
+					purple: '#AF52DE', // SF Purple
+					orange: '#FF9500', // SF Orange
+					'gray-light': '#F5F5F7', // Apple light gray
+					'gray-medium': '#86868B', // Apple medium gray
+					'gray-dark': '#1D1D1F', // Apple dark gray
+				},
+				apple: {
+					blue: '#0066CC', // Apple blue
+					green: '#34C759', // Apple green
+					indigo: '#5856D6', // Apple indigo
+					orange: '#FF9500', // Apple orange
+					pink: '#FF2D55', // Apple pink
+					purple: '#AF52DE', // Apple purple
+					red: '#FF3B30', // Apple red
+					teal: '#5AC8FA', // Apple teal
+					yellow: '#FFCC00', // Apple yellow
+					'gray-1': '#8E8E93', // lightest gray
+					'gray-2': '#636366',
+					'gray-3': '#48484A',
+					'gray-4': '#3A3A3C',
+					'gray-5': '#2C2C2E',
+					'gray-6': '#1C1C1E', // darkest gray
 				},
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				sm: 'calc(var(--radius) - 4px)',
+				xl: '1rem',
+				'2xl': '1.25rem',
 			},
 			keyframes: {
 				'accordion-down': {
@@ -125,6 +144,17 @@ export default {
 			},
 			backdropBlur: {
 				xs: '2px',
+				sm: '4px',
+				md: '8px',
+				lg: '12px',
+				xl: '16px',
+			},
+			boxShadow: {
+				'apple-sm': '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.12)',
+				'apple-md': '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)',
+				'apple-lg': '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)',
+				'apple-xl': '0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
+				'apple-glow': '0 0 10px rgba(0, 122, 255, 0.5)',
 			},
 		}
 	},

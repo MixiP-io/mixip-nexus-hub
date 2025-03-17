@@ -1,9 +1,10 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=SF+Pro+Text:wght@400;500;600&display=swap');
 
 @layer base {
   :root {
@@ -93,15 +94,20 @@
 
   html, body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', sans-serif;
+    font-family: 'SF Pro Text', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     scroll-behavior: smooth;
     overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'SF Pro Display', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    @apply font-medium tracking-tight;
   }
 }
 
 @layer utilities {
   .glass-card {
-    @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-md;
+    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-apple-sm;
   }
 
   .text-balance {
@@ -117,15 +123,31 @@
   }
 
   .hover-lift {
-    @apply transition-transform duration-300;
+    @apply transition-all duration-300;
   }
 
   .hover-lift:hover {
-    @apply -translate-y-1;
+    @apply -translate-y-1 shadow-apple-md;
   }
   
   .underline-animation {
-    @apply relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-mixip-blue after:transition-all after:duration-300 after:ease-in-out hover:after:w-full;
+    @apply relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-apple-blue after:transition-all after:duration-300 after:ease-in-out hover:after:w-full;
+  }
+
+  .apple-button {
+    @apply rounded-xl bg-apple-blue text-white font-medium px-6 py-2.5 shadow-sm hover:shadow-apple-sm transition-all duration-200;
+  }
+
+  .apple-button-secondary {
+    @apply rounded-xl bg-gray-200/80 backdrop-blur-sm text-gray-800 font-medium px-6 py-2.5 shadow-sm hover:shadow-apple-sm transition-all duration-200;
+  }
+
+  .apple-card {
+    @apply bg-white/90 backdrop-blur-md rounded-2xl border border-gray-100 shadow-apple-sm hover:shadow-apple-md transition-all duration-200;
+  }
+
+  .apple-input {
+    @apply rounded-xl bg-gray-100 border-gray-200 px-4 py-2.5 focus:ring-2 focus:ring-apple-blue/20 focus:border-apple-blue transition-all duration-200;
   }
 }
 

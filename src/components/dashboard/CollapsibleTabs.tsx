@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -68,15 +69,15 @@ const CollapsibleTabs: React.FC = () => {
     : tabs;
 
   return (
-    <div className="relative flex justify-between items-center border-b border-gray-800 w-full">
+    <div className="relative flex justify-between items-center border-b border-gray-200 w-full bg-white/70 backdrop-blur-sm">
       <div className="flex flex-1">
         {visibleTabs.map(tab => (
           <button
             key={tab.id}
-            className={`px-6 py-4 font-medium transition-colors ${
+            className={`px-6 py-4 font-medium text-sm transition-all ${
               tab.active 
-                ? 'border-b-2 border-green-600 text-white' 
-                : 'text-gray-400 hover:text-white'
+                ? 'border-b-2 border-apple-blue text-apple-blue' 
+                : 'text-gray-500 hover:text-apple-blue'
             }`}
             onClick={() => handleTabClick(tab.id)}
           >
@@ -84,23 +85,17 @@ const CollapsibleTabs: React.FC = () => {
           </button>
         ))}
         
-        {isCollapsed && (
-          <button
-            className="px-4 py-4 text-gray-400 hover:text-white"
-            onClick={toggleCollapse}
-          >
+        <button
+          className="px-4 py-4 text-gray-400 hover:text-apple-blue transition-colors ml-auto"
+          onClick={toggleCollapse}
+          aria-label={isCollapsed ? "Expand tabs" : "Collapse tabs"}
+        >
+          {isCollapsed ? (
             <ChevronDown className="w-5 h-5" />
-          </button>
-        )}
-        
-        {!isCollapsed && (
-          <button
-            className="px-4 py-4 text-gray-400 hover:text-white"
-            onClick={toggleCollapse}
-          >
+          ) : (
             <ChevronUp className="w-5 h-5" />
-          </button>
-        )}
+          )}
+        </button>
       </div>
     </div>
   );
