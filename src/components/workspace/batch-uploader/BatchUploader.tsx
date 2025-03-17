@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { useFileUpload } from './hooks/useFileUpload';
 import { getProjectById } from './utils/projectUtils';
 
+import UploadArea from './components/UploadArea';
 import FileGrid from './components/file-list/FileGrid';
 import ProjectSection from './components/ProjectSection';
 import OverallProgress from './components/file-list/OverallProgress';
@@ -144,6 +145,14 @@ const BatchUploader: React.FC = () => {
     setUsageRights(rights);
   };
 
+  // Function to format file size for display
+  const formatFileSize = (bytes: number) => {
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    if (bytes === 0) return '0 Byte';
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return Math.round(bytes / Math.pow(1024, i)) + ' ' + sizes[i];
+  };
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Batch Asset Uploader</h1>
@@ -166,18 +175,24 @@ const BatchUploader: React.FC = () => {
         setSelectedFolder={setSelectedFolder}
       />
       
+      {/* Add the UploadArea component */}
+      {activeView === 'source' && (
+        <div className="mt-6">
+          <UploadArea
+            handleFileSelect={handleFileSelect}
+            triggerFileInput={openFileInput}
+            fileInputRef={fileInputRef}
+          />
+        </div>
+      )}
+      
       {/* Files list section */}
       <div className="mt-6">
         <FilesList 
           files={files}
           isUploading={isUploading}
           overallProgress={overallProgress}
-          formatFileSize={(bytes) => {
-            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-            if (bytes === 0) return '0 Byte';
-            const i = Math.floor(Math.log(bytes) / Math.log(1024));
-            return Math.round(bytes / Math.pow(1024, i)) + ' ' + sizes[i];
-          }}
+          formatFileSize={formatFileSize}
           calculateTotalSize={calculateTotalSize}
           removeFile={removeFile}
           clearAll={clearAll}

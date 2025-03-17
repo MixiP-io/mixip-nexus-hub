@@ -35,6 +35,7 @@ const FileListHeader: React.FC<FileListHeaderProps> = ({
           variant="outline" 
           onClick={clearAll}
           disabled={isUploading}
+          className="bg-gray-700 text-white hover:bg-gray-600 border-gray-600" // Added styling to ensure visibility
         >
           Clear All
         </Button>
