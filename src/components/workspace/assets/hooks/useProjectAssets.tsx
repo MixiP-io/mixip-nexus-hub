@@ -41,6 +41,21 @@ export const useProjectAssets = (selectedProjectId: string | null, currentFolder
           // Make a deep copy to avoid reference issues
           setProjectData(JSON.parse(JSON.stringify(project)));
           
+          // Debug asset counts
+          console.log('[useProjectAssets] Root assets count:', project.assets?.length || 0);
+          if (project.subfolders) {
+            project.subfolders.forEach((folder: any) => {
+              console.log(`[useProjectAssets] Folder "${folder.name}" assets:`, folder.assets?.length || 0);
+              
+              // Debug first few assets in each folder
+              if (folder.assets && folder.assets.length > 0) {
+                console.log(`Sample assets in folder "${folder.name}":`, 
+                  folder.assets.slice(0, 2).map((a: any) => ({ id: a.id, name: a.name }))
+                );
+              }
+            });
+          }
+          
           // If current folder ID is set but the folder doesn't exist, reset to root
           if (currentFolderId !== 'root' && project.subfolders) {
             const folderExists = project.subfolders.some((folder: any) => folder.id === currentFolderId);
@@ -87,6 +102,8 @@ export const useProjectAssets = (selectedProjectId: string | null, currentFolder
         console.log(`[useProjectAssets] Found folder "${targetFolder.name}" with ${targetFolder.assets?.length || 0} assets`);
         
         if (targetFolder.assets && targetFolder.assets.length > 0) {
+          // Debug the first few assets to make sure they're valid
+          console.log('Sample assets from folder:', targetFolder.assets.slice(0, 2));
           return [...targetFolder.assets];
         } else {
           console.log('[useProjectAssets] Folder exists but has no assets');

@@ -58,7 +58,7 @@ export const ensureFolderIntegrity = (folder: any) => {
     // Filter out any null or undefined assets
     fixedFolder.assets = fixedFolder.assets.filter(asset => asset !== null && asset !== undefined);
     
-    // Ensure all assets in this folder have the correct folderId
+    // CRITICAL: Ensure all assets in this folder have the correct folderId
     fixedFolder.assets = fixedFolder.assets.map(asset => ({
       ...asset,
       folderId: fixedFolder.id
@@ -125,6 +125,36 @@ export const ensureProjectDataIntegrity = () => {
       fixedProject.name = `Project ${fixedProject.id.substring(0, 8)}`;
     }
 
+    // ADDED: Run an explicit check and fix on all assets in all folders
+    if (fixedProject.subfolders && fixedProject.subfolders.length > 0) {
+      console.log(`Checking assets in all subfolders for project ${fixedProject.name}`);
+      let folderAssetCount = 0;
+      
+      fixedProject.subfolders = fixedProject.subfolders.map(folder => {
+        // Ensure folder has an ID
+        if (!folder.id) {
+          folder.id = `folder-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+        }
+        
+        // Ensure assets array exists
+        if (!Array.isArray(folder.assets)) {
+          folder.assets = [];
+        } else {
+          // Fix all assets in this folder
+          folder.assets = folder.assets
+            .filter(asset => asset !== null && asset !== undefined)
+            .map(asset => ({
+              ...ensureAssetIntegrity(asset),
+              folderId: folder.id // Explicitly set the folder ID
+            }));
+          folderAssetCount += folder.assets.length;
+        }
+        return folder;
+      });
+      
+      console.log(`Fixed ${folderAssetCount} assets in subfolders for project ${fixedProject.name}`);
+    }
+    
     // Log asset counts for debugging
     const rootAssetsCount = fixedProject.assets?.length || 0;
     const folderAssetsCount = fixedProject.subfolders?.reduce((sum: number, folder: any) => 
@@ -143,4 +173,3 @@ export const ensureProjectDataIntegrity = () => {
   
   console.log("Data integrity check complete");
 };
-

@@ -1,7 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { toast } from 'sonner';
-import AssetsDebugPanel from './AssetsDebugPanel';
+import { ensureProjectDataIntegrity } from '../../batch-uploader/utils/data/store/projectIntegrity';
 
 interface AssetsInitializerProps {
   selectedProjectId: string | null;
@@ -20,8 +20,16 @@ const AssetsInitializer: React.FC<AssetsInitializerProps> = ({
   handleFolderChange,
   projectData
 }) => {
+  // Run data integrity check when component mounts or project changes
   useEffect(() => {
-    console.log('[CRITICAL] [AssetsInitializer] Component rendered with:', { 
+    if (selectedProjectId) {
+      console.log('[AssetsInitializer] Running data integrity check for project:', selectedProjectId);
+      ensureProjectDataIntegrity();
+    }
+  }, [selectedProjectId]);
+  
+  useEffect(() => {
+    console.log('[AssetsInitializer] Component rendered with:', { 
       projectId: selectedProjectId, 
       folderId: selectedFolderId,
       currentFolderId
@@ -29,7 +37,7 @@ const AssetsInitializer: React.FC<AssetsInitializerProps> = ({
     
     // Update current folder when selectedFolderId changes
     if (selectedFolderId && selectedFolderId !== currentFolderId) {
-      console.log('[CRITICAL] [AssetsInitializer] Setting current folder to:', selectedFolderId);
+      console.log('[AssetsInitializer] Setting current folder to:', selectedFolderId);
       
       // Use the new folder change handler if available
       if (handleFolderChange && projectData?.subfolders) {
@@ -55,31 +63,25 @@ const AssetsInitializer: React.FC<AssetsInitializerProps> = ({
     
     // Logging project data for debugging
     if (projectData) {
-      console.log('[CRITICAL] [AssetsInitializer] Project data loaded:', projectData.name);
+      console.log('[AssetsInitializer] Project data loaded:', projectData.name);
       
       // Check if we're viewing a specific folder
       if (selectedFolderId && selectedFolderId !== 'root' && projectData.subfolders) {
         const folder = projectData.subfolders.find((f: any) => f.id === selectedFolderId);
         if (folder) {
-          console.log(`[CRITICAL] [AssetsInitializer] Viewing folder: ${folder.name} with ${folder.assets?.length || 0} assets`);
+          console.log(`[AssetsInitializer] Viewing folder: ${folder.name} with ${folder.assets?.length || 0} assets`);
           
           // Log assets in folder for debugging
           if (folder.assets && folder.assets.length > 0) {
-            console.log(`[CRITICAL] [AssetsInitializer] Sample assets in folder "${folder.name}":`, JSON.stringify(folder.assets.slice(0, 2), null, 2));
-            
-            // Log all assets in the folder for debugging
-            console.log(`[CRITICAL] [AssetsInitializer] All assets in folder "${folder.name}":`);
-            folder.assets.forEach((asset: any, index: number) => {
-              console.log(`Asset ${index + 1}: ID=${asset.id}, Name=${asset.name}, FolderId=${asset.folderId}`);
-            });
+            console.log(`[AssetsInitializer] Sample assets in folder "${folder.name}":`, folder.assets.slice(0, 2));
           } else {
-            console.log(`[CRITICAL] [AssetsInitializer] Folder "${folder.name}" has no assets`);
+            console.log(`[AssetsInitializer] Folder "${folder.name}" has no assets`);
           }
         } else {
-          console.log('[CRITICAL] [AssetsInitializer] Selected folder not found:', selectedFolderId);
+          console.log('[AssetsInitializer] Selected folder not found:', selectedFolderId);
         }
       } else {
-        console.log('[CRITICAL] [AssetsInitializer] Viewing root folder with', projectData.assets?.length || 0, 'assets');
+        console.log('[AssetsInitializer] Viewing root folder with', projectData.assets?.length || 0, 'assets');
       }
     }
   }, [selectedProjectId, projectData, selectedFolderId, currentFolderId, setCurrentFolderId, handleFolderChange]);
@@ -93,14 +95,14 @@ const AssetsInitializer: React.FC<AssetsInitializerProps> = ({
           const projects = JSON.parse(projectsJson);
           const currentProject = projects.find((p: any) => p.id === selectedProjectId);
           if (currentProject) {
-            console.log(`[CRITICAL] Found project in localStorage, checking for folder:`, selectedFolderId);
+            console.log(`[AssetsInitializer] Found project in localStorage, checking for folder:`, selectedFolderId);
             
             if (selectedFolderId && selectedFolderId !== 'root' && currentProject.subfolders) {
               const folder = currentProject.subfolders.find((f: any) => f.id === selectedFolderId);
               if (folder) {
-                console.log(`[CRITICAL] Found folder "${folder.name}" in localStorage with ${folder.assets?.length || 0} assets`);
+                console.log(`[AssetsInitializer] Found folder "${folder.name}" in localStorage with ${folder.assets?.length || 0} assets`);
                 if (folder.assets && folder.assets.length > 0) {
-                  console.log(`[CRITICAL] Sample assets from localStorage:`, JSON.stringify(folder.assets.slice(0, 2), null, 2));
+                  console.log(`[AssetsInitializer] Sample assets from localStorage:`, folder.assets.slice(0, 2));
                 }
               }
             }
