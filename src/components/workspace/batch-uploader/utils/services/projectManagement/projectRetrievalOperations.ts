@@ -48,6 +48,11 @@ export const getProjects = (): ProjectData[] => {
  * @returns The project or null if not found
  */
 export const getProjectById = (projectId: string): ProjectData | null => {
+  if (!projectId) {
+    console.error('getProjectById called with invalid ID:', projectId);
+    return null;
+  }
+  
   console.log(`Getting project by ID: ${projectId}`);
   
   // First try to get from localStorage for most up-to-date data

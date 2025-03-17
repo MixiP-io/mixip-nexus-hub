@@ -18,15 +18,18 @@ const BatchUploader: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [selectedFolder, setSelectedFolder] = useState<string>('root');
   const [selectedLicense, setSelectedLicense] = useState<string>('standard');
+  const [triggerFileInput, setTriggerFileInput] = useState<boolean>(false);
   
   // Handle URL parameters on component mount and when they change
   useEffect(() => {
     const projectParam = searchParams.get('project');
     const folderParam = searchParams.get('folder');
+    const fromEmptyProject = searchParams.get('fromEmptyProject') === 'true';
     
     console.log('[CRITICAL] BatchUploader initialized with URL params:', { 
       project: projectParam, 
-      folder: folderParam
+      folder: folderParam,
+      fromEmptyProject: fromEmptyProject
     });
     
     if (projectParam) {
@@ -45,6 +48,12 @@ const BatchUploader: React.FC = () => {
           // Add a small delay to ensure the UI is ready
           setTimeout(() => {
             toast.info(`Upload files to ${project.name}: ${folderName}`);
+            
+            // If coming from empty project view, set a flag to trigger file input
+            if (fromEmptyProject) {
+              console.log('[CRITICAL] Coming from empty project view, will trigger file input');
+              setTriggerFileInput(true);
+            }
           }, 300);
         }
       } else {
@@ -59,7 +68,7 @@ const BatchUploader: React.FC = () => {
     isUploading,
     overallProgress,
     fileInputRef,
-    triggerFileInput,
+    triggerFileInput: openFileInput,
     handleFileSelect,
     removeFile,
     clearAll,
@@ -83,9 +92,10 @@ const BatchUploader: React.FC = () => {
       filesCount: files.length,
       isUploading,
       uploadComplete,
-      folderFromUploadHook: fileUploadSelectedFolder
+      folderFromUploadHook: fileUploadSelectedFolder,
+      triggerFileInput
     });
-  }, [selectedProject, selectedFolder, selectedLicense, files, isUploading, uploadComplete, fileUploadSelectedFolder]);
+  }, [selectedProject, selectedFolder, selectedLicense, files, isUploading, uploadComplete, fileUploadSelectedFolder, triggerFileInput]);
 
   const handleStartUpload = () => {
     if (selectedProject) {
@@ -97,15 +107,15 @@ const BatchUploader: React.FC = () => {
 
   // Automatically trigger file input when arriving from empty folder view
   useEffect(() => {
-    const fromEmptyFolder = searchParams.get('fromEmptyFolder') === 'true';
-    if (fromEmptyFolder && selectedProject && !files.length && !isUploading) {
-      console.log('[CRITICAL] Auto-triggering file selection from empty folder navigation');
+    if (triggerFileInput && selectedProject && !files.length && !isUploading) {
+      console.log('[CRITICAL] Auto-triggering file selection from empty project navigation');
       // Add slight delay to ensure UI is ready
       setTimeout(() => {
-        triggerFileInput();
-      }, 500);
+        openFileInput();
+        setTriggerFileInput(false); // Reset flag after triggering
+      }, 800);
     }
-  }, [selectedProject, searchParams, files.length, isUploading, triggerFileInput]);
+  }, [triggerFileInput, selectedProject, files.length, isUploading, openFileInput]);
 
   return (
     <div className="p-6">

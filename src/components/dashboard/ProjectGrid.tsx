@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { Plus, Image, FolderOpen } from 'lucide-react';
 import { useProjectsManager } from '../workspace/projects/hooks/useProjectsManager';
 import { useNavigate } from 'react-router-dom';
 import { getTotalAssetsCount } from '../workspace/projects/utils/assetCountUtils';
+import { toast } from 'sonner';
 
 const ProjectGrid: React.FC = () => {
   const { projects } = useProjectsManager();
@@ -21,8 +21,21 @@ const ProjectGrid: React.FC = () => {
   };
 
   const handleProjectClick = (projectId: string) => {
-    // Navigate to the workspace with the selected project
-    navigate(`/dashboard/workspace?tab=assets&project=${projectId}`);
+    const project = projects.find(p => p.id === projectId);
+    const totalAssets = project ? getTotalAssetsCount(project) : 0;
+    
+    if (totalAssets === 0) {
+      console.log('[CRITICAL] Project has no assets, redirecting to uploader:', projectId);
+      toast.info('Project has no assets. Redirecting to uploader...');
+      
+      setTimeout(() => {
+        const origin = window.location.origin;
+        const url = `${origin}/dashboard/workspace?tab=uploader&project=${projectId}&fromEmptyProject=true`;
+        window.location.href = url;
+      }, 100);
+    } else {
+      navigate(`/dashboard/workspace?tab=assets&project=${projectId}`);
+    }
   };
 
   const handleCreateProject = () => {
@@ -71,7 +84,6 @@ const ProjectGrid: React.FC = () => {
         );
       })}
       
-      {/* Create New Project Card */}
       <div 
         className="bg-gray-800 rounded-xl overflow-hidden hover:ring-2 hover:ring-mixip-blue transition-all cursor-pointer"
         onClick={handleCreateProject}

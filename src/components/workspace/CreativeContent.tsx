@@ -100,10 +100,28 @@ const CreativeContent: React.FC = () => {
       return;
     }
     
+    // Check if project has assets
+    const hasAssets = project.assets && project.assets.length > 0;
+    const hasAssetsInFolders = project.subfolders && project.subfolders.some(f => f.assets && f.assets.length > 0);
+    
     // Set the project ID in state
     setSelectedProjectId(projectId);
     setSelectedFolderId('root'); // Reset to root folder when changing projects
     setProjectExists(true);
+    
+    // If project has no assets, redirect to uploader
+    if (!hasAssets && !hasAssetsInFolders) {
+      console.log('[CRITICAL] Project has no assets, redirecting to uploader');
+      toast.info('Project has no assets. Redirecting to uploader...');
+      
+      // Use direct navigation with timeout to ensure toast shows
+      setTimeout(() => {
+        const origin = window.location.origin;
+        const url = `${origin}/dashboard/workspace?tab=uploader&project=${projectId}&fromEmptyProject=true`;
+        window.location.href = url;
+      }, 100);
+      return;
+    }
     
     // Update URL and switch to assets tab
     searchParams.set('project', projectId);

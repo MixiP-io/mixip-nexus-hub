@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ProjectToolbar from './ProjectToolbar';
@@ -10,6 +11,8 @@ import EditProjectDialog from './dialogs/EditProjectDialog';
 import DeleteProjectDialog from './dialogs/DeleteProjectDialog';
 import { useProjectsManager } from './hooks/useProjectsManager';
 import SectionHeader from '../SectionHeader';
+import { toast } from 'sonner';
+import { getTotalAssetsCount } from './utils/assetCountUtils';
 
 interface ProjectGridProps {
   onProjectSelect: (projectId: string) => void;
@@ -40,7 +43,7 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
     projectToDelete,
     projectToDeleteName,
     handleCreateProject,
-    handleProjectClick,
+    handleProjectClick: baseHandleProjectClick,
     handleDeleteProject,
     confirmDeleteProject,
     handleEditProject,
@@ -50,6 +53,29 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
     handleProjectUpdated,
     loadProjects
   } = useProjectsManager();
+
+  // Enhanced project click handler to check for empty projects
+  const handleProjectClick = (projectId: string) => {
+    // Get project to check if it has assets
+    const project = projects.find(p => p.id === projectId);
+    const totalAssets = project ? getTotalAssetsCount(project) : 0;
+    
+    if (totalAssets === 0) {
+      console.log('[CRITICAL] Project has no assets, redirecting to uploader:', projectId);
+      toast.info('Project has no assets. Redirecting to uploader...');
+      
+      // Use direct navigation for reliability
+      setTimeout(() => {
+        const origin = window.location.origin;
+        const url = `${origin}/dashboard/workspace?tab=uploader&project=${projectId}&fromEmptyProject=true`;
+        window.location.href = url;
+      }, 100);
+    } else {
+      // Use the original handler for projects with assets
+      baseHandleProjectClick(projectId);
+      onProjectSelect(projectId);
+    }
+  };
 
   return (
     <div className="p-6">
@@ -80,10 +106,7 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
       {viewMode === 'grid' ? (
         <ProjectGridView 
           projects={projects}
-          onProjectClick={(projectId) => {
-            handleProjectClick(projectId);
-            onProjectSelect(projectId);
-          }}
+          onProjectClick={handleProjectClick}
           onEditProject={(projectId, e) => {
             e.stopPropagation();
             handleEditProject(projectId);
@@ -105,10 +128,7 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
       ) : (
         <ProjectListView 
           projects={projects}
-          onProjectClick={(projectId) => {
-            handleProjectClick(projectId);
-            onProjectSelect(projectId);
-          }}
+          onProjectClick={handleProjectClick}
           onEditProject={(projectId, e) => {
             e.stopPropagation();
             handleEditProject(projectId);

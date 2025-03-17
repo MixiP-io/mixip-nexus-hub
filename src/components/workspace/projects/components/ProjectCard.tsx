@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Eye, FolderOpen, Users, User, Image, Folder } from 'lucide-react';
+import { Eye, FolderOpen, Users, User, Image, Folder, Upload } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -16,6 +16,8 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import ProjectCardDropdownMenu from './ProjectCardDropdownMenu';
+import { getTotalAssetsCount } from '../utils/assetCountUtils';
+import { toast } from 'sonner';
 
 interface ProjectCardProps {
   project: any;
@@ -36,11 +38,25 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 }) => {
   const hasAssets = project.assets && project.assets.length > 0;
   const hasSubfolders = project.subfolders && project.subfolders.length > 0;
+  const totalAssets = getTotalAssetsCount(project);
   
   // Handle click on the project card
   const handleClick = () => {
     console.log('Project card clicked:', project.id);
     onProjectClick(project.id);
+  };
+  
+  // Handle direct navigation to uploader
+  const handleDirectUpload = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log('[CRITICAL] Direct upload button clicked for project:', project.id);
+    toast.info('Opening uploader for project...');
+    
+    setTimeout(() => {
+      const origin = window.location.origin;
+      const url = `${origin}/dashboard/workspace?tab=uploader&project=${project.id}&fromEmptyProject=true`;
+      window.location.href = url;
+    }, 100);
   };
   
   // Format the updated date
@@ -101,6 +117,21 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             </Badge>
           </div>
         )}
+        
+        {/* Empty project indicator with upload button */}
+        {totalAssets === 0 && (
+          <div className="absolute bottom-2 right-2">
+            <Button
+              variant="outline"
+              size="sm" 
+              className="bg-green-600/70 hover:bg-green-600 text-white border-green-500"
+              onClick={handleDirectUpload}
+            >
+              <Upload className="mr-1 h-3 w-3" />
+              Upload Files
+            </Button>
+          </div>
+        )}
       </div>
       <CardContent className="p-4">
         <div className="flex justify-between items-start">
@@ -117,7 +148,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             )}
             
             <p className="text-sm text-gray-400">
-              {project.assets ? project.assets.length : 0} assets • Updated {formatUpdatedDate(project.updatedAt)}
+              {totalAssets} assets • Updated {formatUpdatedDate(project.updatedAt)}
             </p>
           </div>
         </div>
@@ -175,12 +206,24 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       <CardFooter className="px-4 py-3 border-t border-gray-700 flex justify-between">
         <Badge variant="outline" className="bg-gray-700 text-gray-200">
           <Image className="mr-1 h-3 w-3" />
-          {project.assets ? project.assets.length : 0}
+          {totalAssets}
         </Badge>
-        <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white">
-          <Eye className="mr-1 h-3 w-3" />
-          View
-        </Button>
+        {totalAssets === 0 ? (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="text-green-300 hover:text-green-100 hover:bg-green-800/30"
+            onClick={handleDirectUpload}
+          >
+            <Upload className="mr-1 h-3 w-3" />
+            Add Files
+          </Button>
+        ) : (
+          <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white">
+            <Eye className="mr-1 h-3 w-3" />
+            View
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );
