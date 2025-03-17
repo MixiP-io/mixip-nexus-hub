@@ -20,7 +20,8 @@ export {
 // Re-export storage sync utilities
 export { 
   saveProjectsToLocalStorage,
-  loadProjectsFromLocalStorage
+  loadProjectsFromLocalStorage,
+  logProjects
 } from './store/storageSync';
 
 // Re-export default values

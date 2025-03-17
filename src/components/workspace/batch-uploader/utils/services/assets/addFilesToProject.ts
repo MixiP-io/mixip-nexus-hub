@@ -1,8 +1,8 @@
-
 import { toast } from 'sonner';
 import { ProjectAsset } from '../../types/projectTypes';
 import { UploadFile } from '../../../types';
-import { projects, updateProjects, logProjects } from '../../data/projectStore';
+import { projects, updateProjects } from '../../data/projectStore';
+import { logProjects } from '../../data/store/storageSync';
 import { convertFilesToAssets } from '../assetConversionUtils';
 import { validateProjectForAssets, ensureProjectStructure } from './projectAssetsValidation';
 import { 
