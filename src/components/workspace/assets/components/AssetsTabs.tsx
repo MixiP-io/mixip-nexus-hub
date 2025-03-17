@@ -1,10 +1,28 @@
 
-import React from 'react';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import React, { useState } from 'react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
-const AssetsTabs: React.FC = () => {
+interface AssetsTabsProps {
+  onFilterChange?: (filter: string) => void;
+}
+
+const AssetsTabs: React.FC<AssetsTabsProps> = ({ onFilterChange }) => {
+  const [activeTab, setActiveTab] = useState('all');
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    if (onFilterChange) {
+      onFilterChange(value);
+    }
+  };
+
   return (
-    <Tabs defaultValue="all" className="mb-6">
+    <Tabs 
+      defaultValue="all" 
+      className="mb-6" 
+      value={activeTab}
+      onValueChange={handleTabChange}
+    >
       <TabsList className="w-auto">
         <TabsTrigger value="all">All Assets</TabsTrigger>
         <TabsTrigger value="images">Images</TabsTrigger>
