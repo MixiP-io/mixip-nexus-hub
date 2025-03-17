@@ -73,3 +73,30 @@ export const loadProjectsFromLocalStorage = () => {
     return null;
   }
 };
+
+/**
+ * Initialize projects from localStorage on application start
+ */
+export const initializeFromLocalStorage = () => {
+  console.log('Initializing projects from localStorage');
+  const loadedProjects = loadProjectsFromLocalStorage();
+  
+  if (loadedProjects && Array.isArray(loadedProjects) && loadedProjects.length > 0) {
+    // We import here to avoid circular dependencies
+    const { updateProjects } = require('./projectState');
+    updateProjects(loadedProjects);
+    console.log(`Initialized with ${loadedProjects.length} projects from localStorage`);
+    return true;
+  } else {
+    console.log('No projects found in localStorage or invalid data format');
+    return false;
+  }
+};
+
+/**
+ * Log projects to console for debugging
+ */
+export const logProjects = () => {
+  console.log('Current projects:', projects);
+  return projects;
+};

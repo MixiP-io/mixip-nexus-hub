@@ -19,9 +19,10 @@ export {
 
 // Re-export storage sync utilities
 export { 
-  initializeFromLocalStorage, 
-  logProjects,
-  saveProjectsToLocalStorage
+  saveProjectsToLocalStorage,
+  loadProjectsFromLocalStorage,
+  initializeFromLocalStorage,
+  logProjects
 } from './store/storageSync';
 
 // Re-export default values

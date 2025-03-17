@@ -39,3 +39,11 @@ export const getFilePreview = async (file: File): Promise<string | undefined> =>
     reader.readAsDataURL(file);
   });
 };
+
+/**
+ * Generates a unique ID for files
+ * @returns A unique string ID
+ */
+export const generateUniqueId = (): string => {
+  return `file-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+};
