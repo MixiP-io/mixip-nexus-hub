@@ -74,7 +74,7 @@ const CollapsibleTabs: React.FC = () => {
         {visibleTabs.map(tab => (
           <button
             key={tab.id}
-            className={`px-6 py-4 font-medium text-sm transition-all ${
+            className={`px-6 py-4 font-medium text-base transition-all ${
               tab.active 
                 ? 'border-b-2 border-apple-blue text-apple-blue' 
                 : 'text-white hover:text-apple-blue'
