@@ -70,8 +70,6 @@ const AssetsContent: React.FC<AssetsContentProps> = ({
           setViewMode={setViewMode}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
-          selectedAssets={selectedAssets}
-          handleSelectAll={handleSelectAll}
           handleBatchUpload={handleBatchUpload}
           handleBatchRights={handleBatchRights}
           projectName={projectName}
@@ -105,7 +103,7 @@ const AssetsContent: React.FC<AssetsContentProps> = ({
         <RightsManagementPanel
           isOpen={rightsPanelOpen}
           onClose={() => setRightsPanelOpen(false)}
-          assetId={selectedAssetForRights}
+          assetIds={[selectedAssetForRights]} 
           assets={filteredAssets}
         />
       )}
