@@ -50,6 +50,7 @@ const AccountTypeSelector: React.FC<AccountTypeSelectorProps> = ({
           onClick={() => setAccountType('ai_platform')}
           disabled={isSubmitting}
           className={`p-4 border rounded-md hover:border-green-500 hover:bg-green-50 flex flex-col items-center text-center transition-colors ${accountType === 'ai_platform' ? 'border-green-500 bg-green-50' : ''}`}
+          aria-pressed={accountType === 'ai_platform'}
         >
           <Bot className="h-6 w-6 mb-2 text-mixip-mint" />
           <div className="flex flex-col items-center">
