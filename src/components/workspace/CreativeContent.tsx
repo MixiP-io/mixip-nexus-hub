@@ -87,7 +87,7 @@ const CreativeContent: React.FC = () => {
     if (tabParam === 'assets' && !projectParam && !selectedProjectId) {
       toast.info('Please select a project to view assets');
     }
-  }, [searchParams, setSearchParams]);
+  }, [searchParams, setSearchParams, activeTab]);
 
   // Handle project selection and navigate to assets tab
   const handleProjectSelect = (projectId: string) => {
@@ -107,56 +107,49 @@ const CreativeContent: React.FC = () => {
       return;
     }
     
-    // Check if project has assets
-    const hasAssets = project.assets && project.assets.length > 0;
-    const hasAssetsInFolders = project.subfolders && project.subfolders.some(f => f.assets && f.assets.length > 0);
-    
     // Set the project ID in state
     setSelectedProjectId(projectId);
     setSelectedFolderId('root'); // Reset to root folder when changing projects
     setProjectExists(true);
+    
+    // Check if project has assets
+    const hasAssets = project.assets && project.assets.length > 0;
+    const hasAssetsInFolders = project.subfolders && project.subfolders.some(f => f.assets && f.assets.length > 0);
+    
+    // Set redirecting flag to prevent multiple redirects
+    setRedirecting(true);
     
     // If project has no assets, redirect to uploader
     if (!hasAssets && !hasAssetsInFolders) {
       console.log('[CRITICAL] Project has no assets, redirecting to uploader');
       toast.info('Project has no assets. Redirecting to uploader...');
       
-      // Set redirecting flag to prevent multiple redirects
-      setRedirecting(true);
-      
       try {
-        // Update URL parameters first
+        // Update URL parameters for uploader
         searchParams.set('project', projectId);
         searchParams.set('tab', 'uploader');
         searchParams.set('fromEmptyProject', 'true');
         setSearchParams(searchParams);
         setActiveTab('uploader');
-        
-        // Clear redirecting flag after a short timeout
-        setTimeout(() => {
-          setRedirecting(false);
-        }, 1000);
       } catch (e) {
         console.error("Error during redirect:", e);
-        setRedirecting(false);
       }
+    } else {
+      // Update URL and switch to assets tab
+      searchParams.set('project', projectId);
+      searchParams.delete('folder'); // Remove any folder parameter
+      searchParams.set('tab', 'assets');
+      setSearchParams(searchParams);
+      setActiveTab('assets');
       
-      return;
+      // Show a toast to confirm the project selection
+      toast.success(`Viewing project: ${project.name}`);
     }
     
-    // Update URL and switch to assets tab
-    searchParams.set('project', projectId);
-    searchParams.delete('folder'); // Remove any folder parameter
-    searchParams.set('tab', 'assets');
-    setSearchParams(searchParams);
-    setActiveTab('assets');
-    
-    // Debug the selected project
-    console.log('Project data loaded via handler:', project.name);
-    console.log('Project assets count:', project.assets?.length || 0);
-    
-    // Show a toast to confirm the project selection
-    toast.success(`Viewing project: ${project.name}`);
+    // Clear redirecting flag after a short timeout
+    setTimeout(() => {
+      setRedirecting(false);
+    }, 500);
   };
 
   // Render the appropriate content based on the active tab

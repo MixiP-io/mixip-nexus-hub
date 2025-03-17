@@ -1,3 +1,4 @@
+
 import { toast } from 'sonner';
 import { ProjectAsset } from '../../types/projectTypes';
 import { UploadFile } from '../../../types';
@@ -71,17 +72,22 @@ export const addFilesToProject = async (
       addAssetsToRootFolder(updatedProjects, projectIndex, assets);
       folderFound = true;
       locationAdded = 'root';
+      console.log(`[assetService] Added ${assets.length} assets to root folder`);
     } else {
       // Try to add to specified folder
       const result = addAssetsToSpecificFolder(updatedProjects, projectIndex, normalizedFolderId, assets);
       folderFound = result.folderFound;
       locationAdded = result.locationAdded;
       
+      console.log(`[assetService] Folder operation result: found=${folderFound}, location=${locationAdded}`);
+      
       // If folder still not found, create a new one
       if (!folderFound) {
+        console.log(`[assetService] Folder ${normalizedFolderId} not found, creating new folder`);
         const newFolderResult = createNewFolderWithAssets(updatedProjects, projectIndex, normalizedFolderId, assets);
         folderFound = newFolderResult.folderFound;
         locationAdded = newFolderResult.locationAdded;
+        console.log(`[assetService] New folder created: ${locationAdded}`);
       }
     }
     
@@ -94,8 +100,12 @@ export const addFilesToProject = async (
     // Save to localStorage using our improved serialization
     saveProjectsToLocalStorage();
     
-    console.log(`[assetService] Added ${assets.length} files to project ${projectId}`);
+    console.log(`[assetService] Added ${assets.length} files to project ${projectId} at location ${locationAdded}`);
     logProjects(); // Log the updated projects for debugging
+    
+    // Show toast notification for successful upload
+    const locationName = locationAdded === 'root' ? 'root folder' : `folder "${locationAdded}"`;
+    toast.success(`Added ${assets.length} files to ${locationName}`);
     
     return { 
       success: true, 

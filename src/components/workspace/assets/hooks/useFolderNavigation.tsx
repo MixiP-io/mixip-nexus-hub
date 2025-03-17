@@ -36,7 +36,7 @@ export const useFolderNavigation = (selectedProjectId: string | null, initialFol
     }
   };
 
-  // Handle batch upload using hard navigation without React Router
+  // Handle batch upload using React Router navigation instead of hard redirect
   const handleBatchUpload = useCallback(() => {
     if (!selectedProjectId) {
       console.warn('[useFolderNavigation] Cannot redirect to uploader: No project selected');
@@ -44,30 +44,23 @@ export const useFolderNavigation = (selectedProjectId: string | null, initialFol
       return;
     }
 
-    console.log('[CRITICAL] Force redirecting to uploader with project:', selectedProjectId, 'folder:', currentFolderId);
+    console.log('[useFolderNavigation] Redirecting to uploader with project:', selectedProjectId, 'folder:', currentFolderId);
     
     // Show toast notification that we're redirecting
     toast.info('Opening uploader for file uploads...');
     
-    // Use setTimeout to ensure toast is shown before navigation
-    setTimeout(() => {
-      try {
-        // Construct absolute URL to ensure we're not affected by relative path issues
-        const origin = window.location.origin;
-        const path = `/dashboard/workspace`;
-        const query = `?tab=uploader&project=${selectedProjectId}&folder=${currentFolderId}`;
-        const fullUrl = `${origin}${path}${query}`;
-        
-        console.log('[CRITICAL] Navigating with hard reload to:', fullUrl);
-        
-        // Use direct browser navigation - completely bypassing React Router
-        window.location.href = fullUrl;
-      } catch (err) {
-        console.error('[CRITICAL] Navigation error:', err);
-        toast.error('Failed to open uploader tab');
-      }
-    }, 100);
-  }, [selectedProjectId, currentFolderId]);
+    try {
+      // Use React Router navigation instead of hard redirect
+      const path = `/dashboard/workspace`;
+      const query = `?tab=uploader&project=${selectedProjectId}&folder=${currentFolderId}`;
+      
+      console.log('[useFolderNavigation] Navigating to:', path + query);
+      navigate(path + query);
+    } catch (err) {
+      console.error('[useFolderNavigation] Navigation error:', err);
+      toast.error('Failed to open uploader tab');
+    }
+  }, [selectedProjectId, currentFolderId, navigate]);
 
   return {
     currentFolderId,
