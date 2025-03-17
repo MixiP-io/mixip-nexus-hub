@@ -1,5 +1,4 @@
-
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
@@ -11,6 +10,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const navigate = useNavigate();
   const location = useLocation();
   const auth = useAuthService();
+  const [stableLoading, setStableLoading] = useState(true);
   
   const {
     session, 
@@ -29,7 +29,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   } = auth;
 
   useEffect(() => {
-    // Initial session check - optimized for performance
+    let timer: ReturnType<typeof setTimeout>;
+    
+    if (isLoading) {
+      setStableLoading(true);
+    } else {
+      timer = setTimeout(() => {
+        setStableLoading(false);
+      }, 300);
+    }
+    
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [isLoading]);
+
+  useEffect(() => {
     const initializeAuth = async () => {
       try {
         console.log('Starting auth initialization');
@@ -38,24 +53,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const { data } = await supabase.auth.getSession();
         console.log('Initial session check:', data.session ? 'User logged in' : 'No session found');
         
-        // Set session and user state immediately
         setSession(data.session);
         setUser(data.session?.user ?? null);
         
-        // If user is logged in, fetch their profile
         if (data.session?.user) {
           console.log('User has session, fetching profile');
           
-          // Handle redirect for already logged in users
           if (location.pathname === '/login') {
             console.log('User already logged in and on login page, redirecting to dashboard');
             navigate('/dashboard');
-            // Set loading to false before redirect to prevent delay
             setIsLoading(false);
             return;
           }
           
-          // Fetch profile in the background, don't block the UI
           fetchProfile(data.session.user.id)
             .catch(error => {
               console.error('Error fetching profile during initialization:', error);
@@ -74,12 +84,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     initializeAuth();
 
-    // Auth state change listener - optimized for better performance
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
         
-        // Update session state immediately
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -88,7 +96,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           try {
             const profileData = await fetchProfile(session.user.id);
             
-            // Show toast after profile is fetched
             toast({
               title: "Signed in successfully",
               description: "Welcome back!",
@@ -97,7 +104,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             handleRedirectAfterSignIn(profileData);
           } catch (error) {
             console.error('Error checking profile for navigation:', error);
-            // Fall back to dashboard in case of error
             navigate('/dashboard', { replace: true });
           }
         }
@@ -125,11 +131,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [navigate, location.pathname, setSession, setUser, setIsLoading, fetchProfile]);
 
-  // Helper function to handle redirects after sign in
   const handleRedirectAfterSignIn = (profileData: UserProfile | null) => {
     console.log('Profile data for navigation decision:', profileData);
     
-    // Handle AI Platform user navigation
     if (profileData && 
         profileData.account_type === 'ai_platform' && 
         profileData.is_new_user === true) {
@@ -138,16 +142,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
     
-    // Otherwise navigate to dashboard
     console.log('Navigating to dashboard after sign in');
     navigate('/dashboard', { replace: true });
   };
 
-  // Early return if still loading initial auth state
-  if (isLoading && !user && location.pathname !== '/login') {
+  if (stableLoading && !user && location.pathname !== '/login') {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite] mb-4"></div>
           <h2 className="text-lg font-semibold">Loading your session...</h2>
           <p className="mt-2 text-gray-500">Please wait while we authenticate you.</p>
         </div>
@@ -161,7 +164,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         session,
         user,
         profile,
-        isLoading,
+        isLoading: stableLoading,
         signIn,
         signUp,
         signInWithSocial,
