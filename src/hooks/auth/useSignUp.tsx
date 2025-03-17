@@ -19,28 +19,17 @@ export function useSignUp(
         throw new Error("Password should be at least 6 characters.");
       }
 
-      // Check if user already exists
-      const { data: existingUsers, error: checkError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', email) // This won't actually match anything, but it prevents an error if the profile doesn't exist
-        .limit(1);
-
-      if (checkError) {
-        console.log('Error checking for existing user:', checkError);
-        // Continue with signup process, as error likely means the user doesn't exist
-      }
-      
       // Log the selected account type for debugging
       console.log('Selected account type:', metadata?.account_type);
       
+      // First, let's create the auth user with the metadata
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             full_name: metadata?.full_name,
-            account_type: metadata?.account_type, // Ensure account_type is passed to auth metadata
+            account_type: metadata?.account_type, // Pass account_type in auth metadata
           },
         },
       });
@@ -49,7 +38,7 @@ export function useSignUp(
       
       console.log('Sign up response:', data);
       
-      if (data.user && data.session) {
+      if (data.user) {
         // Create profile record if user was signed up successfully
         if (metadata) {
           // More detailed logging for debugging
@@ -60,7 +49,7 @@ export function useSignUp(
           const profileData: ProfileCreateData = {
             id: data.user.id,
             full_name: metadata.full_name,
-            account_type: metadata.account_type, // Ensure this is correctly passed
+            account_type: metadata.account_type, // Make sure account_type is set here
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           };
@@ -73,9 +62,12 @@ export function useSignUp(
           
           console.log('Profile data to insert:', profileData);
           
+          // Directly insert the profile after user creation
           const { error: profileError, data: profileResponse } = await supabase
             .from('profiles')
-            .insert(profileData);
+            .insert(profileData)
+            .select()
+            .single();
             
           if (profileError) {
             console.error('Error creating profile:', profileError);
@@ -86,25 +78,26 @@ export function useSignUp(
             });
           } else {
             console.log('Created profile successfully:', profileResponse);
-            console.log('Created profile with account type:', metadata.account_type);
+            console.log('Created profile with account type:', profileResponse.account_type);
           }
         }
         
-        setUser(data.user);
-        setSession(data.session);
-        toast({
-          title: "Sign up successful",
-          description: "Your account has been created successfully!",
-        });
-        
-        // Navigation will be handled by the auth state change listener
-      } else {
-        // If email confirmation is required
-        console.log('Email confirmation required, user not immediately signed in');
-        toast({
-          title: "Sign up successful",
-          description: "Please check your email for verification.",
-        });
+        if (data.session) {
+          setUser(data.user);
+          setSession(data.session);
+          toast({
+            title: "Sign up successful",
+            description: "Your account has been created successfully!",
+          });
+          // Navigation will be handled by the auth state change listener
+        } else {
+          // If email confirmation is required
+          console.log('Email confirmation required, user not immediately signed in');
+          toast({
+            title: "Sign up successful",
+            description: "Please check your email for verification.",
+          });
+        }
       }
     } catch (error: any) {
       console.error("Signup error:", error);

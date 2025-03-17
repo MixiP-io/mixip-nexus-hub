@@ -95,14 +95,15 @@ const Login: React.FC = () => {
       } else {
         // Sign up with additional metadata
         console.log('Signing up with:', email, name, accountType);
+        
+        // Ensure account type is not null when logging
+        console.log('Selected account type for signup:', accountType || 'none selected');
+        
         const metadata = {
           full_name: name,
           phone: phone,
-          account_type: accountType
+          account_type: accountType || 'creator_basic' // Default to creator_basic if somehow nothing is selected
         };
-        
-        // Log the account type before signing up
-        console.log('Selected account type for signup:', accountType);
         
         await signUp(email, password, metadata);
       }
