@@ -3,11 +3,10 @@ import React, { useEffect } from 'react';
 import { useAssetsManager } from './hooks/useAssetsManager';
 import AssetsHeader from './components/AssetsHeader';
 import AssetsTabs from './components/AssetsTabs';
-import AssetsEmptyState from './components/AssetsEmptyState';
-import AssetsGridView from './components/grid-view/AssetsGridView';
-import AssetsListView from './components/list-view/AssetsListView';
 import NoProjectSelected from './components/NoProjectSelected';
 import RightsManagementPanel from './rights-panel';
+import AssetsView from './components/AssetsView';
+import AssetsDebugPanel from './components/AssetsDebugPanel';
 import { toast } from 'sonner';
 
 interface AssetsManagerProps {
@@ -61,6 +60,7 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
       }
     }
     
+    // Logging project data for debugging
     if (projectData) {
       console.log('[CRITICAL] [AssetsManager] Project data loaded:', projectData.name);
       
@@ -89,8 +89,10 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
         console.log('[CRITICAL] [AssetsManager] Viewing root folder with', projectData.assets?.length || 0, 'assets');
       }
     }
-    
-    // Try to reload project from localStorage to get the most recent data
+  }, [selectedProjectId, projectData, selectedFolderId, currentFolderId, setCurrentFolderId]);
+
+  // Check localStorage for additional debugging
+  useEffect(() => {
     if (selectedProjectId) {
       try {
         const projectsJson = localStorage.getItem('projects');
@@ -115,7 +117,7 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
         console.error("Error checking localStorage:", e);
       }
     }
-  }, [selectedProjectId, projectData, selectedFolderId, currentFolderId, setCurrentFolderId]);
+  }, [selectedProjectId, selectedFolderId]);
 
   if (!selectedProjectId) {
     return <NoProjectSelected />;
@@ -124,16 +126,15 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
   if (!projectData) {
     return (
       <div className="p-6">
-        <div className="bg-red-500/20 border border-red-500/30 text-red-200 p-4 rounded-lg mb-4">
-          <p>Error loading project data. Project ID: {selectedProjectId}</p>
-        </div>
+        <AssetsDebugPanel 
+          projectId={selectedProjectId}
+          currentFolderId={currentFolderId || 'unknown'}
+        />
         <NoProjectSelected />
       </div>
     );
   }
 
-  const hasFilteredAssets = filteredAssets && filteredAssets.length > 0;
-  
   // Check for assets in folders
   let hasAssetsInFolders = false;
   let foldersWithAssets: string[] = [];
@@ -168,42 +169,20 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
 
       <AssetsTabs />
 
-      {!hasFilteredAssets ? (
-        <div>
-          {hasAssetsInFolders && currentFolderId === 'root' && (
-            <div className="bg-blue-500/20 border border-blue-500/30 text-blue-200 p-4 rounded-lg mb-4">
-              <p className="font-medium">Assets found in folders:</p>
-              <p className="mt-1">This project has assets in the following folders: {foldersWithAssets.join(', ')}</p>
-              <p className="mt-2">Check each folder to view its assets.</p>
-            </div>
-          )}
-          
-          <div className="bg-yellow-500/20 border border-yellow-500/30 text-yellow-200 p-4 rounded-lg mb-4">
-            <p>No assets found in {currentFolderId === 'root' ? `project "${projectData.name}"` : `folder "${currentFolderId}"`}.</p>
-            {currentFolderId !== 'root' && (
-              <p className="mt-2">Try uploading files directly to this folder from the uploader tab.</p>
-            )}
-          </div>
-          <AssetsEmptyState handleBatchUpload={handleBatchUpload} />
-        </div>
-      ) : viewMode === 'grid' ? (
-        <AssetsGridView
-          assets={filteredAssets}
-          selectedAssets={selectedAssets}
-          handleAssetClick={handleAssetClick}
-          handleSelectAll={handleSelectAll}
-          handleOpenRightsPanel={handleOpenRightsPanel}
-          handleBatchRights={handleBatchRights}
-        />
-      ) : (
-        <AssetsListView
-          assets={filteredAssets}
-          selectedAssets={selectedAssets}
-          handleAssetClick={handleAssetClick}
-          handleSelectAll={handleSelectAll}
-          handleOpenRightsPanel={handleOpenRightsPanel}
-        />
-      )}
+      <AssetsView
+        viewMode={viewMode}
+        filteredAssets={filteredAssets}
+        selectedAssets={selectedAssets}
+        handleAssetClick={handleAssetClick}
+        handleSelectAll={handleSelectAll}
+        handleOpenRightsPanel={handleOpenRightsPanel}
+        handleBatchRights={handleBatchRights}
+        hasAssetsInFolders={hasAssetsInFolders}
+        currentFolderId={currentFolderId}
+        projectName={projectData.name}
+        foldersWithAssets={foldersWithAssets}
+        handleBatchUpload={handleBatchUpload}
+      />
 
       <RightsManagementPanel
         isOpen={rightsPanelOpen}
