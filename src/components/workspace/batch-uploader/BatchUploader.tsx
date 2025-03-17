@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Toaster } from 'sonner';
@@ -6,10 +7,11 @@ import { toast } from 'sonner';
 import { useFileUpload } from './hooks/useFileUpload';
 import { getProjectById } from './utils/projectUtils';
 
-import FileUploadSection from './components/file-list/FileGrid';
+import FileGrid from './components/file-list/FileGrid';
 import ProjectSection from './components/ProjectSection';
-import UploadButtonsSection from './components/file-list/OverallProgress';
+import OverallProgress from './components/file-list/OverallProgress';
 import UploadCompleteDialog from './components/file-list/UploadComplete';
+import FilesList from './components/FilesList';
 
 const BatchUploader: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -80,6 +82,14 @@ const BatchUploader: React.FC = () => {
     });
   }, [selectedProject, selectedFolder, selectedLicense, files, isUploading, uploadComplete, fileUploadSelectedFolder]);
 
+  const handleStartUpload = () => {
+    if (selectedProject) {
+      startUpload(selectedLicense, selectedProject, selectedFolder);
+    } else {
+      toast.error('Please select a project first');
+    }
+  };
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Batch Asset Uploader</h1>
@@ -108,37 +118,30 @@ const BatchUploader: React.FC = () => {
         </div>
         
         <div className="space-y-6">
-          <FileUploadSection 
+          <FilesList 
             files={files}
+            isUploading={isUploading}
             overallProgress={overallProgress}
-            fileInputRef={fileInputRef}
-            triggerFileInput={triggerFileInput}
-            handleFileSelect={handleFileSelect}
+            formatFileSize={(bytes) => {
+              const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+              if (bytes === 0) return '0 Byte';
+              const i = Math.floor(Math.log(bytes) / Math.log(1024));
+              return Math.round(bytes / Math.pow(1024, i)) + ' ' + sizes[i];
+            }}
+            calculateTotalSize={calculateTotalSize}
             removeFile={removeFile}
             clearAll={clearAll}
-            totalSize={calculateTotalSize()}
-            isUploading={isUploading}
-          />
-          
-          <UploadButtonsSection 
-            isUploading={isUploading}
-            files={files}
+            startUpload={handleStartUpload}
+            uploadComplete={uploadComplete}
+            setUploadComplete={setUploadComplete}
+            uploadResults={uploadResults}
             selectedProject={selectedProject}
-            selectedFolder={selectedFolder}
-            selectedLicense={selectedLicense}
-            startUpload={startUpload}
+            selectedProjectName={selectedProjectName}
+            navigateToProject={navigateToProject}
           />
         </div>
       </div>
 
-      {uploadComplete && uploadResults && (
-        <UploadCompleteDialog
-          uploadResults={uploadResults}
-          onClose={() => setUploadComplete(false)}
-          onViewAssets={navigateToProject}
-        />
-      )}
-      
       <Toaster position="top-right" />
     </div>
   );
