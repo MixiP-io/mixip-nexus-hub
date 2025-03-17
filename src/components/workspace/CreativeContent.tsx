@@ -21,6 +21,7 @@ const CreativeContent: React.FC = () => {
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>('root');
   const [projectExists, setProjectExists] = useState<boolean>(true);
+  const [redirecting, setRedirecting] = useState<boolean>(false);
   
   useEffect(() => {
     // Get the tab from URL params if available
@@ -92,6 +93,12 @@ const CreativeContent: React.FC = () => {
   const handleProjectSelect = (projectId: string) => {
     console.log('Project selected via handler:', projectId);
     
+    // Avoid multiple clicks or redirects
+    if (redirecting) {
+      console.log('Already redirecting, ignoring additional click');
+      return;
+    }
+    
     // Verify the project exists before selection
     const project = getProjectById(projectId);
     if (!project) {
@@ -114,12 +121,26 @@ const CreativeContent: React.FC = () => {
       console.log('[CRITICAL] Project has no assets, redirecting to uploader');
       toast.info('Project has no assets. Redirecting to uploader...');
       
-      // Use direct navigation with timeout to ensure toast shows
-      setTimeout(() => {
-        const origin = window.location.origin;
-        const url = `${origin}/dashboard/workspace?tab=uploader&project=${projectId}&fromEmptyProject=true`;
-        window.location.href = url;
-      }, 100);
+      // Set redirecting flag to prevent multiple redirects
+      setRedirecting(true);
+      
+      try {
+        // Update URL parameters first
+        searchParams.set('project', projectId);
+        searchParams.set('tab', 'uploader');
+        searchParams.set('fromEmptyProject', 'true');
+        setSearchParams(searchParams);
+        setActiveTab('uploader');
+        
+        // Clear redirecting flag after a short timeout
+        setTimeout(() => {
+          setRedirecting(false);
+        }, 1000);
+      } catch (e) {
+        console.error("Error during redirect:", e);
+        setRedirecting(false);
+      }
+      
       return;
     }
     

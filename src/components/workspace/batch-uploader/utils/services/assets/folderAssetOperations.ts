@@ -64,12 +64,8 @@ export const addAssetsToSpecificFolder = (
       });
       
       // Add the assets to the folder
-      if (!updatedProjects[projectIndex].subfolders[folderIndex].assets) {
-        updatedProjects[projectIndex].subfolders[folderIndex].assets = [];
-      }
-      
       updatedProjects[projectIndex].subfolders[folderIndex].assets = [
-        ...updatedProjects[projectIndex].subfolders[folderIndex].assets,
+        ...updatedProjects[projectIndex].subfolders[folderIndex].assets || [],
         ...assetsWithFolder
       ];
       

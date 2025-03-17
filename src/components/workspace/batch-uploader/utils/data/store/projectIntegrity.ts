@@ -3,7 +3,7 @@
  * Data integrity utilities for project data
  */
 import { projects, updateProjects } from './projectState';
-import { defaultLicensing, defaultProject } from './defaultValues';
+import { defaultLicensing } from './defaultValues';
 import { saveProjectsToLocalStorage } from './storageSync';
 
 // Ensure asset data is properly structured with valid preview URLs
@@ -15,162 +15,188 @@ const ensureAssetIntegrity = (asset: any) => {
   
   // Ensure preview is a valid string (if it exists)
   if (fixedAsset.preview !== undefined && typeof fixedAsset.preview !== 'string') {
+    console.log(`[projectIntegrity] Converting invalid preview for asset ${fixedAsset.id} to null`);
     fixedAsset.preview = null;
   }
   
-  // Ensure folderId is set (default to 'root' if missing)
-  if (!fixedAsset.folderId) {
-    fixedAsset.folderId = 'root';
-  }
-
-  // Ensure other required fields
-  if (!fixedAsset.id) {
-    fixedAsset.id = `asset-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-  }
-
-  // Ensure asset has a name if missing
-  if (!fixedAsset.name) {
-    fixedAsset.name = fixedAsset.file?.name || `Asset ${fixedAsset.id.substring(0, 8)}`;
-  }
+  // Ensure all required fields exist
+  if (!fixedAsset.id) fixedAsset.id = `asset-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+  if (!fixedAsset.uploadedAt) fixedAsset.uploadedAt = new Date();
   
   return fixedAsset;
 };
 
-// Recursive function to ensure folder integrity
-export const ensureFolderIntegrity = (folder: any) => {
+// Ensure folder data is properly structured
+const ensureFolderIntegrity = (folder: any) => {
   if (!folder) return folder;
-
+  
   // Deep copy to avoid reference issues
   const fixedFolder = { ...folder };
   
-  // If subfolders is undefined, initialize it
-  if (!Array.isArray(fixedFolder.subfolders)) {
-    fixedFolder.subfolders = [];
+  // Ensure required fields
+  if (!fixedFolder.id) {
+    console.log('[projectIntegrity] Folder missing ID, generating one');
+    fixedFolder.id = `folder-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
   }
   
-  // If assets is undefined, initialize it
+  if (!fixedFolder.name) {
+    console.log(`[projectIntegrity] Folder ${fixedFolder.id} missing name, setting default`);
+    fixedFolder.name = `Folder ${fixedFolder.id}`;
+  }
+  
+  if (!fixedFolder.createdAt) fixedFolder.createdAt = new Date();
+  if (!fixedFolder.updatedAt) fixedFolder.updatedAt = new Date();
+  
+  // Ensure assets array exists
   if (!Array.isArray(fixedFolder.assets)) {
+    console.log(`[projectIntegrity] Initializing assets array for folder ${fixedFolder.id}`);
     fixedFolder.assets = [];
   } else {
-    // Fix assets in this folder
-    fixedFolder.assets = fixedFolder.assets.map(asset => ensureAssetIntegrity(asset));
+    // Fix each asset in the folder
+    fixedFolder.assets = fixedFolder.assets.map(ensureAssetIntegrity).filter(Boolean);
     
-    // Filter out any null or undefined assets
-    fixedFolder.assets = fixedFolder.assets.filter(asset => asset !== null && asset !== undefined);
-    
-    // CRITICAL: Ensure all assets in this folder have the correct folderId
-    fixedFolder.assets = fixedFolder.assets.map(asset => ({
-      ...asset,
-      folderId: fixedFolder.id
-    }));
+    console.log(`[projectIntegrity] Folder ${fixedFolder.id} has ${fixedFolder.assets.length} valid assets`);
   }
   
-  // Process subfolders recursively
-  if (fixedFolder.subfolders && fixedFolder.subfolders.length > 0) {
-    fixedFolder.subfolders = fixedFolder.subfolders.map((subfolder: any) => {
-      return ensureFolderIntegrity(subfolder);
-    });
+  // Recursively fix subfolders
+  if (!Array.isArray(fixedFolder.subfolders)) {
+    fixedFolder.subfolders = [];
+  } else {
+    fixedFolder.subfolders = fixedFolder.subfolders.map(ensureFolderIntegrity).filter(Boolean);
   }
   
   return fixedFolder;
 };
 
-// Ensure all projects have properly initialized arrays and required fields
+// Ensure project data is properly structured
 export const ensureProjectDataIntegrity = () => {
-  console.log("Running data integrity check on projects...");
+  console.log('[projectIntegrity] Running project data integrity check');
   
   if (!Array.isArray(projects)) {
-    console.error("Projects is not an array, resetting to defaults");
-    // Reset to default projects
-    updateProjects([{...defaultProject}]);
-    saveProjectsToLocalStorage();
+    console.error('[projectIntegrity] Projects is not an array!');
     return;
   }
   
   const fixedProjects = projects.map(project => {
-    if (!project) {
-      console.error("Found null or undefined project, creating new default project");
-      return {...defaultProject, id: `project-${Date.now()}-${Math.floor(Math.random() * 1000)}`};
+    if (!project) return null;
+    
+    // Deep copy to avoid reference issues
+    const fixedProject = { ...project };
+    
+    // Ensure required fields
+    if (!fixedProject.createdAt) fixedProject.createdAt = new Date();
+    if (!fixedProject.updatedAt) fixedProject.updatedAt = new Date();
+    
+    // Ensure licensing data
+    if (!fixedProject.licensing) {
+      console.log(`[projectIntegrity] Project ${fixedProject.id} missing licensing, adding default`);
+      fixedProject.licensing = { ...defaultLicensing };
     }
     
-    // Fix any assets at the root level
-    const fixedAssets = Array.isArray(project.assets) 
-      ? project.assets
-          .map(asset => ensureAssetIntegrity(asset))
-          .filter(asset => asset !== null && asset !== undefined)
-      : [];
-    
-    // Ensure all assets at root have the correct reference to "root" folder
-    const assetsWithCorrectFolderIds = fixedAssets.map(asset => ({
-      ...asset,
-      folderId: asset.folderId || 'root'
-    }));
-    
-    // Creates a new object with guaranteed arrays and required fields
-    const fixedProject = {
-      ...project,
-      assets: assetsWithCorrectFolderIds,
-      subfolders: Array.isArray(project.subfolders) ? 
-        project.subfolders.map(subfolder => ensureFolderIntegrity(subfolder)) : [],
-      // Ensure licensing is present and valid
-      licensing: project.licensing || {...defaultLicensing}
-    };
-    
-    // Ensure project has an ID
-    if (!fixedProject.id) {
-      fixedProject.id = `project-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    // Ensure owners array
+    if (!Array.isArray(fixedProject.owners)) {
+      console.log(`[projectIntegrity] Project ${fixedProject.id} missing owners, initializing`);
+      fixedProject.owners = [];
     }
     
-    // Ensure project has a name
-    if (!fixedProject.name) {
-      fixedProject.name = `Project ${fixedProject.id.substring(0, 8)}`;
-    }
-
-    // ADDED: Run an explicit check and fix on all assets in all folders
-    if (fixedProject.subfolders && fixedProject.subfolders.length > 0) {
-      console.log(`Checking assets in all subfolders for project ${fixedProject.name}`);
-      let folderAssetCount = 0;
+    // Ensure assets array exists
+    if (!Array.isArray(fixedProject.assets)) {
+      console.log(`[projectIntegrity] Initializing assets array for project ${fixedProject.id}`);
+      fixedProject.assets = [];
+    } else {
+      // Fix each asset in the project
+      fixedProject.assets = fixedProject.assets
+        .map(ensureAssetIntegrity)
+        .filter(Boolean);
       
-      fixedProject.subfolders = fixedProject.subfolders.map(folder => {
-        // Ensure folder has an ID
-        if (!folder.id) {
-          folder.id = `folder-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-        }
-        
-        // Ensure assets array exists
-        if (!Array.isArray(folder.assets)) {
-          folder.assets = [];
-        } else {
-          // Fix all assets in this folder
-          folder.assets = folder.assets
-            .filter(asset => asset !== null && asset !== undefined)
-            .map(asset => ({
-              ...ensureAssetIntegrity(asset),
-              folderId: folder.id // Explicitly set the folder ID
-            }));
-          folderAssetCount += folder.assets.length;
-        }
-        return folder;
-      });
-      
-      console.log(`Fixed ${folderAssetCount} assets in subfolders for project ${fixedProject.name}`);
+      console.log(`[projectIntegrity] Project ${fixedProject.id} has ${fixedProject.assets.length} valid assets`);
     }
     
-    // Log asset counts for debugging
-    const rootAssetsCount = fixedProject.assets?.length || 0;
-    const folderAssetsCount = fixedProject.subfolders?.reduce((sum: number, folder: any) => 
-      sum + (folder.assets?.length || 0), 0) || 0;
-    
-    console.log(`Project ${fixedProject.name}: ${rootAssetsCount} root assets, ${folderAssetsCount} folder assets`);
+    // Ensure subfolders array exists and fix each subfolder
+    if (!Array.isArray(fixedProject.subfolders)) {
+      console.log(`[projectIntegrity] Initializing subfolders array for project ${fixedProject.id}`);
+      fixedProject.subfolders = [];
+    } else {
+      fixedProject.subfolders = fixedProject.subfolders
+        .map(ensureFolderIntegrity)
+        .filter(Boolean);
+      
+      console.log(`[projectIntegrity] Project ${fixedProject.id} has ${fixedProject.subfolders.length} valid subfolders`);
+    }
     
     return fixedProject;
-  });
+  }).filter(Boolean);
   
-  // Update the projects array with fixed projects
-  updateProjects(fixedProjects);
+  // Update projects with fixed data
+  if (JSON.stringify(projects) !== JSON.stringify(fixedProjects)) {
+    console.log('[projectIntegrity] Updating projects with fixed data');
+    updateProjects(fixedProjects);
+    
+    // Save to localStorage
+    saveProjectsToLocalStorage();
+  } else {
+    console.log('[projectIntegrity] No integrity issues found');
+  }
+};
+
+// Ensure specific folder structure is valid
+export const ensureFolderIntegrity = (projectId: string, folderId: string) => {
+  console.log(`[projectIntegrity] Ensuring folder integrity for ${folderId} in project ${projectId}`);
   
-  // Save to localStorage with improved serialization
-  saveProjectsToLocalStorage();
+  const projectIndex = projects.findIndex(p => p.id === projectId);
+  if (projectIndex === -1) return false;
   
-  console.log("Data integrity check complete");
+  const project = projects[projectIndex];
+  
+  // Check root folder first
+  if (folderId === 'root') {
+    if (!Array.isArray(project.assets)) {
+      console.log(`[projectIntegrity] Initializing root assets array for project ${projectId}`);
+      const updatedProjects = [...projects];
+      updatedProjects[projectIndex].assets = [];
+      updateProjects(updatedProjects);
+      saveProjectsToLocalStorage();
+    }
+    return true;
+  }
+  
+  // Check subfolders
+  if (!Array.isArray(project.subfolders)) {
+    console.log(`[projectIntegrity] Project ${projectId} has no subfolders array`);
+    const updatedProjects = [...projects];
+    updatedProjects[projectIndex].subfolders = [];
+    updateProjects(updatedProjects);
+    saveProjectsToLocalStorage();
+    return false;
+  }
+  
+  // Find the folder recursively
+  const findFolder = (folders: any[]): boolean => {
+    for (const folder of folders) {
+      if (folder.id === folderId) {
+        if (!Array.isArray(folder.assets)) {
+          console.log(`[projectIntegrity] Initializing assets array for folder ${folderId}`);
+          folder.assets = [];
+          const updatedProjects = [...projects];
+          updateProjects(updatedProjects);
+          saveProjectsToLocalStorage();
+        }
+        return true;
+      }
+      
+      if (Array.isArray(folder.subfolders) && folder.subfolders.length > 0) {
+        if (findFolder(folder.subfolders)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+  
+  const folderFound = findFolder(project.subfolders);
+  if (!folderFound) {
+    console.log(`[projectIntegrity] Folder ${folderId} not found in project ${projectId}`);
+  }
+  
+  return folderFound;
 };
