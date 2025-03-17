@@ -1,7 +1,5 @@
-
 import React from 'react';
-import SectionHeader from '../SectionHeader';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ProjectToolbar from './ProjectToolbar';
 import ProjectGridView from './ProjectGridView';
 import ProjectListView from './ProjectListView';
@@ -11,14 +9,13 @@ import SetCoverImageDialog from './dialogs/SetCoverImageDialog';
 import EditProjectDialog from './dialogs/EditProjectDialog';
 import DeleteProjectDialog from './dialogs/DeleteProjectDialog';
 import { useProjectsManager } from './hooks/useProjectsManager';
-import { ProjectData } from '../batch-uploader/utils/types/projectTypes';
+import SectionHeader from '../SectionHeader';
 
 interface ProjectGridProps {
   onProjectSelect: (projectId: string) => void;
 }
 
 const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
-  // All the properties and functions are still available from our refactored hook
   const {
     projects,
     searchQuery,
@@ -56,21 +53,18 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
 
   return (
     <div className="p-6">
-      {/* Header with search and actions */}
-      <div className="mb-6">
-        <SectionHeader 
-          title="Projects" 
-          description="Organize and manage your creative projects"
-        />
-        
-        <ProjectToolbar 
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          viewMode={viewMode}
-          setViewMode={setViewMode}
-          onCreateProject={() => setCreateProjectOpen(true)}
-        />
-      </div>
+      <SectionHeader 
+        title="Projects" 
+        description="Organize and manage your creative projects"
+      />
+      
+      <ProjectToolbar 
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        onCreateProject={() => setCreateProjectOpen(true)}
+      />
 
       {/* Filter tabs */}
       <Tabs defaultValue="all" className="mb-6">
@@ -147,7 +141,6 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
         />
       )}
       
-      {/* Dialog for setting cover image */}
       <SetCoverImageDialog
         isOpen={setCoverImageOpen}
         setIsOpen={setSetCoverImageOpen}
@@ -156,7 +149,6 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
         onSuccess={loadProjects}
       />
       
-      {/* Dialog for editing project */}
       {projectToEdit && (
         <EditProjectDialog
           isOpen={editProjectOpen}
@@ -166,7 +158,6 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({ onProjectSelect }) => {
         />
       )}
       
-      {/* Delete confirmation dialog */}
       <DeleteProjectDialog
         isOpen={deleteDialogOpen}
         setIsOpen={setDeleteDialogOpen}

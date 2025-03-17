@@ -1,8 +1,9 @@
 
 import React from 'react';
-import { Search, LayoutGrid, List, Plus, User } from 'lucide-react';
+import { LayoutGrid, List, Plus, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import SectionHeader from '@/components/workspace/SectionHeader';
+import SearchToolbar from '@/components/workspace/common/SearchToolbar';
 
 interface AssetsHeaderProps {
   projectName: string;
@@ -24,18 +25,17 @@ const AssetsHeader: React.FC<AssetsHeaderProps> = ({
   handleBatchUpload
 }) => {
   return (
-    <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-      <h2 className="text-2xl font-semibold">{projectName}</h2>
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1 md:min-w-[300px]">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            placeholder="Search assets..."
-            className="pl-10 bg-gray-800 border-gray-700 text-white"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+    <div className="mb-6">
+      <SectionHeader 
+        title={projectName}
+        description="Manage and organize your media assets"
+      />
+      
+      <SearchToolbar
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        placeholder="Search assets..."
+      >
         <div className="flex items-center border border-gray-700 rounded-md overflow-hidden">
           <Button
             variant="ghost"
@@ -66,7 +66,7 @@ const AssetsHeader: React.FC<AssetsHeaderProps> = ({
           <Plus className="mr-2 h-4 w-4" />
           Add Assets
         </Button>
-      </div>
+      </SearchToolbar>
     </div>
   );
 };

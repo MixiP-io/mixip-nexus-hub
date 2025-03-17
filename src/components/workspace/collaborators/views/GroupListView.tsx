@@ -4,6 +4,7 @@ import { CollaboratorGroup } from '../types';
 import CollaboratorSearch from '../CollaboratorSearch';
 import CollaboratorTabs from '../CollaboratorTabs';
 import GroupList from '../GroupList';
+import SectionHeader from '@/components/workspace/SectionHeader';
 
 // Import ViewOption type from the CollaboratorTabs component
 type ViewOption = 'all' | 'internal' | 'external' | 'agencies' | 'talent' | 'favorites';
@@ -39,10 +40,10 @@ const GroupListView: React.FC<GroupListViewProps> = ({
 }) => {
   return (
     <div className="p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-semibold mb-2 text-white">Collaborators</h1>
-        <p className="text-gray-400">Organize your professional network into meaningful groups</p>
-      </div>
+      <SectionHeader
+        title="Collaborators"
+        description="Organize your professional network into meaningful groups"
+      />
       
       <CollaboratorTabs
         activeView={activeView} 

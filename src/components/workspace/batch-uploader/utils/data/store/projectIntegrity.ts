@@ -22,34 +22,57 @@ const ensureAssetIntegrity = (asset: any) => {
   if (!fixedAsset.folderId) {
     fixedAsset.folderId = 'root';
   }
+
+  // Ensure other required fields
+  if (!fixedAsset.id) {
+    fixedAsset.id = `asset-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+  }
+
+  // Ensure asset has a name if missing
+  if (!fixedAsset.name) {
+    fixedAsset.name = fixedAsset.file?.name || `Asset ${fixedAsset.id.substring(0, 8)}`;
+  }
   
   return fixedAsset;
 };
 
 // Recursive function to ensure folder integrity
 export const ensureFolderIntegrity = (folder: any) => {
+  if (!folder) return folder;
+
+  // Deep copy to avoid reference issues
+  const fixedFolder = { ...folder };
+  
   // If subfolders is undefined, initialize it
-  if (!Array.isArray(folder.subfolders)) {
-    folder.subfolders = [];
+  if (!Array.isArray(fixedFolder.subfolders)) {
+    fixedFolder.subfolders = [];
   }
   
   // If assets is undefined, initialize it
-  if (!Array.isArray(folder.assets)) {
-    folder.assets = [];
+  if (!Array.isArray(fixedFolder.assets)) {
+    fixedFolder.assets = [];
   } else {
     // Fix assets in this folder
-    folder.assets = folder.assets.map(asset => ensureAssetIntegrity(asset));
+    fixedFolder.assets = fixedFolder.assets.map(asset => ensureAssetIntegrity(asset));
     
     // Filter out any null or undefined assets
-    folder.assets = folder.assets.filter(asset => asset !== null && asset !== undefined);
+    fixedFolder.assets = fixedFolder.assets.filter(asset => asset !== null && asset !== undefined);
+    
+    // Ensure all assets in this folder have the correct folderId
+    fixedFolder.assets = fixedFolder.assets.map(asset => ({
+      ...asset,
+      folderId: fixedFolder.id
+    }));
   }
   
   // Process subfolders recursively
-  folder.subfolders = folder.subfolders.map((subfolder: any) => {
-    return ensureFolderIntegrity(subfolder);
-  });
+  if (fixedFolder.subfolders && fixedFolder.subfolders.length > 0) {
+    fixedFolder.subfolders = fixedFolder.subfolders.map((subfolder: any) => {
+      return ensureFolderIntegrity(subfolder);
+    });
+  }
   
-  return folder;
+  return fixedFolder;
 };
 
 // Ensure all projects have properly initialized arrays and required fields
@@ -60,9 +83,15 @@ export const ensureProjectDataIntegrity = () => {
     console.error("Projects is not an array, resetting to defaults");
     // Reset to default projects
     updateProjects([{...defaultProject}]);
+    return;
   }
   
   const fixedProjects = projects.map(project => {
+    if (!project) {
+      console.error("Found null or undefined project, creating new default project");
+      return {...defaultProject, id: `project-${Date.now()}-${Math.floor(Math.random() * 1000)}`};
+    }
+    
     // Fix any assets at the root level
     const fixedAssets = Array.isArray(project.assets) 
       ? project.assets
@@ -70,10 +99,16 @@ export const ensureProjectDataIntegrity = () => {
           .filter(asset => asset !== null && asset !== undefined)
       : [];
     
+    // Ensure all assets at root have the correct reference to "root" folder
+    const assetsWithCorrectFolderIds = fixedAssets.map(asset => ({
+      ...asset,
+      folderId: asset.folderId || 'root'
+    }));
+    
     // Creates a new object with guaranteed arrays and required fields
     const fixedProject = {
       ...project,
-      assets: fixedAssets,
+      assets: assetsWithCorrectFolderIds,
       subfolders: Array.isArray(project.subfolders) ? 
         project.subfolders.map(subfolder => ensureFolderIntegrity(subfolder)) : [],
       // Ensure licensing is present and valid
@@ -84,6 +119,18 @@ export const ensureProjectDataIntegrity = () => {
     if (!fixedProject.id) {
       fixedProject.id = `project-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     }
+    
+    // Ensure project has a name
+    if (!fixedProject.name) {
+      fixedProject.name = `Project ${fixedProject.id.substring(0, 8)}`;
+    }
+
+    // Log asset counts for debugging
+    const rootAssetsCount = fixedProject.assets?.length || 0;
+    const folderAssetsCount = fixedProject.subfolders?.reduce((sum: number, folder: any) => 
+      sum + (folder.assets?.length || 0), 0) || 0;
+    
+    console.log(`Project ${fixedProject.name}: ${rootAssetsCount} root assets, ${folderAssetsCount} folder assets`);
     
     return fixedProject;
   });
@@ -96,3 +143,4 @@ export const ensureProjectDataIntegrity = () => {
   
   console.log("Data integrity check complete");
 };
+

@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import UploaderTabs from './components/UploaderTabs';
 import UploadArea from './components/UploadArea';
@@ -7,8 +6,7 @@ import SectionHeader from '../SectionHeader';
 import { useFileUpload } from './hooks/useFileUpload';
 import { useMetadataState } from './hooks/useMetadataState';
 import { formatFileSize } from './utils/fileUtils';
-import { logProjects, getProjectById } from './utils/projectUtils';
-import { ensureProjectDataIntegrity } from './utils/data/projectStore';
+import { ensureProjectDataIntegrity } from './utils/data/store/projectIntegrity';
 import { toast } from 'sonner';
 
 const BatchUploader: React.FC = () => {
