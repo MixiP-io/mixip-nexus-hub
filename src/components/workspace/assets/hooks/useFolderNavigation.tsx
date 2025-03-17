@@ -20,6 +20,7 @@ export const useFolderNavigation = (selectedProjectId: string | null, initialFol
 
   // Handle folder change with notification
   const handleFolderChange = (folderId: string, folderName?: string) => {
+    console.log('[useFolderNavigation] Changing folder to:', folderId, folderName);
     setCurrentFolderId(folderId);
     
     // Show toast when changing folders
@@ -40,8 +41,12 @@ export const useFolderNavigation = (selectedProjectId: string | null, initialFol
     // Pass current folder ID to the uploader
     if (selectedProjectId) {
       console.log('[CRITICAL] Redirecting to uploader with project:', selectedProjectId, 'folder:', currentFolderId);
-      navigate(`/dashboard/workspace?tab=uploader&project=${selectedProjectId}&folder=${currentFolderId}`);
-      toast.info(`Switched to uploader to add assets to ${currentFolderId === 'root' ? 'project' : 'folder'}`);
+      
+      // Force any pending state updates to complete
+      setTimeout(() => {
+        navigate(`/dashboard/workspace?tab=uploader&project=${selectedProjectId}&folder=${currentFolderId}`);
+        toast.info(`Switched to uploader to add assets to ${currentFolderId === 'root' ? 'project' : 'folder'}`);
+      }, 0);
     } else {
       console.warn('[useFolderNavigation] Cannot redirect to uploader: No project selected');
       navigate('/dashboard/workspace?tab=uploader');

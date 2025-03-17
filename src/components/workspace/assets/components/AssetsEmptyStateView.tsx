@@ -24,14 +24,13 @@ const AssetsEmptyStateView: React.FC<AssetsEmptyStateViewProps> = ({
   useEffect(() => {
     if (selectedProjectId && currentFolderId) {
       console.log('[CRITICAL] Empty folder detected, preparing to redirect to uploader');
-      // Small delay to prevent immediate redirect and allow user to see where they are
-      const timer = setTimeout(() => {
-        console.log('[CRITICAL] Redirecting to uploader from empty folder', currentFolderId);
-        handleBatchUpload();
-        toast.info('Redirecting to uploader to add files to this folder');
-      }, 300);
+      console.log('[CRITICAL] Selected project:', selectedProjectId);
+      console.log('[CRITICAL] Current folder:', currentFolderId);
       
-      return () => clearTimeout(timer);
+      // Immediate redirect for empty folders
+      // No timeout to ensure it happens right away
+      handleBatchUpload();
+      toast.info(`Redirecting to uploader to add files to ${currentFolderId === 'root' ? 'project' : 'folder'}`);
     }
   }, [selectedProjectId, currentFolderId, handleBatchUpload]);
 
