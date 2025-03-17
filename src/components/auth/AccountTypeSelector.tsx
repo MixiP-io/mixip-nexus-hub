@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { User, Building, Paintbrush, Bot } from 'lucide-react';
+import { User, Building, Paintbrush, Bot, Database, Code } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 interface AccountTypeSelectorProps {
   accountType: string | null;
@@ -51,7 +52,10 @@ const AccountTypeSelector: React.FC<AccountTypeSelectorProps> = ({
           className={`p-4 border rounded-md hover:border-green-500 hover:bg-green-50 flex flex-col items-center text-center transition-colors ${accountType === 'ai_platform' ? 'border-green-500 bg-green-50' : ''}`}
         >
           <Bot className="h-6 w-6 mb-2 text-mixip-mint" />
-          <span className="font-medium">AI Platform</span>
+          <div className="flex flex-col items-center">
+            <span className="font-medium">AI Platform</span>
+            <Badge className="bg-green-100 text-green-800 mt-1">Enhanced Data Access</Badge>
+          </div>
         </button>
       </div>
     </div>
