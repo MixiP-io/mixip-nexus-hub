@@ -83,6 +83,7 @@ export const ensureProjectDataIntegrity = () => {
     console.error("Projects is not an array, resetting to defaults");
     // Reset to default projects
     updateProjects([{...defaultProject}]);
+    saveProjectsToLocalStorage();
     return;
   }
   

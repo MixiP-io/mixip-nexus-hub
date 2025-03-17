@@ -2,6 +2,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { toast } from 'sonner';
 import { getProjectById } from '../../batch-uploader/utils/projectUtils';
+import { ensureProjectDataIntegrity } from '../../batch-uploader/utils/data/projectStore';
 
 /**
  * Hook to load and manage project assets
@@ -17,12 +18,21 @@ export const useProjectAssets = (selectedProjectId: string | null, currentFolder
       setIsLoading(true);
       
       try {
+        // Ensure data integrity before retrieving project
+        ensureProjectDataIntegrity();
+        
         // Force direct read from localStorage for latest data
         let project = null;
         try {
           const projectsJson = localStorage.getItem('projects');
           if (projectsJson) {
-            const projects = JSON.parse(projectsJson);
+            const projects = JSON.parse(projectsJson, (key, value) => {
+              // Restore Date objects
+              if (value && typeof value === 'object' && value.__type === 'Date') {
+                return new Date(value.iso);
+              }
+              return value;
+            });
             project = projects.find((p: any) => p.id === selectedProjectId);
           }
         } catch (e) {

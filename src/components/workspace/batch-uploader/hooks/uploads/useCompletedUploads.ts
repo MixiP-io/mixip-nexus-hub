@@ -55,6 +55,9 @@ export const useCompletedUploads = () => {
       setIsUploading(false);
       updateOverallProgress();
       
+      // Force one more save to localStorage to ensure all data is persisted
+      saveProjectsToLocalStorage();
+      
       // Log projects after upload for debugging
       logProjects();
       
@@ -103,7 +106,7 @@ export const useCompletedUploads = () => {
         console.log(`[CRITICAL] Setting upload complete with folder ID: ${folderId}, folder name: ${folderName}`);
         completeUpload(projectId, projectName, completedFiles, folderId);
         
-        // Force one more save to localStorage to ensure all data is persisted
+        // Force another save to localStorage
         saveProjectsToLocalStorage();
         
         // Show toast with clear folder navigation instructions

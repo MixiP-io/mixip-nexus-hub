@@ -1,115 +1,75 @@
 
 /**
- * Local storage synchronization utilities
+ * Utilities for synchronizing project data with localStorage
  */
-import { projects, updateProjects } from './projectState';
-import { ensureProjectDataIntegrity } from './projectIntegrity';
+import { projects } from './projectState';
 
-// Helper to safely serialize data for localStorage
-const safeStringify = (data: any) => {
+/**
+ * Save projects to localStorage with proper serialization of dates
+ */
+export const saveProjectsToLocalStorage = () => {
   try {
-    // Replace Date objects with ISO strings for proper storage and retrieval
-    return JSON.stringify(data, (key, value) => {
-      // Handle Date objects
+    console.log(`Saving ${projects.length} projects to localStorage`);
+    
+    // Use a custom replacer to handle Date objects
+    const projectsJson = JSON.stringify(projects, (key, value) => {
       if (value instanceof Date) {
         return {
           __type: 'Date',
           iso: value.toISOString()
         };
       }
-      // Handle File objects (can't be serialized)
-      if (value instanceof File) {
-        return null;
-      }
-      // Handle blob URLs by returning null (they won't be valid after refresh)
-      if (typeof value === 'string' && value.startsWith('blob:')) {
-        console.warn('Attempted to store blob URL which will not persist after refresh:', value.substring(0, 30) + '...');
-        return null;
-      }
-      // Preserve data URLs for images
-      if (typeof value === 'string' && value.startsWith('data:')) {
-        return value;
-      }
       return value;
     });
+    
+    localStorage.setItem('projects', projectsJson);
+    console.log(`Successfully saved ${projects.length} projects to localStorage`);
+    
+    // Verify storage worked correctly
+    const storedSize = localStorage.getItem('projects')?.length || 0;
+    console.log(`Stored data size: ${(storedSize / 1024).toFixed(2)} KB`);
+    
+    // Check for potential localStorage limits
+    if (storedSize > 4 * 1024 * 1024) {
+      console.warn('WARNING: localStorage data is nearing the 5MB limit!');
+    }
+    
+    return true;
   } catch (error) {
-    console.error('Error stringifying data for localStorage:', error);
-    return null;
+    console.error('Error saving projects to localStorage:', error);
+    
+    if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+      console.error('localStorage quota exceeded! Consider reducing the data size or implementing a different storage solution.');
+    }
+    
+    return false;
   }
 };
 
-// Parse JSON with reviver to restore dates
-const safeParse = (jsonString: string) => {
+/**
+ * Load projects from localStorage with proper deserialization of dates
+ */
+export const loadProjectsFromLocalStorage = () => {
   try {
-    return JSON.parse(jsonString, (key, value) => {
-      // Restore Date objects
+    const projectsJson = localStorage.getItem('projects');
+    
+    if (!projectsJson) {
+      console.log('No projects found in localStorage');
+      return null;
+    }
+    
+    // Use a reviver function to reconstruct Date objects
+    const loadedProjects = JSON.parse(projectsJson, (key, value) => {
       if (value && typeof value === 'object' && value.__type === 'Date') {
         return new Date(value.iso);
       }
       return value;
     });
-  } catch (error) {
-    console.error('Error parsing data from localStorage:', error);
-    return null;
-  }
-};
-
-// Check if there's any data in localStorage
-export const initializeFromLocalStorage = () => {
-  try {
-    console.log('Initializing from localStorage');
-    const storedProjects = localStorage.getItem('projects');
-    if (storedProjects) {
-      const parsedProjects = safeParse(storedProjects);
-      if (Array.isArray(parsedProjects) && parsedProjects.length > 0) {
-        console.log('Successfully loaded projects from localStorage:', parsedProjects.length);
-        updateProjects(parsedProjects);
-        
-        // Debug: Log the first project structure
-        if (parsedProjects[0]) {
-          console.log('First project structure:', {
-            id: parsedProjects[0].id,
-            name: parsedProjects[0].name,
-            assetsCount: parsedProjects[0].assets?.length || 0,
-            foldersCount: parsedProjects[0].subfolders?.length || 0
-          });
-          
-          // Log all folders and their asset counts
-          if (parsedProjects[0].subfolders && parsedProjects[0].subfolders.length > 0) {
-            console.log('Folders in first project:');
-            parsedProjects[0].subfolders.forEach((folder: any) => {
-              console.log(`- Folder "${folder.name}": ${folder.assets?.length || 0} assets`);
-            });
-          }
-        }
-        
-        // Ensure data integrity of loaded projects
-        ensureProjectDataIntegrity();
-      }
-    }
+    
+    console.log(`Loaded ${loadedProjects.length} projects from localStorage`);
+    return loadedProjects;
   } catch (error) {
     console.error('Error loading projects from localStorage:', error);
-    // If localStorage is corrupted, use the default projects
-    localStorage.removeItem('projects');
-    // Re-initialize with default values and save to localStorage
-    ensureProjectDataIntegrity();
+    return null;
   }
-};
-
-// Save projects to localStorage with proper serialization
-export const saveProjectsToLocalStorage = () => {
-  try {
-    const serialized = safeStringify(projects);
-    if (serialized) {
-      localStorage.setItem('projects', serialized);
-      console.log(`Saved ${projects.length} projects to localStorage`);
-    }
-  } catch (error) {
-    console.error('Error saving to localStorage:', error);
-  }
-};
-
-// For debugging
-export const logProjects = () => {
-  console.log('Current projects:', JSON.stringify(projects, null, 2));
 };

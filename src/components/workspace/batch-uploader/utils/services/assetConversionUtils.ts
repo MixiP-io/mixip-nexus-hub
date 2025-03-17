@@ -30,10 +30,13 @@ export const convertFilesToAssets = (
   
   // Convert uploaded files to project assets
   const assets = completedFiles.map(file => {
+    // Create a unique ID for the asset if not present
+    const assetId = file.id || `asset-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+    
     // Ensure preview is stored as a data URL string
     const preview = typeof file.preview === 'string' ? file.preview : null;
     
-    console.log(`[assetConversionUtils] Processing file preview:`, 
+    console.log(`[assetConversionUtils] Processing file preview for ${file.name}:`, 
       preview ? `Preview exists (${preview.substring(0, 30)}...)` : 'No preview available');
     
     // Check if preview is a blob URL (which won't persist) and warn
@@ -43,7 +46,7 @@ export const convertFilesToAssets = (
     }
     
     const asset: ProjectAsset = {
-      id: file.id,
+      id: assetId,
       name: file.name,
       type: file.type,
       size: file.size,

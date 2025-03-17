@@ -1,7 +1,7 @@
 
-import React, { useCallback } from 'react';
-import AssetsEmptyState from './AssetsEmptyState';
-import { toast } from 'sonner';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { PlusCircle, FolderOpen, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface AssetsEmptyStateViewProps {
@@ -21,64 +21,76 @@ const AssetsEmptyStateView: React.FC<AssetsEmptyStateViewProps> = ({
   handleBatchUpload,
   selectedProjectId
 }) => {
-  // Handle direct navigation to uploader via button click with forced page refresh
-  const navigateToUploader = useCallback(() => {
-    console.log('[CRITICAL] Manual navigation to uploader triggered');
+  const navigate = useNavigate();
+  
+  const goToUploader = () => {
+    // Navigate to the batch uploader with project ID and folder ID as parameters
+    const params = new URLSearchParams();
     
-    if (!selectedProjectId) {
-      console.error('[CRITICAL] Cannot navigate: No project selected');
-      toast.error('Unable to open uploader - no project selected');
-      return;
+    if (selectedProjectId) {
+      params.append('project', selectedProjectId);
     }
     
-    // Show toast notification
-    toast.info(`Opening uploader to add assets...`);
+    params.append('folder', currentFolderId || 'root');
+    params.append('fromEmptyProject', 'true');
     
-    // Use setTimeout to ensure toast shows before navigation
-    setTimeout(() => {
-      try {
-        // Create direct URL to uploader tab with project and folder context
-        const origin = window.location.origin; 
-        const path = `/dashboard/workspace`;
-        const query = `?tab=uploader&project=${selectedProjectId}&folder=${currentFolderId}`;
-        const fullUrl = `${origin}${path}${query}`;
-        
-        console.log('[CRITICAL] Direct navigation to:', fullUrl);
-        
-        // Force full page reload by setting location directly
-        window.location.href = fullUrl;
-      } catch (err) {
-        console.error('[CRITICAL] Navigation failed:', err);
-        toast.error('Failed to open uploader. Please try again.');
-      }
-    }, 100);
-  }, [selectedProjectId, currentFolderId]);
-
-  return (
-    <div>
-      {hasAssetsInFolders && currentFolderId === 'root' && (
-        <div className="bg-blue-500/20 border border-blue-500/30 text-blue-200 p-4 rounded-lg mb-4">
-          <p className="font-medium">Assets found in folders:</p>
-          <p className="mt-1">This project has assets in the following folders: {foldersWithAssets.join(', ')}</p>
-          <p className="mt-2">Check each folder to view its assets.</p>
+    navigate(`/dashboard/workspace/batch-uploader?${params.toString()}`);
+  };
+  
+  const renderFoldersList = () => {
+    if (!hasAssetsInFolders || foldersWithAssets.length === 0) {
+      return null;
+    }
+    
+    return (
+      <div className="mt-4 p-4 bg-gray-800 rounded-lg">
+        <div className="flex items-center mb-2">
+          <Info className="h-4 w-4 mr-2 text-blue-400" />
+          <h4 className="text-sm font-medium">Assets found in other folders</h4>
         </div>
-      )}
-      
-      <div className="bg-yellow-500/20 border border-yellow-500/30 text-yellow-200 p-4 rounded-lg mb-4">
-        <p>No assets found in {currentFolderId === 'root' ? `project "${projectName}"` : `folder "${currentFolderId}"`}.</p>
-        {currentFolderId !== 'root' && (
-          <p className="mt-2">Try uploading files directly to this folder from the uploader tab.</p>
+        <p className="text-sm text-gray-400 mb-3">
+          This folder is empty, but there are assets in other folders:
+        </p>
+        <ul className="space-y-1">
+          {foldersWithAssets.map((folderName, index) => (
+            <li key={index} className="text-sm flex items-center">
+              <FolderOpen className="h-3 w-3 mr-2 text-blue-400" />
+              <span>{folderName}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+  
+  return (
+    <div className="flex flex-col items-center justify-center p-8 text-center h-full">
+      <div className="max-w-md">
+        <h3 className="text-2xl font-bold mb-2">No Assets Found</h3>
+        
+        {currentFolderId === 'root' ? (
+          <p className="text-gray-400 mb-6">
+            This project doesn't have any assets yet. Upload some assets to get started.
+          </p>
+        ) : (
+          <p className="text-gray-400 mb-6">
+            This folder is empty. Upload some assets or choose another folder.
+          </p>
         )}
-        <div className="flex flex-col sm:flex-row gap-4 mt-4">
+        
+        <div className="flex flex-col gap-4 sm:flex-row sm:gap-2 justify-center">
           <Button 
-            onClick={navigateToUploader}
-            className="bg-green-600 hover:bg-green-700 text-white font-medium"
+            onClick={goToUploader}
+            size="lg" 
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
           >
-            Add Assets Now
+            <PlusCircle className="h-5 w-5" />
+            Upload Assets
           </Button>
         </div>
+        
+        {renderFoldersList()}
       </div>
-      <AssetsEmptyState handleBatchUpload={navigateToUploader} />
     </div>
   );
 };

@@ -1,3 +1,4 @@
+
 import { toast } from 'sonner';
 import { ProjectAsset } from '../../types/projectTypes';
 import { addAssetsToFolder } from '../folderOperationUtils';
@@ -173,15 +174,17 @@ export const createNewFolderWithAssets = (
     isReference: true // Mark as reference to avoid duplication in UI
   }));
   
+  // Add them to the root
+  updatedProjects[projectIndex].assets = [
+    ...updatedProjects[projectIndex].assets,
+    ...referenceAssets
+  ];
+  
   console.log(`[CRITICAL] Adding ${referenceAssets.length} reference assets to project root as well`);
   
   // Update localStorage immediately
-  try {
-    localStorage.setItem('projects', JSON.stringify(updatedProjects));
-    console.log(`[CRITICAL] [folderAssetOperations] Updated localStorage after creating new folder`);
-  } catch (e) {
-    console.error(`[folderAssetOperations] Error saving to localStorage:`, e);
-  }
+  saveProjectsToLocalStorage();
+  console.log(`[CRITICAL] [folderAssetOperations] Updated localStorage after creating new folder`);
   
   toast.success(`Created new folder "${folderName}" and added ${assets.length} files`);
   
