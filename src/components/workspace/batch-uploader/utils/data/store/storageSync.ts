@@ -21,9 +21,14 @@ const safeStringify = (data: any) => {
       if (value instanceof File) {
         return null;
       }
-      // Handle DataURLs for images
-      if (typeof value === 'string' && key === 'preview' && value.startsWith('data:')) {
-        return value; // Preserve data URLs
+      // Handle blob URLs by returning null (they won't be valid after refresh)
+      if (typeof value === 'string' && value.startsWith('blob:')) {
+        console.warn('Attempted to store blob URL which will not persist after refresh:', value.substring(0, 30) + '...');
+        return null;
+      }
+      // Preserve data URLs for images
+      if (typeof value === 'string' && value.startsWith('data:')) {
+        return value;
       }
       return value;
     });

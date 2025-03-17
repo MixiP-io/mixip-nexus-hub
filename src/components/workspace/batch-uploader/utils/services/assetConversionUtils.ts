@@ -30,11 +30,17 @@ export const convertFilesToAssets = (
   
   // Convert uploaded files to project assets
   const assets = completedFiles.map(file => {
-    // Make sure preview is properly serialized as a string
+    // Ensure preview is stored as a data URL string
     const preview = typeof file.preview === 'string' ? file.preview : null;
     
     console.log(`[assetConversionUtils] Processing file preview:`, 
       preview ? `Preview exists (${preview.substring(0, 30)}...)` : 'No preview available');
+    
+    // Check if preview is a blob URL (which won't persist) and warn
+    if (preview && preview.startsWith('blob:')) {
+      console.warn('[assetConversionUtils] Detected blob URL preview which will not persist after page refresh:', 
+        file.name, preview.substring(0, 30) + '...');
+    }
     
     const asset: ProjectAsset = {
       id: file.id,
