@@ -24,7 +24,7 @@ const CollaboratorTabs: React.FC<CollaboratorTabsProps> = ({
 
   return (
     <NavigationTabs 
-      tabs={tabs.map(tab => ({ id: tab.id, label: tab.label }))}
+      tabs={tabs}
       activeTab={activeView}
       onTabChange={(tabId) => setActiveView(tabId as ViewOption)}
     />

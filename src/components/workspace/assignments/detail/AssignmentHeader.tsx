@@ -20,7 +20,7 @@ const AssignmentHeader: React.FC<AssignmentHeaderProps> = ({ assignment }) => {
   };
 
   return (
-    <Card className="bg-mixip-gray-dark border-border shadow-md">
+    <Card className="bg-mixip-gray-dark border-border shadow-md mb-6">
       <CardHeader className="flex flex-row justify-between items-start">
         <div>
           <h2 className="text-xl font-semibold text-white">{assignment.title}</h2>

@@ -25,7 +25,7 @@ const AssetsHeader: React.FC<AssetsHeaderProps> = ({
   handleBatchUpload
 }) => {
   return (
-    <div className="mb-6">
+    <>
       <SectionHeader 
         title={projectName}
         description="Manage and organize your media assets"
@@ -67,7 +67,7 @@ const AssetsHeader: React.FC<AssetsHeaderProps> = ({
           Add Assets
         </Button>
       </SearchToolbar>
-    </div>
+    </>
   );
 };
 

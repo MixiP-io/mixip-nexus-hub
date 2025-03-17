@@ -37,7 +37,7 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
         value={searchField} 
         onValueChange={setSearchField}
       >
-        <SelectTrigger className="bg-gray-800 border-gray-700 text-white w-36 h-11">
+        <SelectTrigger className="bg-gray-800 border-gray-700 text-white w-36 h-10">
           <SelectValue placeholder="Search by" />
         </SelectTrigger>
         <SelectContent className="bg-gray-800 border-gray-700 text-white">
@@ -52,7 +52,7 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
         value={sortOption} 
         onValueChange={setSortOption}
       >
-        <SelectTrigger className="bg-gray-800 border-gray-700 text-white w-48 h-11">
+        <SelectTrigger className="bg-gray-800 border-gray-700 text-white w-48 h-10">
           <SlidersHorizontal className="h-4 w-4 mr-2" />
           <SelectValue placeholder="Sort by" />
         </SelectTrigger>
