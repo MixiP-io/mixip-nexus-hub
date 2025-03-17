@@ -80,6 +80,7 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
         hasAssetsInFolders={hasAssetsInFolders}
         currentFolderId={currentFolderId}
         foldersWithAssets={foldersWithAssets}
+        selectedProjectId={selectedProjectId}
       />
     </div>
   );

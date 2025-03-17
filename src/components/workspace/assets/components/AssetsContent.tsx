@@ -1,12 +1,15 @@
 
 import React from 'react';
-import AssetsHeader from './AssetsHeader';
+import { Loader } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import AssetsTabs from './AssetsTabs';
+import AssetsHeader from './AssetsHeader';
 import AssetsView from './AssetsView';
-import RightsManagementPanel from '../rights-panel';
+import RightsManagementPanel from '../rights-panel/RightsManagementPanel';
+import NoProjectSelected from './NoProjectSelected';
 
 interface AssetsContentProps {
-  projectData: any;
+  projectData: any | null;
   viewMode: 'grid' | 'list';
   setViewMode: (mode: 'grid' | 'list') => void;
   searchQuery: string;
@@ -25,6 +28,7 @@ interface AssetsContentProps {
   hasAssetsInFolders: boolean;
   currentFolderId: string;
   foldersWithAssets: string[];
+  selectedProjectId: string | null;
 }
 
 const AssetsContent: React.FC<AssetsContentProps> = ({
@@ -46,51 +50,66 @@ const AssetsContent: React.FC<AssetsContentProps> = ({
   handleBatchRights,
   hasAssetsInFolders,
   currentFolderId,
-  foldersWithAssets
+  foldersWithAssets,
+  selectedProjectId
 }) => {
+  // If no project is selected, show the no project view
+  if (!projectData) {
+    return <NoProjectSelected />;
+  }
+
+  // Extract project name from data
+  const projectName = projectData.name || 'Unnamed Project';
+
   return (
-    <>
-      <AssetsHeader
-        projectName={projectData.name}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        viewMode={viewMode}
-        setViewMode={setViewMode}
-        handleBatchRights={handleBatchRights}
-        handleBatchUpload={handleBatchUpload}
-      />
+    <div className="h-full flex flex-col">
+      <div className="flex flex-col flex-grow overflow-hidden">
+        {/* Header with search and view controls */}
+        <AssetsHeader
+          viewMode={viewMode}
+          setViewMode={setViewMode}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          selectedAssets={selectedAssets}
+          handleSelectAll={handleSelectAll}
+          handleBatchUpload={handleBatchUpload}
+          handleBatchRights={handleBatchRights}
+          projectName={projectName}
+        />
 
-      <AssetsTabs />
+        {/* Asset tabs (might include All, Images, Videos, etc.) */}
+        <AssetsTabs />
 
-      <AssetsView
-        viewMode={viewMode}
-        filteredAssets={filteredAssets}
-        selectedAssets={selectedAssets}
-        handleAssetClick={handleAssetClick}
-        handleSelectAll={handleSelectAll}
-        handleOpenRightsPanel={handleOpenRightsPanel}
-        handleBatchRights={handleBatchRights}
-        hasAssetsInFolders={hasAssetsInFolders}
-        currentFolderId={currentFolderId}
-        projectName={projectData.name}
-        foldersWithAssets={foldersWithAssets}
-        handleBatchUpload={handleBatchUpload}
-      />
+        {/* Main content area with assets grid or empty state */}
+        <div className="flex-grow overflow-auto px-6 pb-6">
+          <AssetsView
+            viewMode={viewMode}
+            filteredAssets={filteredAssets}
+            selectedAssets={selectedAssets}
+            handleAssetClick={handleAssetClick}
+            handleSelectAll={handleSelectAll}
+            handleOpenRightsPanel={handleOpenRightsPanel}
+            handleBatchRights={handleBatchRights}
+            hasAssetsInFolders={hasAssetsInFolders}
+            currentFolderId={currentFolderId}
+            projectName={projectName}
+            foldersWithAssets={foldersWithAssets}
+            handleBatchUpload={handleBatchUpload}
+            selectedProjectId={selectedProjectId}
+          />
+        </div>
+      </div>
 
-      <RightsManagementPanel
-        isOpen={rightsPanelOpen}
-        onClose={() => {
-          setRightsPanelOpen(false);
-          setSelectedAssetForRights(null);
-        }}
-        assetIds={selectedAssetForRights ? [selectedAssetForRights] : selectedAssets}
-        assets={filteredAssets.filter((asset: any) => 
-          selectedAssetForRights 
-            ? asset.id === selectedAssetForRights 
-            : selectedAssets.includes(asset.id)
-        )}
-      />
-    </>
+      {/* Rights management panel (slides in from right) */}
+      {rightsPanelOpen && selectedAssetForRights && (
+        <RightsManagementPanel
+          isOpen={rightsPanelOpen}
+          onClose={() => setRightsPanelOpen(false)}
+          assetId={selectedAssetForRights}
+          assets={filteredAssets}
+        />
+      )}
+    </div>
   );
 };
 

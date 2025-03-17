@@ -18,6 +18,7 @@ interface AssetsViewProps {
   projectName: string;
   foldersWithAssets: string[];
   handleBatchUpload: () => void;
+  selectedProjectId: string | null;
 }
 
 const AssetsView: React.FC<AssetsViewProps> = ({
@@ -32,7 +33,8 @@ const AssetsView: React.FC<AssetsViewProps> = ({
   currentFolderId,
   projectName,
   foldersWithAssets,
-  handleBatchUpload
+  handleBatchUpload,
+  selectedProjectId
 }) => {
   const hasFilteredAssets = filteredAssets && filteredAssets.length > 0;
 
@@ -44,6 +46,7 @@ const AssetsView: React.FC<AssetsViewProps> = ({
         projectName={projectName}
         foldersWithAssets={foldersWithAssets}
         handleBatchUpload={handleBatchUpload}
+        selectedProjectId={selectedProjectId}
       />
     );
   }

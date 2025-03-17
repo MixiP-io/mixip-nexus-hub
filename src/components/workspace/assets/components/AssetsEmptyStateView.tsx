@@ -1,6 +1,7 @@
 
 import React from 'react';
 import AssetsEmptyState from './AssetsEmptyState';
+import { useNavigate } from 'react-router-dom';
 
 interface AssetsEmptyStateViewProps {
   hasAssetsInFolders: boolean;
@@ -8,6 +9,7 @@ interface AssetsEmptyStateViewProps {
   projectName: string;
   foldersWithAssets: string[];
   handleBatchUpload: () => void;
+  selectedProjectId: string | null;
 }
 
 const AssetsEmptyStateView: React.FC<AssetsEmptyStateViewProps> = ({
@@ -15,8 +17,23 @@ const AssetsEmptyStateView: React.FC<AssetsEmptyStateViewProps> = ({
   currentFolderId,
   projectName,
   foldersWithAssets,
-  handleBatchUpload
+  handleBatchUpload,
+  selectedProjectId
 }) => {
+  const navigate = useNavigate();
+  
+  // Automatically redirect to uploader when viewing an empty folder
+  React.useEffect(() => {
+    if (selectedProjectId) {
+      // Small delay to prevent immediate redirect and allow user to see where they are
+      const timer = setTimeout(() => {
+        handleBatchUpload();
+      }, 300);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [selectedProjectId, handleBatchUpload]);
+
   return (
     <div>
       {hasAssetsInFolders && currentFolderId === 'root' && (

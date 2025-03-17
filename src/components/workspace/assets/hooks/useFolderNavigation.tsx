@@ -35,7 +35,7 @@ export const useFolderNavigation = (selectedProjectId: string | null, initialFol
     }
   };
 
-  // Handle batch upload
+  // Handle batch upload - immediately redirect to uploader with current folder context
   const handleBatchUpload = () => {
     // Pass current folder ID to the uploader
     if (selectedProjectId) {
