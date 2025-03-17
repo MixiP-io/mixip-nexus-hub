@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import AssetsEmptyState from './AssetsEmptyState';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -21,26 +21,38 @@ const AssetsEmptyStateView: React.FC<AssetsEmptyStateViewProps> = ({
   handleBatchUpload,
   selectedProjectId
 }) => {
-  // Handle direct navigation to uploader via button click
-  const navigateToUploader = () => {
+  // Handle direct navigation to uploader via button click with forced page refresh
+  const navigateToUploader = useCallback(() => {
     console.log('[CRITICAL] Manual navigation to uploader triggered');
-    if (selectedProjectId) {
-      // Create direct URL to uploader tab with project and folder context
-      const baseUrl = window.location.origin;
-      const uploaderPath = `/dashboard/workspace`;
-      const queryParams = `?tab=uploader&project=${selectedProjectId}&folder=${currentFolderId}`;
-      const fullUrl = `${baseUrl}${uploaderPath}${queryParams}`;
-      
-      console.log('[CRITICAL] Direct navigation to:', fullUrl);
-      toast.info(`Opening uploader to add files...`);
-      
-      // Force browser navigation - bypassing React Router entirely
-      window.location.href = fullUrl;
-    } else {
+    
+    if (!selectedProjectId) {
       console.error('[CRITICAL] Cannot navigate: No project selected');
       toast.error('Unable to open uploader - no project selected');
+      return;
     }
-  };
+    
+    // Show toast notification
+    toast.info(`Opening uploader to add files...`);
+    
+    // Use setTimeout to ensure toast shows before navigation
+    setTimeout(() => {
+      try {
+        // Create direct URL to uploader tab with project and folder context
+        const origin = window.location.origin; 
+        const path = `/dashboard/workspace`;
+        const query = `?tab=uploader&project=${selectedProjectId}&folder=${currentFolderId}`;
+        const fullUrl = `${origin}${path}${query}`;
+        
+        console.log('[CRITICAL] Direct navigation to:', fullUrl);
+        
+        // Force full page reload by setting location directly
+        window.location.href = fullUrl;
+      } catch (err) {
+        console.error('[CRITICAL] Navigation failed:', err);
+        toast.error('Failed to open uploader. Please try again.');
+      }
+    }, 100);
+  }, [selectedProjectId, currentFolderId]);
 
   return (
     <div>
@@ -57,18 +69,12 @@ const AssetsEmptyStateView: React.FC<AssetsEmptyStateViewProps> = ({
         {currentFolderId !== 'root' && (
           <p className="mt-2">Try uploading files directly to this folder from the uploader tab.</p>
         )}
-        <div className="flex gap-4 mt-4">
+        <div className="flex flex-col sm:flex-row gap-4 mt-4">
           <Button 
             onClick={navigateToUploader}
-            className="bg-yellow-600 hover:bg-yellow-700 text-white font-medium"
+            className="bg-green-600 hover:bg-green-700 text-white font-medium"
           >
-            Upload Files Now (Direct)
-          </Button>
-          <Button 
-            onClick={handleBatchUpload}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            Upload Files (Router)
+            Upload Files Now
           </Button>
         </div>
       </div>

@@ -19,6 +19,7 @@ const BatchUploader: React.FC = () => {
   const [selectedFolder, setSelectedFolder] = useState<string>('root');
   const [selectedLicense, setSelectedLicense] = useState<string>('standard');
   
+  // Handle URL parameters on component mount and when they change
   useEffect(() => {
     const projectParam = searchParams.get('project');
     const folderParam = searchParams.get('folder');
@@ -41,7 +42,10 @@ const BatchUploader: React.FC = () => {
           const folderName = folderParam === 'root' ? 'root folder' : 
             `folder "${project.subfolders?.find(f => f.id === folderParam)?.name || folderParam}"`;
           
-          toast.info(`Upload files to ${project.name}: ${folderName}`);
+          // Add a small delay to ensure the UI is ready
+          setTimeout(() => {
+            toast.info(`Upload files to ${project.name}: ${folderName}`);
+          }, 300);
         }
       } else {
         console.warn('[BatchUploader] Project from URL not found:', projectParam);
@@ -70,6 +74,7 @@ const BatchUploader: React.FC = () => {
     navigateToProject
   } = useFileUpload();
 
+  // Debug rendering
   useEffect(() => {
     console.log('BatchUploader render with:', {
       selectedProject,
@@ -89,6 +94,18 @@ const BatchUploader: React.FC = () => {
       toast.error('Please select a project first');
     }
   };
+
+  // Automatically trigger file input when arriving from empty folder view
+  useEffect(() => {
+    const fromEmptyFolder = searchParams.get('fromEmptyFolder') === 'true';
+    if (fromEmptyFolder && selectedProject && !files.length && !isUploading) {
+      console.log('[CRITICAL] Auto-triggering file selection from empty folder navigation');
+      // Add slight delay to ensure UI is ready
+      setTimeout(() => {
+        triggerFileInput();
+      }, 500);
+    }
+  }, [selectedProject, searchParams, files.length, isUploading, triggerFileInput]);
 
   return (
     <div className="p-6">

@@ -36,31 +36,38 @@ export const useFolderNavigation = (selectedProjectId: string | null, initialFol
     }
   };
 
-  // Handle batch upload - Forces a hard page reload to navigate to uploader
+  // Handle batch upload using hard navigation without React Router
   const handleBatchUpload = useCallback(() => {
     if (!selectedProjectId) {
       console.warn('[useFolderNavigation] Cannot redirect to uploader: No project selected');
-      navigate('/dashboard/workspace?tab=uploader');
       toast.info('Please select a project first');
       return;
     }
 
     console.log('[CRITICAL] Force redirecting to uploader with project:', selectedProjectId, 'folder:', currentFolderId);
     
-    // Construct the URL for the uploader
-    const baseUrl = window.location.origin;
-    const uploaderPath = `/dashboard/workspace`;
-    const queryParams = `?tab=uploader&project=${selectedProjectId}&folder=${currentFolderId}`;
-    const fullUrl = `${baseUrl}${uploaderPath}${queryParams}`;
+    // Show toast notification that we're redirecting
+    toast.info('Opening uploader for file uploads...');
     
-    console.log('[CRITICAL] Navigating with hard reload to:', fullUrl);
-    
-    // Show toast to provide feedback that something is happening
-    toast.info(`Opening uploader to add assets...`);
-
-    // Force browser to load the URL directly, bypassing React Router
-    window.location.href = fullUrl;
-  }, [selectedProjectId, currentFolderId, navigate]);
+    // Use setTimeout to ensure toast is shown before navigation
+    setTimeout(() => {
+      try {
+        // Construct absolute URL to ensure we're not affected by relative path issues
+        const origin = window.location.origin;
+        const path = `/dashboard/workspace`;
+        const query = `?tab=uploader&project=${selectedProjectId}&folder=${currentFolderId}`;
+        const fullUrl = `${origin}${path}${query}`;
+        
+        console.log('[CRITICAL] Navigating with hard reload to:', fullUrl);
+        
+        // Use direct browser navigation - completely bypassing React Router
+        window.location.href = fullUrl;
+      } catch (err) {
+        console.error('[CRITICAL] Navigation error:', err);
+        toast.error('Failed to open uploader tab');
+      }
+    }, 100);
+  }, [selectedProjectId, currentFolderId]);
 
   return {
     currentFolderId,
