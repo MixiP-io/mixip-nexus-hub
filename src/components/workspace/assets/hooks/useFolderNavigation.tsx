@@ -39,9 +39,11 @@ export const useFolderNavigation = (selectedProjectId: string | null, initialFol
   const handleBatchUpload = () => {
     // Pass current folder ID to the uploader
     if (selectedProjectId) {
+      console.log('[CRITICAL] Redirecting to uploader with project:', selectedProjectId, 'folder:', currentFolderId);
       navigate(`/dashboard/workspace?tab=uploader&project=${selectedProjectId}&folder=${currentFolderId}`);
-      toast.info('Switched to uploader to add assets');
+      toast.info(`Switched to uploader to add assets to ${currentFolderId === 'root' ? 'project' : 'folder'}`);
     } else {
+      console.warn('[useFolderNavigation] Cannot redirect to uploader: No project selected');
       navigate('/dashboard/workspace?tab=uploader');
       toast.info('Please select a project first');
     }

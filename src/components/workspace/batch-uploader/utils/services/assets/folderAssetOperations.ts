@@ -94,7 +94,13 @@ export const addAssetsToSpecificFolder = (
         isReference: true // Mark as reference to avoid duplication in UI
       }));
       
-      console.log(`[CRITICAL] Adding ${referenceAssets.length} reference assets to project root as well`);
+      // Add references to root
+      updatedProjects[projectIndex].assets = [
+        ...updatedProjects[projectIndex].assets,
+        ...referenceAssets
+      ];
+      
+      console.log(`[CRITICAL] Added ${referenceAssets.length} reference assets to project root as well`);
       
       // Update localStorage immediately
       saveProjectsToLocalStorage();

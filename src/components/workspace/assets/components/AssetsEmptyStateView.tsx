@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import AssetsEmptyState from './AssetsEmptyState';
-import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 interface AssetsEmptyStateViewProps {
   hasAssetsInFolders: boolean;
@@ -20,19 +20,20 @@ const AssetsEmptyStateView: React.FC<AssetsEmptyStateViewProps> = ({
   handleBatchUpload,
   selectedProjectId
 }) => {
-  const navigate = useNavigate();
-  
   // Automatically redirect to uploader when viewing an empty folder
-  React.useEffect(() => {
-    if (selectedProjectId) {
+  useEffect(() => {
+    if (selectedProjectId && currentFolderId) {
+      console.log('[CRITICAL] Empty folder detected, preparing to redirect to uploader');
       // Small delay to prevent immediate redirect and allow user to see where they are
       const timer = setTimeout(() => {
+        console.log('[CRITICAL] Redirecting to uploader from empty folder', currentFolderId);
         handleBatchUpload();
+        toast.info('Redirecting to uploader to add files to this folder');
       }, 300);
       
       return () => clearTimeout(timer);
     }
-  }, [selectedProjectId, handleBatchUpload]);
+  }, [selectedProjectId, currentFolderId, handleBatchUpload]);
 
   return (
     <div>

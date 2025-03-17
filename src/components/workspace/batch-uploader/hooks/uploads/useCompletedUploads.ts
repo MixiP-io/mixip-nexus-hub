@@ -23,7 +23,7 @@ export const useCompletedUploads = () => {
     setUploadResults: (results: any) => void,
     completeUpload: (projectId: string, projectName: string, completedFiles: UploadFile[], folderId: string) => void
   ) => {
-    console.log(`Adding ${completedFiles.length} files to project ${projectId}, folder: ${folderId}`);
+    console.log(`[CRITICAL] Adding ${completedFiles.length} files to project ${projectId}, folder: ${folderId}`);
     
     // Log the file previews to check if they're valid
     completedFiles.forEach((file, index) => {
@@ -50,7 +50,7 @@ export const useCompletedUploads = () => {
     try {
       // Add files to project with proper error handling
       const result = await addFilesToProject(projectId, completedFiles, licenseType, folderId);
-      console.log("addFilesToProject result:", result);
+      console.log("[CRITICAL] addFilesToProject result:", result);
       
       setIsUploading(false);
       updateOverallProgress();
@@ -60,8 +60,10 @@ export const useCompletedUploads = () => {
       
       // Check project again to verify assets were added
       const updatedProject = getProjectById(projectId);
+      console.log("[CRITICAL] Updated project data:", updatedProject);
+      
       if (updatedProject) {
-        console.log("Updated project assets count:", updatedProject.assets?.length || 0);
+        console.log("[CRITICAL] Updated project assets count:", updatedProject.assets?.length || 0);
         
         // Force project timestamp update to trigger re-renders
         updateProject(projectId, { updatedAt: new Date() });
@@ -74,7 +76,7 @@ export const useCompletedUploads = () => {
           const targetFolder = updatedProject.subfolders.find(folder => folder.id === folderId);
           if (targetFolder) {
             folderName = targetFolder.name;
-            console.log(`Target folder "${targetFolder.name}" (${folderId}) assets: ${targetFolder.assets?.length || 0}`);
+            console.log(`[CRITICAL] Target folder "${targetFolder.name}" (${folderId}) assets: ${targetFolder.assets?.length || 0}`);
             
             // Log each asset in the folder for debugging
             if (targetFolder.assets && targetFolder.assets.length > 0) {

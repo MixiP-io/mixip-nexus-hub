@@ -1,15 +1,59 @@
-import React, { useEffect } from 'react';
-import UploaderTabs from './components/UploaderTabs';
-import UploadArea from './components/UploadArea';
-import FilesList from './components/FilesList';
-import SectionHeader from '../SectionHeader';
-import { useFileUpload } from './hooks/useFileUpload';
-import { useMetadataState } from './hooks/useMetadataState';
-import { formatFileSize } from './utils/fileUtils';
-import { ensureProjectDataIntegrity } from './utils/data/store/projectIntegrity';
+
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import { toast } from 'sonner';
 
+import FileUploadSection from './components/FileUploadSection';
+import LicenseSection from './components/LicenseSection';
+import ProjectSection from './components/ProjectSection';
+import UploadButtonsSection from './components/UploadButtonsSection';
+import UploadCompleteDialog from './components/UploadCompleteDialog';
+
+import { useFileUpload } from './hooks/useFileUpload';
+import { getProjectById } from './utils/projectUtils';
+
 const BatchUploader: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const [selectedFolder, setSelectedFolder] = useState<string>('root');
+  const [selectedLicense, setSelectedLicense] = useState<string>('standard');
+  
+  // Get project and folder from URL if available
+  useEffect(() => {
+    const projectParam = searchParams.get('project');
+    const folderParam = searchParams.get('folder');
+    
+    console.log('[CRITICAL] BatchUploader initialized with URL params:', { 
+      project: projectParam, 
+      folder: folderParam
+    });
+    
+    if (projectParam) {
+      // Verify project exists before setting
+      const project = getProjectById(projectParam);
+      if (project) {
+        console.log('[BatchUploader] Setting project from URL param:', projectParam);
+        setSelectedProject(projectParam);
+        
+        // Also set folder if specified
+        if (folderParam) {
+          console.log('[CRITICAL] Setting folder from URL param:', folderParam);
+          setSelectedFolder(folderParam);
+          
+          // Show toast to indicate where uploads will go
+          const folderName = folderParam === 'root' ? 'root folder' : 
+            `folder "${project.subfolders?.find(f => f.id === folderParam)?.name || folderParam}"`;
+          
+          toast.info(`Upload files to ${project.name}: ${folderName}`);
+        }
+      } else {
+        console.warn('[BatchUploader] Project from URL not found:', projectParam);
+        toast.error('Selected project not found');
+      }
+    }
+  }, [searchParams]);
+
   const {
     files,
     isUploading,
@@ -24,136 +68,79 @@ const BatchUploader: React.FC = () => {
     uploadComplete,
     uploadResults,
     setUploadComplete,
-    selectedProject,
+    selectedProject: fileUploadSelectedProject,
     selectedProjectName,
-    selectedFolder,
-    setSelectedFolder,
+    selectedFolder: fileUploadSelectedFolder,
     navigateToProject
   } = useFileUpload();
 
-  const {
-    activeView,
-    setActiveView,
-    activeSource,
-    setActiveSource,
-    tags,
-    setTags,
-    licenseType,
-    setLicenseType,
-    usageRights,
-    setUsageRights,
-    selectedProject: metadataSelectedProject,
-    setSelectedProject: setMetadataSelectedProject,
-    selectedFolder: metadataSelectedFolder,
-    setSelectedFolder: setMetadataSelectedFolder
-  } = useMetadataState();
-  
+  // Debug props in console
   useEffect(() => {
-    ensureProjectDataIntegrity();
-    console.log("BatchUploader: Running initial data integrity check");
-  }, []);
-  
-  useEffect(() => {
-    if (uploadComplete) {
-      console.log("BatchUploader: Upload complete state detected", { 
-        uploadComplete,
-        uploadResults,
-        selectedProject, 
-        selectedProjectName,
-        selectedFolder 
-      });
-    }
-  }, [uploadComplete, uploadResults, selectedProject, selectedProjectName, selectedFolder]);
-  
-  useEffect(() => {
-    if (metadataSelectedFolder !== selectedFolder) {
-      console.log(`Syncing folder selection from metadata (${metadataSelectedFolder}) to fileUpload (${selectedFolder})`);
-      setSelectedFolder(metadataSelectedFolder || 'root');
-    }
-  }, [metadataSelectedFolder, selectedFolder, setSelectedFolder]);
-  
-  useEffect(() => {
-    if (metadataSelectedProject !== selectedProject) {
-      console.log(`Syncing project selection from metadata (${metadataSelectedProject}) to fileUpload (${selectedProject})`);
-      if (metadataSelectedProject && metadataSelectedProject !== selectedProject) {
-        setSelectedFolder('root');
-      }
-    }
-  }, [metadataSelectedProject, selectedProject, setSelectedFolder]);
-  
-  const handleStartUpload = async () => {
-    if (!files.length) {
-      toast.error('Please add files to upload');
-      return;
-    }
+    console.log('BatchUploader render with:', {
+      selectedProject,
+      selectedFolder,
+      selectedLicense,
+      filesCount: files.length,
+      isUploading,
+      uploadComplete,
+      folderFromUploadHook: fileUploadSelectedFolder
+    });
+  }, [selectedProject, selectedFolder, selectedLicense, files, isUploading, uploadComplete, fileUploadSelectedFolder]);
 
-    if (!metadataSelectedProject) {
-      toast.error('Please select a project to upload to');
-      return;
-    }
-
-    // Log the folder ID that we're using to make sure it's correct
-    const folderToUse = metadataSelectedFolder || 'root';
-    console.log(`Starting upload with: Project=${metadataSelectedProject}, Folder=${folderToUse}, License=${licenseType}`);
-    
-    try {
-      await startUpload(licenseType, metadataSelectedProject, folderToUse);
-    } catch (error) {
-      console.error('Error starting upload:', error);
-      toast.error(`Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  };
-  
   return (
-    <div className="w-full px-6 py-6">
-      <SectionHeader 
-        title="Uploader" 
-        description="Upload and organize multiple media files with metadata and licensing"
-      />
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-6">Batch Asset Uploader</h1>
       
-      <UploaderTabs
-        activeView={activeView}
-        setActiveView={setActiveView}
-        activeSource={activeSource}
-        setActiveSource={setActiveSource}
-        tags={tags}
-        setTags={setTags}
-        licenseType={licenseType}
-        setLicenseType={setLicenseType}
-        usageRights={usageRights}
-        setUsageRights={setUsageRights}
-        selectedProject={metadataSelectedProject}
-        setSelectedProject={setMetadataSelectedProject}
-        selectedFolder={metadataSelectedFolder}
-        setSelectedFolder={setMetadataSelectedFolder}
-      />
-      
-      {activeView === 'source' && (
-        <UploadArea
-          handleFileSelect={handleFileSelect}
-          triggerFileInput={triggerFileInput}
-          fileInputRef={fileInputRef}
-        />
-      )}
-      
-      {files.length > 0 && (
-        <FilesList
-          files={files}
-          isUploading={isUploading}
-          overallProgress={overallProgress}
-          formatFileSize={formatFileSize}
-          calculateTotalSize={calculateTotalSize}
-          removeFile={removeFile}
-          clearAll={clearAll}
-          startUpload={handleStartUpload}
-          uploadComplete={uploadComplete}
-          setUploadComplete={setUploadComplete}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Left Column */}
+        <div className="space-y-6">
+          <ProjectSection 
+            selectedProject={selectedProject}
+            setSelectedProject={setSelectedProject}
+            selectedFolder={selectedFolder}
+            setSelectedFolder={setSelectedFolder}
+          />
+          
+          <LicenseSection 
+            selectedLicense={selectedLicense}
+            setSelectedLicense={setSelectedLicense}
+          />
+        </div>
+        
+        {/* Right Column */}
+        <div className="space-y-6">
+          <FileUploadSection 
+            files={files}
+            overallProgress={overallProgress}
+            fileInputRef={fileInputRef}
+            triggerFileInput={triggerFileInput}
+            handleFileSelect={handleFileSelect}
+            removeFile={removeFile}
+            clearAll={clearAll}
+            totalSize={calculateTotalSize()}
+            isUploading={isUploading}
+          />
+          
+          <UploadButtonsSection 
+            isUploading={isUploading}
+            files={files}
+            selectedProject={selectedProject}
+            selectedFolder={selectedFolder}
+            selectedLicense={selectedLicense}
+            startUpload={startUpload}
+          />
+        </div>
+      </div>
+
+      {uploadComplete && uploadResults && (
+        <UploadCompleteDialog
           uploadResults={uploadResults}
-          selectedProject={metadataSelectedProject || selectedProject}
-          selectedProjectName={selectedProjectName}
-          navigateToProject={navigateToProject}
+          onClose={() => setUploadComplete(false)}
+          onViewAssets={navigateToProject}
         />
       )}
+      
+      <Toaster position="top-right" />
     </div>
   );
 };
