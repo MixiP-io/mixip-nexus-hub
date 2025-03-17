@@ -1,0 +1,35 @@
+
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+/**
+ * Hook to handle folder navigation
+ */
+export const useFolderNavigation = (selectedProjectId: string | null, initialFolderId?: string | null) => {
+  const navigate = useNavigate();
+  const [currentFolderId, setCurrentFolderId] = useState<string>(initialFolderId || 'root');
+  
+  // Update current folder when initialFolderId changes
+  useEffect(() => {
+    if (initialFolderId && initialFolderId !== currentFolderId) {
+      console.log('[useFolderNavigation] Setting current folder to initial value:', initialFolderId);
+      setCurrentFolderId(initialFolderId);
+    }
+  }, [initialFolderId, currentFolderId]);
+
+  // Handle batch upload
+  const handleBatchUpload = () => {
+    // Pass current folder ID to the uploader
+    if (currentFolderId && selectedProjectId) {
+      navigate(`/dashboard/workspace?tab=uploader&project=${selectedProjectId}&folder=${currentFolderId}`);
+    } else {
+      navigate('/dashboard/workspace?tab=uploader');
+    }
+  };
+
+  return {
+    currentFolderId,
+    setCurrentFolderId,
+    handleBatchUpload
+  };
+};
