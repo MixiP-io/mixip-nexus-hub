@@ -54,20 +54,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (event === 'SIGNED_IN' && session?.user) {
           console.log('SIGNED_IN event detected, fetching profile and redirecting');
-          await fetchProfile(session.user.id);
-          toast({
-            title: "Signed in successfully",
-            description: "Welcome back!",
-          });
-          
-          // Check if user is a new AI Platform user before navigation
           try {
-            const { data: profileData } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .single();
-              
+            const profileData = await fetchProfile(session.user.id);
+            toast({
+              title: "Signed in successfully",
+              description: "Welcome back!",
+            });
+            
+            // Check if user is a new AI Platform user before navigation
             console.log('Profile data for navigation decision:', profileData);
             
             // Handle AI Platform user navigation explicitly checking the boolean value

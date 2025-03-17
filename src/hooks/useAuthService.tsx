@@ -62,6 +62,11 @@ export function useAuthService() {
       console.log('Attempting sign up for email:', email, 'with metadata:', metadata);
       setIsLoading(true);
       
+      // Validate password length before sending to Supabase
+      if (password.length < 6) {
+        throw new Error("Password should be at least 6 characters.");
+      }
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
