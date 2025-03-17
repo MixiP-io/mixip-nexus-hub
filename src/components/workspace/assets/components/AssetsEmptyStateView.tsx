@@ -27,10 +27,12 @@ const AssetsEmptyStateView: React.FC<AssetsEmptyStateViewProps> = ({
       console.log('[CRITICAL] Selected project:', selectedProjectId);
       console.log('[CRITICAL] Current folder:', currentFolderId);
       
-      // Immediate redirect for empty folders
-      // No timeout to ensure it happens right away
-      handleBatchUpload();
-      toast.info(`Redirecting to uploader to add files to ${currentFolderId === 'root' ? 'project' : 'folder'}`);
+      // Force execution to end of event loop to ensure state is fully updated
+      setTimeout(() => {
+        console.log('[CRITICAL] Now executing handleBatchUpload');
+        handleBatchUpload();
+        toast.info(`Redirecting to uploader to add files to ${currentFolderId === 'root' ? 'project' : 'folder'}`);
+      }, 10);
     }
   }, [selectedProjectId, currentFolderId, handleBatchUpload]);
 

@@ -42,11 +42,19 @@ export const useFolderNavigation = (selectedProjectId: string | null, initialFol
     if (selectedProjectId) {
       console.log('[CRITICAL] Redirecting to uploader with project:', selectedProjectId, 'folder:', currentFolderId);
       
-      // Force any pending state updates to complete
-      setTimeout(() => {
+      // Use direct navigation instead of setTimeout to ensure it happens immediately
+      try {
+        console.log('[CRITICAL] Executing navigation to uploader');
         navigate(`/dashboard/workspace?tab=uploader&project=${selectedProjectId}&folder=${currentFolderId}`);
         toast.info(`Switched to uploader to add assets to ${currentFolderId === 'root' ? 'project' : 'folder'}`);
-      }, 0);
+      } catch (error) {
+        console.error('[CRITICAL] Navigation failed:', error);
+        // Fallback approach with timeout
+        setTimeout(() => {
+          console.log('[CRITICAL] Trying fallback navigation');
+          navigate(`/dashboard/workspace?tab=uploader&project=${selectedProjectId}&folder=${currentFolderId}`);
+        }, 50);
+      }
     } else {
       console.warn('[useFolderNavigation] Cannot redirect to uploader: No project selected');
       navigate('/dashboard/workspace?tab=uploader');
