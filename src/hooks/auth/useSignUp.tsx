@@ -30,6 +30,9 @@ export function useSignUp(
         // Continue with signup process, as error likely means the user doesn't exist
       }
       
+      // Log the selected account type for debugging
+      console.log('Selected account type:', metadata?.account_type);
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,

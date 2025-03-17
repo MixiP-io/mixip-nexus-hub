@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -133,6 +134,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const handleRedirectAfterSignIn = (profileData: UserProfile | null) => {
     console.log('Profile data for navigation decision:', profileData);
+    console.log('Account type from profile:', profileData?.account_type);
     
     if (profileData && 
         profileData.account_type === 'ai_platform' && 

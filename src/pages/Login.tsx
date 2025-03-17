@@ -101,6 +101,9 @@ const Login: React.FC = () => {
           account_type: accountType
         };
         
+        // Log the account type before signing up
+        console.log('Selected account type for signup:', accountType);
+        
         await signUp(email, password, metadata);
       }
     } catch (error) {
