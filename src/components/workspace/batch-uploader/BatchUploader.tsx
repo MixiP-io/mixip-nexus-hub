@@ -22,8 +22,14 @@ const BatchUploader: React.FC = () => {
   const [triggerFileInput, setTriggerFileInput] = useState<boolean>(false);
   const [activeView, setActiveView] = useState<'source' | 'metadata' | 'project'>('source');
   const [tags, setTags] = useState<string[]>([]);
-  const [usageRights, setUsageRights] = useState<string[]>([]);
-  const [activeSource, setActiveSource] = useState<'local' | 'cloud'>('local');
+  // Changed to Record<string, boolean> from string[]
+  const [usageRights, setUsageRights] = useState<Record<string, boolean>>({
+    commercial: false,
+    editorial: false,
+    perpetual: false,
+    worldwide: false
+  });
+  const [activeSource, setActiveSource] = useState<'computer' | 'phone' | 'local'>('local');
   
   // Handle URL parameters on component mount and when they change
   useEffect(() => {
@@ -123,6 +129,21 @@ const BatchUploader: React.FC = () => {
     }
   }, [triggerFileInput, selectedProject, files.length, isUploading, openFileInput]);
 
+  // Wrapper for source selection to ensure type compatibility
+  const handleSourceChange = (source: 'computer' | 'phone' | 'moby' | 'dropbox' | 'google-drive' | 'box' | 'icloud') => {
+    if (source === 'computer' || source === 'phone') {
+      setActiveSource(source);
+    } else {
+      setActiveSource('local'); // Default to local for other sources
+      toast.info(`${source} integration coming soon`);
+    }
+  };
+
+  // Wrapper for usageRights to ensure type compatibility
+  const handleUsageRightsChange = (rights: Record<string, boolean>) => {
+    setUsageRights(rights);
+  };
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Batch Asset Uploader</h1>
@@ -132,13 +153,13 @@ const BatchUploader: React.FC = () => {
         activeView={activeView}
         setActiveView={setActiveView}
         activeSource={activeSource}
-        setActiveSource={setActiveSource}
+        setActiveSource={handleSourceChange}
         tags={tags}
         setTags={setTags}
         licenseType={selectedLicense}
         setLicenseType={setSelectedLicense}
         usageRights={usageRights}
-        setUsageRights={setUsageRights}
+        setUsageRights={handleUsageRightsChange}
         selectedProject={selectedProject}
         setSelectedProject={setSelectedProject}
         selectedFolder={selectedFolder}

@@ -5,16 +5,23 @@ import { ViewOption } from '../types/viewOption';
 import SourceSelection from './SourceSelection';
 import MetadataSection from './MetadataSection';
 import ProjectSection from './ProjectSection';
-import { SourceSelectionProps } from '../types/componentProps';
-import { MetadataSectionProps } from '../types/componentProps';
-import { ProjectSectionProps } from '../types/componentProps';
+import { UploadSource } from '../types';
 
-interface UploaderTabsProps extends 
-  SourceSelectionProps, 
-  MetadataSectionProps, 
-  ProjectSectionProps {
+interface UploaderTabsProps {
   activeView: ViewOption;
   setActiveView: (view: ViewOption) => void;
+  activeSource: 'computer' | 'phone' | 'local';
+  setActiveSource: (source: UploadSource) => void;
+  tags: string[];
+  setTags: (tags: string[]) => void;
+  licenseType: string;
+  setLicenseType: (license: string) => void;
+  usageRights: Record<string, boolean>;
+  setUsageRights: (rights: Record<string, boolean>) => void;
+  selectedProject: string | null;
+  setSelectedProject: (project: string | null) => void;
+  selectedFolder: string;
+  setSelectedFolder: (folder: string) => void;
 }
 
 const UploaderTabs: React.FC<UploaderTabsProps> = ({

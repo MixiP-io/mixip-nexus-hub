@@ -120,22 +120,22 @@ const MetadataSection: React.FC<MetadataSectionProps> = ({
         <div className="mt-2 grid grid-cols-2 gap-2">
           <CheckboxInput
             label="Commercial Use"
-            checked={usageRights.commercial}
+            checked={usageRights.commercial || false}
             onChange={(checked) => handleRightsChange('commercial', checked)}
           />
           <CheckboxInput
             label="Editorial Use"
-            checked={usageRights.editorial}
+            checked={usageRights.editorial || false}
             onChange={(checked) => handleRightsChange('editorial', checked)}
           />
           <CheckboxInput
             label="Perpetual License"
-            checked={usageRights.perpetual}
+            checked={usageRights.perpetual || false}
             onChange={(checked) => handleRightsChange('perpetual', checked)}
           />
           <CheckboxInput
             label="Worldwide Usage"
-            checked={usageRights.worldwide}
+            checked={usageRights.worldwide || false}
             onChange={(checked) => handleRightsChange('worldwide', checked)}
           />
         </div>
