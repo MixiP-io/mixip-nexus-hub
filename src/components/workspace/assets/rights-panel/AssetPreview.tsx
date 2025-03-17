@@ -11,6 +11,19 @@ interface AssetPreviewProps {
 }
 
 const AssetPreview: React.FC<AssetPreviewProps> = ({ asset }) => {
+  // Function to handle image load errors
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    console.error(`Failed to load preview for ${asset.name}`);
+    // Hide the image
+    e.currentTarget.style.display = 'none';
+    
+    // Show the fallback
+    const fallbackElement = e.currentTarget.nextElementSibling as HTMLElement;
+    if (fallbackElement) {
+      fallbackElement.style.display = 'flex';
+    }
+  };
+
   return (
     <div className="relative w-full h-48 bg-gray-700 rounded-lg overflow-hidden mb-4">
       {asset.preview ? (
@@ -18,11 +31,7 @@ const AssetPreview: React.FC<AssetPreviewProps> = ({ asset }) => {
           src={asset.preview} 
           alt={asset.name} 
           className="w-full h-full object-contain"
-          onError={(e) => {
-            console.error(`Failed to load preview for ${asset.name}`);
-            e.currentTarget.style.display = 'none';
-            e.currentTarget.nextElementSibling!.style.display = 'flex';
-          }}
+          onError={handleImageError}
         />
       ) : null}
       
