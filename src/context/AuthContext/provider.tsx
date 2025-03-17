@@ -109,17 +109,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('Account type:', profileData?.account_type);
     console.log('Is new user:', profileData?.is_new_user);
     
-    // Handle AI Platform user navigation with proper account_type check
+    // Handle AI Platform user navigation
     if (profileData && 
         profileData.account_type === 'ai_platform' && 
         profileData.is_new_user === true) {
       console.log('New AI Platform user detected, redirecting to specialized onboarding');
       navigate('/ai-platform/setup', { replace: true });
-    } else {
-      // Otherwise navigate to dashboard
-      console.log('Navigating to dashboard after sign in');
-      navigate('/dashboard', { replace: true });
+      return;
     }
+    
+    // Otherwise navigate to dashboard
+    console.log('Navigating to dashboard after sign in');
+    navigate('/dashboard', { replace: true });
   };
 
   return (

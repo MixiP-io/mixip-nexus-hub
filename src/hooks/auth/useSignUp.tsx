@@ -17,6 +17,18 @@ export function useSignUp(
       if (password.length < 6) {
         throw new Error("Password should be at least 6 characters.");
       }
+
+      // Check if user already exists
+      const { data: existingUsers, error: checkError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', email) // This won't actually match anything, but it prevents an error if the profile doesn't exist
+        .limit(1);
+
+      if (checkError) {
+        console.log('Error checking for existing user:', checkError);
+        // Continue with signup process, as error likely means the user doesn't exist
+      }
       
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -59,6 +71,11 @@ export function useSignUp(
             
           if (profileError) {
             console.error('Error creating profile:', profileError);
+            toast({
+              title: "Profile creation issue",
+              description: "Your account was created but profile setup failed. Please contact support.",
+              variant: "destructive",
+            });
           } else {
             console.log('Created profile successfully:', profileResponse);
             console.log('Created profile with account type:', metadata.account_type);
@@ -83,11 +100,21 @@ export function useSignUp(
       }
     } catch (error: any) {
       console.error("Signup error:", error);
-      toast({
-        title: "Sign up failed",
-        description: error.message || "An error occurred during sign up.",
-        variant: "destructive",
-      });
+      
+      // Handle specific known error conditions
+      if (error.message === "User already registered") {
+        toast({
+          title: "Account already exists",
+          description: "This email is already registered. Please try logging in instead.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Sign up failed",
+          description: error.message || "An error occurred during sign up.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }

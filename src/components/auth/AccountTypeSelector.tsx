@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { User, Building, Paintbrush, Bot, Database, Code } from 'lucide-react';
+import { User, Building, Paintbrush, Bot } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface AccountTypeSelectorProps {
