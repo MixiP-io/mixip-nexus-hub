@@ -24,6 +24,7 @@ const Sidebar: React.FC = () => {
 
   const handleLogout = async () => {
     await signOut();
+    // This navigation will no longer be needed as it's handled in the AuthContext provider
   };
   
   const handleNavigation = (path: string) => (e: React.MouseEvent) => {

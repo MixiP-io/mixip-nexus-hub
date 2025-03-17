@@ -66,12 +66,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         
         if (event === 'SIGNED_OUT') {
-          console.log('SIGNED_OUT event detected, clearing profile and redirecting');
+          console.log('SIGNED_OUT event detected, redirecting to login page');
           toast({
             title: "Signed out",
             description: "You have been signed out.",
           });
-          navigate('/login');
+          navigate('/login', { replace: true });
         }
 
         if (event === 'USER_UPDATED') {
