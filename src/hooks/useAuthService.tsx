@@ -1,196 +1,29 @@
 
-import { useState } from 'react';
-import { Session, User } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-import { toast } from '@/components/ui/use-toast';
-import { UserProfile, ProfileCreateData, SignUpMetadata } from '@/context/AuthContext/profileTypes';
+import { useAuthState } from './auth/useAuthState';
+import { useProfileService } from './auth/useProfileService';
+import { useSignIn } from './auth/useSignIn';
+import { useSignUp } from './auth/useSignUp';
+import { useSignOut } from './auth/useSignOut';
 
 export function useAuthService() {
-  const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-
-  const fetchProfile = async (userId: string): Promise<UserProfile | null> => {
-    try {
-      console.log('Fetching profile for user ID:', userId);
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error) throw error;
-      console.log('Profile fetched successfully:', data);
-      setProfile(data);
-      return data;
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-      return null;
-    }
-  };
-
-  const signIn = async (email: string, password: string, rememberMe: boolean = false) => {
-    try {
-      console.log('Attempting sign in for email:', email, 'with remember me:', rememberMe);
-      setIsLoading(true);
-      
-      const { data, error } = await supabase.auth.signInWithPassword({ 
-        email, 
-        password,
-      });
-      
-      if (error) throw error;
-      
-      console.log('Sign in successful, response:', data);
-      // Navigation will be handled by the auth state change listener
-    } catch (error: any) {
-      console.error('Sign in error:', error);
-      toast({
-        title: "Sign in failed",
-        description: error.message || "Please check your credentials and try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const signUp = async (email: string, password: string, metadata?: SignUpMetadata) => {
-    try {
-      console.log('Attempting sign up for email:', email, 'with metadata:', metadata);
-      setIsLoading(true);
-      
-      // Validate password length before sending to Supabase
-      if (password.length < 6) {
-        throw new Error("Password should be at least 6 characters.");
-      }
-      
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: metadata,
-        },
-      });
-
-      if (error) throw error;
-      
-      console.log('Sign up response:', data);
-      
-      if (data.user && data.session) {
-        // Create profile record if user was signed up successfully
-        if (metadata) {
-          // More detailed logging for debugging
-          console.log('Creating profile with metadata:', metadata);
-          
-          // Using proper typed object for profile data
-          const profileData: ProfileCreateData = {
-            id: data.user.id,
-            full_name: metadata.full_name,
-            account_type: metadata.account_type,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          };
-          
-          // Add is_new_user flag for AI Platform users
-          if (metadata.account_type === 'ai_platform') {
-            console.log('Setting is_new_user flag for AI Platform account');
-            profileData.is_new_user = true;
-          }
-          
-          console.log('Profile data to insert:', profileData);
-          
-          const { error: profileError, data: profileResponse } = await supabase
-            .from('profiles')
-            .insert(profileData);
-            
-          if (profileError) {
-            console.error('Error creating profile:', profileError);
-          } else {
-            console.log('Created profile successfully:', profileResponse);
-            console.log('Created profile with account type:', metadata.account_type);
-          }
-        }
-        
-        setUser(data.user);
-        setSession(data.session);
-        toast({
-          title: "Sign up successful",
-          description: "Your account has been created successfully!",
-        });
-        
-        // Navigation will be handled by the auth state change listener
-      } else {
-        // If email confirmation is required
-        console.log('Email confirmation required, user not immediately signed in');
-        toast({
-          title: "Sign up successful",
-          description: "Please check your email for verification.",
-        });
-      }
-    } catch (error: any) {
-      console.error("Signup error:", error);
-      toast({
-        title: "Sign up failed",
-        description: error.message || "An error occurred during sign up.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const signInWithSocial = async (provider: 'google' | 'twitter' | 'instagram') => {
-    try {
-      console.log('Attempting social sign in with provider:', provider);
-      setIsLoading(true);
-      let providerKey: 'google' | 'twitter' = provider === 'instagram' ? 'twitter' : provider;
-      
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: providerKey,
-        options: {
-          redirectTo: window.location.origin + '/auth/callback',
-        },
-      });
-      
-      console.log('Social sign in response:', data);
-      
-      if (error) throw error;
-      // Redirection will be handled by the OAuth provider
-    } catch (error: any) {
-      console.error('Social sign in error:', error);
-      toast({
-        title: "Social sign in failed",
-        description: error.message || "An error occurred during sign in.",
-        variant: "destructive",
-      });
-      setIsLoading(false);
-    }
-  };
-
-  const signOut = async () => {
-    try {
-      console.log('Attempting sign out');
-      setIsLoading(true);
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      console.log('Sign out successful');
-      setProfile(null); // Clear the profile data
-      // Navigation will be handled by the auth state change listener
-    } catch (error: any) {
-      console.error('Sign out error:', error);
-      toast({
-        title: "Sign out failed",
-        description: error.message || "An error occurred during sign out.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  
+  const {
+    session,
+    setSession,
+    user,
+    setUser,
+    profile,
+    setProfile,
+    isLoading,
+    setIsLoading,
+  } = useAuthState();
+  
+  const { fetchProfile } = useProfileService(setProfile);
+  const { signIn, signInWithSocial } = useSignIn(setIsLoading);
+  const { signUp } = useSignUp(setIsLoading, setUser, setSession);
+  const { signOut } = useSignOut(setIsLoading, setProfile);
 
   return {
     session,
