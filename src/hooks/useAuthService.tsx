@@ -88,10 +88,10 @@ export function useAuthService() {
               id: data.user.id,
               full_name: metadata.full_name,
               account_type: metadata.account_type,
-              is_new_user: metadata.account_type === 'ai_platform' ? true : false,
-              created_at: new Date(),
-              updated_at: new Date()
-            }, { onConflict: 'id' });
+              is_new_user: metadata.account_type === 'ai_platform',
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            });
             
           if (profileError) {
             console.error('Error creating profile:', profileError);
