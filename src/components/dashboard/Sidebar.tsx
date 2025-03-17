@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   LayoutDashboard, 
@@ -36,7 +35,11 @@ const Sidebar: React.FC = () => {
   // Use data from auth profile instead of profile context
   const displayName = profile?.full_name || user?.email?.split('@')[0] || "User";
   const avatarUrl = profile?.avatar || null;
-  const accountType = profile?.account_type || "Creator Pro";
+  
+  // Make sure we're showing the actual account type from the profile
+  // Log account type for debugging
+  console.log('Profile data in sidebar:', profile);
+  const accountType = profile?.account_type === 'ai_platform' ? 'AI Platform' : (profile?.account_type || "Creator Pro");
   
   return (
     <div className="w-64 bg-[#1A1F2C] flex flex-col text-white">

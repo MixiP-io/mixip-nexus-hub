@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -82,6 +81,9 @@ export function useAuthService() {
       if (data.user && data.session) {
         // Create profile record if user was signed up successfully
         if (metadata) {
+          // More detailed logging for debugging
+          console.log('Creating profile with metadata:', metadata);
+          
           // Using the any type for profile data to avoid types conflict
           const profileData: any = {
             id: data.user.id,
@@ -93,16 +95,20 @@ export function useAuthService() {
           
           // Add is_new_user flag for AI Platform users
           if (metadata.account_type === 'ai_platform') {
+            console.log('Setting is_new_user flag for AI Platform account');
             profileData.is_new_user = true;
           }
           
-          const { error: profileError } = await supabase
+          console.log('Profile data to insert:', profileData);
+          
+          const { error: profileError, data: profileResponse } = await supabase
             .from('profiles')
             .insert(profileData);
             
           if (profileError) {
             console.error('Error creating profile:', profileError);
           } else {
+            console.log('Created profile successfully:', profileResponse);
             console.log('Created profile with account type:', metadata.account_type);
           }
         }

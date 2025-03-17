@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -61,10 +62,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               description: "Welcome back!",
             });
             
-            // Check if user is a new AI Platform user before navigation
+            // Improved logging to debug the account type issue
             console.log('Profile data for navigation decision:', profileData);
+            console.log('Account type:', profileData?.account_type);
+            console.log('Is new user:', profileData?.is_new_user);
             
-            // Handle AI Platform user navigation explicitly checking the boolean value
+            // Handle AI Platform user navigation with proper account_type check
             if (profileData && 
                 profileData.account_type === 'ai_platform' && 
                 profileData.is_new_user === true) {
