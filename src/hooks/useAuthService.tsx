@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -23,8 +24,10 @@ export function useAuthService() {
       if (error) throw error;
       console.log('Profile fetched successfully:', data);
       setProfile(data);
+      return data;
     } catch (error) {
       console.error('Error fetching profile:', error);
+      return null;
     }
   };
 
@@ -58,6 +61,12 @@ export function useAuthService() {
     try {
       console.log('Attempting sign up for email:', email, 'with metadata:', metadata);
       setIsLoading(true);
+      
+      // Set is_new_user flag for AI Platform account type
+      if (metadata && metadata.account_type === 'ai_platform') {
+        metadata.is_new_user = true;
+      }
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -71,15 +80,32 @@ export function useAuthService() {
       console.log('Sign up response:', data);
       
       if (data.user && data.session) {
-        // If the user is immediately signed in after signup
-        console.log('User immediately signed in after signup');
+        // Create profile record if user was signed up successfully
+        if (metadata) {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .upsert({
+              id: data.user.id,
+              full_name: metadata.full_name,
+              account_type: metadata.account_type,
+              is_new_user: metadata.account_type === 'ai_platform' ? true : false,
+              created_at: new Date(),
+              updated_at: new Date()
+            }, { onConflict: 'id' });
+            
+          if (profileError) {
+            console.error('Error creating profile:', profileError);
+          }
+        }
+        
         setUser(data.user);
         setSession(data.session);
         toast({
           title: "Sign up successful",
           description: "Your account has been created successfully!",
         });
-        navigate('/dashboard');
+        
+        // Navigation will be handled by the auth state change listener
       } else {
         // If email confirmation is required
         console.log('Email confirmation required, user not immediately signed in');
@@ -135,6 +161,7 @@ export function useAuthService() {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       console.log('Sign out successful');
+      setProfile(null); // Clear the profile data
       // Navigation will be handled by the auth state change listener
     } catch (error: any) {
       console.error('Sign out error:', error);

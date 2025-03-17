@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -15,6 +14,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     setUser,
     profile,
+    setProfile,
     isLoading,
     setIsLoading,
     fetchProfile,
@@ -54,15 +54,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (event === 'SIGNED_IN' && session?.user) {
           console.log('SIGNED_IN event detected, fetching profile and redirecting');
-          fetchProfile(session.user.id);
+          await fetchProfile(session.user.id);
           toast({
             title: "Signed in successfully",
             description: "Welcome back!",
           });
           
-          // Force navigation to dashboard on sign in
-          console.log('Navigating to dashboard after sign in');
-          navigate('/dashboard', { replace: true });
+          // Check if user is a new AI Platform user before navigation
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+            
+          if (profileData && profileData.account_type === 'ai_platform' && profileData.is_new_user) {
+            console.log('New AI Platform user detected, redirecting to specialized onboarding');
+            navigate('/ai-platform/setup', { replace: true });
+          } else {
+            // Otherwise navigate to dashboard
+            console.log('Navigating to dashboard after sign in');
+            navigate('/dashboard', { replace: true });
+          }
         }
         
         if (event === 'SIGNED_OUT') {
@@ -87,14 +99,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       subscription.unsubscribe();
     };
   }, [navigate, location.pathname, setSession, setUser, setIsLoading, fetchProfile]);
-
-  // Check if user is a new AI Platform user and redirect to specialized onboarding
-  useEffect(() => {
-    if (profile && profile.account_type === 'ai_platform' && profile.is_new_user) {
-      console.log('New AI Platform user detected, redirecting to specialized onboarding');
-      navigate('/ai-platform/setup');
-    }
-  }, [profile, navigate]);
 
   return (
     <AuthContext.Provider
