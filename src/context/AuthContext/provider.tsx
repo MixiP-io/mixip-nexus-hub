@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -28,38 +29,57 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   } = auth;
 
   useEffect(() => {
-    // Initial session check
+    // Initial session check - optimized for performance
     const initializeAuth = async () => {
       try {
+        console.log('Starting auth initialization');
+        setIsLoading(true);
+        
         const { data } = await supabase.auth.getSession();
         console.log('Initial session check:', data.session ? 'User logged in' : 'No session found');
         
+        // Set session and user state immediately
         setSession(data.session);
         setUser(data.session?.user ?? null);
         
+        // If user is logged in, fetch their profile
         if (data.session?.user) {
           console.log('User has session, fetching profile');
-          await fetchProfile(data.session.user.id);
           
-          // Redirect already logged in users away from login page
+          // Handle redirect for already logged in users
           if (location.pathname === '/login') {
             console.log('User already logged in and on login page, redirecting to dashboard');
             navigate('/dashboard');
+            // Set loading to false before redirect to prevent delay
+            setIsLoading(false);
+            return;
           }
+          
+          // Fetch profile in the background, don't block the UI
+          fetchProfile(data.session.user.id)
+            .catch(error => {
+              console.error('Error fetching profile during initialization:', error);
+            })
+            .finally(() => {
+              setIsLoading(false);
+            });
+        } else {
+          setIsLoading(false);
         }
       } catch (error) {
         console.error('Error during auth initialization:', error);
-      } finally {
         setIsLoading(false);
       }
     };
 
     initializeAuth();
 
-    // Auth state change listener
+    // Auth state change listener - optimized for better performance
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
+        
+        // Update session state immediately
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -67,6 +87,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.log('SIGNED_IN event detected, fetching profile and redirecting');
           try {
             const profileData = await fetchProfile(session.user.id);
+            
+            // Show toast after profile is fetched
             toast({
               title: "Signed in successfully",
               description: "Welcome back!",
@@ -106,8 +128,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Helper function to handle redirects after sign in
   const handleRedirectAfterSignIn = (profileData: UserProfile | null) => {
     console.log('Profile data for navigation decision:', profileData);
-    console.log('Account type:', profileData?.account_type);
-    console.log('Is new user:', profileData?.is_new_user);
     
     // Handle AI Platform user navigation
     if (profileData && 
@@ -122,6 +142,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('Navigating to dashboard after sign in');
     navigate('/dashboard', { replace: true });
   };
+
+  // Early return if still loading initial auth state
+  if (isLoading && !user && location.pathname !== '/login') {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-lg font-semibold">Loading your session...</h2>
+          <p className="mt-2 text-gray-500">Please wait while we authenticate you.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <AuthContext.Provider
