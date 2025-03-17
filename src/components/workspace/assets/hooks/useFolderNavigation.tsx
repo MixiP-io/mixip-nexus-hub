@@ -36,30 +36,30 @@ export const useFolderNavigation = (selectedProjectId: string | null, initialFol
     }
   };
 
-  // Handle batch upload - immediately redirect to uploader with current folder context
+  // Handle batch upload - Forces a hard page reload to navigate to uploader
   const handleBatchUpload = useCallback(() => {
-    // Pass current folder ID to the uploader
-    if (selectedProjectId) {
-      console.log('[CRITICAL] Redirecting to uploader with project:', selectedProjectId, 'folder:', currentFolderId);
-      
-      const navigateToUploader = () => {
-        const uploaderUrl = `/dashboard/workspace?tab=uploader&project=${selectedProjectId}&folder=${currentFolderId}`;
-        console.log('[CRITICAL] Navigating to:', uploaderUrl);
-        
-        // Force a hard navigation by setting window.location
-        window.location.href = uploaderUrl;
-      };
-      
-      // Execute navigation with a minimal delay to ensure React state updates complete
-      setTimeout(navigateToUploader, 10);
-      
-      // Show toast immediately to indicate action is happening
-      toast.info(`Opening uploader to add assets to ${currentFolderId === 'root' ? 'project' : 'folder'}...`);
-    } else {
+    if (!selectedProjectId) {
       console.warn('[useFolderNavigation] Cannot redirect to uploader: No project selected');
       navigate('/dashboard/workspace?tab=uploader');
       toast.info('Please select a project first');
+      return;
     }
+
+    console.log('[CRITICAL] Force redirecting to uploader with project:', selectedProjectId, 'folder:', currentFolderId);
+    
+    // Construct the URL for the uploader
+    const baseUrl = window.location.origin;
+    const uploaderPath = `/dashboard/workspace`;
+    const queryParams = `?tab=uploader&project=${selectedProjectId}&folder=${currentFolderId}`;
+    const fullUrl = `${baseUrl}${uploaderPath}${queryParams}`;
+    
+    console.log('[CRITICAL] Navigating with hard reload to:', fullUrl);
+    
+    // Show toast to provide feedback that something is happening
+    toast.info(`Opening uploader to add assets...`);
+
+    // Force browser to load the URL directly, bypassing React Router
+    window.location.href = fullUrl;
   }, [selectedProjectId, currentFolderId, navigate]);
 
   return {
