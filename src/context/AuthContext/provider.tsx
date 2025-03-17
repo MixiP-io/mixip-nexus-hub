@@ -88,6 +88,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [navigate, location.pathname, setSession, setUser, setIsLoading, fetchProfile]);
 
+  // Check if user is a new AI Platform user and redirect to specialized onboarding
+  useEffect(() => {
+    if (profile && profile.account_type === 'ai_platform' && profile.is_new_user) {
+      console.log('New AI Platform user detected, redirecting to specialized onboarding');
+      navigate('/ai-platform/setup');
+    }
+  }, [profile, navigate]);
+
   return (
     <AuthContext.Provider
       value={{

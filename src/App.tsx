@@ -7,6 +7,7 @@ import Dashboard from '@/pages/Dashboard'
 import CreativeWorkspace from '@/pages/CreativeWorkspace'
 import ProfileSettings from '@/pages/profile/index'
 import ProfileSetup from '@/pages/ProfileSetup'
+import AIPlatformSetup from '@/pages/AIPlatformSetup'
 import { Toaster } from '@/components/ui/toaster'
 import { AuthProvider } from '@/context/AuthContext'
 import AuthGuard from '@/components/auth/AuthGuard'
@@ -35,6 +36,11 @@ function App() {
         <Route path="/profile/setup" element={
           <AuthGuard>
             <ProfileSetup />
+          </AuthGuard>
+        } />
+        <Route path="/ai-platform/setup" element={
+          <AuthGuard>
+            <AIPlatformSetup />
           </AuthGuard>
         } />
         <Route path="/profile/settings" element={
