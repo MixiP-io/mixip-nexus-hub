@@ -12,6 +12,7 @@ import ProjectSection from './components/ProjectSection';
 import OverallProgress from './components/file-list/OverallProgress';
 import UploadCompleteDialog from './components/file-list/UploadComplete';
 import FilesList from './components/FilesList';
+import UploaderTabs from './components/UploaderTabs';
 
 const BatchUploader: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -19,6 +20,10 @@ const BatchUploader: React.FC = () => {
   const [selectedFolder, setSelectedFolder] = useState<string>('root');
   const [selectedLicense, setSelectedLicense] = useState<string>('standard');
   const [triggerFileInput, setTriggerFileInput] = useState<boolean>(false);
+  const [activeView, setActiveView] = useState<'source' | 'metadata' | 'project'>('source');
+  const [tags, setTags] = useState<string[]>([]);
+  const [usageRights, setUsageRights] = useState<string[]>([]);
+  const [activeSource, setActiveSource] = useState<'local' | 'cloud'>('local');
   
   // Handle URL parameters on component mount and when they change
   useEffect(() => {
@@ -37,6 +42,7 @@ const BatchUploader: React.FC = () => {
       if (project) {
         console.log('[BatchUploader] Setting project from URL param:', projectParam);
         setSelectedProject(projectParam);
+        setActiveView('source');
         
         if (folderParam) {
           console.log('[CRITICAL] Setting folder from URL param:', folderParam);
@@ -121,52 +127,47 @@ const BatchUploader: React.FC = () => {
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Batch Asset Uploader</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-6">
-          <ProjectSection 
-            selectedProject={selectedProject}
-            setSelectedProject={setSelectedProject}
-            selectedFolder={selectedFolder}
-            setSelectedFolder={setSelectedFolder}
-          />
-          
-          <div className="bg-background/50 backdrop-blur-sm border rounded-lg p-4">
-            <h2 className="text-lg font-medium mb-3">License Selection</h2>
-            <select
-              className="w-full bg-background border border-border rounded-md p-2"
-              value={selectedLicense}
-              onChange={(e) => setSelectedLicense(e.target.value)}
-            >
-              <option value="standard">Standard License</option>
-              <option value="extended">Extended License</option>
-              <option value="premium">Premium Rights</option>
-            </select>
-          </div>
-        </div>
-        
-        <div className="space-y-6">
-          <FilesList 
-            files={files}
-            isUploading={isUploading}
-            overallProgress={overallProgress}
-            formatFileSize={(bytes) => {
-              const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-              if (bytes === 0) return '0 Byte';
-              const i = Math.floor(Math.log(bytes) / Math.log(1024));
-              return Math.round(bytes / Math.pow(1024, i)) + ' ' + sizes[i];
-            }}
-            calculateTotalSize={calculateTotalSize}
-            removeFile={removeFile}
-            clearAll={clearAll}
-            startUpload={handleStartUpload}
-            uploadComplete={uploadComplete}
-            setUploadComplete={setUploadComplete}
-            uploadResults={uploadResults}
-            selectedProject={selectedProject}
-            selectedProjectName={selectedProjectName}
-            navigateToProject={navigateToProject}
-          />
-        </div>
+      {/* Tabs navigation for uploader */}
+      <UploaderTabs
+        activeView={activeView}
+        setActiveView={setActiveView}
+        activeSource={activeSource}
+        setActiveSource={setActiveSource}
+        tags={tags}
+        setTags={setTags}
+        licenseType={selectedLicense}
+        setLicenseType={setSelectedLicense}
+        usageRights={usageRights}
+        setUsageRights={setUsageRights}
+        selectedProject={selectedProject}
+        setSelectedProject={setSelectedProject}
+        selectedFolder={selectedFolder}
+        setSelectedFolder={setSelectedFolder}
+      />
+      
+      {/* Files list section */}
+      <div className="mt-6">
+        <FilesList 
+          files={files}
+          isUploading={isUploading}
+          overallProgress={overallProgress}
+          formatFileSize={(bytes) => {
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            if (bytes === 0) return '0 Byte';
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return Math.round(bytes / Math.pow(1024, i)) + ' ' + sizes[i];
+          }}
+          calculateTotalSize={calculateTotalSize}
+          removeFile={removeFile}
+          clearAll={clearAll}
+          startUpload={handleStartUpload}
+          uploadComplete={uploadComplete}
+          setUploadComplete={setUploadComplete}
+          uploadResults={uploadResults}
+          selectedProject={selectedProject}
+          selectedProjectName={selectedProjectName}
+          navigateToProject={navigateToProject}
+        />
       </div>
 
       <Toaster position="top-right" />

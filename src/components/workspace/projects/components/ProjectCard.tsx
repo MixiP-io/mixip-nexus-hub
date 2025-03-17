@@ -117,21 +117,6 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             </Badge>
           </div>
         )}
-        
-        {/* Empty project indicator with upload button */}
-        {totalAssets === 0 && (
-          <div className="absolute bottom-2 right-2">
-            <Button
-              variant="outline"
-              size="sm" 
-              className="bg-green-600/70 hover:bg-green-600 text-white border-green-500"
-              onClick={handleDirectUpload}
-            >
-              <Upload className="mr-1 h-3 w-3" />
-              Upload Files
-            </Button>
-          </div>
-        )}
       </div>
       <CardContent className="p-4">
         <div className="flex justify-between items-start">
@@ -216,7 +201,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             onClick={handleDirectUpload}
           >
             <Upload className="mr-1 h-3 w-3" />
-            Add Files
+            Add Assets
           </Button>
         ) : (
           <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white">

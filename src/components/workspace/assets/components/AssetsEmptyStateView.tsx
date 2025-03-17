@@ -32,7 +32,7 @@ const AssetsEmptyStateView: React.FC<AssetsEmptyStateViewProps> = ({
     }
     
     // Show toast notification
-    toast.info(`Opening uploader to add files...`);
+    toast.info(`Opening uploader to add assets...`);
     
     // Use setTimeout to ensure toast shows before navigation
     setTimeout(() => {
@@ -74,7 +74,7 @@ const AssetsEmptyStateView: React.FC<AssetsEmptyStateViewProps> = ({
             onClick={navigateToUploader}
             className="bg-green-600 hover:bg-green-700 text-white font-medium"
           >
-            Upload Files Now
+            Add Assets Now
           </Button>
         </div>
       </div>
