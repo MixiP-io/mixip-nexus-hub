@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useFileManager } from './useFileManager';
 import { useFileInput } from './useFileInput';
 import { calculateTotalSize } from '../utils/uploadUtils';
-import { logProjects } from '../utils/projectUtils';
+import { logProjects } from '../utils/data/store/storageSync';
 import { useUploadProcess } from './uploads/useUploadProcess';
 import { useProjectSelection } from './uploads/useProjectSelection';
 import { useNavigation } from './uploads/useNavigation';

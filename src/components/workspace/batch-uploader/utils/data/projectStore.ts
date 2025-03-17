@@ -20,9 +20,7 @@ export {
 // Re-export storage sync utilities
 export { 
   saveProjectsToLocalStorage,
-  loadProjectsFromLocalStorage,
-  initializeFromLocalStorage,
-  logProjects
+  loadProjectsFromLocalStorage
 } from './store/storageSync';
 
 // Re-export default values
@@ -30,7 +28,7 @@ export {
   defaultLicensing 
 } from './store/defaultValues';
 
-// Initialize on load
+// Import storage functions
 import { initializeFromLocalStorage } from './store/storageSync';
 import { ensureProjectDataIntegrity } from './store/projectIntegrity';
 

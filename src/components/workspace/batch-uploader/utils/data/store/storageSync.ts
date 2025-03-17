@@ -2,7 +2,7 @@
 /**
  * Utilities for synchronizing project data with localStorage
  */
-import { projects } from './projectState';
+import { projects, updateProjects } from './projectState';
 
 /**
  * Save projects to localStorage with proper serialization of dates
@@ -82,8 +82,6 @@ export const initializeFromLocalStorage = () => {
   const loadedProjects = loadProjectsFromLocalStorage();
   
   if (loadedProjects && Array.isArray(loadedProjects) && loadedProjects.length > 0) {
-    // We import here to avoid circular dependencies
-    const { updateProjects } = require('./projectState');
     updateProjects(loadedProjects);
     console.log(`Initialized with ${loadedProjects.length} projects from localStorage`);
     return true;
