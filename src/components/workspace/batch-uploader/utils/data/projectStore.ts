@@ -14,7 +14,7 @@ export {
 // Re-export data integrity utilities
 export { 
   ensureProjectDataIntegrity, 
-  ensureFolderIntegrity 
+  validateFolderStructure as ensureFolderIntegrity 
 } from './store/projectIntegrity';
 
 // Re-export storage sync utilities

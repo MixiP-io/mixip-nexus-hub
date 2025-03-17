@@ -140,7 +140,7 @@ export const ensureProjectDataIntegrity = () => {
 };
 
 // Ensure specific folder structure is valid
-export const ensureFolderIntegrity = (projectId: string, folderId: string) => {
+export const validateFolderStructure = (projectId: string, folderId: string) => {
   console.log(`[projectIntegrity] Ensuring folder integrity for ${folderId} in project ${projectId}`);
   
   const projectIndex = projects.findIndex(p => p.id === projectId);
@@ -200,3 +200,6 @@ export const ensureFolderIntegrity = (projectId: string, folderId: string) => {
   
   return folderFound;
 };
+
+// Re-export the original ensureFolderIntegrity for internal use
+export { ensureFolderIntegrity };
