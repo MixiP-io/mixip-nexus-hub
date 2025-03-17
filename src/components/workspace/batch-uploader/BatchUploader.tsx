@@ -1,17 +1,15 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { toast } from 'sonner';
 
-import FileUploadSection from './components/FileUploadSection';
-import LicenseSection from './components/LicenseSection';
-import ProjectSection from './components/ProjectSection';
-import UploadButtonsSection from './components/UploadButtonsSection';
-import UploadCompleteDialog from './components/UploadCompleteDialog';
-
 import { useFileUpload } from './hooks/useFileUpload';
 import { getProjectById } from './utils/projectUtils';
+
+import FileUploadSection from './components/file-list/FileGrid';
+import ProjectSection from './components/ProjectSection';
+import UploadButtonsSection from './components/file-list/OverallProgress';
+import UploadCompleteDialog from './components/file-list/UploadComplete';
 
 const BatchUploader: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -19,7 +17,6 @@ const BatchUploader: React.FC = () => {
   const [selectedFolder, setSelectedFolder] = useState<string>('root');
   const [selectedLicense, setSelectedLicense] = useState<string>('standard');
   
-  // Get project and folder from URL if available
   useEffect(() => {
     const projectParam = searchParams.get('project');
     const folderParam = searchParams.get('folder');
@@ -30,18 +27,15 @@ const BatchUploader: React.FC = () => {
     });
     
     if (projectParam) {
-      // Verify project exists before setting
       const project = getProjectById(projectParam);
       if (project) {
         console.log('[BatchUploader] Setting project from URL param:', projectParam);
         setSelectedProject(projectParam);
         
-        // Also set folder if specified
         if (folderParam) {
           console.log('[CRITICAL] Setting folder from URL param:', folderParam);
           setSelectedFolder(folderParam);
           
-          // Show toast to indicate where uploads will go
           const folderName = folderParam === 'root' ? 'root folder' : 
             `folder "${project.subfolders?.find(f => f.id === folderParam)?.name || folderParam}"`;
           
@@ -74,7 +68,6 @@ const BatchUploader: React.FC = () => {
     navigateToProject
   } = useFileUpload();
 
-  // Debug props in console
   useEffect(() => {
     console.log('BatchUploader render with:', {
       selectedProject,
@@ -92,7 +85,6 @@ const BatchUploader: React.FC = () => {
       <h1 className="text-2xl font-bold mb-6">Batch Asset Uploader</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Left Column */}
         <div className="space-y-6">
           <ProjectSection 
             selectedProject={selectedProject}
@@ -101,13 +93,20 @@ const BatchUploader: React.FC = () => {
             setSelectedFolder={setSelectedFolder}
           />
           
-          <LicenseSection 
-            selectedLicense={selectedLicense}
-            setSelectedLicense={setSelectedLicense}
-          />
+          <div className="bg-background/50 backdrop-blur-sm border rounded-lg p-4">
+            <h2 className="text-lg font-medium mb-3">License Selection</h2>
+            <select
+              className="w-full bg-background border border-border rounded-md p-2"
+              value={selectedLicense}
+              onChange={(e) => setSelectedLicense(e.target.value)}
+            >
+              <option value="standard">Standard License</option>
+              <option value="extended">Extended License</option>
+              <option value="premium">Premium Rights</option>
+            </select>
+          </div>
         </div>
         
-        {/* Right Column */}
         <div className="space-y-6">
           <FileUploadSection 
             files={files}
