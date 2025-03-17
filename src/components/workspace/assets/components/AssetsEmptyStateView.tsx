@@ -1,7 +1,8 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import AssetsEmptyState from './AssetsEmptyState';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 
 interface AssetsEmptyStateViewProps {
   hasAssetsInFolders: boolean;
@@ -20,19 +21,28 @@ const AssetsEmptyStateView: React.FC<AssetsEmptyStateViewProps> = ({
   handleBatchUpload,
   selectedProjectId
 }) => {
+  // Use ref to track if we've already redirected
+  const hasRedirected = useRef(false);
+  
   // Automatically redirect to uploader when viewing an empty folder
   useEffect(() => {
-    if (selectedProjectId && currentFolderId) {
+    if (selectedProjectId && currentFolderId && !hasRedirected.current) {
       console.log('[CRITICAL] Empty folder detected, preparing to redirect to uploader');
       console.log('[CRITICAL] Selected project:', selectedProjectId);
       console.log('[CRITICAL] Current folder:', currentFolderId);
       
-      // Force execution to end of event loop to ensure state is fully updated
-      setTimeout(() => {
+      // Mark that we've handled the redirect to prevent duplicate calls
+      hasRedirected.current = true;
+      
+      // Manual button click for more reliable event handling
+      const redirectToUploader = () => {
         console.log('[CRITICAL] Now executing handleBatchUpload');
         handleBatchUpload();
         toast.info(`Redirecting to uploader to add files to ${currentFolderId === 'root' ? 'project' : 'folder'}`);
-      }, 10);
+      };
+      
+      // Immediate redirect attempt
+      redirectToUploader();
     }
   }, [selectedProjectId, currentFolderId, handleBatchUpload]);
 
@@ -51,6 +61,12 @@ const AssetsEmptyStateView: React.FC<AssetsEmptyStateViewProps> = ({
         {currentFolderId !== 'root' && (
           <p className="mt-2">Try uploading files directly to this folder from the uploader tab.</p>
         )}
+        <Button 
+          onClick={handleBatchUpload}
+          className="mt-4 bg-yellow-600 hover:bg-yellow-700 text-white"
+        >
+          Add Files Now
+        </Button>
       </div>
       <AssetsEmptyState handleBatchUpload={handleBatchUpload} />
     </div>

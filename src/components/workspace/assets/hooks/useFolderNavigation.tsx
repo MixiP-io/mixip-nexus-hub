@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -37,30 +37,30 @@ export const useFolderNavigation = (selectedProjectId: string | null, initialFol
   };
 
   // Handle batch upload - immediately redirect to uploader with current folder context
-  const handleBatchUpload = () => {
+  const handleBatchUpload = useCallback(() => {
     // Pass current folder ID to the uploader
     if (selectedProjectId) {
       console.log('[CRITICAL] Redirecting to uploader with project:', selectedProjectId, 'folder:', currentFolderId);
       
-      // Use direct navigation instead of setTimeout to ensure it happens immediately
-      try {
-        console.log('[CRITICAL] Executing navigation to uploader');
-        navigate(`/dashboard/workspace?tab=uploader&project=${selectedProjectId}&folder=${currentFolderId}`);
-        toast.info(`Switched to uploader to add assets to ${currentFolderId === 'root' ? 'project' : 'folder'}`);
-      } catch (error) {
-        console.error('[CRITICAL] Navigation failed:', error);
-        // Fallback approach with timeout
-        setTimeout(() => {
-          console.log('[CRITICAL] Trying fallback navigation');
-          navigate(`/dashboard/workspace?tab=uploader&project=${selectedProjectId}&folder=${currentFolderId}`);
-        }, 50);
-      }
+      const navigateToUploader = () => {
+        const uploaderUrl = `/dashboard/workspace?tab=uploader&project=${selectedProjectId}&folder=${currentFolderId}`;
+        console.log('[CRITICAL] Navigating to:', uploaderUrl);
+        
+        // Force a hard navigation by setting window.location
+        window.location.href = uploaderUrl;
+      };
+      
+      // Execute navigation with a minimal delay to ensure React state updates complete
+      setTimeout(navigateToUploader, 10);
+      
+      // Show toast immediately to indicate action is happening
+      toast.info(`Opening uploader to add assets to ${currentFolderId === 'root' ? 'project' : 'folder'}...`);
     } else {
       console.warn('[useFolderNavigation] Cannot redirect to uploader: No project selected');
       navigate('/dashboard/workspace?tab=uploader');
       toast.info('Please select a project first');
     }
-  };
+  }, [selectedProjectId, currentFolderId, navigate]);
 
   return {
     currentFolderId,
