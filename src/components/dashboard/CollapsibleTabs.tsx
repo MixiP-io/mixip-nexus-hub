@@ -69,7 +69,7 @@ const CollapsibleTabs: React.FC = () => {
     : tabs;
 
   return (
-    <div className="relative flex justify-between items-center border-b border-gray-200 w-full bg-white/70 backdrop-blur-sm">
+    <div className="relative flex justify-between items-center border-b border-gray-100 w-full bg-white/80 backdrop-blur-md shadow-sm">
       <div className="flex flex-1">
         {visibleTabs.map(tab => (
           <button
@@ -77,7 +77,7 @@ const CollapsibleTabs: React.FC = () => {
             className={`px-6 py-4 font-medium text-sm transition-all ${
               tab.active 
                 ? 'border-b-2 border-apple-blue text-apple-blue' 
-                : 'text-gray-500 hover:text-apple-blue'
+                : 'text-gray-600 hover:text-apple-blue'
             }`}
             onClick={() => handleTabClick(tab.id)}
           >
@@ -86,7 +86,7 @@ const CollapsibleTabs: React.FC = () => {
         ))}
         
         <button
-          className="px-4 py-4 text-gray-400 hover:text-apple-blue transition-colors ml-auto"
+          className="px-4 py-4 text-gray-500 hover:text-apple-blue transition-colors ml-auto"
           onClick={toggleCollapse}
           aria-label={isCollapsed ? "Expand tabs" : "Collapse tabs"}
         >

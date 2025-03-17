@@ -5,7 +5,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 const AssetsTabs: React.FC = () => {
   return (
     <Tabs defaultValue="all" className="mb-6">
-      <TabsList>
+      <TabsList className="w-auto">
         <TabsTrigger value="all">All Assets</TabsTrigger>
         <TabsTrigger value="images">Images</TabsTrigger>
         <TabsTrigger value="videos">Videos</TabsTrigger>
