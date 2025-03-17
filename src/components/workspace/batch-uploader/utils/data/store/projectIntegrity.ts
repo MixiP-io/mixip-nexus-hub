@@ -18,6 +18,11 @@ const ensureAssetIntegrity = (asset: any) => {
     fixedAsset.preview = null;
   }
   
+  // Ensure folderId is set (default to 'root' if missing)
+  if (!fixedAsset.folderId) {
+    fixedAsset.folderId = 'root';
+  }
+  
   return fixedAsset;
 };
 
@@ -34,6 +39,9 @@ export const ensureFolderIntegrity = (folder: any) => {
   } else {
     // Fix assets in this folder
     folder.assets = folder.assets.map(asset => ensureAssetIntegrity(asset));
+    
+    // Filter out any null or undefined assets
+    folder.assets = folder.assets.filter(asset => asset !== null && asset !== undefined);
   }
   
   // Process subfolders recursively
@@ -57,7 +65,9 @@ export const ensureProjectDataIntegrity = () => {
   const fixedProjects = projects.map(project => {
     // Fix any assets at the root level
     const fixedAssets = Array.isArray(project.assets) 
-      ? project.assets.map(asset => ensureAssetIntegrity(asset))
+      ? project.assets
+          .map(asset => ensureAssetIntegrity(asset))
+          .filter(asset => asset !== null && asset !== undefined)
       : [];
     
     // Creates a new object with guaranteed arrays and required fields

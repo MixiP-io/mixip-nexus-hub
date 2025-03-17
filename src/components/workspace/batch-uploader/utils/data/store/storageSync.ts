@@ -12,7 +12,10 @@ const safeStringify = (data: any) => {
     return JSON.stringify(data, (key, value) => {
       // Handle Date objects
       if (value instanceof Date) {
-        return value.toISOString();
+        return {
+          __type: 'Date',
+          iso: value.toISOString()
+        };
       }
       // Handle File objects (can't be serialized)
       if (value instanceof File) {
@@ -30,15 +33,50 @@ const safeStringify = (data: any) => {
   }
 };
 
+// Parse JSON with reviver to restore dates
+const safeParse = (jsonString: string) => {
+  try {
+    return JSON.parse(jsonString, (key, value) => {
+      // Restore Date objects
+      if (value && typeof value === 'object' && value.__type === 'Date') {
+        return new Date(value.iso);
+      }
+      return value;
+    });
+  } catch (error) {
+    console.error('Error parsing data from localStorage:', error);
+    return null;
+  }
+};
+
 // Check if there's any data in localStorage
 export const initializeFromLocalStorage = () => {
   try {
+    console.log('Initializing from localStorage');
     const storedProjects = localStorage.getItem('projects');
     if (storedProjects) {
-      const parsedProjects = JSON.parse(storedProjects);
+      const parsedProjects = safeParse(storedProjects);
       if (Array.isArray(parsedProjects) && parsedProjects.length > 0) {
+        console.log('Successfully loaded projects from localStorage:', parsedProjects.length);
         updateProjects(parsedProjects);
-        console.log('Loaded projects from localStorage:', parsedProjects.length);
+        
+        // Debug: Log the first project structure
+        if (parsedProjects[0]) {
+          console.log('First project structure:', {
+            id: parsedProjects[0].id,
+            name: parsedProjects[0].name,
+            assetsCount: parsedProjects[0].assets?.length || 0,
+            foldersCount: parsedProjects[0].subfolders?.length || 0
+          });
+          
+          // Log all folders and their asset counts
+          if (parsedProjects[0].subfolders && parsedProjects[0].subfolders.length > 0) {
+            console.log('Folders in first project:');
+            parsedProjects[0].subfolders.forEach((folder: any) => {
+              console.log(`- Folder "${folder.name}": ${folder.assets?.length || 0} assets`);
+            });
+          }
+        }
         
         // Ensure data integrity of loaded projects
         ensureProjectDataIntegrity();

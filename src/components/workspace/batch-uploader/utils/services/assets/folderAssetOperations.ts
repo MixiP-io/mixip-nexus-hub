@@ -1,7 +1,7 @@
-
 import { toast } from 'sonner';
 import { ProjectAsset } from '../../types/projectTypes';
 import { addAssetsToFolder } from '../folderOperationUtils';
+import { saveProjectsToLocalStorage } from '../../data/store/storageSync';
 
 /**
  * Handle adding assets to a specific folder
@@ -97,12 +97,8 @@ export const addAssetsToSpecificFolder = (
       console.log(`[CRITICAL] Adding ${referenceAssets.length} reference assets to project root as well`);
       
       // Update localStorage immediately
-      try {
-        localStorage.setItem('projects', JSON.stringify(updatedProjects));
-        console.log(`[CRITICAL] [folderAssetOperations] Updated localStorage after adding assets to folder`);
-      } catch (e) {
-        console.error(`[folderAssetOperations] Error saving to localStorage:`, e);
-      }
+      saveProjectsToLocalStorage();
+      console.log(`[CRITICAL] [folderAssetOperations] Updated localStorage after adding assets to folder`);
     }
   }
   
@@ -227,12 +223,8 @@ export const addAssetsToRootFolder = (
   console.log(`[CRITICAL] [folderAssetOperations] Project now has ${updatedProjects[projectIndex].assets.length} assets`);
   
   // Update localStorage immediately
-  try {
-    localStorage.setItem('projects', JSON.stringify(updatedProjects));
-    console.log(`[CRITICAL] [folderAssetOperations] Updated localStorage after adding assets to root folder`);
-  } catch (e) {
-    console.error(`[folderAssetOperations] Error saving to localStorage:`, e);
-  }
+  saveProjectsToLocalStorage();
+  console.log(`[CRITICAL] [folderAssetOperations] Updated localStorage after adding assets to root folder`);
   
   return updatedProjects;
 };
