@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { 
   LayoutDashboard, 
@@ -21,9 +22,11 @@ const Sidebar: React.FC = () => {
     return location.pathname === path;
   };
 
-  const handleLogout = async () => {
+  const handleLogout = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    console.log('Logout button clicked, calling signOut function');
     await signOut();
-    // This navigation will no longer be needed as it's handled in the AuthContext provider
+    // Navigation is now handled in the AuthContext provider's auth state change listener
   };
   
   const handleNavigation = (path: string) => (e: React.MouseEvent) => {

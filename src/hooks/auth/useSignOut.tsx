@@ -10,10 +10,15 @@ export function useSignOut(
     try {
       console.log('Attempting sign out');
       setIsLoading(true);
+      
+      // Clear profile data first to prevent stale data issues
+      setProfile(null);
+      
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      
       console.log('Sign out successful');
-      setProfile(null); // Clear the profile data
+      
       // Navigation will be handled by the auth state change listener
     } catch (error: any) {
       console.error('Sign out error:', error);

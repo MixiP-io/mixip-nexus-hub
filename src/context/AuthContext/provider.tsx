@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -89,6 +88,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
         
+        if (event === 'SIGNED_OUT') {
+          console.log('SIGNED_OUT event detected, redirecting to login page');
+          setSession(null);
+          setUser(null);
+          setProfile(null);
+          
+          toast({
+            title: "Signed out",
+            description: "You have been signed out.",
+          });
+          
+          navigate('/login', { replace: true });
+          return;
+        }
+        
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -108,15 +122,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             navigate('/dashboard', { replace: true });
           }
         }
-        
-        if (event === 'SIGNED_OUT') {
-          console.log('SIGNED_OUT event detected, redirecting to login page');
-          toast({
-            title: "Signed out",
-            description: "You have been signed out.",
-          });
-          navigate('/login', { replace: true });
-        }
 
         if (event === 'USER_UPDATED') {
           console.log('USER_UPDATED event detected, updating profile');
@@ -130,7 +135,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate, location.pathname, setSession, setUser, setIsLoading, fetchProfile]);
+  }, [navigate, location.pathname, setSession, setUser, setIsLoading, fetchProfile, setProfile]);
 
   const handleRedirectAfterSignIn = (profileData: UserProfile | null) => {
     console.log('Profile data for navigation decision:', profileData);
