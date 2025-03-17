@@ -7,6 +7,8 @@ import {
   BarChart3,
   LogOut,
   User,
+  Database,
+  Bot,
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import AnimatedLogo from '@/components/ui/AnimatedLogo';
@@ -43,6 +45,9 @@ const Sidebar: React.FC = () => {
   // Log account type for debugging
   console.log('Profile data in sidebar:', profile);
   const accountType = profile?.account_type === 'ai_platform' ? 'AI Platform' : (profile?.account_type || "Creator Pro");
+  
+  // Check if user is AI Platform type to show specialized menu
+  const isAIPlatform = profile?.account_type === 'ai_platform';
   
   return (
     <div className="w-64 bg-[#1A1F2C] flex flex-col text-white">
@@ -82,32 +87,71 @@ const Sidebar: React.FC = () => {
               <span>Dashboard</span>
             </Link>
           </li>
-          <li>
-            <Link 
-              to="/dashboard/workspace" 
-              className={`flex items-center space-x-3 p-3 rounded-lg ${
-                isActive('/dashboard/workspace') 
-                  ? 'bg-gray-800 text-mixip-blue' 
-                  : 'hover:bg-gray-800 transition-colors'
-              }`}
-              onClick={handleNavigation('/dashboard/workspace')}
-            >
-              <FolderOpen className="w-5 h-5" />
-              <span>Creative Workspace</span>
-            </Link>
-          </li>
-          <li>
-            <Link to="/dashboard/marketplace" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 transition-colors">
-              <Store className="w-5 h-5" />
-              <span>Marketplace</span>
-            </Link>
-          </li>
-          <li>
-            <Link to="/dashboard/insights" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 transition-colors">
-              <BarChart3 className="w-5 h-5" />
-              <span>Insights & Revenue</span>
-            </Link>
-          </li>
+          
+          {isAIPlatform ? (
+            // AI Platform specific menu items
+            <>
+              <li>
+                <Link 
+                  to="/dashboard/workspace?tab=datasets" 
+                  className={`flex items-center space-x-3 p-3 rounded-lg ${
+                    isActive('/dashboard/workspace') && location.search.includes('tab=datasets')
+                      ? 'bg-gray-800 text-green-400' 
+                      : 'hover:bg-gray-800 transition-colors'
+                  }`}
+                  onClick={handleNavigation('/dashboard/workspace?tab=datasets')}
+                >
+                  <Database className="w-5 h-5" />
+                  <span>Datasets</span>
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/dashboard/workspace?tab=ai-models" 
+                  className={`flex items-center space-x-3 p-3 rounded-lg ${
+                    isActive('/dashboard/workspace') && location.search.includes('tab=ai-models')
+                      ? 'bg-gray-800 text-green-400' 
+                      : 'hover:bg-gray-800 transition-colors'
+                  }`}
+                  onClick={handleNavigation('/dashboard/workspace?tab=ai-models')}
+                >
+                  <Bot className="w-5 h-5" />
+                  <span>AI Models</span>
+                </Link>
+              </li>
+            </>
+          ) : (
+            // Regular user menu items
+            <>
+              <li>
+                <Link 
+                  to="/dashboard/workspace" 
+                  className={`flex items-center space-x-3 p-3 rounded-lg ${
+                    isActive('/dashboard/workspace') 
+                      ? 'bg-gray-800 text-mixip-blue' 
+                      : 'hover:bg-gray-800 transition-colors'
+                  }`}
+                  onClick={handleNavigation('/dashboard/workspace')}
+                >
+                  <FolderOpen className="w-5 h-5" />
+                  <span>Creative Workspace</span>
+                </Link>
+              </li>
+              <li>
+                <Link to="/dashboard/marketplace" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 transition-colors">
+                  <Store className="w-5 h-5" />
+                  <span>Marketplace</span>
+                </Link>
+              </li>
+              <li>
+                <Link to="/dashboard/insights" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 transition-colors">
+                  <BarChart3 className="w-5 h-5" />
+                  <span>Insights & Revenue</span>
+                </Link>
+              </li>
+            </>
+          )}
+          
           <li>
             <Link 
               to="/profile/settings" 

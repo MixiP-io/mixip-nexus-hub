@@ -11,6 +11,7 @@ export function useSignUp(
   const signUp = async (email: string, password: string, metadata?: SignUpMetadata) => {
     try {
       console.log('Attempting sign up for email:', email, 'with metadata:', metadata);
+      console.log('Account type in signUp:', metadata?.account_type);
       setIsLoading(true);
       
       // Validate password length before sending to Supabase
@@ -37,7 +38,10 @@ export function useSignUp(
         email,
         password,
         options: {
-          data: metadata,
+          data: {
+            full_name: metadata?.full_name,
+            account_type: metadata?.account_type, // Ensure account_type is passed to auth metadata
+          },
         },
       });
 

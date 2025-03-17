@@ -2,27 +2,36 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 
 type Tab = {
   id: string;
   label: string;
   permanent: boolean;
   active: boolean;
+  aiPlatformOnly?: boolean;
 };
 
 const CollapsibleTabs: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { profile } = useAuth();
+  
+  const isAiPlatform = profile?.account_type === 'ai_platform';
   
   // Initial tabs configuration
   const [tabs, setTabs] = useState<Tab[]>([
-    { id: 'projects', label: 'Projects', permanent: true, active: true },
-    { id: 'assets', label: 'Assets', permanent: true, active: false },
-    { id: 'campaigns', label: 'Campaigns', permanent: false, active: false },
-    { id: 'assignments', label: 'Assignments', permanent: false, active: false },
-    { id: 'collaborators', label: 'Collaborators', permanent: false, active: false },
-    { id: 'uploader', label: 'Uploader', permanent: false, active: false },
-    { id: 'analytics', label: 'Analytics', permanent: false, active: false }
+    { id: 'projects', label: 'Projects', permanent: true, active: true, aiPlatformOnly: false },
+    { id: 'assets', label: 'Assets', permanent: true, active: false, aiPlatformOnly: false },
+    { id: 'campaigns', label: 'Campaigns', permanent: false, active: false, aiPlatformOnly: false },
+    { id: 'assignments', label: 'Assignments', permanent: false, active: false, aiPlatformOnly: false },
+    { id: 'collaborators', label: 'Collaborators', permanent: false, active: false, aiPlatformOnly: false },
+    { id: 'uploader', label: 'Uploader', permanent: false, active: false, aiPlatformOnly: false },
+    { id: 'analytics', label: 'Analytics', permanent: false, active: false, aiPlatformOnly: false },
+    // AI Platform specific tabs
+    { id: 'datasets', label: 'Datasets', permanent: true, active: false, aiPlatformOnly: true },
+    { id: 'ai-models', label: 'AI Models', permanent: true, active: false, aiPlatformOnly: true },
+    { id: 'api-config', label: 'API Config', permanent: false, active: false, aiPlatformOnly: true }
   ]);
   
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -63,10 +72,10 @@ const CollapsibleTabs: React.FC = () => {
     setIsCollapsed(!isCollapsed);
   };
   
-  // Filter tabs based on collapse state
-  const visibleTabs = isCollapsed
-    ? tabs.filter(tab => tab.permanent || tab.active)
-    : tabs;
+  // Filter tabs based on user role and collapse state
+  const visibleTabs = tabs
+    .filter(tab => !tab.aiPlatformOnly || (tab.aiPlatformOnly && isAiPlatform))
+    .filter(tab => isCollapsed ? (tab.permanent || tab.active) : true);
 
   return (
     <div className="relative flex justify-between items-center border-b border-gray-800 w-full bg-[#1A1F2C] text-white">
@@ -76,8 +85,10 @@ const CollapsibleTabs: React.FC = () => {
             key={tab.id}
             className={`px-6 py-4 font-medium text-base transition-all ${
               tab.active 
-                ? 'border-b-2 border-apple-blue text-apple-blue' 
-                : 'text-white hover:text-apple-blue'
+                ? isAiPlatform && tab.aiPlatformOnly
+                  ? 'border-b-2 border-green-400 text-green-400'
+                  : 'border-b-2 border-mixip-blue text-mixip-blue' 
+                : 'text-white hover:text-mixip-blue'
             }`}
             onClick={() => handleTabClick(tab.id)}
           >
@@ -86,7 +97,7 @@ const CollapsibleTabs: React.FC = () => {
         ))}
         
         <button
-          className="px-4 py-4 text-white hover:text-apple-blue transition-colors ml-auto"
+          className="px-4 py-4 text-white hover:text-mixip-blue transition-colors ml-auto"
           onClick={toggleCollapse}
           aria-label={isCollapsed ? "Expand tabs" : "Collapse tabs"}
         >

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -66,13 +67,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             return;
           }
           
-          fetchProfile(data.session.user.id)
-            .catch(error => {
-              console.error('Error fetching profile during initialization:', error);
-            })
-            .finally(() => {
-              setIsLoading(false);
-            });
+          try {
+            const profileData = await fetchProfile(data.session.user.id);
+            
+            // Check if it's a new AI Platform user that should be directed to the setup flow
+            if (profileData && profileData.account_type === 'ai_platform' && profileData.is_new_user) {
+              console.log('New AI Platform user detected, redirecting to specialized onboarding');
+              navigate('/ai-platform/setup', { replace: true });
+            }
+          } catch (error) {
+            console.error('Error fetching profile during initialization:', error);
+          } finally {
+            setIsLoading(false);
+          }
         } else {
           setIsLoading(false);
         }
