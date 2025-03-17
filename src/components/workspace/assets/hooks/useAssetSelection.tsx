@@ -1,6 +1,5 @@
 
 import { useState } from 'react';
-import { toast } from 'sonner';
 
 /**
  * Hook to manage asset selection state and actions
@@ -38,19 +37,10 @@ export const useAssetSelection = (assets: any[]) => {
     }
   };
 
-  // Handle batch rights
-  const handleBatchRights = () => {
-    if (selectedAssets.length === 0) {
-      toast.error('Please select at least one asset to manage rights');
-      return;
-    }
-  };
-
   return {
     selectedAssets,
     setSelectedAssets,
     handleAssetClick,
-    handleSelectAll,
-    handleBatchRights
+    handleSelectAll
   };
 };

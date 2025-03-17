@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from 'react';
 import { toast } from 'sonner';
 import { getProjectById } from '../../batch-uploader/utils/projectUtils';
@@ -7,11 +8,13 @@ import { getProjectById } from '../../batch-uploader/utils/projectUtils';
  */
 export const useProjectAssets = (selectedProjectId: string | null, currentFolderId: string) => {
   const [projectData, setProjectData] = useState<any | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   
   // Load project data when selectedProjectId changes
   useEffect(() => {
     if (selectedProjectId) {
       console.log('[useProjectAssets] Fetching project data for ID:', selectedProjectId);
+      setIsLoading(true);
       
       try {
         // Force direct read from localStorage for latest data
@@ -54,10 +57,13 @@ export const useProjectAssets = (selectedProjectId: string | null, currentFolder
         console.error('[useProjectAssets] Error loading project:', error);
         toast.error('Failed to load project data');
         setProjectData(null);
+      } finally {
+        setIsLoading(false);
       }
     } else {
       console.log('[useProjectAssets] No project selected');
       setProjectData(null);
+      setIsLoading(false);
     }
   }, [selectedProjectId, currentFolderId]);
 
@@ -116,6 +122,7 @@ export const useProjectAssets = (selectedProjectId: string | null, currentFolder
     projectData,
     currentFolderAssets,
     hasAssetsInFolders: folderAssetInfo.hasAssetsInFolders,
-    foldersWithAssets: folderAssetInfo.foldersWithAssets
+    foldersWithAssets: folderAssetInfo.foldersWithAssets,
+    isLoading
   };
 };

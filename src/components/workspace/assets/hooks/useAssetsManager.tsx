@@ -14,6 +14,7 @@ export const useAssetsManager = (selectedProjectId: string | null, initialFolder
   const {
     currentFolderId,
     setCurrentFolderId,
+    handleFolderChange,
     handleBatchUpload
   } = useFolderNavigation(selectedProjectId, initialFolderId);
 
@@ -22,7 +23,8 @@ export const useAssetsManager = (selectedProjectId: string | null, initialFolder
     projectData,
     currentFolderAssets,
     hasAssetsInFolders,
-    foldersWithAssets
+    foldersWithAssets,
+    isLoading
   } = useProjectAssets(selectedProjectId, currentFolderId);
 
   // Filter assets
@@ -50,23 +52,15 @@ export const useAssetsManager = (selectedProjectId: string | null, initialFolder
     setSelectedAssetForRights,
     handleOpenRightsPanel,
     handleBatchRights
-  } = useRightsPanel();
+  } = useRightsPanel(selectedAssets);
 
-  // Debug logging for initial folder
+  // Debug logging for initial render
   useEffect(() => {
     console.log('[CRITICAL] useAssetsManager initialized with:');
     console.log('- selectedProjectId:', selectedProjectId);
     console.log('- initialFolderId:', initialFolderId);
     console.log('- currentFolderId:', currentFolderId);
-  }, [initialFolderId, selectedProjectId, currentFolderId]);
-  
-  // Log current folder assets for debugging
-  useEffect(() => {
-    console.log(`[CRITICAL] Current folder (${currentFolderId}) assets count: ${currentFolderAssets.length}`);
-    if (currentFolderAssets.length > 0) {
-      console.log('[CRITICAL] Sample assets in current folder:', JSON.stringify(currentFolderAssets.slice(0, 2), null, 2));
-    }
-  }, [currentFolderAssets, currentFolderId]);
+  }, []);
 
   return {
     viewMode,
@@ -88,6 +82,8 @@ export const useAssetsManager = (selectedProjectId: string | null, initialFolder
     handleOpenRightsPanel,
     handleBatchRights,
     hasAssetsInFolders,
-    foldersWithAssets
+    foldersWithAssets,
+    isLoading,
+    handleFolderChange
   };
 };

@@ -8,6 +8,7 @@ interface AssetsInitializerProps {
   selectedFolderId: string | null;
   currentFolderId: string;
   setCurrentFolderId: (folderId: string) => void;
+  handleFolderChange?: (folderId: string, folderName?: string) => void;
   projectData: any | null;
 }
 
@@ -16,6 +17,7 @@ const AssetsInitializer: React.FC<AssetsInitializerProps> = ({
   selectedFolderId,
   currentFolderId,
   setCurrentFolderId,
+  handleFolderChange,
   projectData
 }) => {
   useEffect(() => {
@@ -28,13 +30,25 @@ const AssetsInitializer: React.FC<AssetsInitializerProps> = ({
     // Update current folder when selectedFolderId changes
     if (selectedFolderId && selectedFolderId !== currentFolderId) {
       console.log('[CRITICAL] [AssetsInitializer] Setting current folder to:', selectedFolderId);
-      setCurrentFolderId(selectedFolderId);
       
-      // Show folder navigation toast
-      if (selectedFolderId !== 'root' && projectData && projectData.subfolders) {
+      // Use the new folder change handler if available
+      if (handleFolderChange && projectData?.subfolders) {
         const folder = projectData.subfolders.find((f: any) => f.id === selectedFolderId);
         if (folder) {
-          toast.info(`Viewing folder: ${folder.name}`);
+          handleFolderChange(selectedFolderId, folder.name);
+        } else {
+          handleFolderChange(selectedFolderId);
+        }
+      } else {
+        // Fall back to direct setter
+        setCurrentFolderId(selectedFolderId);
+        
+        // Show folder navigation toast
+        if (selectedFolderId !== 'root' && projectData && projectData.subfolders) {
+          const folder = projectData.subfolders.find((f: any) => f.id === selectedFolderId);
+          if (folder) {
+            toast.info(`Viewing folder: ${folder.name}`);
+          }
         }
       }
     }
@@ -68,7 +82,7 @@ const AssetsInitializer: React.FC<AssetsInitializerProps> = ({
         console.log('[CRITICAL] [AssetsInitializer] Viewing root folder with', projectData.assets?.length || 0, 'assets');
       }
     }
-  }, [selectedProjectId, projectData, selectedFolderId, currentFolderId, setCurrentFolderId]);
+  }, [selectedProjectId, projectData, selectedFolderId, currentFolderId, setCurrentFolderId, handleFolderChange]);
   
   // Check localStorage for additional debugging
   useEffect(() => {
