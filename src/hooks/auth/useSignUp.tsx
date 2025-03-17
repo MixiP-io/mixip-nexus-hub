@@ -50,7 +50,7 @@ export function useSignUp(
         if (metadata) {
           // More detailed logging for debugging
           console.log('Creating profile with metadata:', metadata);
-          console.log('Account type selected:', metadata.account_type);
+          console.log('Account type being saved:', metadata.account_type);
           
           // Using proper typed object for profile data
           const profileData: ProfileCreateData = {
