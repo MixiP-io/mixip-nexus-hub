@@ -1,6 +1,6 @@
 
 import { ProjectData } from '../../types/projectTypes';
-import { updateProjects } from '../../data/projectStore';
+import { projects, updateProjects } from '../../data/projectStore';
 import { saveProjectsToLocalStorage } from '../../data/store/storageSync';
 
 /**
@@ -37,8 +37,6 @@ export const getProjects = (): ProjectData[] => {
   }
   
   // If no projects in localStorage or error occurred, return in-memory projects
-  // Import here to avoid circular dependency
-  const { projects } = require('../../data/projectStore');
   return projects;
 };
 
@@ -103,8 +101,6 @@ export const getProjectById = (projectId: string): ProjectData | null => {
   }
   
   // Fall back to in-memory store
-  // Import here to avoid circular dependency
-  const { projects } = require('../../data/projectStore');
   const project = projects.find(p => p.id === projectId);
   
   if (project) {
