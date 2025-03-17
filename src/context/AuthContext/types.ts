@@ -1,13 +1,4 @@
 
-import { Session, User } from '@supabase/supabase-js';
+import { AuthContextTypeEnhanced } from './profileTypes';
 
-export interface AuthContextType {
-  session: Session | null;
-  user: User | null;
-  profile: any | null;
-  isLoading: boolean;
-  signIn: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
-  signUp: (email: string, password: string, metadata?: any) => Promise<void>;
-  signInWithSocial: (provider: 'google' | 'twitter' | 'instagram') => Promise<void>;
-  signOut: () => Promise<void>;
-}
+export type AuthContextType = AuthContextTypeEnhanced;

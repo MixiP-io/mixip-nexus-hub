@@ -1,17 +1,19 @@
+
 import { useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
+import { UserProfile, ProfileCreateData, SignUpMetadata } from '@/context/AuthContext/profileTypes';
 
 export function useAuthService() {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<any | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (userId: string): Promise<UserProfile | null> => {
     try {
       console.log('Fetching profile for user ID:', userId);
       const { data, error } = await supabase
@@ -56,7 +58,7 @@ export function useAuthService() {
     }
   };
 
-  const signUp = async (email: string, password: string, metadata?: any) => {
+  const signUp = async (email: string, password: string, metadata?: SignUpMetadata) => {
     try {
       console.log('Attempting sign up for email:', email, 'with metadata:', metadata);
       setIsLoading(true);
@@ -84,8 +86,8 @@ export function useAuthService() {
           // More detailed logging for debugging
           console.log('Creating profile with metadata:', metadata);
           
-          // Using the any type for profile data to avoid types conflict
-          const profileData: any = {
+          // Using proper typed object for profile data
+          const profileData: ProfileCreateData = {
             id: data.user.id,
             full_name: metadata.full_name,
             account_type: metadata.account_type,
