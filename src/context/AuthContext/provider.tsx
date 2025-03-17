@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -62,18 +61,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           });
           
           // Check if user is a new AI Platform user before navigation
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
+          try {
+            const { data: profileData } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single();
+              
+            console.log('Profile data for navigation decision:', profileData);
             
-          if (profileData && profileData.account_type === 'ai_platform' && profileData.is_new_user === true) {
-            console.log('New AI Platform user detected, redirecting to specialized onboarding');
-            navigate('/ai-platform/setup', { replace: true });
-          } else {
-            // Otherwise navigate to dashboard
-            console.log('Navigating to dashboard after sign in');
+            // Handle AI Platform user navigation explicitly checking the boolean value
+            if (profileData && 
+                profileData.account_type === 'ai_platform' && 
+                profileData.is_new_user === true) {
+              console.log('New AI Platform user detected, redirecting to specialized onboarding');
+              navigate('/ai-platform/setup', { replace: true });
+            } else {
+              // Otherwise navigate to dashboard
+              console.log('Navigating to dashboard after sign in');
+              navigate('/dashboard', { replace: true });
+            }
+          } catch (error) {
+            console.error('Error checking profile for navigation:', error);
+            // Fall back to dashboard in case of error
             navigate('/dashboard', { replace: true });
           }
         }

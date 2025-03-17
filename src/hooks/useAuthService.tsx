@@ -62,11 +62,6 @@ export function useAuthService() {
       console.log('Attempting sign up for email:', email, 'with metadata:', metadata);
       setIsLoading(true);
       
-      // Set is_new_user flag for AI Platform account type
-      if (metadata && metadata.account_type === 'ai_platform') {
-        metadata.is_new_user = true;
-      }
-      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -82,19 +77,28 @@ export function useAuthService() {
       if (data.user && data.session) {
         // Create profile record if user was signed up successfully
         if (metadata) {
+          // Using the any type for profile data to avoid types conflict
+          const profileData: any = {
+            id: data.user.id,
+            full_name: metadata.full_name,
+            account_type: metadata.account_type,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          };
+          
+          // Add is_new_user flag for AI Platform users
+          if (metadata.account_type === 'ai_platform') {
+            profileData.is_new_user = true;
+          }
+          
           const { error: profileError } = await supabase
             .from('profiles')
-            .upsert({
-              id: data.user.id,
-              full_name: metadata.full_name,
-              account_type: metadata.account_type,
-              is_new_user: metadata.account_type === 'ai_platform',
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            });
+            .insert(profileData);
             
           if (profileError) {
             console.error('Error creating profile:', profileError);
+          } else {
+            console.log('Created profile with account type:', metadata.account_type);
           }
         }
         
