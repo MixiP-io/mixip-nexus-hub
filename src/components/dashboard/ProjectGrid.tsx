@@ -3,6 +3,7 @@ import React from 'react';
 import { Plus, Image, FolderOpen } from 'lucide-react';
 import { useProjectsManager } from '../workspace/projects/hooks/useProjectsManager';
 import { useNavigate } from 'react-router-dom';
+import { getTotalAssetsCount } from '../workspace/projects/utils/assetCountUtils';
 
 const ProjectGrid: React.FC = () => {
   const { projects } = useProjectsManager();
@@ -19,27 +20,13 @@ const ProjectGrid: React.FC = () => {
     return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''} ago`;
   };
 
-  // Function to get total assets count (root + all folders)
-  const getTotalAssetsCount = (project: any): number => {
-    // Count assets at root level
-    const rootAssets = project.assets?.length || 0;
-    
-    // Count assets in all subfolders
-    const folderAssets = project.subfolders?.reduce((total: number, folder: any) => {
-      return total + (folder.assets?.length || 0);
-    }, 0) || 0;
-    
-    // Return total
-    return rootAssets + folderAssets;
-  };
-
   const handleProjectClick = (projectId: string) => {
     // Navigate to the workspace with the selected project
-    navigate(`/workspace?tab=assets&project=${projectId}`);
+    navigate(`/dashboard/workspace?tab=assets&project=${projectId}`);
   };
 
   const handleCreateProject = () => {
-    navigate('/workspace?tab=projects&action=new');
+    navigate('/dashboard/workspace?tab=projects&action=new');
   };
 
   return (

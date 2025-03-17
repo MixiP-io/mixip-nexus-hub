@@ -38,10 +38,12 @@ export const useFolderNavigation = (selectedProjectId: string | null, initialFol
   // Handle batch upload
   const handleBatchUpload = () => {
     // Pass current folder ID to the uploader
-    if (currentFolderId && selectedProjectId) {
+    if (selectedProjectId) {
       navigate(`/dashboard/workspace?tab=uploader&project=${selectedProjectId}&folder=${currentFolderId}`);
+      toast.info('Switched to uploader to add assets');
     } else {
       navigate('/dashboard/workspace?tab=uploader');
+      toast.info('Please select a project first');
     }
   };
 
