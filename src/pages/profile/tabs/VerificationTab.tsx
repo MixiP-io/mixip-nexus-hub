@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,13 +7,15 @@ import { CheckCircle, Clock, AlertTriangle, Building, FileCheck, Shield, Bolt } 
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
+type VerificationStatus = 'pending' | 'verified' | 'not_verified';
+
 const VerificationTab: React.FC = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
   
   // Determine verification status from profile
   // For now, we'll assume new users need verification
-  const verificationStatus: 'pending' | 'verified' | 'not_verified' = 
+  const verificationStatus: VerificationStatus = 
     profile?.is_new_user ? 'pending' : 'verified';
   
   const getStatusBadge = () => {

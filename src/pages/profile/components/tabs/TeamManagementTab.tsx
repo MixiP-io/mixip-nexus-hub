@@ -9,13 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 
-// Mock team members data
-const initialTeamMembers = [
-  { id: '1', name: 'Sarah Johnson', email: 'sarah@aicompany.com', role: 'admin', status: 'active' },
-  { id: '2', name: 'Michael Chen', email: 'michael@aicompany.com', role: 'member', status: 'active' },
-  { id: '3', name: 'Olivia Rodriguez', email: 'olivia@aicompany.com', role: 'member', status: 'pending' }
-];
-
 type TeamMember = {
   id: string;
   name: string;
@@ -23,6 +16,13 @@ type TeamMember = {
   role: 'admin' | 'member' | 'viewer';
   status: 'active' | 'pending' | 'inactive';
 };
+
+// Mock team members data - explicitly typed to match TeamMember
+const initialTeamMembers: TeamMember[] = [
+  { id: '1', name: 'Sarah Johnson', email: 'sarah@aicompany.com', role: 'admin', status: 'active' },
+  { id: '2', name: 'Michael Chen', email: 'michael@aicompany.com', role: 'member', status: 'active' },
+  { id: '3', name: 'Olivia Rodriguez', email: 'olivia@aicompany.com', role: 'member', status: 'pending' }
+];
 
 const getRoleBadge = (role: string) => {
   switch (role) {
