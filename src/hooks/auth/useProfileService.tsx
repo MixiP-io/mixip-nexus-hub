@@ -6,7 +6,7 @@ import { toast } from '@/components/ui/use-toast';
 export function useProfileService(setProfile: (profile: UserProfile | null) => void) {
   // Cache for recently fetched profiles to prevent redundant queries
   const profileCache = new Map<string, { data: UserProfile | null, timestamp: number }>();
-  const CACHE_TTL = 60000; // Increase cache TTL to 1 minute
+  const CACHE_TTL = 5000; // Reduce cache TTL to 5 seconds to ensure we get fresh data after updates
   
   const fetchProfile = async (userId: string): Promise<UserProfile | null> => {
     try {
@@ -88,5 +88,45 @@ export function useProfileService(setProfile: (profile: UserProfile | null) => v
     }
   };
 
-  return { fetchProfile };
+  // Add a direct method to update the profile and clear cache
+  const updateProfile = async (userId: string, updates: Partial<UserProfile>): Promise<UserProfile | null> => {
+    try {
+      console.log('Updating profile for user:', userId, 'with data:', updates);
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', userId)
+        .select()
+        .single();
+        
+      if (error) {
+        console.error('Error updating profile:', error);
+        toast({
+          title: "Error updating profile",
+          description: error.message,
+          variant: "destructive"
+        });
+        return null;
+      }
+      
+      console.log('Profile updated successfully:', data);
+      
+      // Clear the cache entry to force a fresh fetch next time
+      profileCache.delete(userId);
+      
+      // Update the profile in state
+      setProfile(data);
+      
+      return data;
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      return null;
+    }
+  };
+
+  return { fetchProfile, updateProfile };
 }

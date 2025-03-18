@@ -71,7 +71,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const profileData = await fetchProfile(data.session.user.id);
             
             // Check if it's a new AI Platform user that should be directed to the setup flow
-            if (profileData && profileData.account_type === 'ai_platform' && profileData.is_new_user) {
+            if (profileData && 
+                profileData.account_type === 'ai_platform' && 
+                profileData.is_new_user === true &&
+                location.pathname !== '/ai-platform/setup') {
               console.log('New AI Platform user detected, redirecting to specialized onboarding');
               navigate('/ai-platform/setup', { replace: true });
             }
@@ -133,7 +136,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (event === 'USER_UPDATED') {
           console.log('USER_UPDATED event detected, updating profile');
           if (session?.user) {
-            fetchProfile(session.user.id);
+            const profileData = await fetchProfile(session.user.id);
+            
+            // If we're on the setup page and the user is no longer a new user,
+            // redirect them to the dashboard
+            if (location.pathname === '/ai-platform/setup' && 
+                profileData && 
+                profileData.is_new_user === false) {
+              console.log('AI Platform setup complete, redirecting to dashboard');
+              navigate('/dashboard', { replace: true });
+            }
           }
         }
       }

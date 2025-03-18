@@ -9,6 +9,7 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import CompanyVerificationForm from '@/components/ai-platform/CompanyVerificationForm';
 import DataRequirementsForm from '@/components/ai-platform/DataRequirementsForm';
 import ApiIntegrationSetup from '@/components/ai-platform/ApiIntegrationSetup';
@@ -66,7 +67,24 @@ const AIPlatformSetup: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // TODO: Save all profile data to Supabase
+      // Update the profile to set is_new_user to false
+      if (user) {
+        console.log('Updating user profile to mark setup as complete');
+        const { error } = await supabase
+          .from('profiles')
+          .update({ 
+            is_new_user: false,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', user.id);
+        
+        if (error) {
+          console.error('Error updating profile:', error);
+          throw error;
+        }
+        
+        console.log('Profile updated successfully, setup complete');
+      }
       
       toast.success("AI Platform setup complete!");
       

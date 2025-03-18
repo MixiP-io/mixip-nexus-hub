@@ -20,7 +20,7 @@ export function useAuthService() {
     setIsLoading,
   } = useAuthState();
   
-  const { fetchProfile } = useProfileService(setProfile);
+  const { fetchProfile, updateProfile } = useProfileService(setProfile);
   const { signIn, signInWithSocial } = useSignIn(setIsLoading);
   const { signUp } = useSignUp(setIsLoading, setUser, setSession);
   const { signOut } = useSignOut(setIsLoading, setProfile);
@@ -35,6 +35,7 @@ export function useAuthService() {
     isLoading,
     setIsLoading,
     fetchProfile,
+    updateProfile,
     signIn,
     signUp,
     signInWithSocial,
