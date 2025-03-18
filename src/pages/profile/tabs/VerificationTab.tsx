@@ -79,8 +79,10 @@ const VerificationTab: React.FC = () => {
             <div>
               {verificationStatus === 'verified' ? (
                 <CheckCircle className="h-5 w-5 text-green-500" />
-              ) : (
+              ) : verificationStatus === 'pending' ? (
                 <Clock className="h-5 w-5 text-amber-500" />
+              ) : (
+                <AlertTriangle className="h-5 w-5 text-red-500" />
               )}
             </div>
           </div>
@@ -96,8 +98,10 @@ const VerificationTab: React.FC = () => {
             <div>
               {verificationStatus === 'verified' ? (
                 <CheckCircle className="h-5 w-5 text-green-500" />
-              ) : (
+              ) : verificationStatus === 'pending' ? (
                 <Clock className="h-5 w-5 text-amber-500" />
+              ) : (
+                <AlertTriangle className="h-5 w-5 text-red-500" />
               )}
             </div>
           </div>
@@ -113,8 +117,10 @@ const VerificationTab: React.FC = () => {
             <div>
               {verificationStatus === 'verified' ? (
                 <CheckCircle className="h-5 w-5 text-green-500" />
-              ) : (
+              ) : verificationStatus === 'pending' ? (
                 <Clock className="h-5 w-5 text-amber-500" />
+              ) : (
+                <AlertTriangle className="h-5 w-5 text-red-500" />
               )}
             </div>
           </div>
@@ -130,8 +136,10 @@ const VerificationTab: React.FC = () => {
             <div>
               {verificationStatus === 'verified' ? (
                 <CheckCircle className="h-5 w-5 text-green-500" />
-              ) : (
+              ) : verificationStatus === 'pending' ? (
                 <Clock className="h-5 w-5 text-amber-500" />
+              ) : (
+                <AlertTriangle className="h-5 w-5 text-red-500" />
               )}
             </div>
           </div>
