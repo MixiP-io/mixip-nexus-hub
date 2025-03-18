@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,25 +12,26 @@ const VerificationTab: React.FC = () => {
   
   // Determine verification status from profile
   // For now, we'll assume new users need verification
-  const verificationStatus = profile?.is_new_user ? 'pending' : 'verified';
+  const verificationStatus: 'pending' | 'verified' | 'not_verified' = 
+    profile?.is_new_user ? 'pending' : 'verified';
   
   const getStatusBadge = () => {
     switch (verificationStatus) {
-      case 'verified':
+      case "verified":
         return (
           <Badge className="bg-green-600 text-white font-medium flex items-center gap-1 px-3 py-1">
             <CheckCircle className="h-4 w-4" />
             Verified
           </Badge>
         );
-      case 'pending':
+      case "pending":
         return (
           <Badge className="bg-amber-500 text-white font-medium flex items-center gap-1 px-3 py-1">
             <Clock className="h-4 w-4" />
             Verification Pending
           </Badge>
         );
-      case 'rejected':
+      case "not_verified":
         return (
           <Badge className="bg-red-500 text-white font-medium flex items-center gap-1 px-3 py-1">
             <AlertTriangle className="h-4 w-4" />

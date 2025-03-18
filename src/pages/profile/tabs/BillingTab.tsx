@@ -4,9 +4,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { CreditCard, Award, Shield, PenTool, Plus, Download } from 'lucide-react';
+import { CreditCard, Award, Shield, PenTool, Plus, Download, Building, Users, Database } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 const BillingTab: React.FC = () => {
+  const { profile } = useAuth();
+  const isAIPlatform = profile?.account_type === 'ai_platform';
+
   return (
     <div className="space-y-6">
       <Card className="border-none shadow-sm bg-gray-900 text-white">
@@ -23,40 +27,81 @@ const BillingTab: React.FC = () => {
           <Separator className="bg-gray-800" />
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="border rounded-lg p-6 bg-gradient-to-r from-blue-900/30 to-purple-900/30 border-blue-900 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full -mt-10 -mr-10 z-0"></div>
-            <div className="relative z-10">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="flex items-center">
-                    <h4 className="font-medium text-lg text-blue-300">Creator Pro Plan</h4>
-                    <Badge className="ml-2 bg-mixip-blue">Current Plan</Badge>
+          {isAIPlatform ? (
+            // AI Platform subscription card
+            <div className="border rounded-lg p-6 bg-gradient-to-r from-indigo-900/30 to-purple-900/30 border-indigo-900 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-full -mt-10 -mr-10 z-0"></div>
+              <div className="relative z-10">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="flex items-center">
+                      <h4 className="font-medium text-lg text-indigo-300">AI Platform Enterprise</h4>
+                      <Badge className="ml-2 bg-indigo-700">Current Plan</Badge>
+                    </div>
+                    <p className="text-gray-300 font-medium">$499.99/month</p>
+                    <ul className="mt-4 space-y-2 text-sm text-gray-300">
+                      <li className="flex items-center">
+                        <Database className="h-4 w-4 mr-2 text-indigo-400" />
+                        API Access & Integration
+                      </li>
+                      <li className="flex items-center">
+                        <Users className="h-4 w-4 mr-2 text-indigo-400" />
+                        Up to 25 team members
+                      </li>
+                      <li className="flex items-center">
+                        <Building className="h-4 w-4 mr-2 text-indigo-400" />
+                        Enterprise support
+                      </li>
+                    </ul>
                   </div>
-                  <p className="text-gray-300 font-medium">$24.99/month</p>
-                  <ul className="mt-4 space-y-2 text-sm text-gray-300">
-                    <li className="flex items-center">
-                      <Shield className="h-4 w-4 mr-2 text-blue-400" />
-                      Unlimited projects
-                    </li>
-                    <li className="flex items-center">
-                      <Shield className="h-4 w-4 mr-2 text-blue-400" />
-                      Advanced portfolio tools
-                    </li>
-                    <li className="flex items-center">
-                      <Shield className="h-4 w-4 mr-2 text-blue-400" />
-                      Client verification
-                    </li>
-                  </ul>
+                  <div className="bg-gray-800 rounded-full p-3 shadow-md border border-indigo-900">
+                    <Building className="h-8 w-8 text-indigo-400" />
+                  </div>
                 </div>
-                <div className="bg-gray-800 rounded-full p-3 shadow-md border border-blue-900">
-                  <Award className="h-8 w-8 text-blue-400" />
+                <div className="flex justify-end mt-4">
+                  <Button variant="outline" className="bg-transparent border-indigo-700 text-indigo-300 hover:bg-indigo-800/30">
+                    Manage Enterprise Account
+                  </Button>
                 </div>
-              </div>
-              <div className="flex justify-end mt-4">
-                <Button variant="outline" className="bg-transparent border-blue-700 text-blue-300 hover:bg-blue-800/30">Manage Subscription</Button>
               </div>
             </div>
-          </div>
+          ) : (
+            // Creator Pro subscription card
+            <div className="border rounded-lg p-6 bg-gradient-to-r from-blue-900/30 to-purple-900/30 border-blue-900 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full -mt-10 -mr-10 z-0"></div>
+              <div className="relative z-10">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="flex items-center">
+                      <h4 className="font-medium text-lg text-blue-300">Creator Pro Plan</h4>
+                      <Badge className="ml-2 bg-mixip-blue">Current Plan</Badge>
+                    </div>
+                    <p className="text-gray-300 font-medium">$24.99/month</p>
+                    <ul className="mt-4 space-y-2 text-sm text-gray-300">
+                      <li className="flex items-center">
+                        <Shield className="h-4 w-4 mr-2 text-blue-400" />
+                        Unlimited projects
+                      </li>
+                      <li className="flex items-center">
+                        <Shield className="h-4 w-4 mr-2 text-blue-400" />
+                        Advanced portfolio tools
+                      </li>
+                      <li className="flex items-center">
+                        <Shield className="h-4 w-4 mr-2 text-blue-400" />
+                        Client verification
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="bg-gray-800 rounded-full p-3 shadow-md border border-blue-900">
+                    <Award className="h-8 w-8 text-blue-400" />
+                  </div>
+                </div>
+                <div className="flex justify-end mt-4">
+                  <Button variant="outline" className="bg-transparent border-blue-700 text-blue-300 hover:bg-blue-800/30">Manage Subscription</Button>
+                </div>
+              </div>
+            </div>
+          )}
           
           <div>
             <h4 className="font-medium mb-2 text-white">Payment Methods</h4>
@@ -90,30 +135,61 @@ const BillingTab: React.FC = () => {
               </Button>
             </div>
             <div className="space-y-2">
-              <div className="p-3 border rounded-lg flex items-center justify-between bg-gray-800 border-gray-700">
-                <div>
-                  <p className="font-medium text-white">Creator Pro Plan - Monthly</p>
-                  <p className="text-sm text-gray-400">Oct 15, 2023</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <p className="font-medium text-white">$24.99</p>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-1 text-gray-400 hover:text-white">
-                    <Download className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              <div className="p-3 border rounded-lg flex items-center justify-between bg-gray-800 border-gray-700">
-                <div>
-                  <p className="font-medium text-white">Creator Pro Plan - Monthly</p>
-                  <p className="text-sm text-gray-400">Sep 15, 2023</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <p className="font-medium text-white">$24.99</p>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-1 text-gray-400 hover:text-white">
-                    <Download className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+              {isAIPlatform ? (
+                <>
+                  <div className="p-3 border rounded-lg flex items-center justify-between bg-gray-800 border-gray-700">
+                    <div>
+                      <p className="font-medium text-white">AI Platform Enterprise - Monthly</p>
+                      <p className="text-sm text-gray-400">Oct 15, 2023</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-white">$499.99</p>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-1 text-gray-400 hover:text-white">
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="p-3 border rounded-lg flex items-center justify-between bg-gray-800 border-gray-700">
+                    <div>
+                      <p className="font-medium text-white">AI Platform Enterprise - Monthly</p>
+                      <p className="text-sm text-gray-400">Sep 15, 2023</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-white">$499.99</p>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-1 text-gray-400 hover:text-white">
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="p-3 border rounded-lg flex items-center justify-between bg-gray-800 border-gray-700">
+                    <div>
+                      <p className="font-medium text-white">Creator Pro Plan - Monthly</p>
+                      <p className="text-sm text-gray-400">Oct 15, 2023</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-white">$24.99</p>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-1 text-gray-400 hover:text-white">
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="p-3 border rounded-lg flex items-center justify-between bg-gray-800 border-gray-700">
+                    <div>
+                      <p className="font-medium text-white">Creator Pro Plan - Monthly</p>
+                      <p className="text-sm text-gray-400">Sep 15, 2023</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-white">$24.99</p>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-1 text-gray-400 hover:text-white">
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </CardContent>

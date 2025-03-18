@@ -27,6 +27,14 @@ const ProfileSettings: React.FC = () => {
     }
   }, [searchParams]);
 
+  useEffect(() => {
+    // If AI Platform user is on portfolio tab, redirect to general
+    if (isAIPlatform && activeTab === 'portfolio') {
+      setSearchParams({ tab: 'general' });
+      setActiveTab('general');
+    }
+  }, [isAIPlatform, activeTab, setSearchParams]);
+
   const handleTabClick = (tabId: string) => {
     // Update URL and state
     setSearchParams({ tab: tabId });
@@ -49,7 +57,7 @@ const ProfileSettings: React.FC = () => {
           <div className="max-w-6xl mx-auto px-6 py-6">
             {activeTab === "general" && <GeneralTab />}
             {activeTab === "professional" && <ProfessionalTab />}
-            {activeTab === "portfolio" && <PortfolioTab />}
+            {!isAIPlatform && activeTab === "portfolio" && <PortfolioTab />}
             {isAIPlatform && activeTab === "verification" && <VerificationTab />}
             {activeTab === "security" && <SecurityTab />}
             {activeTab === "billing" && <BillingTab />}

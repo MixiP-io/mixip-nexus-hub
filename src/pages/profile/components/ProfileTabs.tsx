@@ -29,13 +29,15 @@ const ProfileTabs: React.FC<ProfileTabsProps> = ({ activeTab, handleTabClick }) 
         >
           Professional
         </TabsTrigger>
-        <TabsTrigger 
-          value="portfolio" 
-          onClick={() => handleTabClick('portfolio')}
-          className="flex-1 data-[state=active]:bg-gray-700 data-[state=active]:text-white"
-        >
-          Portfolio
-        </TabsTrigger>
+        {!isAIPlatform && (
+          <TabsTrigger 
+            value="portfolio" 
+            onClick={() => handleTabClick('portfolio')}
+            className="flex-1 data-[state=active]:bg-gray-700 data-[state=active]:text-white"
+          >
+            Portfolio
+          </TabsTrigger>
+        )}
         {isAIPlatform && (
           <TabsTrigger 
             value="verification" 
