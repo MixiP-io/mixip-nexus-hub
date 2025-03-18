@@ -62,10 +62,10 @@ export function useSignUp(
           
           console.log('Profile data to insert:', profileData);
           
-          // Directly insert the profile after user creation
+          // Now insert the profile with a direct upsert to ensure it exists
           const { error: profileError, data: profileResponse } = await supabase
             .from('profiles')
-            .insert(profileData)
+            .upsert(profileData)
             .select()
             .single();
             

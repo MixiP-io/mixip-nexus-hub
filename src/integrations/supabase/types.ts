@@ -9,6 +9,63 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      assets: {
+        Row: {
+          folder_id: string | null
+          id: string
+          license_type: string | null
+          name: string
+          preview_url: string | null
+          project_id: string
+          size: number
+          storage_path: string | null
+          type: string
+          uploaded_at: string
+          user_id: string
+        }
+        Insert: {
+          folder_id?: string | null
+          id?: string
+          license_type?: string | null
+          name: string
+          preview_url?: string | null
+          project_id: string
+          size: number
+          storage_path?: string | null
+          type: string
+          uploaded_at?: string
+          user_id: string
+        }
+        Update: {
+          folder_id?: string | null
+          id?: string
+          license_type?: string | null
+          name?: string
+          preview_url?: string | null
+          project_id?: string
+          size?: number
+          storage_path?: string | null
+          type?: string
+          uploaded_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assets_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "project_folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assets_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           account_type: string | null
@@ -44,6 +101,166 @@ export type Database = {
           id?: string
           is_new_user?: boolean | null
           location?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      project_folders: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          parent_folder_id: string | null
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          parent_folder_id?: string | null
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          parent_folder_id?: string | null
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_folders_parent_folder_id_fkey"
+            columns: ["parent_folder_id"]
+            isOneToOne: false
+            referencedRelation: "project_folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_folders_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_licensing: {
+        Row: {
+          ai_training: boolean | null
+          created_at: string
+          derivative_works: boolean | null
+          extended_marketing: boolean | null
+          id: string
+          merchandising: boolean | null
+          primary_campaign: boolean | null
+          project_id: string
+          publicity: boolean | null
+          secondary_brand: boolean | null
+          social_media: boolean | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          ai_training?: boolean | null
+          created_at?: string
+          derivative_works?: boolean | null
+          extended_marketing?: boolean | null
+          id?: string
+          merchandising?: boolean | null
+          primary_campaign?: boolean | null
+          project_id: string
+          publicity?: boolean | null
+          secondary_brand?: boolean | null
+          social_media?: boolean | null
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          ai_training?: boolean | null
+          created_at?: string
+          derivative_works?: boolean | null
+          extended_marketing?: boolean | null
+          id?: string
+          merchandising?: boolean | null
+          primary_campaign?: boolean | null
+          project_id?: string
+          publicity?: boolean | null
+          secondary_brand?: boolean | null
+          social_media?: boolean | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_licensing_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_owners: {
+        Row: {
+          created_at: string
+          id: string
+          project_id: string
+          royalty_percentage: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          project_id: string
+          royalty_percentage?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          project_id?: string
+          royalty_percentage?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_owners_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          cover_image: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          cover_image?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          cover_image?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          name?: string
           updated_at?: string
         }
         Relationships: []
