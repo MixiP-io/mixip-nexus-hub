@@ -1,67 +1,43 @@
 
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
+import { useBatchUploadModalStore } from '../../batch-uploader/stores/batchUploadModalStore';
 
-/**
- * Hook to handle folder navigation
- */
-export const useFolderNavigation = (selectedProjectId: string | null, initialFolderId?: string | null) => {
-  const navigate = useNavigate();
+export const useFolderNavigation = (
+  selectedProjectId: string | null,
+  initialFolderId?: string | null
+) => {
   const [currentFolderId, setCurrentFolderId] = useState<string>(initialFolderId || 'root');
+  const openBatchUploadModal = useBatchUploadModalStore(state => state.openModal);
   
-  // Update current folder when initialFolderId changes
-  useEffect(() => {
-    if (initialFolderId && initialFolderId !== currentFolderId) {
-      console.log('[useFolderNavigation] Setting current folder to initial value:', initialFolderId);
-      setCurrentFolderId(initialFolderId);
-    }
-  }, [initialFolderId, currentFolderId]);
-
-  // Handle folder change with notification
-  const handleFolderChange = (folderId: string, folderName?: string) => {
-    console.log('[useFolderNavigation] Changing folder to:', folderId, folderName);
+  // Handle folder navigation
+  const handleFolderChange = useCallback((folderId: string, folderName?: string) => {
+    console.log(`[useFolderNavigation] Changing folder to ${folderId} ${folderName ? `(${folderName})` : ''}`);
+    
+    // Update state
     setCurrentFolderId(folderId);
     
-    // Show toast when changing folders
-    if (folderName) {
+    // Show toast notification for folder navigation
+    if (folderName && folderId !== 'root') {
       toast.info(`Viewing folder: ${folderName}`);
     } else if (folderId === 'root') {
       toast.info('Viewing root folder');
     }
-    
-    // Update URL if needed
-    if (selectedProjectId) {
-      navigate(`/dashboard/workspace?tab=assets&project=${selectedProjectId}&folder=${folderId}`);
-    }
-  };
-
-  // Handle batch upload using React Router navigation instead of hard redirect
+  }, []);
+  
+  // Trigger batch upload for current folder/project
   const handleBatchUpload = useCallback(() => {
     if (!selectedProjectId) {
-      console.warn('[useFolderNavigation] Cannot redirect to uploader: No project selected');
-      toast.info('Please select a project first');
+      toast.error('Please select a project first');
       return;
     }
-
-    console.log('[useFolderNavigation] Redirecting to uploader with project:', selectedProjectId, 'folder:', currentFolderId);
     
-    // Show toast notification that we're redirecting
-    toast.info('Opening uploader for file uploads...');
+    console.log(`[useFolderNavigation] Opening batch upload for project ${selectedProjectId}, folder ${currentFolderId}`);
     
-    try {
-      // Use React Router navigation instead of hard redirect
-      const path = `/dashboard/workspace`;
-      const query = `?tab=uploader&project=${selectedProjectId}&folder=${currentFolderId}`;
-      
-      console.log('[useFolderNavigation] Navigating to:', path + query);
-      navigate(path + query);
-    } catch (err) {
-      console.error('[useFolderNavigation] Navigation error:', err);
-      toast.error('Failed to open uploader tab');
-    }
-  }, [selectedProjectId, currentFolderId, navigate]);
-
+    // Open the batch upload modal, passing the current folder ID
+    openBatchUploadModal(selectedProjectId, currentFolderId);
+  }, [selectedProjectId, currentFolderId, openBatchUploadModal]);
+  
   return {
     currentFolderId,
     setCurrentFolderId,

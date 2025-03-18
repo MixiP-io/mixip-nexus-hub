@@ -5,6 +5,7 @@ import { addFilesToProject } from '../../utils/services/assetService';
 import { logProjects, getProjectById } from '../../utils/projectUtils';
 import { updateProject } from '../../utils/services/projectManagement/projectUpdateOperations';
 import { saveProjectsToLocalStorage } from '../../utils/data/store/storageSync';
+import { supabase } from '@/integrations/supabase/client';
 
 /**
  * Hook for handling completed uploads
@@ -61,6 +62,47 @@ export const useCompletedUploads = () => {
       // Log projects after upload for debugging
       logProjects();
       
+      // Verify the assets were added to the database
+      let folderDbId = null;
+      let folderName = "root";
+      
+      if (folderId !== 'root') {
+        // Get the folder ID from the database
+        const { data: folderData, error: folderError } = await supabase
+          .from('project_folders')
+          .select('id, name')
+          .eq('project_id', projectId)
+          .eq('name', result.location)
+          .maybeSingle();
+          
+        if (folderError) {
+          console.error('[useCompletedUploads] Error fetching folder:', folderError);
+        } else if (folderData) {
+          folderDbId = folderData.id;
+          folderName = folderData.name;
+          console.log(`[useCompletedUploads] Retrieved folder from database: ${folderName} (${folderDbId})`);
+        }
+      }
+      
+      // Verify assets in the database
+      const { data: dbAssets, error: dbAssetsError } = await supabase
+        .from('assets')
+        .select('id, name')
+        .eq('project_id', projectId)
+        .is('folder_id', folderDbId)
+        .order('uploaded_at', { ascending: false })
+        .limit(completedFiles.length);
+        
+      if (dbAssetsError) {
+        console.error('[useCompletedUploads] Error verifying assets in database:', dbAssetsError);
+      } else {
+        console.log(`[useCompletedUploads] Found ${dbAssets.length} assets in database for folder ${folderName}`);
+        
+        if (dbAssets.length > 0) {
+          console.log('[useCompletedUploads] Recent assets in database:', dbAssets.map(a => a.name).join(', '));
+        }
+      }
+      
       // Check project again to verify assets were added
       const updatedProject = getProjectById(projectId);
       console.log("[CRITICAL] Updated project data:", updatedProject);
@@ -72,13 +114,11 @@ export const useCompletedUploads = () => {
         updateProject(projectId, { updatedAt: new Date() });
         
         // Debug folder assets
-        let folderName = "root";
         let foundAssetsInFolder = false;
         
         if (folderId !== 'root' && updatedProject.subfolders) {
           const targetFolder = updatedProject.subfolders.find(folder => folder.id === folderId);
           if (targetFolder) {
-            folderName = targetFolder.name;
             console.log(`[CRITICAL] Target folder "${targetFolder.name}" (${folderId}) assets: ${targetFolder.assets?.length || 0}`);
             
             // Log each asset in the folder for debugging

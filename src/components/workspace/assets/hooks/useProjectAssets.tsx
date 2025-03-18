@@ -1,6 +1,6 @@
-
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 import { getProjectById } from '../../batch-uploader/utils/projectUtils';
 import { ensureProjectDataIntegrity } from '../../batch-uploader/utils/data/projectStore';
 import { syncProjectsWithLocalStorage } from '../../batch-uploader/utils/services/projectManagement/syncOperations';
@@ -19,41 +19,85 @@ export const useProjectAssets = (selectedProjectId: string | null, currentFolder
     
     while (retryCount < maxRetries && !project) {
       try {
-        // Ensure data integrity and sync with localStorage
-        ensureProjectDataIntegrity();
-        syncProjectsWithLocalStorage();
+        console.log(`[useProjectAssets] Loading project from Supabase, attempt ${retryCount + 1}`);
         
-        // Force direct read from localStorage for latest data
-        try {
-          const projectsJson = localStorage.getItem('projects');
-          if (projectsJson) {
-            const projects = JSON.parse(projectsJson, (key, value) => {
-              // Restore Date objects
-              if (value && typeof value === 'object' && value.__type === 'Date') {
-                return new Date(value.iso);
-              }
-              return value;
-            });
-            project = projects.find((p: any) => p.id === projectId);
+        // First, try to get project from Supabase
+        const { data: projectData, error: projectError } = await supabase
+          .from('projects')
+          .select('*')
+          .eq('id', projectId)
+          .single();
+          
+        if (projectError) {
+          console.error('[useProjectAssets] Error fetching project from Supabase:', projectError);
+          
+          // Fallback to localStorage if Supabase fails
+          try {
+            console.log('[useProjectAssets] Falling back to local storage');
+            ensureProjectDataIntegrity();
+            syncProjectsWithLocalStorage();
+            project = getProjectById(projectId);
             
             if (project) {
               console.log(`[useProjectAssets] Found project in localStorage (attempt ${retryCount + 1}):`, project.name);
               break;
             }
+          } catch (e) {
+            console.error(`[useProjectAssets] Error reading from localStorage (attempt ${retryCount + 1}):`, e);
           }
-        } catch (e) {
-          console.error(`[useProjectAssets] Error reading from localStorage (attempt ${retryCount + 1}):`, e);
-        }
-        
-        // Fall back to getProjectById if localStorage failed
-        if (!project) {
-          console.log(`[useProjectAssets] Falling back to getProjectById (attempt ${retryCount + 1})`);
-          project = getProjectById(projectId);
+        } else {
+          console.log('[useProjectAssets] Successfully loaded project from Supabase:', projectData.name);
+          project = projectData;
           
-          if (project) {
-            console.log(`[useProjectAssets] Found project via getProjectById (attempt ${retryCount + 1}):`, project.name);
-            break;
+          // Now get project assets
+          const { data: assets, error: assetsError } = await supabase
+            .from('assets')
+            .select('*')
+            .eq('project_id', projectId)
+            .is('folder_id', null);
+            
+          if (assetsError) {
+            console.error('[useProjectAssets] Error fetching assets:', assetsError);
+          } else {
+            console.log(`[useProjectAssets] Loaded ${assets.length} root assets for project`);
+            project.assets = assets;
           }
+          
+          // Get folders for the project
+          const { data: folders, error: foldersError } = await supabase
+            .from('project_folders')
+            .select('*')
+            .eq('project_id', projectId);
+            
+          if (foldersError) {
+            console.error('[useProjectAssets] Error fetching folders:', foldersError);
+            project.subfolders = [];
+          } else {
+            console.log(`[useProjectAssets] Loaded ${folders.length} folders for project`);
+            
+            // For each folder, get its assets
+            const foldersWithAssets = await Promise.all(
+              folders.map(async (folder) => {
+                const { data: folderAssets, error: folderAssetsError } = await supabase
+                  .from('assets')
+                  .select('*')
+                  .eq('project_id', projectId)
+                  .eq('folder_id', folder.id);
+                  
+                if (folderAssetsError) {
+                  console.error(`[useProjectAssets] Error fetching assets for folder ${folder.id}:`, folderAssetsError);
+                  return { ...folder, assets: [] };
+                }
+                
+                console.log(`[useProjectAssets] Folder ${folder.name} (${folder.id}) has ${folderAssets.length} assets`);
+                return { ...folder, assets: folderAssets };
+              })
+            );
+            
+            project.subfolders = foldersWithAssets;
+          }
+          
+          break;
         }
         
         retryCount++;

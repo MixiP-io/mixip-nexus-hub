@@ -1,5 +1,6 @@
 
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 import { ProjectAsset } from '../../types/projectTypes';
 import { UploadFile } from '../../../types';
 import { projects, updateProjects } from '../../data/projectStore';
@@ -28,8 +29,8 @@ export const addFilesToProject = async (
   licenseType: string = 'standard',
   folderId: string = 'root'
 ): Promise<{ success: boolean, count: number, location: string }> => {
-  console.log(`[assetService] Adding files to project: ${projectId}, folder: ${folderId}, license: ${licenseType}`);
-  console.log(`[assetService] Files count: ${files.length}`);
+  console.log(`[assetService] Adding files to project: ${projectId}, folder: ${folderId || 'root'}`);
+  console.log(`[assetService] Files count: ${files.length}, License: ${licenseType}`);
   
   // Validate project
   const validation = validateProjectForAssets(projectId);
@@ -65,14 +66,15 @@ export const addFilesToProject = async (
     
     let locationAdded = 'root';
     let folderFound = false;
+    let folderDbId = null;
     
-    // Add assets to the appropriate location
+    // Add assets to local storage for backward compatibility
     if (normalizedFolderId === 'root') {
       // Add to root folder
       addAssetsToRootFolder(updatedProjects, projectIndex, assets);
       folderFound = true;
       locationAdded = 'root';
-      console.log(`[assetService] Added ${assets.length} assets to root folder`);
+      console.log(`[assetService] Added ${assets.length} assets to root folder in localStorage`);
     } else {
       // Try to add to specified folder
       const result = addAssetsToSpecificFolder(updatedProjects, projectIndex, normalizedFolderId, assets);
@@ -99,6 +101,78 @@ export const addFilesToProject = async (
     
     // Save to localStorage using our improved serialization
     saveProjectsToLocalStorage();
+    
+    // Now let's save to Supabase
+    console.log('[assetService] Saving assets to Supabase database');
+    
+    // If this is a folder other than root, ensure it exists in the database
+    if (normalizedFolderId !== 'root') {
+      console.log(`[assetService] Checking if folder ${normalizedFolderId} exists in database`);
+      
+      // First check if the folder exists in the database
+      const { data: existingFolder, error: folderCheckError } = await supabase
+        .from('project_folders')
+        .select('id')
+        .eq('project_id', projectId)
+        .eq('name', locationAdded)
+        .maybeSingle();
+        
+      if (folderCheckError) {
+        console.error('[assetService] Error checking folder:', folderCheckError);
+      }
+      
+      if (existingFolder) {
+        console.log(`[assetService] Found existing folder in database with id ${existingFolder.id}`);
+        folderDbId = existingFolder.id;
+      } else {
+        console.log(`[assetService] Folder doesn't exist in database, creating it`);
+        
+        const { data: newFolder, error: createFolderError } = await supabase
+          .from('project_folders')
+          .insert({
+            project_id: projectId,
+            name: locationAdded,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .select()
+          .single();
+          
+        if (createFolderError) {
+          console.error('[assetService] Error creating folder:', createFolderError);
+        } else {
+          console.log(`[assetService] Created new folder in database with id ${newFolder.id}`);
+          folderDbId = newFolder.id;
+        }
+      }
+    }
+    
+    // Save all assets to database
+    console.log(`[assetService] Saving ${assets.length} assets to database`);
+    
+    const assetsToInsert = assets.map(asset => ({
+      name: asset.name,
+      type: asset.type,
+      size: asset.size,
+      project_id: projectId,
+      folder_id: folderDbId, // Will be null for root folder
+      preview_url: asset.preview,
+      license_type: asset.licenseType,
+      uploaded_at: new Date().toISOString(),
+      user_id: '00000000-0000-0000-0000-000000000000' // Placeholder, will be replaced by auth.uid()
+    }));
+    
+    const { data: insertedAssets, error: insertError } = await supabase
+      .from('assets')
+      .insert(assetsToInsert)
+      .select();
+      
+    if (insertError) {
+      console.error('[assetService] Error inserting assets into database:', insertError);
+      toast.error('Error saving assets to database');
+    } else {
+      console.log(`[assetService] Successfully saved ${insertedAssets.length} assets to database`);
+    }
     
     console.log(`[assetService] Added ${assets.length} files to project ${projectId} at location ${locationAdded}`);
     logProjects(); // Log the updated projects for debugging
