@@ -10,10 +10,14 @@ import ProfessionalTab from './tabs/ProfessionalTab';
 import PortfolioTab from './tabs/PortfolioTab';
 import SecurityTab from './tabs/SecurityTab';
 import BillingTab from './tabs/BillingTab';
+import VerificationTab from './tabs/VerificationTab';
+import { useAuth } from '@/context/AuthContext';
 
 const ProfileSettings: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("general");
+  const { profile } = useAuth();
+  const isAIPlatform = profile?.account_type === 'ai_platform';
 
   useEffect(() => {
     // Get the tab from URL params if available
@@ -46,6 +50,7 @@ const ProfileSettings: React.FC = () => {
             {activeTab === "general" && <GeneralTab />}
             {activeTab === "professional" && <ProfessionalTab />}
             {activeTab === "portfolio" && <PortfolioTab />}
+            {isAIPlatform && activeTab === "verification" && <VerificationTab />}
             {activeTab === "security" && <SecurityTab />}
             {activeTab === "billing" && <BillingTab />}
           </div>

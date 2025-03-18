@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { User, Briefcase, Image, Lock, CreditCard } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/AuthContext';
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ProfileTabsProps {
   activeTab: string;
@@ -9,36 +9,58 @@ interface ProfileTabsProps {
 }
 
 const ProfileTabs: React.FC<ProfileTabsProps> = ({ activeTab, handleTabClick }) => {
-  const tabs = [
-    { id: 'general', label: 'General', icon: <User className="h-4 w-4 mr-2" /> },
-    { id: 'professional', label: 'Professional Info', icon: <Briefcase className="h-4 w-4 mr-2" /> },
-    { id: 'portfolio', label: 'Portfolio', icon: <Image className="h-4 w-4 mr-2" /> },
-    { id: 'security', label: 'Security', icon: <Lock className="h-4 w-4 mr-2" /> },
-    { id: 'billing', label: 'Billing', icon: <CreditCard className="h-4 w-4 mr-2" /> }
-  ];
+  const { profile } = useAuth();
+  const isAIPlatform = profile?.account_type === 'ai_platform';
 
   return (
-    <div className="mb-6">
-      <div className="flex flex-wrap bg-gray-800 p-1 rounded-md">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            className={cn(
-              "flex-1 flex items-center justify-center py-2 px-4 text-sm font-medium rounded-sm transition-colors",
-              activeTab === tab.id
-                ? "bg-gray-700 text-white" 
-                : "text-gray-400 hover:text-gray-300"
-            )}
-            onClick={() => handleTabClick(tab.id)}
+    <Tabs value={activeTab} className="w-full">
+      <TabsList className="w-full bg-mixip-gray-medium rounded-lg p-1 overflow-x-auto flex-nowrap">
+        <TabsTrigger 
+          value="general" 
+          onClick={() => handleTabClick('general')}
+          className="flex-1 data-[state=active]:bg-gray-700 data-[state=active]:text-white"
+        >
+          General
+        </TabsTrigger>
+        <TabsTrigger 
+          value="professional" 
+          onClick={() => handleTabClick('professional')}
+          className="flex-1 data-[state=active]:bg-gray-700 data-[state=active]:text-white"
+        >
+          Professional
+        </TabsTrigger>
+        <TabsTrigger 
+          value="portfolio" 
+          onClick={() => handleTabClick('portfolio')}
+          className="flex-1 data-[state=active]:bg-gray-700 data-[state=active]:text-white"
+        >
+          Portfolio
+        </TabsTrigger>
+        {isAIPlatform && (
+          <TabsTrigger 
+            value="verification" 
+            onClick={() => handleTabClick('verification')}
+            className="flex-1 data-[state=active]:bg-gray-700 data-[state=active]:text-white"
           >
-            <div className="flex items-center">
-              {tab.icon}
-              {tab.label}
-            </div>
-          </button>
-        ))}
-      </div>
-    </div>
+            Verification
+          </TabsTrigger>
+        )}
+        <TabsTrigger 
+          value="security" 
+          onClick={() => handleTabClick('security')}
+          className="flex-1 data-[state=active]:bg-gray-700 data-[state=active]:text-white"
+        >
+          Security
+        </TabsTrigger>
+        <TabsTrigger 
+          value="billing" 
+          onClick={() => handleTabClick('billing')}
+          className="flex-1 data-[state=active]:bg-gray-700 data-[state=active]:text-white"
+        >
+          Billing
+        </TabsTrigger>
+      </TabsList>
+    </Tabs>
   );
 };
 
