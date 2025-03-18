@@ -1,7 +1,8 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useBatchUploadModalStore } from '../../batch-uploader/stores/batchUploadModalStore';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useFolderNavigation = (
   selectedProjectId: string | null,
@@ -10,12 +11,41 @@ export const useFolderNavigation = (
   const [currentFolderId, setCurrentFolderId] = useState<string>(initialFolderId || 'root');
   const openBatchUploadModal = useBatchUploadModalStore(state => state.openModal);
   
+  // Sync with batch upload modal store
+  useEffect(() => {
+    if (initialFolderId && initialFolderId !== currentFolderId) {
+      console.log(`[useFolderNavigation] Initializing with folder ID: ${initialFolderId}`);
+      setCurrentFolderId(initialFolderId);
+    }
+  }, [initialFolderId, currentFolderId]);
+  
   // Handle folder navigation
-  const handleFolderChange = useCallback((folderId: string, folderName?: string) => {
+  const handleFolderChange = useCallback(async (folderId: string, folderName?: string) => {
     console.log(`[useFolderNavigation] Changing folder to ${folderId} ${folderName ? `(${folderName})` : ''}`);
     
     // Update state
     setCurrentFolderId(folderId);
+    
+    // Verify folder exists in database if not root
+    if (selectedProjectId && folderId !== 'root') {
+      try {
+        const { data, error } = await supabase
+          .from('project_folders')
+          .select('id, name')
+          .eq('id', folderId)
+          .eq('project_id', selectedProjectId)
+          .single();
+          
+        if (error) {
+          console.error('[useFolderNavigation] Error verifying folder:', error);
+        } else if (data) {
+          console.log(`[useFolderNavigation] Verified folder in database: ${data.name} (${data.id})`);
+          folderName = data.name;
+        }
+      } catch (err) {
+        console.error('[useFolderNavigation] Database verification error:', err);
+      }
+    }
     
     // Show toast notification for folder navigation
     if (folderName && folderId !== 'root') {
@@ -23,7 +53,7 @@ export const useFolderNavigation = (
     } else if (folderId === 'root') {
       toast.info('Viewing root folder');
     }
-  }, []);
+  }, [selectedProjectId]);
   
   // Trigger batch upload for current folder/project
   const handleBatchUpload = useCallback(() => {

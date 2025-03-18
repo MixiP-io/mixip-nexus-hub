@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,6 +12,7 @@ import { syncProjectsWithLocalStorage } from '../../batch-uploader/utils/service
 export const useProjectAssets = (selectedProjectId: string | null, currentFolderId: string) => {
   const [projectData, setProjectData] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [folderAssets, setFolderAssets] = useState<any[]>([]);
   
   // Function to load project with retries
   const loadProjectWithRetries = useCallback(async (projectId: string, maxRetries = 3) => {
@@ -118,6 +120,45 @@ export const useProjectAssets = (selectedProjectId: string | null, currentFolder
     return project;
   }, []);
   
+  // Load current folder assets directly from Supabase
+  const reloadFolderAssets = useCallback(async () => {
+    if (!selectedProjectId) return;
+    
+    try {
+      console.log(`[useProjectAssets] Directly loading assets for folder: ${currentFolderId}`);
+      
+      if (currentFolderId === 'root') {
+        const { data, error } = await supabase
+          .from('assets')
+          .select('*')
+          .eq('project_id', selectedProjectId)
+          .is('folder_id', null);
+          
+        if (error) {
+          console.error('[useProjectAssets] Error loading root assets:', error);
+        } else {
+          console.log(`[useProjectAssets] Loaded ${data.length} root assets directly`);
+          setFolderAssets(data);
+        }
+      } else {
+        const { data, error } = await supabase
+          .from('assets')
+          .select('*')
+          .eq('project_id', selectedProjectId)
+          .eq('folder_id', currentFolderId);
+          
+        if (error) {
+          console.error(`[useProjectAssets] Error loading folder assets for ${currentFolderId}:`, error);
+        } else {
+          console.log(`[useProjectAssets] Loaded ${data.length} assets for folder ${currentFolderId} directly`);
+          setFolderAssets(data);
+        }
+      }
+    } catch (err) {
+      console.error('[useProjectAssets] Error in reloadFolderAssets:', err);
+    }
+  }, [selectedProjectId, currentFolderId]);
+  
   // Load project data when selectedProjectId changes
   useEffect(() => {
     if (selectedProjectId) {
@@ -168,16 +209,31 @@ export const useProjectAssets = (selectedProjectId: string | null, currentFolder
         })
         .finally(() => {
           setIsLoading(false);
+          // After project is loaded, fetch current folder assets directly
+          reloadFolderAssets();
         });
     } else {
       console.log('[useProjectAssets] No project selected');
       setProjectData(null);
       setIsLoading(false);
     }
-  }, [selectedProjectId, currentFolderId, loadProjectWithRetries]);
+  }, [selectedProjectId, currentFolderId, loadProjectWithRetries, reloadFolderAssets]);
+
+  // Reload folder assets when folder changes
+  useEffect(() => {
+    if (selectedProjectId) {
+      reloadFolderAssets();
+    }
+  }, [selectedProjectId, currentFolderId, reloadFolderAssets]);
 
   // Get assets for the current folder
   const currentFolderAssets = useMemo(() => {
+    // First try the directly loaded folder assets
+    if (folderAssets.length > 0) {
+      console.log(`[useProjectAssets] Using ${folderAssets.length} directly loaded assets`);
+      return folderAssets;
+    }
+    
     if (!projectData) return [];
     
     console.log(`[useProjectAssets] Getting assets for current folder: ${currentFolderId}`);
@@ -210,7 +266,7 @@ export const useProjectAssets = (selectedProjectId: string | null, currentFolder
     
     console.log(`[useProjectAssets] Folder ${currentFolderId} not found, returning empty array`);
     return [];
-  }, [projectData, currentFolderId]);
+  }, [projectData, currentFolderId, folderAssets]);
   
   // Determine if there are assets in any folders
   const folderAssetInfo = useMemo(() => {
@@ -234,6 +290,7 @@ export const useProjectAssets = (selectedProjectId: string | null, currentFolder
     currentFolderAssets,
     hasAssetsInFolders: folderAssetInfo.hasAssetsInFolders,
     foldersWithAssets: folderAssetInfo.foldersWithAssets,
-    isLoading
+    isLoading,
+    reloadFolderAssets
   };
 };

@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import { toast } from 'sonner';
 import { ensureProjectDataIntegrity } from '../../batch-uploader/utils/data/store/projectIntegrity';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AssetsInitializerProps {
   selectedProjectId: string | null;
@@ -28,6 +29,34 @@ const AssetsInitializer: React.FC<AssetsInitializerProps> = ({
     }
   }, [selectedProjectId]);
   
+  // Verify folder exists in database
+  useEffect(() => {
+    if (selectedProjectId && selectedFolderId && selectedFolderId !== 'root') {
+      const verifyFolderInDatabase = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('project_folders')
+            .select('id, name')
+            .eq('id', selectedFolderId)
+            .eq('project_id', selectedProjectId)
+            .single();
+            
+          if (error) {
+            console.error('[AssetsInitializer] Folder verification error:', error);
+          } else if (data) {
+            console.log(`[AssetsInitializer] Verified folder in database: ${data.name} (${data.id})`);
+          } else {
+            console.log(`[AssetsInitializer] Folder not found in database: ${selectedFolderId}`);
+          }
+        } catch (err) {
+          console.error('[AssetsInitializer] Error in folder verification:', err);
+        }
+      };
+      
+      verifyFolderInDatabase();
+    }
+  }, [selectedProjectId, selectedFolderId]);
+  
   useEffect(() => {
     console.log('[AssetsInitializer] Component rendered with:', { 
       projectId: selectedProjectId, 
@@ -45,7 +74,36 @@ const AssetsInitializer: React.FC<AssetsInitializerProps> = ({
         if (folder) {
           handleFolderChange(selectedFolderId, folder.name);
         } else {
-          handleFolderChange(selectedFolderId);
+          // If folder not found in project data, try to get it from the database
+          const getFolderFromDatabase = async () => {
+            if (selectedProjectId && selectedFolderId !== 'root') {
+              try {
+                const { data, error } = await supabase
+                  .from('project_folders')
+                  .select('name')
+                  .eq('id', selectedFolderId)
+                  .eq('project_id', selectedProjectId)
+                  .single();
+                  
+                if (error) {
+                  console.error('[AssetsInitializer] Error getting folder details:', error);
+                  handleFolderChange(selectedFolderId);
+                } else if (data) {
+                  console.log(`[AssetsInitializer] Got folder name from database: ${data.name}`);
+                  handleFolderChange(selectedFolderId, data.name);
+                } else {
+                  handleFolderChange(selectedFolderId);
+                }
+              } catch (err) {
+                console.error('[AssetsInitializer] Database query error:', err);
+                handleFolderChange(selectedFolderId);
+              }
+            } else {
+              handleFolderChange(selectedFolderId);
+            }
+          };
+          
+          getFolderFromDatabase();
         }
       } else {
         // Fall back to direct setter
@@ -85,34 +143,6 @@ const AssetsInitializer: React.FC<AssetsInitializerProps> = ({
       }
     }
   }, [selectedProjectId, projectData, selectedFolderId, currentFolderId, setCurrentFolderId, handleFolderChange]);
-  
-  // Check localStorage for additional debugging
-  useEffect(() => {
-    if (selectedProjectId) {
-      try {
-        const projectsJson = localStorage.getItem('projects');
-        if (projectsJson) {
-          const projects = JSON.parse(projectsJson);
-          const currentProject = projects.find((p: any) => p.id === selectedProjectId);
-          if (currentProject) {
-            console.log(`[AssetsInitializer] Found project in localStorage, checking for folder:`, selectedFolderId);
-            
-            if (selectedFolderId && selectedFolderId !== 'root' && currentProject.subfolders) {
-              const folder = currentProject.subfolders.find((f: any) => f.id === selectedFolderId);
-              if (folder) {
-                console.log(`[AssetsInitializer] Found folder "${folder.name}" in localStorage with ${folder.assets?.length || 0} assets`);
-                if (folder.assets && folder.assets.length > 0) {
-                  console.log(`[AssetsInitializer] Sample assets from localStorage:`, folder.assets.slice(0, 2));
-                }
-              }
-            }
-          }
-        }
-      } catch (e) {
-        console.error("Error checking localStorage:", e);
-      }
-    }
-  }, [selectedProjectId, selectedFolderId]);
   
   // We return null as this component only has side effects
   return null;
