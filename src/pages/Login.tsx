@@ -99,10 +99,20 @@ const Login: React.FC = () => {
         // Ensure account type is not null when logging
         console.log('Selected account type for signup:', accountType || 'none selected');
         
+        if (!accountType) {
+          setIsSubmitting(false);
+          toast({
+            title: "Account type required",
+            description: "Please select an account type.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
         const metadata = {
           full_name: name,
           phone: phone,
-          account_type: accountType || 'creator_basic' // Default to creator_basic if somehow nothing is selected
+          account_type: accountType
         };
         
         await signUp(email, password, metadata);

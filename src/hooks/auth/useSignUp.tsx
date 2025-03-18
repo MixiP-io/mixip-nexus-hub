@@ -14,6 +14,22 @@ export function useSignUp(
       console.log('Account type in signUp:', metadata?.account_type);
       setIsLoading(true);
       
+      // Check if user already exists
+      const { data: existingUsers, error: checkError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', email)
+        .maybeSingle();
+        
+      if (checkError) {
+        console.log('Error checking existing user:', checkError);
+      }
+      
+      if (existingUsers) {
+        console.log('User already exists in profiles table');
+        throw new Error("User already registered");
+      }
+      
       // Validate password length before sending to Supabase
       if (password.length < 6) {
         throw new Error("Password should be at least 6 characters.");
@@ -34,7 +50,10 @@ export function useSignUp(
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase auth signUp error:', error);
+        throw error;
+      }
       
       console.log('Sign up response:', data);
       
@@ -103,7 +122,7 @@ export function useSignUp(
       console.error("Signup error:", error);
       
       // Handle specific known error conditions
-      if (error.message === "User already registered") {
+      if (error.message === "User already registered" || (error.code && error.code === "user_already_exists")) {
         toast({
           title: "Account already exists",
           description: "This email is already registered. Please try logging in instead.",
