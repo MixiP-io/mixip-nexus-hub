@@ -4,7 +4,7 @@ import { TooltipProvider } from "@radix-ui/react-tooltip"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
-import { SidebarContextType } from "./types"
+import type { SidebarContextType } from "./types"
 import { SidebarCookieName, SidebarCookieMaxAge, SidebarKeyboardShortcut, SidebarWidth, SidebarWidthIcon } from "./types"
 
 // Create the context with proper typing
