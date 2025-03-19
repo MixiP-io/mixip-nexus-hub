@@ -187,7 +187,7 @@ const DatasetsDashboard: React.FC = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="flex flex-col h-full">
       <SectionHeader 
         title="AI Training Datasets" 
         description="Browse and license high-quality datasets for training your AI models"
@@ -206,23 +206,25 @@ const DatasetsDashboard: React.FC = () => {
         onTabChange={handleTabChange}
       />
       
-      {isLoading ? (
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-mixip-blue"></div>
-        </div>
-      ) : filteredDatasets.length === 0 ? (
-        <DatasetsEmpty onRequestCustomDataset={handleRequestCustomDataset} />
-      ) : viewMode === 'grid' ? (
-        <DatasetGrid 
-          datasets={filteredDatasets} 
-          onLicenseDataset={handleLicenseDataset} 
-        />
-      ) : (
-        <DatasetList 
-          datasets={filteredDatasets} 
-          onLicenseDataset={handleLicenseDataset} 
-        />
-      )}
+      <div className="flex-1 p-6">
+        {isLoading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-400"></div>
+          </div>
+        ) : filteredDatasets.length === 0 ? (
+          <DatasetsEmpty onRequestCustomDataset={handleRequestCustomDataset} />
+        ) : viewMode === 'grid' ? (
+          <DatasetGrid 
+            datasets={filteredDatasets} 
+            onLicenseDataset={handleLicenseDataset} 
+          />
+        ) : (
+          <DatasetList 
+            datasets={filteredDatasets} 
+            onLicenseDataset={handleLicenseDataset} 
+          />
+        )}
+      </div>
     </div>
   );
 };
