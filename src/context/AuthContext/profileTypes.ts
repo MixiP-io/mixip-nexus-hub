@@ -21,7 +21,6 @@ export interface UserProfile {
   id: string;
   user_id: string;
   full_name: string;
-  display_name?: string;
   avatar?: string;
   bio?: string;
   location?: string;
@@ -37,14 +36,12 @@ export interface UserProfile {
   account_type: AccountType;
   account_status: AccountStatus;
   verification_status: VerificationStatus;
-  is_new_user?: boolean;
   created_at: string;
   updated_at: string;
 }
 
 // Data needed when creating a profile
 export interface ProfileCreateData {
-  id?: string;
   full_name: string;
   account_type: AccountType;
   avatar?: string;
@@ -53,12 +50,10 @@ export interface ProfileCreateData {
   website?: string;
   roles?: string[];
   skills?: string[];
-  is_new_user?: boolean;
 }
 
 // Metadata for signup
 export interface SignUpMetadata {
   full_name: string;
   account_type: AccountType;
-  phone?: string;
 }
