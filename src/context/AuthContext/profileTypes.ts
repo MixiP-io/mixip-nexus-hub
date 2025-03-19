@@ -23,7 +23,7 @@ export interface AuthContextTypeEnhanced {
   profile: UserProfile | null;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signInWithSocial: (provider: 'google' | 'github') => Promise<void>;
+  signInWithSocial: (provider: 'google' | 'twitter' | 'instagram') => Promise<void>;
   signUp: (email: string, password: string, metadata?: SignUpMetadata) => Promise<void>;
   signOut: () => Promise<void>;
 }
