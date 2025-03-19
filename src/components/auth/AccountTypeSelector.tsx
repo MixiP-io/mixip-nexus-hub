@@ -1,11 +1,12 @@
 
 import React from 'react';
-import { User, Building, Paintbrush, Bot } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Radio } from '@/components/ui/radio';
+import { Label } from '@/components/ui/label';
+import { AccountType } from '@/context/AuthContext/profileTypes';
 
 interface AccountTypeSelectorProps {
-  accountType: string | null;
-  setAccountType: (type: string) => void;
+  accountType: AccountType;
+  setAccountType: (type: AccountType) => void;
   isSubmitting: boolean;
 }
 
@@ -14,60 +15,78 @@ const AccountTypeSelector: React.FC<AccountTypeSelectorProps> = ({
   setAccountType,
   isSubmitting
 }) => {
-  console.log('Current account type selection:', accountType);
-  
-  const handleAccountTypeSelect = (type: string) => {
-    console.log(`Setting account type to ${type}`);
-    setAccountType(type);
-  };
-  
   return (
     <div className="mb-6">
-      <h3 className="text-lg font-medium mb-3">Choose account type</h3>
-      <div className="grid grid-cols-2 gap-3">
-        <button 
-          type="button"
-          onClick={() => handleAccountTypeSelect('creator_basic')}
-          disabled={isSubmitting}
-          className={`p-4 border rounded-md hover:border-mixip-blue hover:bg-blue-50 flex flex-col items-center text-center transition-colors ${accountType === 'creator_basic' ? 'border-mixip-blue bg-blue-50' : ''}`}
-          data-testid="account-type-creator-basic"
-        >
-          <User className="h-6 w-6 mb-2 text-mixip-blue" />
-          <span className="font-medium">Creator Basic</span>
-        </button>
-        <button 
-          type="button"
-          onClick={() => handleAccountTypeSelect('creator_pro')}
-          disabled={isSubmitting}
-          className={`p-4 border rounded-md hover:border-mixip-purple hover:bg-purple-50 flex flex-col items-center text-center transition-colors ${accountType === 'creator_pro' ? 'border-mixip-purple bg-purple-50' : ''}`}
-          data-testid="account-type-creator-pro"
-        >
-          <Paintbrush className="h-6 w-6 mb-2 text-mixip-purple" />
-          <span className="font-medium">Creator Pro</span>
-        </button>
-        <button 
-          type="button"
-          onClick={() => handleAccountTypeSelect('business')}
-          disabled={isSubmitting}
-          className={`p-4 border rounded-md hover:border-mixip-orange hover:bg-orange-50 flex flex-col items-center text-center transition-colors ${accountType === 'business' ? 'border-mixip-orange bg-orange-50' : ''}`}
-          data-testid="account-type-business"
-        >
-          <Building className="h-6 w-6 mb-2 text-mixip-orange" />
-          <span className="font-medium">Business</span>
-        </button>
-        <button 
-          type="button"
-          onClick={() => handleAccountTypeSelect('ai_platform')}
-          disabled={isSubmitting}
-          className={`p-4 border rounded-md hover:border-green-500 hover:bg-green-50 flex flex-col items-center text-center transition-colors ${accountType === 'ai_platform' ? 'border-green-500 bg-green-50' : ''}`}
-          data-testid="account-type-ai-platform"
-        >
-          <Bot className="h-6 w-6 mb-2 text-green-500" />
-          <div className="flex flex-col items-center">
-            <span className="font-medium">AI Platform</span>
-            <Badge className="bg-green-100 text-green-800 mt-1">Enhanced Data Access</Badge>
+      <h3 className="text-sm font-medium text-mixip-gray-dark mb-3">Select account type</h3>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className={`p-4 border rounded-lg ${accountType === 'standard' ? 'border-mixip-blue bg-blue-50' : 'border-gray-200'} transition-colors`}>
+          <div className="flex items-start mb-2">
+            <Radio
+              id="standard"
+              value="standard"
+              checked={accountType === 'standard'}
+              onCheckedChange={() => setAccountType('standard')}
+              disabled={isSubmitting}
+              className="mt-0.5"
+            />
+            <div className="ml-2">
+              <Label htmlFor="standard" className="font-medium block">Standard User</Label>
+              <span className="text-xs text-gray-500 block">For personal use or managing projects</span>
+            </div>
           </div>
-        </button>
+        </div>
+        
+        <div className={`p-4 border rounded-lg ${accountType === 'ai_platform' ? 'border-green-500 bg-green-50' : 'border-gray-200'} transition-colors`}>
+          <div className="flex items-start mb-2">
+            <Radio
+              id="ai_platform"
+              value="ai_platform"
+              checked={accountType === 'ai_platform'}
+              onCheckedChange={() => setAccountType('ai_platform')}
+              disabled={isSubmitting}
+              className="mt-0.5"
+            />
+            <div className="ml-2">
+              <Label htmlFor="ai_platform" className="font-medium block">AI Platform</Label>
+              <span className="text-xs text-gray-500 block">For AI training and dataset management</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className={`p-4 border rounded-lg ${accountType === 'creator' ? 'border-mixip-blue bg-blue-50' : 'border-gray-200'} transition-colors`}>
+          <div className="flex items-start mb-2">
+            <Radio
+              id="creator"
+              value="creator"
+              checked={accountType === 'creator'}
+              onCheckedChange={() => setAccountType('creator')}
+              disabled={isSubmitting}
+              className="mt-0.5"
+            />
+            <div className="ml-2">
+              <Label htmlFor="creator" className="font-medium block">Creator</Label>
+              <span className="text-xs text-gray-500 block">For photographers, videographers, and content creators</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className={`p-4 border rounded-lg ${accountType === 'agency' ? 'border-mixip-blue bg-blue-50' : 'border-gray-200'} transition-colors`}>
+          <div className="flex items-start mb-2">
+            <Radio
+              id="agency"
+              value="agency"
+              checked={accountType === 'agency'}
+              onCheckedChange={() => setAccountType('agency')}
+              disabled={isSubmitting}
+              className="mt-0.5"
+            />
+            <div className="ml-2">
+              <Label htmlFor="agency" className="font-medium block">Agency</Label>
+              <span className="text-xs text-gray-500 block">For marketing agencies and creative teams</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

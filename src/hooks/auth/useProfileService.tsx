@@ -78,10 +78,10 @@ export function useProfileService(setProfile: (profile: UserProfile | null) => v
       }
       
       console.log('Profile fetched successfully:', profileData);
-      // Update cache
-      profileCache.set(userId, { data: profileData, timestamp: Date.now() });
-      setProfile(profileData);
-      return profileData;
+      // Update cache with the typed profile data
+      profileCache.set(userId, { data: profileData as UserProfile, timestamp: Date.now() });
+      setProfile(profileData as UserProfile);
+      return profileData as UserProfile;
     } catch (error) {
       console.error('Error fetching profile:', error);
       return null;
@@ -119,9 +119,9 @@ export function useProfileService(setProfile: (profile: UserProfile | null) => v
       profileCache.delete(userId);
       
       // Update the profile in state
-      setProfile(data);
+      setProfile(data as UserProfile);
       
-      return data;
+      return data as UserProfile;
     } catch (error) {
       console.error('Error updating profile:', error);
       return null;

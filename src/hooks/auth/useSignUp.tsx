@@ -69,15 +69,11 @@ export function useSignUp(
             id: data.user.id,
             full_name: metadata.full_name,
             account_type: metadata.account_type, // Make sure account_type is set here
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
+            is_new_user: metadata.account_type === 'ai_platform' ? true : false,
+            verification_status: 'not_verified',
+            account_status: 'active',
+            user_id: data.user.id
           };
-          
-          // Add is_new_user flag for AI Platform users
-          if (metadata.account_type === 'ai_platform') {
-            console.log('Setting is_new_user flag for AI Platform account');
-            profileData.is_new_user = true;
-          }
           
           console.log('Profile data to insert:', profileData);
           

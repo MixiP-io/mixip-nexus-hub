@@ -4,6 +4,7 @@ import { Separator } from '@/components/ui/separator';
 import LoginForm from './LoginForm';
 import SocialLoginButtons from './SocialLoginButtons';
 import AccountTypeSelector from './AccountTypeSelector';
+import { AccountType } from '@/context/AuthContext/profileTypes';
 
 interface LoginFormContainerProps {
   isLogin: boolean;
@@ -16,8 +17,8 @@ interface LoginFormContainerProps {
   setName: (name: string) => void;
   phone: string;
   setPhone: (phone: string) => void;
-  accountType: string | null;
-  setAccountType: (type: string) => void;
+  accountType: AccountType;
+  setAccountType: (type: AccountType) => void;
   agreeToTerms: boolean;
   setAgreeToTerms: (agree: boolean) => void;
   rememberMe: boolean;

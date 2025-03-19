@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import LoginHeader from '@/components/auth/LoginHeader';
 import LoginFormContainer from '@/components/auth/LoginFormContainer';
 import LoginInfoSection from '@/components/auth/LoginInfoSection';
+import { AccountType } from '@/context/AuthContext/profileTypes';
 
 const Login: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -13,7 +14,7 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [accountType, setAccountType] = useState<string | null>(null);
+  const [accountType, setAccountType] = useState<AccountType>(null);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
