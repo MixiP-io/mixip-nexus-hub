@@ -21,7 +21,7 @@ const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   
   const isActive = (path: string) => {
-    return location.pathname === path || location.pathname.startsWith(path);
+    return location.pathname === path;
   };
 
   const handleLogout = async (e: React.MouseEvent) => {
@@ -41,6 +41,8 @@ const Sidebar: React.FC = () => {
   const displayName = profile?.full_name || user?.email?.split('@')[0] || "User";
   const avatarUrl = profile?.avatar || null;
   
+  // Make sure we're showing the actual account type from the profile
+  // Log account type for debugging
   console.log('Profile data in sidebar:', profile);
   const accountType = profile?.account_type === 'ai_platform' ? 'AI Platform' : (profile?.account_type || "Creator Pro");
   
@@ -48,7 +50,7 @@ const Sidebar: React.FC = () => {
   const isAIPlatform = profile?.account_type === 'ai_platform';
   
   return (
-    <div className="w-64 bg-[#1A1F2C] flex flex-col h-screen text-white">
+    <div className="w-64 bg-[#1A1F2C] flex flex-col text-white">
       <div className="p-4 flex items-center space-x-2 border-b border-gray-800">
         <AnimatedLogo size="sm" />
         <span className="font-bold text-xl">Mix-IP</span>
@@ -75,8 +77,8 @@ const Sidebar: React.FC = () => {
             <Link 
               to="/dashboard" 
               className={`flex items-center space-x-3 p-3 rounded-lg ${
-                isActive('/dashboard') && !isActive('/dashboard/workspace')
-                  ? 'bg-gray-800 text-green-400' 
+                isActive('/dashboard') 
+                  ? 'bg-gray-800 text-mixip-blue' 
                   : 'hover:bg-gray-800 transition-colors'
               }`}
               onClick={handleNavigation('/dashboard')}
@@ -86,17 +88,18 @@ const Sidebar: React.FC = () => {
             </Link>
           </li>
           
-          {isAIPlatform && (
+          {isAIPlatform ? (
+            // AI Platform specific menu items
             <>
               <li>
                 <Link 
-                  to="/ai-platform/datasets" 
+                  to="/dashboard/workspace?tab=datasets" 
                   className={`flex items-center space-x-3 p-3 rounded-lg ${
-                    isActive('/ai-platform/datasets')
+                    isActive('/dashboard/workspace') && location.search.includes('tab=datasets')
                       ? 'bg-gray-800 text-green-400' 
                       : 'hover:bg-gray-800 transition-colors'
                   }`}
-                  onClick={handleNavigation('/ai-platform/datasets')}
+                  onClick={handleNavigation('/dashboard/workspace?tab=datasets')}
                 >
                   <Database className="w-5 h-5" />
                   <span>Datasets</span>
@@ -104,22 +107,21 @@ const Sidebar: React.FC = () => {
               </li>
               <li>
                 <Link 
-                  to="/ai-platform/models" 
+                  to="/dashboard/workspace?tab=ai-models" 
                   className={`flex items-center space-x-3 p-3 rounded-lg ${
-                    isActive('/ai-platform/models')
+                    isActive('/dashboard/workspace') && location.search.includes('tab=ai-models')
                       ? 'bg-gray-800 text-green-400' 
                       : 'hover:bg-gray-800 transition-colors'
                   }`}
-                  onClick={handleNavigation('/ai-platform/models')}
+                  onClick={handleNavigation('/dashboard/workspace?tab=ai-models')}
                 >
                   <Bot className="w-5 h-5" />
                   <span>AI Models</span>
                 </Link>
               </li>
             </>
-          )}
-          
-          {!isAIPlatform && (
+          ) : (
+            // Regular user menu items
             <>
               <li>
                 <Link 
