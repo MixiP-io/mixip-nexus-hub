@@ -49,6 +49,11 @@ function App() {
             <DatasetsDashboard />
           </AuthGuard>
         } />
+        <Route path="/ai-platform/models" element={
+          <AuthGuard>
+            <Dashboard />
+          </AuthGuard>
+        } />
         <Route path="/profile/settings" element={
           <AuthGuard>
             <ProfileSettings />
