@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Radio } from '@/components/ui/radio';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { AccountType } from '@/context/AuthContext/profileTypes';
 
@@ -22,7 +22,7 @@ const AccountTypeSelector: React.FC<AccountTypeSelectorProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className={`p-4 border rounded-lg ${accountType === 'standard' ? 'border-mixip-blue bg-blue-50' : 'border-gray-200'} transition-colors`}>
           <div className="flex items-start mb-2">
-            <Radio
+            <RadioGroupItem
               id="standard"
               value="standard"
               checked={accountType === 'standard'}
@@ -39,7 +39,7 @@ const AccountTypeSelector: React.FC<AccountTypeSelectorProps> = ({
         
         <div className={`p-4 border rounded-lg ${accountType === 'ai_platform' ? 'border-green-500 bg-green-50' : 'border-gray-200'} transition-colors`}>
           <div className="flex items-start mb-2">
-            <Radio
+            <RadioGroupItem
               id="ai_platform"
               value="ai_platform"
               checked={accountType === 'ai_platform'}
@@ -56,7 +56,7 @@ const AccountTypeSelector: React.FC<AccountTypeSelectorProps> = ({
         
         <div className={`p-4 border rounded-lg ${accountType === 'creator' ? 'border-mixip-blue bg-blue-50' : 'border-gray-200'} transition-colors`}>
           <div className="flex items-start mb-2">
-            <Radio
+            <RadioGroupItem
               id="creator"
               value="creator"
               checked={accountType === 'creator'}
@@ -73,7 +73,7 @@ const AccountTypeSelector: React.FC<AccountTypeSelectorProps> = ({
         
         <div className={`p-4 border rounded-lg ${accountType === 'agency' ? 'border-mixip-blue bg-blue-50' : 'border-gray-200'} transition-colors`}>
           <div className="flex items-start mb-2">
-            <Radio
+            <RadioGroupItem
               id="agency"
               value="agency"
               checked={accountType === 'agency'}

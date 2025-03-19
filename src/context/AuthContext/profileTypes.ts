@@ -2,7 +2,10 @@
 import { Tables } from '@/integrations/supabase/types';
 
 // Type representing a user profile as stored in the database
-export type UserProfile = Tables<'profiles'>;
+export type UserProfile = Tables<'profiles'> & {
+  verification_status?: VerificationStatus;
+  account_status?: AccountStatus;
+};
 
 // Account type enum
 export type AccountType = 'standard' | 'creator' | 'agency' | 'brand' | 'ai_platform' | null;

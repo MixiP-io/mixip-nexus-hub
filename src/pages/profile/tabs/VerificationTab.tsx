@@ -10,7 +10,7 @@ import { VerificationStatus } from '@/context/AuthContext/profileTypes';
 const VerificationTab = () => {
   const { profile } = useAuth();
   const [verificationStatus, setVerificationStatus] = useState<VerificationStatus>(
-    profile?.verification_status as VerificationStatus || 'not_verified'
+    profile?.verification_status || 'not_verified'
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
 

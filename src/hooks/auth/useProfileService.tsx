@@ -77,11 +77,18 @@ export function useProfileService(setProfile: (profile: UserProfile | null) => v
         return null;
       }
       
-      console.log('Profile fetched successfully:', profileData);
+      // Add default values for fields that might not exist in the database
+      const enhancedProfile = {
+        ...profileData,
+        verification_status: profileData.verification_status || 'not_verified',
+        account_status: profileData.account_status || 'active'
+      } as UserProfile;
+      
+      console.log('Profile fetched successfully:', enhancedProfile);
       // Update cache with the typed profile data
-      profileCache.set(userId, { data: profileData as UserProfile, timestamp: Date.now() });
-      setProfile(profileData as UserProfile);
-      return profileData as UserProfile;
+      profileCache.set(userId, { data: enhancedProfile, timestamp: Date.now() });
+      setProfile(enhancedProfile);
+      return enhancedProfile;
     } catch (error) {
       console.error('Error fetching profile:', error);
       return null;
@@ -113,15 +120,22 @@ export function useProfileService(setProfile: (profile: UserProfile | null) => v
         return null;
       }
       
-      console.log('Profile updated successfully:', data);
+      // Add default values for fields that might not exist in the database
+      const enhancedProfile = {
+        ...data,
+        verification_status: data.verification_status || 'not_verified',
+        account_status: data.account_status || 'active'
+      } as UserProfile;
+      
+      console.log('Profile updated successfully:', enhancedProfile);
       
       // Clear the cache entry to force a fresh fetch next time
       profileCache.delete(userId);
       
       // Update the profile in state
-      setProfile(data as UserProfile);
+      setProfile(enhancedProfile);
       
-      return data as UserProfile;
+      return enhancedProfile;
     } catch (error) {
       console.error('Error updating profile:', error);
       return null;
