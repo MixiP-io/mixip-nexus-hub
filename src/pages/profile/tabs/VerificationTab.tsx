@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -36,7 +37,7 @@ const VerificationTab: React.FC = () => {
         return (
           <Badge className="bg-red-500 text-white font-medium flex items-center gap-1 px-3 py-1">
             <AlertTriangle className="h-4 w-4" />
-            Verification Failed
+            Not Verified
           </Badge>
         );
       default:
