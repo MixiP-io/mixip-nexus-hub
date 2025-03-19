@@ -31,23 +31,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Use our custom hooks
   useAuthInitialization(setSession, setUser, setProfile, setIsLoading, fetchProfile);
   useAuthStateListener(setSession, setUser, setProfile, fetchProfile);
-  
-  // Add a safety check to prevent infinite loading
   const stableLoading = useLoadingStabilizer(isLoading);
-  
-  // Debug logs to help understand the auth state
-  console.log('Auth provider state:', { 
-    hasUser: !!user, 
-    isLoading, 
-    stableLoading, 
-    currentPath: location.pathname,
-    userEmail: user?.email
-  });
 
   // Show loading indicator when appropriate
-  // Add a safety check for login page specifically
   if (stableLoading && !user && location.pathname !== '/login') {
-    console.log('Showing loading indicator, path:', location.pathname);
     return <LoadingIndicator />;
   }
 

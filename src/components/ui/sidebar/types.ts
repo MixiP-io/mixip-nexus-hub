@@ -1,7 +1,7 @@
 
 import * as React from "react"
 
-export type SidebarContextType = {
+export type SidebarContext = {
   state: "expanded" | "collapsed"
   open: boolean
   setOpen: (open: boolean) => void

@@ -1,59 +1,45 @@
 
-export type UserRole = "creator" | "business" | "client" | "admin" | "ai_platform";
-export type AccountType = "creator_basic" | "creator_pro" | "business" | "client" | "ai_platform";
-export type AccountStatus = "active" | "pending" | "suspended" | "deleted";
+// Augment this file with missing types
 export type VerificationStatus = "pending" | "verified" | "not_verified";
 
-// Enhanced AuthContext type with profile data
+export interface UserProfile {
+  id: string;
+  full_name?: string;
+  display_name?: string;
+  avatar?: string;
+  bio?: string;
+  location?: string;
+  created_at?: string;
+  updated_at?: string;
+  account_type?: string; 
+  is_new_user?: boolean;
+  verification_status?: VerificationStatus;
+}
+
+// Add the missing type for authentication context
 export interface AuthContextTypeEnhanced {
-  session: any | null;
-  user: any | null;
+  session: import('@supabase/supabase-js').Session | null;
+  user: import('@supabase/supabase-js').User | null;
   profile: UserProfile | null;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, metadata: SignUpMetadata) => Promise<void>;
-  signInWithSocial: (provider: "google" | "twitter" | "instagram") => Promise<void>;
+  signInWithSocial: (provider: 'google' | 'github') => Promise<void>;
+  signUp: (email: string, password: string, metadata?: SignUpMetadata) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
-// User profile data from profile table
-export interface UserProfile {
+// Add missing SignUpMetadata type
+export interface SignUpMetadata {
+  full_name?: string;
+  account_type?: string;
+}
+
+// Add missing ProfileCreateData type
+export interface ProfileCreateData {
   id: string;
-  user_id: string;
-  full_name: string;
-  avatar?: string;
-  bio?: string;
-  location?: string;
-  website?: string;
-  social_links?: {
-    twitter?: string;
-    instagram?: string;
-    linkedin?: string;
-    tiktok?: string;
-  };
-  roles?: string[];
-  skills?: string[];
-  account_type: AccountType;
-  account_status: AccountStatus;
-  verification_status: VerificationStatus;
+  full_name?: string;
+  account_type?: string;
   created_at: string;
   updated_at: string;
-}
-
-// Data needed when creating a profile
-export interface ProfileCreateData {
-  full_name: string;
-  account_type: AccountType;
-  avatar?: string;
-  bio?: string;
-  location?: string;
-  website?: string;
-  roles?: string[];
-  skills?: string[];
-}
-
-// Metadata for signup
-export interface SignUpMetadata {
-  full_name: string;
-  account_type: AccountType;
+  is_new_user?: boolean;
 }

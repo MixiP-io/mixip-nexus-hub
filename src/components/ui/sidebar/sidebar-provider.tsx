@@ -4,10 +4,9 @@ import { TooltipProvider } from "@radix-ui/react-tooltip"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
-import { SidebarContextType } from "./types"
+import type { SidebarContext as SidebarContextType } from "./types"
 import { SidebarCookieName, SidebarCookieMaxAge, SidebarKeyboardShortcut, SidebarWidth, SidebarWidthIcon } from "./types"
 
-// Create the context with proper typing
 const SidebarContext = React.createContext<SidebarContextType | null>(null)
 
 export function useSidebar() {
@@ -88,7 +87,7 @@ export const SidebarProvider = React.forwardRef<
     // This makes it easier to style the sidebar with Tailwind classes.
     const state = open ? "expanded" : "collapsed"
 
-    const contextValue: SidebarContextType = React.useMemo(
+    const contextValue = React.useMemo<SidebarContext>(
       () => ({
         state,
         open,

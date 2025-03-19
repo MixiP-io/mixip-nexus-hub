@@ -90,7 +90,7 @@ const Login: React.FC = () => {
     try {
       if (isLogin) {
         console.log('Signing in with:', email, 'Remember me:', rememberMe);
-        await signIn(email, password);
+        await signIn(email, password, rememberMe);
         // Navigation is now handled in the auth state change listener
       } else {
         // Sign up with additional metadata

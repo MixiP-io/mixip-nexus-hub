@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import SectionHeader from '@/components/workspace/SectionHeader';
@@ -11,12 +11,9 @@ import DatasetList from './components/DatasetList';
 import DatasetsNavigation from './components/DatasetsNavigation';
 import { Dataset } from './types';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
 
 const DatasetsDashboard: React.FC = () => {
   const { profile } = useAuth();
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [filteredDatasets, setFilteredDatasets] = useState<Dataset[]>([]);
@@ -24,11 +21,6 @@ const DatasetsDashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-
-  // Handle back navigation
-  const handleBackToDashboard = () => {
-    navigate('/dashboard');
-  };
 
   // Load datasets on component mount
   useEffect(() => {
@@ -196,17 +188,6 @@ const DatasetsDashboard: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between p-4 bg-[#1A1F2C] border-b border-gray-800">
-        <Button 
-          variant="ghost" 
-          className="flex items-center text-gray-300 hover:text-white" 
-          onClick={handleBackToDashboard}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Dashboard
-        </Button>
-      </div>
-      
       <SectionHeader 
         title="AI Training Datasets" 
         description="Browse and license high-quality datasets for training your AI models"
