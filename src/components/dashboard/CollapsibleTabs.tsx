@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 
 type Tab = {
@@ -14,6 +15,7 @@ type Tab = {
 
 const CollapsibleTabs: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const { profile } = useAuth();
   
@@ -30,8 +32,8 @@ const CollapsibleTabs: React.FC = () => {
     { id: 'analytics', label: 'Analytics', permanent: false, active: false, aiPlatformOnly: false, path: '/dashboard/workspace?tab=analytics' },
     // AI Platform specific tabs
     { id: 'datasets', label: 'Datasets', permanent: true, active: false, aiPlatformOnly: true, path: '/ai-platform/datasets' },
-    { id: 'ai-models', label: 'AI Models', permanent: true, active: false, aiPlatformOnly: true, path: '/dashboard/workspace?tab=ai-models' },
-    { id: 'api-config', label: 'API Config', permanent: false, active: false, aiPlatformOnly: true, path: '/dashboard/workspace?tab=api-config' }
+    { id: 'ai-models', label: 'AI Models', permanent: true, active: false, aiPlatformOnly: true, path: '/ai-platform/models' },
+    { id: 'api-config', label: 'API Config', permanent: false, active: false, aiPlatformOnly: true, path: '/ai-platform/api-config' }
   ]);
   
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -44,7 +46,7 @@ const CollapsibleTabs: React.FC = () => {
     setTabs(prevTabs => 
       prevTabs.map(tab => {
         // Check if we're on a specific path that matches a tab
-        if (tab.path && tab.path.startsWith(path)) {
+        if (tab.path && path.includes(tab.path.split('?')[0])) {
           return { ...tab, active: true };
         }
         // Otherwise use the tab parameter
@@ -55,19 +57,12 @@ const CollapsibleTabs: React.FC = () => {
         }
       })
     );
-  }, [searchParams, window.location.pathname]);
+  }, [searchParams, location.pathname]);
   
   const handleTabClick = (tab: Tab) => {
-    // Navigate using the path if provided, otherwise use the tab parameter
+    // Navigate using the path if provided
     if (tab.path) {
       navigate(tab.path);
-    } else {
-      const projectParam = searchParams.get('project');
-      const newUrl = projectParam 
-        ? `/dashboard/workspace?tab=${tab.id}&project=${projectParam}`
-        : `/dashboard/workspace?tab=${tab.id}`;
-      
-      navigate(newUrl);
     }
     
     // Update active state
@@ -81,10 +76,20 @@ const CollapsibleTabs: React.FC = () => {
     setIsCollapsed(!isCollapsed);
   };
   
+  // Only hide tabs on specific paths - datasets route should show tabs
+  if (isAiPlatform && !location.pathname.includes('/dashboard') && !location.pathname.includes('/ai-platform')) {
+    return null;
+  }
+  
   // Filter tabs based on user role and collapse state
   const visibleTabs = tabs
     .filter(tab => !tab.aiPlatformOnly || (tab.aiPlatformOnly && isAiPlatform))
     .filter(tab => isCollapsed ? (tab.permanent || tab.active) : true);
+
+  // Don't render tabs on the dashboard route for AI Platform users
+  if (isAiPlatform && location.pathname === '/dashboard') {
+    return null;
+  }
 
   return (
     <div className="relative flex justify-between items-center border-b border-gray-800 w-full bg-[#1A1F2C] text-white">

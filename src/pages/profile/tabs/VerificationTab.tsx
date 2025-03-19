@@ -6,8 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Clock, AlertTriangle, Building, FileCheck, Shield, Bolt } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-
-type VerificationStatus = 'pending' | 'verified' | 'not_verified';
+import { VerificationStatus } from '@/context/AuthContext/profileTypes';
 
 const VerificationTab: React.FC = () => {
   const { profile } = useAuth();
@@ -38,7 +37,7 @@ const VerificationTab: React.FC = () => {
         return (
           <Badge className="bg-red-500 text-white font-medium flex items-center gap-1 px-3 py-1">
             <AlertTriangle className="h-4 w-4" />
-            Verification Failed
+            Not Verified
           </Badge>
         );
       default:
