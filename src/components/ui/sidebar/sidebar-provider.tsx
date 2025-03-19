@@ -1,11 +1,13 @@
+
 import * as React from "react"
 import { TooltipProvider } from "@radix-ui/react-tooltip"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
-import { SidebarContext, SidebarCookieName, SidebarCookieMaxAge, SidebarKeyboardShortcut, SidebarWidth, SidebarWidthIcon } from "./types"
+import type { SidebarContext as SidebarContextType } from "./types"
+import { SidebarCookieName, SidebarCookieMaxAge, SidebarKeyboardShortcut, SidebarWidth, SidebarWidthIcon } from "./types"
 
-const SidebarContext = React.createContext<SidebarContext | null>(null)
+const SidebarContext = React.createContext<SidebarContextType | null>(null)
 
 export function useSidebar() {
   const context = React.useContext(SidebarContext)

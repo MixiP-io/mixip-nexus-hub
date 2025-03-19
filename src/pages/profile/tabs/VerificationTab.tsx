@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,8 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Clock, AlertTriangle, Building, FileCheck, Shield, Bolt } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-
-type VerificationStatus = 'pending' | 'verified' | 'not_verified';
+import { VerificationStatus } from '@/context/AuthContext/profileTypes';
 
 const VerificationTab: React.FC = () => {
   const { profile } = useAuth();
