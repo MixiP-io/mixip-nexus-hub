@@ -78,7 +78,7 @@ export function useProfileService(setProfile: (profile: UserProfile | null) => v
       }
       
       // Add default values for fields that might not exist in the database
-      // Use type assertion to tell TypeScript that we're adding these properties
+      // Use type assertion to tell TypeScript that profileData will have our properties after enhancement
       const enhancedProfile: UserProfile = {
         ...profileData,
         verification_status: (profileData as any).verification_status || 'not_verified',
@@ -122,7 +122,7 @@ export function useProfileService(setProfile: (profile: UserProfile | null) => v
       }
       
       // Add default values for fields that might not exist in the database
-      // Use type assertion to tell TypeScript that we're adding these properties
+      // Use type assertion to tell TypeScript that data will have our properties after enhancement
       const enhancedProfile: UserProfile = {
         ...data,
         verification_status: (data as any).verification_status || 'not_verified',

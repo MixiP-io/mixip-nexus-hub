@@ -14,7 +14,10 @@ export function useSignIn(setIsLoading: (isLoading: boolean) => void) {
         password,
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Sign in error details:', error);
+        throw error;
+      }
       
       console.log('Sign in successful, response:', data);
       // Navigation will be handled by the auth state change listener
