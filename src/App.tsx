@@ -8,6 +8,7 @@ import CreativeWorkspace from '@/pages/CreativeWorkspace'
 import ProfileSettings from '@/pages/profile/index'
 import ProfileSetup from '@/pages/ProfileSetup'
 import AIPlatformSetup from '@/pages/AIPlatformSetup'
+import DatasetsDashboard from '@/pages/datasets/DatasetsDashboard'
 import { Toaster } from '@/components/ui/toaster'
 import { AuthProvider } from '@/context/AuthContext'
 import AuthGuard from '@/components/auth/AuthGuard'
@@ -41,6 +42,11 @@ function App() {
         <Route path="/ai-platform/setup" element={
           <AuthGuard>
             <AIPlatformSetup />
+          </AuthGuard>
+        } />
+        <Route path="/ai-platform/datasets" element={
+          <AuthGuard>
+            <DatasetsDashboard />
           </AuthGuard>
         } />
         <Route path="/profile/settings" element={

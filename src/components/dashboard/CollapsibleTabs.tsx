@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -10,6 +9,7 @@ type Tab = {
   permanent: boolean;
   active: boolean;
   aiPlatformOnly?: boolean;
+  path?: string;
 };
 
 const CollapsibleTabs: React.FC = () => {
@@ -21,50 +21,59 @@ const CollapsibleTabs: React.FC = () => {
   
   // Initial tabs configuration
   const [tabs, setTabs] = useState<Tab[]>([
-    { id: 'projects', label: 'Projects', permanent: true, active: true, aiPlatformOnly: false },
-    { id: 'assets', label: 'Assets', permanent: true, active: false, aiPlatformOnly: false },
-    { id: 'campaigns', label: 'Campaigns', permanent: false, active: false, aiPlatformOnly: false },
-    { id: 'assignments', label: 'Assignments', permanent: false, active: false, aiPlatformOnly: false },
-    { id: 'collaborators', label: 'Collaborators', permanent: false, active: false, aiPlatformOnly: false },
-    { id: 'uploader', label: 'Uploader', permanent: false, active: false, aiPlatformOnly: false },
-    { id: 'analytics', label: 'Analytics', permanent: false, active: false, aiPlatformOnly: false },
+    { id: 'projects', label: 'Projects', permanent: true, active: true, aiPlatformOnly: false, path: '/dashboard/workspace?tab=projects' },
+    { id: 'assets', label: 'Assets', permanent: true, active: false, aiPlatformOnly: false, path: '/dashboard/workspace?tab=assets' },
+    { id: 'campaigns', label: 'Campaigns', permanent: false, active: false, aiPlatformOnly: false, path: '/dashboard/workspace?tab=campaigns' },
+    { id: 'assignments', label: 'Assignments', permanent: false, active: false, aiPlatformOnly: false, path: '/dashboard/workspace?tab=assignments' },
+    { id: 'collaborators', label: 'Collaborators', permanent: false, active: false, aiPlatformOnly: false, path: '/dashboard/workspace?tab=collaborators' },
+    { id: 'uploader', label: 'Uploader', permanent: false, active: false, aiPlatformOnly: false, path: '/dashboard/workspace?tab=uploader' },
+    { id: 'analytics', label: 'Analytics', permanent: false, active: false, aiPlatformOnly: false, path: '/dashboard/workspace?tab=analytics' },
     // AI Platform specific tabs
-    { id: 'datasets', label: 'Datasets', permanent: true, active: false, aiPlatformOnly: true },
-    { id: 'ai-models', label: 'AI Models', permanent: true, active: false, aiPlatformOnly: true },
-    { id: 'api-config', label: 'API Config', permanent: false, active: false, aiPlatformOnly: true }
+    { id: 'datasets', label: 'Datasets', permanent: true, active: false, aiPlatformOnly: true, path: '/ai-platform/datasets' },
+    { id: 'ai-models', label: 'AI Models', permanent: true, active: false, aiPlatformOnly: true, path: '/dashboard/workspace?tab=ai-models' },
+    { id: 'api-config', label: 'API Config', permanent: false, active: false, aiPlatformOnly: true, path: '/dashboard/workspace?tab=api-config' }
   ]);
   
   const [isCollapsed, setIsCollapsed] = useState(false);
   
-  // Update active tab based on URL params
+  // Update active tab based on URL params and path
   useEffect(() => {
     const tabParam = searchParams.get('tab');
-    if (tabParam) {
-      console.log('Active tab from URL:', tabParam);
-      setTabs(prevTabs => 
-        prevTabs.map(tab => ({
-          ...tab,
-          active: tab.id === tabParam
-        }))
-      );
-    }
-  }, [searchParams]);
+    const path = window.location.pathname;
+    
+    setTabs(prevTabs => 
+      prevTabs.map(tab => {
+        // Check if we're on a specific path that matches a tab
+        if (tab.path && tab.path.startsWith(path)) {
+          return { ...tab, active: true };
+        }
+        // Otherwise use the tab parameter
+        else if (tabParam && tab.id === tabParam) {
+          return { ...tab, active: true };
+        } else {
+          return { ...tab, active: false };
+        }
+      })
+    );
+  }, [searchParams, window.location.pathname]);
   
-  const handleTabClick = (tabId: string) => {
-    // Update URL and state
-    console.log('Clicking on tab:', tabId);
+  const handleTabClick = (tab: Tab) => {
+    // Navigate using the path if provided, otherwise use the tab parameter
+    if (tab.path) {
+      navigate(tab.path);
+    } else {
+      const projectParam = searchParams.get('project');
+      const newUrl = projectParam 
+        ? `/dashboard/workspace?tab=${tab.id}&project=${projectParam}`
+        : `/dashboard/workspace?tab=${tab.id}`;
+      
+      navigate(newUrl);
+    }
     
-    // Preserve project selection when changing tabs
-    const projectParam = searchParams.get('project');
-    const newUrl = projectParam 
-      ? `/dashboard/workspace?tab=${tabId}&project=${projectParam}`
-      : `/dashboard/workspace?tab=${tabId}`;
-    
-    navigate(newUrl);
-    
-    setTabs(tabs.map(tab => ({
-      ...tab,
-      active: tab.id === tabId
+    // Update active state
+    setTabs(tabs.map(t => ({
+      ...t,
+      active: t.id === tab.id
     })));
   };
   
@@ -90,7 +99,7 @@ const CollapsibleTabs: React.FC = () => {
                   : 'border-b-2 border-mixip-blue text-mixip-blue' 
                 : 'text-white hover:text-mixip-blue'
             }`}
-            onClick={() => handleTabClick(tab.id)}
+            onClick={() => handleTabClick(tab)}
           >
             {tab.label}
           </button>
