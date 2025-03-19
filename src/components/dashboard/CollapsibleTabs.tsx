@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
@@ -75,8 +76,8 @@ const CollapsibleTabs: React.FC = () => {
     setIsCollapsed(!isCollapsed);
   };
   
-  // If on AI Platform path, don't show the tabs
-  if (isAiPlatform && location.pathname.includes('/ai-platform')) {
+  // Only hide tabs on specific paths - datasets route should show tabs
+  if (isAiPlatform && !location.pathname.includes('/dashboard') && !location.pathname.includes('/ai-platform')) {
     return null;
   }
   
@@ -84,6 +85,11 @@ const CollapsibleTabs: React.FC = () => {
   const visibleTabs = tabs
     .filter(tab => !tab.aiPlatformOnly || (tab.aiPlatformOnly && isAiPlatform))
     .filter(tab => isCollapsed ? (tab.permanent || tab.active) : true);
+
+  // Don't render tabs on the dashboard route for AI Platform users
+  if (isAiPlatform && location.pathname === '/dashboard') {
+    return null;
+  }
 
   return (
     <div className="relative flex justify-between items-center border-b border-gray-800 w-full bg-[#1A1F2C] text-white">
