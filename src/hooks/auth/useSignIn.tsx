@@ -4,9 +4,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
 
 export function useSignIn(setIsLoading: (isLoading: boolean) => void) {
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string, rememberMe: boolean = false) => {
     try {
-      console.log('Attempting sign in for email:', email);
+      console.log('Attempting sign in for email:', email, 'with remember me:', rememberMe);
       setIsLoading(true);
       
       const { data, error } = await supabase.auth.signInWithPassword({ 
