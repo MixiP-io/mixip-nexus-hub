@@ -47,17 +47,16 @@ export const useFileOperations = (
       // Add files to state immediately
       setFiles(prev => [...prev, ...newFiles]);
       
-      // Then generate previews asynchronously
-      for (let i = 0; i < filesArray.length; i++) {
-        const file = filesArray[i];
-        const fileId = newFiles[i].id;
-        
-        try {
-          // Generate preview for image files
-          if (file.type.startsWith('image/')) {
-            console.log(`Requesting preview for ${file.name}`);
+      // Process images to generate previews
+      for (const file of filesArray) {
+        if (file.type.startsWith('image/')) {
+          try {
+            const fileId = newFiles.find(f => f.file === file)?.id;
+            if (!fileId) continue;
+            
+            console.log(`Starting preview generation for: ${file.name}`);
             const preview = await getFilePreview(file);
-            console.log(`Got preview for ${file.name}:`, preview ? 'success' : 'undefined');
+            console.log(`Preview generated successfully for: ${file.name}`);
             
             // Update the file with its preview
             setFiles(prevFiles => 
@@ -65,9 +64,9 @@ export const useFileOperations = (
                 f.id === fileId ? { ...f, preview } : f
               )
             );
+          } catch (error) {
+            console.error("Error generating preview for file:", file.name, error);
           }
-        } catch (error) {
-          console.error("Error generating preview for file:", file.name, error);
         }
       }
       

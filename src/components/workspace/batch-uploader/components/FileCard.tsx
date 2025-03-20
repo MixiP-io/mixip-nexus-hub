@@ -41,6 +41,18 @@ const FileCard: React.FC<FileCardProps> = ({
             src={file.preview} 
             alt={file.name}
             className="h-full w-full object-cover"
+            onError={(e) => {
+              console.error(`Error loading image preview for ${file.name}`);
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+              // Show the icon when image fails to load
+              const container = target.parentElement;
+              if (container) {
+                container.appendChild(
+                  document.createElementNS("http://www.w3.org/2000/svg", "svg")
+                );
+              }
+            }}
           />
         ) : (
           getFileIcon(file.type)

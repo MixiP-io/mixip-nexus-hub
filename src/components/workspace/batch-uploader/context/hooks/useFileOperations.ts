@@ -30,12 +30,14 @@ export const useFileOperations = (state: UploaderState, dispatch: React.Dispatch
       // Add files to state immediately
       dispatch({ type: 'ADD_FILES', payload: newFileObjects });
       
-      // Then process each file to create previews asynchronously
+      // Process each file to create previews
       for (const file of filesArray) {
         if (file.type.startsWith('image/')) {
           try {
+            console.log(`Starting preview generation for: ${file.name}`);
             // Generate preview for this file
             const preview = await getFilePreview(file);
+            console.log(`Preview generation complete for: ${file.name}`);
             
             // Find the file in the state to update it with the preview
             const fileToUpdate = state.files.find(f => 
@@ -43,7 +45,7 @@ export const useFileOperations = (state: UploaderState, dispatch: React.Dispatch
             );
             
             if (fileToUpdate) {
-              console.log(`Updating preview for file ${fileToUpdate.name}`);
+              console.log(`Updating file with preview: ${fileToUpdate.name}`);
               // Update just this file with its preview
               dispatch({ 
                 type: 'UPDATE_FILE_PREVIEW', 
