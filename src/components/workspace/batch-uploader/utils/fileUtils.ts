@@ -20,40 +20,27 @@ export const getFilePreview = (file: File): Promise<string | undefined> => {
   return new Promise((resolve, reject) => {
     // Only create previews for image files
     if (!file.type.startsWith('image/')) {
-      console.log(`Not an image file: ${file.name}, type: ${file.type}`);
       resolve(undefined);
       return;
     }
-
-    console.log(`Generating preview for: ${file.name}, type: ${file.type}`);
     
-    // Create a new FileReader instance for each file
+    // Create a new FileReader instance
     const reader = new FileReader();
     
-    // Use onload instead of onloadend
-    reader.onload = () => {
+    reader.onloadend = () => {
       if (reader.result) {
-        console.log(`Preview generated for: ${file.name}`);
-        // reader.result will be a data URL that can be stored
         resolve(reader.result.toString());
       } else {
-        console.error(`Failed to generate preview for: ${file.name}, result is null`);
         resolve(undefined);
       }
     };
     
-    reader.onerror = (error) => {
-      console.error('Error creating preview for file:', file.name, error);
+    reader.onerror = () => {
       reject(new Error(`Failed to read file: ${file.name}`));
     };
     
     // Start the read operation
-    try {
-      reader.readAsDataURL(file);
-    } catch (error) {
-      console.error(`Error reading file: ${file.name}`, error);
-      reject(new Error(`Error reading file: ${file.name}`));
-    }
+    reader.readAsDataURL(file);
   });
 };
 

@@ -25,7 +25,7 @@ export const useFileOperations = (
       const filesArray = Array.from(selectedFiles);
       console.log(`Processing ${filesArray.length} files`);
       
-      // Create basic file objects first (without previews)
+      // Create file objects with basic info
       const newFiles: UploadFile[] = filesArray.map(file => ({
         id: generateUniqueId(),
         name: file.name,
@@ -38,31 +38,29 @@ export const useFileOperations = (
         preview: null
       }));
       
-      // Add files to state immediately
+      // Add files to state
       setFiles(prev => [...prev, ...newFiles]);
       
-      // Then process image previews separately
-      for (let i = 0; i < filesArray.length; i++) {
-        const file = filesArray[i];
-        const fileObj = newFiles[i];
-        
-        if (file.type.startsWith('image/')) {
-          try {
-            console.log(`Starting preview generation for: ${file.name}`);
+      // Process previews separately
+      for (const file of filesArray) {
+        try {
+          // Only process images
+          if (file.type.startsWith('image/')) {
             const preview = await getFilePreview(file);
             
             if (preview) {
-              console.log(`Preview generated for ${file.name}, updating state`);
-              // Update just this file with its preview
+              // Find the file in our state and update its preview
               setFiles(prevFiles => 
                 prevFiles.map(f => 
-                  f.id === fileObj.id ? { ...f, preview } : f
+                  f.file && f.file.name === file.name && f.file.size === file.size 
+                    ? { ...f, preview } 
+                    : f
                 )
               );
             }
-          } catch (error) {
-            console.error(`Error generating preview for ${file.name}:`, error);
           }
+        } catch (error) {
+          console.error(`Error generating preview for ${file.name}:`, error);
         }
       }
       

@@ -22,34 +22,28 @@ export const useFileOperations = (state: UploaderState, dispatch: React.Dispatch
       const filesArray = Array.from(selectedFiles);
       console.log(`Processing ${filesArray.length} files`);
       
-      // Create file objects for the reducer
-      const newFileObjects = filesArray.map(file => file);
-      
       // Add files to state immediately
-      dispatch({ type: 'ADD_FILES', payload: newFileObjects });
+      dispatch({ type: 'ADD_FILES', payload: filesArray });
       
       // Process each image file to generate previews
       for (const file of filesArray) {
         if (file.type.startsWith('image/')) {
           try {
             console.log(`Starting preview generation for: ${file.name}`);
-            // Generate preview for this file
             const preview = await getFilePreview(file);
             
             if (preview) {
-              console.log(`Preview generated for ${file.name}, data URL length: ${preview.length}`);
+              console.log(`Preview generated for ${file.name}, updating file`);
               
-              // Find the file in the state to update it with the preview
-              const fileToUpdate = state.files.find(f => 
+              // Find the matching file in state to update with preview
+              const fileId = state.files.find(f => 
                 f.file && f.file.name === file.name && f.file.size === file.size
-              );
+              )?.id;
               
-              if (fileToUpdate) {
-                console.log(`Updating file with preview: ${fileToUpdate.name}`);
-                // Update just this file with its preview
+              if (fileId) {
                 dispatch({ 
                   type: 'UPDATE_FILE_PREVIEW', 
-                  payload: { fileId: fileToUpdate.id, preview } 
+                  payload: { fileId, preview } 
                 });
               }
             }
