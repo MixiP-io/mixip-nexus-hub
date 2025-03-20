@@ -17,6 +17,7 @@ const UploadComplete: React.FC<UploadCompleteProps> = ({
   folderId
 }) => {
   console.log("UploadComplete props:", {
+    isOpen,
     fileCount,
     projectId,
     projectName,

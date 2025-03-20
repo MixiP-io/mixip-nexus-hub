@@ -40,19 +40,6 @@ const FilesList: React.FC<FilesListProps> = ({
     if (uploadResults) {
       console.log("Upload results folder information:", uploadResults.folderId || 'No folder ID in results');
     }
-    
-    // Show a toast notification when upload completes
-    if (uploadComplete && uploadResults) {
-      console.log("Upload complete detected in FilesList, showing toast");
-      if (uploadResults.success) {
-        const folderInfo = uploadResults.folderId && uploadResults.folderId !== 'root' 
-          ? ` in folder "${uploadResults.folderId}"` 
-          : ' in the project root folder';
-        toast.success(`Upload complete! ${uploadResults.count} files added to "${uploadResults.projectName}"${folderInfo}`);
-      } else {
-        toast.error(`Upload failed! No files were added to "${uploadResults.projectName}"`);
-      }
-    }
   }, [uploadComplete, uploadResults, selectedProject, selectedProjectName, files]);
   
   return (

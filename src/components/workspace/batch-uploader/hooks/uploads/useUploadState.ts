@@ -17,7 +17,7 @@ export const useUploadState = () => {
   } | null>(null);
   
   /**
-   * Set upload to complete state
+   * Set upload to complete state with all necessary information
    */
   const completeUpload = (
     projectId: string, 
@@ -27,6 +27,7 @@ export const useUploadState = () => {
   ) => {
     console.log(`Setting upload complete for project: ${projectId} (${projectName}), folder: ${folderId || 'root'}`);
     
+    // Make sure we set both upload complete flag and results in one operation
     setUploadComplete(true);
     setUploadResults({
       success: true,

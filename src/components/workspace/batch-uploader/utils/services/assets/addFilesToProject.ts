@@ -13,7 +13,7 @@ import {
   createNewFolderWithAssets 
 } from './folderAssetOperations';
 import { updateProjectCoverIfNeeded } from './coverImageOperations';
-import { saveProjectsToLocalStorage } from '../../data/store/storageSync';
+import { saveProjectsToLocalStorage } from '../../utils/data/store/storageSync';
 
 /**
  * Add files to a project
@@ -121,8 +121,17 @@ export const addFilesToProject = async (
     // Update the global projects store with the new projects array
     updateProjects(updatedProjects);
     
-    // Save to localStorage using our improved serialization
-    saveProjectsToLocalStorage();
+    // Save to localStorage using our improved serialization - but catch and handle quota errors
+    try {
+      saveProjectsToLocalStorage();
+    } catch (e) {
+      if (e instanceof Error && e.name === 'QuotaExceededError') {
+        console.error('localStorage quota exceeded! Consider reducing the data size or implementing a different storage solution.');
+      } else {
+        console.error('Error saving to localStorage:', e);
+      }
+      // Don't fail the whole operation because of localStorage limits
+    }
     
     // Now let's save to Supabase
     console.log('[assetService] Saving assets to Supabase database');

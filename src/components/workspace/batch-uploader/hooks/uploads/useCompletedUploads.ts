@@ -57,7 +57,12 @@ export const useCompletedUploads = () => {
       updateOverallProgress();
       
       // Force one more save to localStorage to ensure all data is persisted
-      saveProjectsToLocalStorage();
+      try {
+        saveProjectsToLocalStorage();
+      } catch (e) {
+        // If localStorage is full, just log the error and continue
+        console.error("Error saving to localStorage, but continuing with upload completion:", e);
+      }
       
       // Log projects after upload for debugging
       logProjects();
@@ -128,22 +133,20 @@ export const useCompletedUploads = () => {
         console.log("[CRITICAL] Updated project assets count:", updatedProject.assets?.length || 0);
         
         // Force project timestamp update to trigger re-renders
-        updateProject(projectId, { updatedAt: new Date() });
-        
-        // Set upload complete with accurate folder information
-        console.log(`[CRITICAL] Setting upload complete with folder ID: ${folderDbId || folderId}, folder name: ${folderName}`);
-        completeUpload(projectId, projectName, completedFiles, folderDbId || folderId);
-        
-        // Force another save to localStorage
-        saveProjectsToLocalStorage();
-        
-        // Show toast with clear folder navigation instructions
-        if (folderName !== 'root') {
-          toast.success(`Added ${completedFiles.length} files to folder "${folderName}" in project "${projectName}". Click "View Assets" to see them.`);
-        } else {
-          toast.success(`Added ${completedFiles.length} files to root folder in project "${projectName}". Click "View Assets" to see them.`);
+        try {
+          updateProject(projectId, { updatedAt: new Date() });
+        } catch (e) {
+          console.error("Error updating project timestamp, but continuing:", e);
         }
         
+        // IMPORTANT: Set upload complete with accurate folder information
+        // This is the key part that was likely failing before
+        console.log(`[CRITICAL] Setting upload complete with folder ID: ${folderDbId || folderId}, folder name: ${folderName}`);
+        
+        // This is the critical call to make sure the dialog appears
+        completeUpload(projectId, projectName, completedFiles, folderDbId || folderId);
+        
+        // Set more detailed results if needed
         setUploadResults({
           success: true,
           count: completedFiles.length,
@@ -153,7 +156,15 @@ export const useCompletedUploads = () => {
           folderName
         });
         
+        // Make sure both of these are set
         setUploadComplete(true);
+        
+        // Show toast with clear folder navigation instructions
+        if (folderName !== 'root') {
+          toast.success(`Added ${completedFiles.length} files to folder "${folderName}" in project "${projectName}". Click "View Assets" to see them.`);
+        } else {
+          toast.success(`Added ${completedFiles.length} files to root folder in project "${projectName}". Click "View Assets" to see them.`);
+        }
       } else {
         console.error("Project not found after upload");
         toast.error("Error: Project not found after upload");
