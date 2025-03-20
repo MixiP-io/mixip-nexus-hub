@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { UserProfile } from '@/context/AuthContext/profileTypes';
@@ -8,7 +9,7 @@ export function useAuthState() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Use refs to track initial loading state and session timeout
+  // Use refs to track initial loading state
   const initialLoadComplete = useRef(false);
   const sessionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
@@ -21,31 +22,6 @@ export function useAuthState() {
     };
   }, []);
   
-  // Set a session keepalive function that runs periodically
-  useEffect(() => {
-    if (session) {
-      const keepSessionAlive = () => {
-        console.log('Session keepalive check - session active');
-        // Reset the timeout
-        if (sessionTimeoutRef.current) {
-          clearTimeout(sessionTimeoutRef.current);
-        }
-        
-        // Set a new timeout
-        sessionTimeoutRef.current = setTimeout(keepSessionAlive, 10 * 60 * 1000); // 10 minutes
-      };
-      
-      // Start the initial timeout
-      keepSessionAlive();
-      
-      return () => {
-        if (sessionTimeoutRef.current) {
-          clearTimeout(sessionTimeoutRef.current);
-        }
-      };
-    }
-  }, [session]);
-
   // Optimize state updates with useCallback
   const updateSession = useCallback((newSession: Session | null) => {
     setSession(newSession);
@@ -62,7 +38,8 @@ export function useAuthState() {
   const updateIsLoading = useCallback((loading: boolean) => {
     // Only update loading state if we're not in a flickering situation
     if (loading === true && initialLoadComplete.current) {
-      // Avoid setting loading back to true after initial load
+      // Avoid setting loading back to true after initial load to prevent infinite spinner
+      console.log('Avoiding setting loading back to true after initial load');
       return;
     }
     
@@ -71,6 +48,7 @@ export function useAuthState() {
     // Mark initial load as complete when we first set loading to false
     if (!loading) {
       initialLoadComplete.current = true;
+      console.log('Initial auth load complete, future loading states will be managed differently');
     }
   }, []);
 

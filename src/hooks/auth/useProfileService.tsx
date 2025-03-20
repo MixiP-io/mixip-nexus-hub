@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { UserProfile } from '@/context/AuthContext/profileTypes';
 import { toast } from '@/components/ui/use-toast';
@@ -6,7 +5,7 @@ import { toast } from '@/components/ui/use-toast';
 export function useProfileService(setProfile: (profile: UserProfile | null) => void) {
   // Cache for recently fetched profiles to prevent redundant queries
   const profileCache = new Map<string, { data: UserProfile | null, timestamp: number }>();
-  const CACHE_TTL = 5000; // Reduce cache TTL to 5 seconds to ensure we get fresh data after updates
+  const CACHE_TTL = 5000; // 5 seconds cache TTL
   
   const fetchProfile = async (userId: string): Promise<UserProfile | null> => {
     try {
@@ -20,56 +19,23 @@ export function useProfileService(setProfile: (profile: UserProfile | null) => v
       
       console.log('Fetching profile for user ID:', userId);
       
-      // Add a retry mechanism for profile fetching
-      const maxRetries = 3;
-      let retryCount = 0;
-      let profileData = null;
-      let fetchError = null;
-      
-      while (retryCount < maxRetries && !profileData) {
-        try {
-          const { data, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', userId)
-            .maybeSingle();
-          
-          if (error) {
-            console.error(`Error in profile fetch attempt ${retryCount + 1}:`, error);
-            fetchError = error;
-            retryCount++;
-            
-            // Wait a bit before retrying
-            if (retryCount < maxRetries) {
-              await new Promise(r => setTimeout(r, 500 * retryCount));
-            }
-          } else {
-            profileData = data;
-            break;
-          }
-        } catch (err) {
-          console.error(`Error in profile fetch attempt ${retryCount + 1}:`, err);
-          fetchError = err;
-          retryCount++;
-          
-          // Wait a bit before retrying
-          if (retryCount < maxRetries) {
-            await new Promise(r => setTimeout(r, 500 * retryCount));
-          }
-        }
-      }
-      
-      if (retryCount === maxRetries) {
-        console.error('Max retries reached for profile fetch:', fetchError);
-        toast({
-          title: "Error fetching profile",
-          description: "Please refresh the page and try again.",
-          variant: "destructive"
-        });
+      // Simplified profile fetch with a single try/catch block to avoid excessive retries
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle();
+        
+      if (error) {
+        console.error('Error fetching profile:', error);
+        // Even if fetching fails, we should not keep the app in a loading state
+        // Return a null profile but still update the state to proceed with the app
+        profileCache.set(userId, { data: null, timestamp: Date.now() });
+        setProfile(null);
         return null;
       }
       
-      if (!profileData) {
+      if (!data) {
         console.log('No profile found for user:', userId);
         // Cache the null result to prevent repeated queries
         profileCache.set(userId, { data: null, timestamp: Date.now() });
@@ -79,10 +45,10 @@ export function useProfileService(setProfile: (profile: UserProfile | null) => v
       
       // Create a type-safe enhanced profile by casting the base data and adding defaults
       const enhancedProfile: UserProfile = {
-        ...profileData,
+        ...data,
         // Add default values for fields that might not exist in the database
-        verification_status: (profileData as any).verification_status || 'not_verified',
-        account_status: (profileData as any).account_status || 'active'
+        verification_status: (data as any).verification_status || 'not_verified',
+        account_status: (data as any).account_status || 'active'
       };
       
       console.log('Profile fetched successfully:', enhancedProfile);
@@ -92,6 +58,8 @@ export function useProfileService(setProfile: (profile: UserProfile | null) => v
       return enhancedProfile;
     } catch (error) {
       console.error('Error fetching profile:', error);
+      // Don't keep app in loading state even if profile fetch fails
+      setProfile(null);
       return null;
     }
   };

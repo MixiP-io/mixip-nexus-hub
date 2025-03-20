@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -46,16 +45,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [isLoading]);
 
   useEffect(() => {
+    let isMounted = true;
+    
+    const authTimeout = setTimeout(() => {
+      if (isMounted && stableLoading) {
+        console.log('Auth initialization timed out, forcing completion');
+        setIsLoading(false);
+      }
+    }, 5000); // 5 second timeout as failsafe
+    
     const initializeAuth = async () => {
       try {
         console.log('Starting auth initialization');
-        setIsLoading(true);
+        if (isMounted) setIsLoading(true);
         
-        const { data } = await supabase.auth.getSession();
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          if (isMounted) setIsLoading(false);
+          return;
+        }
+        
         console.log('Initial session check:', data.session ? 'User logged in' : 'No session found');
         
-        setSession(data.session);
-        setUser(data.session?.user ?? null);
+        if (isMounted) {
+          setSession(data.session);
+          setUser(data.session?.user ?? null);
+        }
         
         if (data.session?.user) {
           console.log('User has session, fetching profile');
@@ -63,32 +80,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (location.pathname === '/login') {
             console.log('User already logged in and on login page, redirecting to dashboard');
             navigate('/dashboard');
-            setIsLoading(false);
+            if (isMounted) setIsLoading(false);
             return;
           }
           
           try {
-            const profileData = await fetchProfile(data.session.user.id);
-            
-            // Check if it's a new AI Platform user that should be directed to the setup flow
-            if (profileData && 
-                profileData.account_type === 'ai_platform' && 
-                profileData.is_new_user === true &&
-                location.pathname !== '/ai-platform/setup') {
-              console.log('New AI Platform user detected, redirecting to specialized onboarding');
-              navigate('/ai-platform/setup', { replace: true });
-            }
+            await fetchProfile(data.session.user.id);
           } catch (error) {
             console.error('Error fetching profile during initialization:', error);
           } finally {
-            setIsLoading(false);
+            if (isMounted) setIsLoading(false);
           }
         } else {
-          setIsLoading(false);
+          if (isMounted) setIsLoading(false);
         }
       } catch (error) {
         console.error('Error during auth initialization:', error);
-        setIsLoading(false);
+        if (isMounted) setIsLoading(false);
       }
     };
 
@@ -100,21 +108,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         if (event === 'SIGNED_OUT') {
           console.log('SIGNED_OUT event detected, redirecting to login page');
-          setSession(null);
-          setUser(null);
-          setProfile(null);
-          
-          toast({
-            title: "Signed out",
-            description: "You have been signed out.",
-          });
+          if (isMounted) {
+            setSession(null);
+            setUser(null);
+            setProfile(null);
+            
+            toast({
+              title: "Signed out",
+              description: "You have been signed out.",
+            });
+          }
           
           navigate('/login', { replace: true });
           return;
         }
         
-        setSession(session);
-        setUser(session?.user ?? null);
+        if (isMounted) {
+          setSession(session);
+          setUser(session?.user ?? null);
+        }
         
         if (event === 'SIGNED_IN' && session?.user) {
           console.log('SIGNED_IN event detected, fetching profile and redirecting');
@@ -135,23 +147,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (event === 'USER_UPDATED') {
           console.log('USER_UPDATED event detected, updating profile');
-          if (session?.user) {
-            const profileData = await fetchProfile(session.user.id);
-            
-            // If we're on the setup page and the user is no longer a new user,
-            // redirect them to the dashboard
-            if (location.pathname === '/ai-platform/setup' && 
-                profileData && 
-                profileData.is_new_user === false) {
-              console.log('AI Platform setup complete, redirecting to dashboard');
-              navigate('/dashboard', { replace: true });
-            }
+          if (session?.user && isMounted) {
+            await fetchProfile(session.user.id);
           }
         }
       }
     );
 
     return () => {
+      isMounted = false;
+      clearTimeout(authTimeout);
       subscription.unsubscribe();
     };
   }, [navigate, location.pathname, setSession, setUser, setIsLoading, fetchProfile, setProfile]);
@@ -175,7 +180,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   if (stableLoading && !user && location.pathname !== '/login') {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
+        <div className="text-center p-6 max-w-md mx-auto">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite] mb-4"></div>
           <h2 className="text-lg font-semibold">Loading your session...</h2>
           <p className="mt-2 text-gray-500">Please wait while we authenticate you.</p>

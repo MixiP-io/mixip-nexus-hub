@@ -13,6 +13,18 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   const location = useLocation();
   const [showLoader, setShowLoader] = useState(false);
   
+  // Add a timeout to force-exit loading state
+  useEffect(() => {
+    const forceExitLoading = setTimeout(() => {
+      if (isLoading) {
+        console.log('AuthGuard loading timeout reached, forcing exit');
+        setShowLoader(false);
+      }
+    }, 5000); // 5 second maximum loading time
+    
+    return () => clearTimeout(forceExitLoading);
+  }, [isLoading]);
+  
   // Only show loader after a brief delay to prevent flashing
   useEffect(() => {
     const timer = setTimeout(() => {
