@@ -1,148 +1,146 @@
 
-import React, { useState } from 'react';
-
-import { useFileUpload } from './hooks/useFileUpload';
-import { useUrlParamsHandler } from './hooks/useUrlParamsHandler';
-import { useUploadTrigger } from './hooks/useUploadTrigger';
-import { useSourceSelection } from './hooks/useSourceSelection';
-import { useMetadataFields } from './hooks/useMetadataFields';
-import { formatFileSize } from './utils/formatUtils';
-import { UploaderContext } from './context/UploaderContext';
-
+import React, { useEffect } from 'react';
+import { UploaderProvider } from './context/UploaderContext';
 import BatchUploaderContainer from './components/layout/BatchUploaderContainer';
 import BatchUploaderHeader from './components/layout/BatchUploaderHeader';
 import UploaderTabs from './components/UploaderTabs';
 import SourceContent from './components/content/SourceContent';
 import FilesList from './components/FilesList';
+import { useUrlParamsHandler } from './hooks/useUrlParamsHandler';
 
 const BatchUploader: React.FC = () => {
-  // Custom hooks for state management
-  const {
-    selectedProject,
-    setSelectedProject,
-    selectedFolder,
-    setSelectedFolder,
-    triggerFileInput,
-    setTriggerFileInput
-  } = useUrlParamsHandler();
+  // Get URL parameters to initialize state
+  const { selectedProject, selectedFolder, triggerFileInput } = useUrlParamsHandler();
 
-  const { activeSource, handleSourceChange } = useSourceSelection();
-  const { tags, setTags, selectedLicense, setSelectedLicense, usageRights, handleUsageRightsChange } = useMetadataFields();
-  const [activeView, setActiveView] = useState<'source' | 'metadata' | 'project'>('source');
+  return (
+    <UploaderProvider>
+      <BatchUploaderContent 
+        initialProject={selectedProject} 
+        initialFolder={selectedFolder} 
+        initialTrigger={triggerFileInput} 
+      />
+    </UploaderProvider>
+  );
+};
 
-  // Main upload hook
+interface BatchUploaderContentProps {
+  initialProject: string | null;
+  initialFolder: string;
+  initialTrigger: boolean;
+}
+
+const BatchUploaderContent: React.FC<BatchUploaderContentProps> = ({ 
+  initialProject, 
+  initialFolder,
+  initialTrigger
+}) => {
   const {
+    // State
     files,
+    activeView,
+    activeSource,
+    tags,
+    selectedLicense,
+    usageRights,
+    selectedProject,
+    selectedFolder,
     isUploading,
-    overallProgress,
-    fileInputRef,
-    triggerFileInput: openFileInput,
+    
+    // Actions
+    setActiveView,
+    setActiveSource,
+    setTags,
+    setSelectedLicense,
+    setUsageRights,
+    setSelectedProject,
+    setSelectedFolder,
     handleFileSelect,
+    triggerFileInput,
+    fileInputRef,
+    
+    // File list props
     removeFile,
     clearAll,
     startUpload,
+    formatFileSize,
     calculateTotalSize,
-    uploadComplete,
-    uploadResults,
-    setUploadComplete,
-    selectedProject: fileUploadSelectedProject,
-    selectedProjectName,
-    selectedFolder: fileUploadSelectedFolder,
-    navigateToProject
-  } = useFileUpload();
-
-  // Auto-trigger file input when coming from empty project
-  useUploadTrigger(
-    triggerFileInput,
-    selectedProject,
-    files.length,
-    isUploading,
-    openFileInput,
-    setTriggerFileInput
-  );
-
-  // Start upload handler with proper validation
-  const handleStartUpload = () => {
-    if (selectedProject) {
-      startUpload(selectedLicense, selectedProject, selectedFolder);
-    } else {
-      console.error('No project selected for upload');
-    }
-  };
-
-  // Context value for provider
-  const contextValue = {
-    files,
-    isUploading,
     overallProgress,
     uploadComplete,
-    uploadResults,
-    handleFileSelect,
-    removeFile,
-    clearAll,
-    startUpload: handleStartUpload,
     setUploadComplete,
-    navigateToProject,
-    selectedProject,
+    uploadResults,
     selectedProjectName,
-    selectedFolder,
-    formatFileSize,
-    calculateTotalSize
-  };
-
+    navigateToProject
+  } = useUploaderContext();
+  
+  // Initialize from URL parameters
+  useEffect(() => {
+    if (initialProject) {
+      setSelectedProject(initialProject);
+    }
+    
+    if (initialFolder) {
+      setSelectedFolder(initialFolder);
+    }
+  }, [initialProject, initialFolder, setSelectedProject, setSelectedFolder]);
+  
+  // Auto-trigger file input when coming from empty project
+  useEffect(() => {
+    if (initialTrigger && files.length === 0 && !isUploading) {
+      triggerFileInput();
+    }
+  }, [initialTrigger, files.length, isUploading, triggerFileInput]);
+  
   return (
-    <UploaderContext.Provider value={contextValue}>
-      <BatchUploaderContainer>
-        <BatchUploaderHeader />
-        
-        {/* Tabs navigation for uploader */}
-        <UploaderTabs
-          activeView={activeView}
-          setActiveView={setActiveView}
-          activeSource={activeSource}
-          setActiveSource={handleSourceChange}
-          tags={tags}
-          setTags={setTags}
-          licenseType={selectedLicense}
-          setLicenseType={setSelectedLicense}
-          usageRights={usageRights}
-          setUsageRights={handleUsageRightsChange}
-          selectedProject={selectedProject}
-          setSelectedProject={setSelectedProject}
-          selectedFolder={selectedFolder}
-          setSelectedFolder={setSelectedFolder}
+    <BatchUploaderContainer>
+      <BatchUploaderHeader />
+      
+      {/* Tabs navigation for uploader */}
+      <UploaderTabs
+        activeView={activeView}
+        setActiveView={setActiveView}
+        activeSource={activeSource}
+        setActiveSource={setActiveSource}
+        tags={tags}
+        setTags={setTags}
+        licenseType={selectedLicense}
+        setLicenseType={setSelectedLicense}
+        usageRights={usageRights}
+        setUsageRights={setUsageRights}
+        selectedProject={selectedProject}
+        setSelectedProject={setSelectedProject}
+        selectedFolder={selectedFolder}
+        setSelectedFolder={setSelectedFolder}
+      />
+      
+      {/* Upload area component - only shown on source tab */}
+      {activeView === 'source' && (
+        <SourceContent
+          handleFileSelect={handleFileSelect}
+          triggerFileInput={triggerFileInput}
+          fileInputRef={fileInputRef}
         />
-        
-        {/* Upload area component - only shown on source tab */}
-        {activeView === 'source' && (
-          <SourceContent
-            handleFileSelect={handleFileSelect}
-            triggerFileInput={openFileInput}
-            fileInputRef={fileInputRef}
-          />
-        )}
-        
-        {/* Files list section */}
-        <div className="mt-6">
-          <FilesList 
-            files={files}
-            isUploading={isUploading}
-            overallProgress={overallProgress}
-            formatFileSize={formatFileSize}
-            calculateTotalSize={calculateTotalSize}
-            removeFile={removeFile}
-            clearAll={clearAll}
-            startUpload={handleStartUpload}
-            uploadComplete={uploadComplete}
-            setUploadComplete={setUploadComplete}
-            uploadResults={uploadResults}
-            selectedProject={selectedProject}
-            selectedProjectName={selectedProjectName}
-            navigateToProject={navigateToProject}
-          />
-        </div>
-      </BatchUploaderContainer>
-    </UploaderContext.Provider>
+      )}
+      
+      {/* Files list section */}
+      <div className="mt-6">
+        <FilesList 
+          files={files}
+          isUploading={isUploading}
+          overallProgress={overallProgress}
+          formatFileSize={formatFileSize}
+          calculateTotalSize={calculateTotalSize}
+          removeFile={removeFile}
+          clearAll={clearAll}
+          startUpload={startUpload}
+          uploadComplete={uploadComplete}
+          setUploadComplete={setUploadComplete}
+          uploadResults={uploadResults}
+          selectedProject={selectedProject}
+          selectedProjectName={selectedProjectName}
+          navigateToProject={navigateToProject}
+        />
+      </div>
+    </BatchUploaderContainer>
   );
 };
 
