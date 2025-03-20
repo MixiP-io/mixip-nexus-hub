@@ -101,6 +101,9 @@ export function useProfileService(setProfile: (profile: UserProfile | null) => v
     try {
       console.log('Updating profile for user:', userId, 'with data:', updates);
       
+      // Ensure we don't have a stale profile in the cache before updating
+      profileCache.delete(userId);
+      
       const { data, error } = await supabase
         .from('profiles')
         .update({
