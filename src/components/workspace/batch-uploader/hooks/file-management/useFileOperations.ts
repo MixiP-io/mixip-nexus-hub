@@ -42,21 +42,22 @@ export const useFileOperations = (
       setFiles(prev => [...prev, ...newFiles]);
       
       // Generate previews in the background
-      for (const file of filesArray) {
+      for (let i = 0; i < filesArray.length; i++) {
+        const file = filesArray[i];
+        const fileId = newFiles[i].id;
+        
         if (file.type.startsWith('image/')) {
           try {
-            console.log(`Starting preview generation for: ${file.name}`);
+            console.log(`Starting preview generation for: ${file.name} (${fileId})`);
             const preview = await getFilePreview(file);
             
             if (preview) {
-              console.log(`Preview generated for ${file.name}, updating file`);
+              console.log(`Preview generated for ${file.name}, updating file ${fileId}`);
               
-              // Update the file with its preview
+              // Update the file with its preview using its ID (more reliable than name/size matching)
               setFiles(prevFiles => 
                 prevFiles.map(f => 
-                  f.file && f.file.name === file.name && f.file.size === file.size 
-                    ? { ...f, preview } 
-                    : f
+                  f.id === fileId ? { ...f, preview } : f
                 )
               );
             }

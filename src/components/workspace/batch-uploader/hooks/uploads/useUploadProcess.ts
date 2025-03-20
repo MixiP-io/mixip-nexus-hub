@@ -41,17 +41,32 @@ export const useUploadProcess = () => {
     console.log(`Starting upload process to project: ${projectId}, folder: ${folderId || 'root'}`);
     console.log(`Files to process: ${files.length}, License: ${licenseType}`);
     
+    // Check if projectId is a valid UUID format for Supabase
+    const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(projectId);
+    
+    if (!isValidUUID) {
+      console.error(`[useUploadProcess] Project ID is not a valid UUID format: ${projectId}`);
+      toast.error('Invalid project ID format. Database operations require UUID format.');
+      return;
+    }
+    
     // Verify project exists in Supabase
     try {
       const { data: projectData, error: projectError } = await supabase
         .from('projects')
         .select('id, name')
         .eq('id', projectId)
-        .single();
+        .maybeSingle();
         
       if (projectError) {
         console.error(`[useUploadProcess] Error verifying project: ${projectError.message}`);
         toast.error('Error verifying project, please check your connection');
+        return;
+      }
+      
+      if (!projectData) {
+        console.error(`[useUploadProcess] Project not found in database: ${projectId}`);
+        toast.error('Project not found in database. Please create the project first.');
         return;
       }
       
