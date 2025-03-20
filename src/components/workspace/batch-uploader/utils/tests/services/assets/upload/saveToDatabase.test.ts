@@ -43,7 +43,7 @@ describe('Asset Database Service', () => {
   it('should save assets to the database for root folder', async () => {
     const projectId = 'project1';
     const assets = [
-      { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, preview: 'data:image/jpeg;base64,test', licenseType: 'standard' }
+      { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, preview: 'data:image/jpeg;base64,test', licenseType: 'standard', uploadedAt: new Date() }
     ];
     const normalizedFolderId = 'root';
     const folderName = 'Root';
@@ -67,7 +67,7 @@ describe('Asset Database Service', () => {
   it('should check and create folder if needed for non-root folder', async () => {
     const projectId = 'project1';
     const assets = [
-      { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, preview: 'data:image/jpeg;base64,test', licenseType: 'standard' }
+      { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, preview: 'data:image/jpeg;base64,test', licenseType: 'standard', uploadedAt: new Date() }
     ];
     const normalizedFolderId = 'folder1';
     const folderName = 'Test Folder';
@@ -121,7 +121,7 @@ describe('Asset Database Service', () => {
   it('should handle insert errors', async () => {
     const projectId = 'project1';
     const assets = [
-      { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, preview: 'data:image/jpeg;base64,test', licenseType: 'standard' }
+      { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, preview: 'data:image/jpeg;base64,test', licenseType: 'standard', uploadedAt: new Date() }
     ];
     const normalizedFolderId = 'root';
     const folderName = 'Root';
@@ -144,7 +144,7 @@ describe('Asset Database Service', () => {
   it('should find existing folder by ID', async () => {
     const projectId = 'project1';
     const assets = [
-      { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, preview: 'data:image/jpeg;base64,test', licenseType: 'standard' }
+      { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, preview: 'data:image/jpeg;base64,test', licenseType: 'standard', uploadedAt: new Date() }
     ];
     const normalizedFolderId = 'existing-folder';
     const folderName = 'Existing Folder';

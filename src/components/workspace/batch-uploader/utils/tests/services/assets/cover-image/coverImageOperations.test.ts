@@ -23,7 +23,7 @@ describe('Cover Image Operations', () => {
           id: 'project1',
           name: 'Test Project',
           assets: [
-            { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', preview: 'data:image/jpeg;base64,test' }
+            { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', preview: 'data:image/jpeg;base64,test', size: 1000, uploadedAt: new Date() }
           ],
           updatedAt: new Date()
         },
@@ -31,7 +31,7 @@ describe('Cover Image Operations', () => {
           id: 'project2',
           name: 'Project With Cover',
           assets: [
-            { id: 'asset2', name: 'Asset 2', type: 'image/png', preview: 'data:image/png;base64,test' }
+            { id: 'asset2', name: 'Asset 2', type: 'image/png', preview: 'data:image/png;base64,test', size: 1000, uploadedAt: new Date() }
           ],
           coverImage: 'data:image/png;base64,existing',
           updatedAt: new Date()
@@ -56,7 +56,7 @@ describe('Cover Image Operations', () => {
       const updatedProjects = [...projects];
       const projectIndex = 0; // Project without cover image
       const assets = [
-        { id: 'asset1', name: 'Test Image', type: 'image/jpeg', preview: 'data:image/jpeg;base64,test' }
+        { id: 'asset1', name: 'Test Image', type: 'image/jpeg', preview: 'data:image/jpeg;base64,test', size: 1000, uploadedAt: new Date() }
       ];
       
       updateProjectCoverIfNeeded(projectIndex, assets, updatedProjects);
@@ -69,7 +69,7 @@ describe('Cover Image Operations', () => {
       const updatedProjects = [...projects];
       const projectIndex = 1; // Project with existing cover image
       const assets = [
-        { id: 'asset2', name: 'Test Image', type: 'image/jpeg', preview: 'data:image/jpeg;base64,new' }
+        { id: 'asset2', name: 'Test Image', type: 'image/jpeg', preview: 'data:image/jpeg;base64,new', size: 1000, uploadedAt: new Date() }
       ];
       
       const existingCover = updatedProjects[projectIndex].coverImage;
@@ -82,7 +82,7 @@ describe('Cover Image Operations', () => {
       const updatedProjects = [...projects];
       const projectIndex = 0; // Project without cover image
       const assets = [
-        { id: 'asset1', name: 'Text File', type: 'text/plain', preview: null }
+        { id: 'asset1', name: 'Text File', type: 'text/plain', preview: null, size: 1000, uploadedAt: new Date() }
       ];
       
       updateProjectCoverIfNeeded(projectIndex, assets, updatedProjects);
