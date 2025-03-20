@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -29,7 +28,10 @@ export function useAuthStateListeners(
             description: "You have been signed out.",
           });
           
-          navigate('/login', { replace: true });
+          // Ensure navigation happens with a short delay to avoid race conditions
+          setTimeout(() => {
+            navigate('/login', { replace: true });
+          }, 100);
           return;
         }
         
