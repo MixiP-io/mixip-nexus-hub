@@ -90,8 +90,10 @@ export const useUploadProcess = () => {
           normalizedFolderId,
           updateOverallProgress,
           setIsUploading,
-          // Fix for type mismatch - use a wrapper function to bridge the type gap
-          (value: boolean) => setUploadComplete(value),
+          // Create a wrapper function to adapt the setUploadComplete to the expected boolean parameter
+          (boolValue: boolean) => {
+            setUploadComplete(boolValue);
+          },
           completeUpload
         );
       } else {
