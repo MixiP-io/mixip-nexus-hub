@@ -1,14 +1,11 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
-import { useNavigate } from 'react-router-dom';
 
 export function useSignOut(
   setIsLoading: (isLoading: boolean) => void,
   setProfile: (profile: null) => void
 ) {
-  const navigate = useNavigate();
-  
   const signOut = async () => {
     try {
       console.log('Attempting sign out');
@@ -21,9 +18,6 @@ export function useSignOut(
       if (error) throw error;
       
       console.log('Sign out successful');
-      
-      // Explicitly navigate to login page
-      navigate('/login', { replace: true });
       
       toast({
         title: "Signed out successfully",
