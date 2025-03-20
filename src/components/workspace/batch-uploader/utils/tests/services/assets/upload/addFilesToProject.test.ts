@@ -1,8 +1,8 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { toast } from 'sonner';
-import { addFilesToProject } from '../../../../../services/assets/upload/addFilesToProject';
-import { projects, updateProjects, logProjects } from '../../../../../data/projectStore';
+import { addFilesToProject } from '../../../../services/assets/upload/addFilesToProject';
+import { projects, updateProjects, logProjects } from '../../../../data/projectStore';
 import { setupMockProjects, setupMockFiles, setupCommonMocks } from './testSetup';
 
 describe('Asset Upload Service - addFilesToProject', () => {
