@@ -29,12 +29,14 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
     isLoading: assetsLoading,
     error,
     handleFolderSelect,
-    navigateToFolder
+    navigateToFolder,
+    forceReload
   } = useAssetsNavigation(selectedProjectId);
   
   // Load project data when project ID changes
   useEffect(() => {
     if (selectedProjectId) {
+      console.log(`[AssetsManager] Loading project: ${selectedProjectId}`);
       loadProjectWithRetries(selectedProjectId);
     }
   }, [selectedProjectId, loadProjectWithRetries]);
@@ -70,8 +72,22 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
     if (selectedFolderId && selectedProjectId && selectedFolderId !== currentFolderId) {
       console.log(`[AssetsManager] Setting folder from URL: ${selectedFolderId}`);
       navigateToFolder(selectedFolderId);
+      
+      // Force reload assets to ensure we have the latest data
+      setTimeout(() => {
+        console.log(`[AssetsManager] Force reloading assets after navigation`);
+        forceReload();
+      }, 200);
     }
-  }, [selectedFolderId, selectedProjectId, currentFolderId, navigateToFolder]);
+  }, [selectedFolderId, selectedProjectId, currentFolderId, navigateToFolder, forceReload]);
+  
+  // Force reload assets when assets view becomes active
+  useEffect(() => {
+    if (selectedProjectId && currentFolderId) {
+      console.log(`[AssetsManager] Component mounted, forcing asset reload`);
+      forceReload();
+    }
+  }, [selectedProjectId, currentFolderId, forceReload]);
   
   // Handle batch upload
   const handleBatchUpload = () => {

@@ -29,9 +29,11 @@ const AssetsInitializer: React.FC<AssetsInitializerProps> = ({
   
   // Verify folder exists in database
   useEffect(() => {
-    if (selectedProjectId && selectedFolderId && selectedFolderId !== 'root') {
+    if (selectedProjectId && selectedFolderId && selectedFolderId !== 'root' && selectedFolderId !== currentFolderId) {
       const verifyFolderInDatabase = async () => {
         try {
+          console.log(`[AssetsInitializer] Verifying folder in database: ${selectedFolderId}`);
+          
           const { data, error } = await supabase
             .from('project_folders')
             .select('id, name')
@@ -41,10 +43,21 @@ const AssetsInitializer: React.FC<AssetsInitializerProps> = ({
             
           if (error) {
             console.error('[AssetsInitializer] Folder verification error:', error);
+            
+            // Check if folder exists in local data
+            if (projectData && projectData.subfolders) {
+              const localFolder = projectData.subfolders.find((f: any) => f.id === selectedFolderId);
+              if (localFolder) {
+                console.log(`[AssetsInitializer] Folder found in local data: ${localFolder.name}`);
+                toast.info(`Viewing folder: ${localFolder.name}`);
+              }
+            }
           } else if (data) {
             console.log(`[AssetsInitializer] Verified folder in database: ${data.name} (${data.id})`);
+            toast.info(`Viewing folder: ${data.name}`);
           } else {
             console.log(`[AssetsInitializer] Folder not found in database: ${selectedFolderId}`);
+            toast.info(`Viewing folder: ${selectedFolderId}`);
           }
         } catch (err) {
           console.error('[AssetsInitializer] Error in folder verification:', err);
@@ -53,13 +66,18 @@ const AssetsInitializer: React.FC<AssetsInitializerProps> = ({
       
       verifyFolderInDatabase();
     }
-  }, [selectedProjectId, selectedFolderId]);
+  }, [selectedProjectId, selectedFolderId, currentFolderId, projectData]);
   
   // Update current folder when selectedFolderId changes
   useEffect(() => {
     if (selectedFolderId && selectedFolderId !== currentFolderId) {
       console.log('[AssetsInitializer] Setting current folder to:', selectedFolderId);
       setCurrentFolderId(selectedFolderId);
+      
+      // If coming from root, show message
+      if (currentFolderId === 'root' && selectedFolderId !== 'root') {
+        console.log('[AssetsInitializer] Coming from root folder, showing navigation message');
+      }
     }
   }, [selectedFolderId, currentFolderId, setCurrentFolderId]);
   

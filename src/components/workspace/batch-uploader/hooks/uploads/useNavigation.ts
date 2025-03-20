@@ -1,46 +1,30 @@
 
 import { useCallback } from 'react';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
 
 /**
- * Hook for handling navigation after upload
+ * Hook for handling navigation after uploads
  */
 export const useNavigation = () => {
-  const navigate = useNavigate();
-
-  /**
-   * Navigate to project assets view
-   * @param projectId - ID of the project to navigate to
-   * @param folderId - Optional ID of the folder to navigate to
-   */
   const navigateToProject = useCallback((projectId: string, folderId: string = 'root') => {
     if (!projectId) {
-      console.error("[useNavigation] No project ID provided for navigation");
-      toast.error("Unable to navigate: Project ID is missing");
+      console.error('[useNavigation] Cannot navigate: Missing project ID');
       return;
     }
     
-    console.log(`[useNavigation] Navigating to project ${projectId}, folder: ${folderId || 'root'}`);
+    console.log(`[CRITICAL] Navigating to project ${projectId}, folder: ${folderId}`);
     
-    // Build the URL with the folder ID
-    let url = `/dashboard/workspace?project=${projectId}`;
+    // Construct URL with both project and folder params
+    const origin = window.location.origin;
+    const url = `${origin}/dashboard/workspace?tab=assets&project=${projectId}&folder=${folderId}`;
     
-    // Add folder ID if it's not root
-    if (folderId && folderId !== 'root') {
-      url += `&folder=${folderId}`;
-    }
+    console.log(`[useNavigation] Redirecting to: ${url}`);
     
-    // Navigate to the assets view with the project ID and folder ID
-    navigate(url);
-    
-    // Show success toast
-    if (folderId && folderId !== 'root') {
-      toast.success(`Navigating to folder in project ${projectId}`);
-    } else {
-      toast.success(`Navigating to project ${projectId}`);
-    }
-  }, [navigate]);
-
-  return { navigateToProject };
+    // Navigate to the URL
+    window.location.href = url;
+  }, []);
+  
+  return {
+    navigateToProject
+  };
 };
