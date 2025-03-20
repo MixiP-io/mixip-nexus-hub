@@ -1,9 +1,12 @@
 
 /**
- * Asset Service Index
- * Central export point for all asset-related services
+ * Asset Service
+ * Re-exports asset-related functions from specialized modules
  */
 
-// Export individual functions
-export { addFilesToProject } from './addFilesToProject';
+// Re-export core functions from the upload folder
+export { addFilesToProject } from './upload/addFilesToProject';
+export { saveProjectAssetsToDatabase } from './upload/saveProjectAssetsToDatabase';
+
+// Re-export other functions 
 export { setProjectCoverImage } from './coverImageService';
