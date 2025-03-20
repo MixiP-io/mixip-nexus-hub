@@ -1,163 +1,23 @@
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
-import { getProjectById } from '../../batch-uploader/utils/projectUtils';
-import { ensureProjectDataIntegrity } from '../../batch-uploader/utils/data/projectStore';
-import { syncProjectsWithLocalStorage } from '../../batch-uploader/utils/services/projectManagement/syncOperations';
+import { useProjectLoader } from './project-assets/useProjectLoader';
+import { useFolderAssets } from './project-assets/useFolderAssets';
+import { useAssetInfo } from './project-assets/useAssetInfo';
 
 /**
- * Hook to load and manage project assets
+ * Main hook to load and manage project assets
+ * Composes smaller, more focused hooks
  */
 export const useProjectAssets = (selectedProjectId: string | null, currentFolderId: string) => {
   const [projectData, setProjectData] = useState<any | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [folderAssets, setFolderAssets] = useState<any[]>([]);
-  
-  // Function to load project with retries
-  const loadProjectWithRetries = useCallback(async (projectId: string, maxRetries = 3) => {
-    let retryCount = 0;
-    let project = null;
-    
-    while (retryCount < maxRetries && !project) {
-      try {
-        console.log(`[useProjectAssets] Loading project from Supabase, attempt ${retryCount + 1}`);
-        
-        // First, try to get project from Supabase
-        const { data: projectData, error: projectError } = await supabase
-          .from('projects')
-          .select('*')
-          .eq('id', projectId)
-          .single();
-          
-        if (projectError) {
-          console.error('[useProjectAssets] Error fetching project from Supabase:', projectError);
-          
-          // Fallback to localStorage if Supabase fails
-          try {
-            console.log('[useProjectAssets] Falling back to local storage');
-            ensureProjectDataIntegrity();
-            syncProjectsWithLocalStorage();
-            project = getProjectById(projectId);
-            
-            if (project) {
-              console.log(`[useProjectAssets] Found project in localStorage (attempt ${retryCount + 1}):`, project.name);
-              break;
-            }
-          } catch (e) {
-            console.error(`[useProjectAssets] Error reading from localStorage (attempt ${retryCount + 1}):`, e);
-          }
-        } else {
-          console.log('[useProjectAssets] Successfully loaded project from Supabase:', projectData.name);
-          project = projectData;
-          
-          // Now get project assets
-          const { data: assets, error: assetsError } = await supabase
-            .from('assets')
-            .select('*')
-            .eq('project_id', projectId)
-            .is('folder_id', null);
-            
-          if (assetsError) {
-            console.error('[useProjectAssets] Error fetching assets:', assetsError);
-          } else {
-            console.log(`[useProjectAssets] Loaded ${assets.length} root assets for project`);
-            project.assets = assets;
-          }
-          
-          // Get folders for the project
-          const { data: folders, error: foldersError } = await supabase
-            .from('project_folders')
-            .select('*')
-            .eq('project_id', projectId);
-            
-          if (foldersError) {
-            console.error('[useProjectAssets] Error fetching folders:', foldersError);
-            project.subfolders = [];
-          } else {
-            console.log(`[useProjectAssets] Loaded ${folders.length} folders for project`);
-            
-            // For each folder, get its assets
-            const foldersWithAssets = await Promise.all(
-              folders.map(async (folder) => {
-                const { data: folderAssets, error: folderAssetsError } = await supabase
-                  .from('assets')
-                  .select('*')
-                  .eq('project_id', projectId)
-                  .eq('folder_id', folder.id);
-                  
-                if (folderAssetsError) {
-                  console.error(`[useProjectAssets] Error fetching assets for folder ${folder.id}:`, folderAssetsError);
-                  return { ...folder, assets: [] };
-                }
-                
-                console.log(`[useProjectAssets] Folder ${folder.name} (${folder.id}) has ${folderAssets.length} assets`);
-                return { ...folder, assets: folderAssets };
-              })
-            );
-            
-            project.subfolders = foldersWithAssets;
-          }
-          
-          break;
-        }
-        
-        retryCount++;
-        if (retryCount < maxRetries) {
-          console.log(`[useProjectAssets] Retrying project load, attempt ${retryCount + 1} of ${maxRetries}`);
-          // Wait before retrying
-          await new Promise(r => setTimeout(r, 300 * retryCount));
-        }
-      } catch (error) {
-        console.error(`[useProjectAssets] Error in loadProjectWithRetries (attempt ${retryCount + 1}):`, error);
-        retryCount++;
-        if (retryCount < maxRetries) {
-          await new Promise(r => setTimeout(r, 300 * retryCount));
-        }
-      }
-    }
-    
-    return project;
-  }, []);
-  
-  // Load current folder assets directly from Supabase
-  const reloadFolderAssets = useCallback(async () => {
-    if (!selectedProjectId) return;
-    
-    try {
-      console.log(`[useProjectAssets] Directly loading assets for folder: ${currentFolderId}`);
-      
-      if (currentFolderId === 'root') {
-        const { data, error } = await supabase
-          .from('assets')
-          .select('*')
-          .eq('project_id', selectedProjectId)
-          .is('folder_id', null);
-          
-        if (error) {
-          console.error('[useProjectAssets] Error loading root assets:', error);
-        } else {
-          console.log(`[useProjectAssets] Loaded ${data.length} root assets directly`);
-          setFolderAssets(data);
-        }
-      } else {
-        const { data, error } = await supabase
-          .from('assets')
-          .select('*')
-          .eq('project_id', selectedProjectId)
-          .eq('folder_id', currentFolderId);
-          
-        if (error) {
-          console.error(`[useProjectAssets] Error loading folder assets for ${currentFolderId}:`, error);
-        } else {
-          console.log(`[useProjectAssets] Loaded ${data.length} assets for folder ${currentFolderId} directly`);
-          setFolderAssets(data);
-        }
-      }
-    } catch (err) {
-      console.error('[useProjectAssets] Error in reloadFolderAssets:', err);
-    }
-  }, [selectedProjectId, currentFolderId]);
+  const { loadProjectWithRetries, isLoading, setIsLoading } = useProjectLoader();
+  const { folderAssets, reloadFolderAssets } = useFolderAssets();
+  const { currentFolderAssets, hasAssetsInFolders, foldersWithAssets } = useAssetInfo(
+    projectData, 
+    currentFolderId, 
+    folderAssets
+  );
   
   // Load project data when selectedProjectId changes
   useEffect(() => {
@@ -210,86 +70,27 @@ export const useProjectAssets = (selectedProjectId: string | null, currentFolder
         .finally(() => {
           setIsLoading(false);
           // After project is loaded, fetch current folder assets directly
-          reloadFolderAssets();
+          reloadFolderAssets(selectedProjectId, currentFolderId);
         });
     } else {
       console.log('[useProjectAssets] No project selected');
       setProjectData(null);
       setIsLoading(false);
     }
-  }, [selectedProjectId, currentFolderId, loadProjectWithRetries, reloadFolderAssets]);
+  }, [selectedProjectId, currentFolderId, loadProjectWithRetries, reloadFolderAssets, setIsLoading]);
 
   // Reload folder assets when folder changes
   useEffect(() => {
     if (selectedProjectId) {
-      reloadFolderAssets();
+      reloadFolderAssets(selectedProjectId, currentFolderId);
     }
   }, [selectedProjectId, currentFolderId, reloadFolderAssets]);
-
-  // Get assets for the current folder
-  const currentFolderAssets = useMemo(() => {
-    // First try the directly loaded folder assets
-    if (folderAssets.length > 0) {
-      console.log(`[useProjectAssets] Using ${folderAssets.length} directly loaded assets`);
-      return folderAssets;
-    }
-    
-    if (!projectData) return [];
-    
-    console.log(`[useProjectAssets] Getting assets for current folder: ${currentFolderId}`);
-    
-    // If viewing root folder, return root assets
-    if (currentFolderId === 'root') {
-      console.log(`[useProjectAssets] Returning root assets: ${projectData.assets?.length || 0}`);
-      return projectData.assets ? [...projectData.assets] : [];
-    }
-    
-    // Otherwise, search for the specified folder
-    if (projectData.subfolders && projectData.subfolders.length > 0) {
-      const targetFolder = projectData.subfolders.find((folder: any) => folder.id === currentFolderId);
-      
-      if (targetFolder) {
-        console.log(`[useProjectAssets] Found folder "${targetFolder.name}" with ${targetFolder.assets?.length || 0} assets`);
-        
-        if (targetFolder.assets && targetFolder.assets.length > 0) {
-          // Debug the first few assets to make sure they're valid
-          console.log('Sample assets from folder:', targetFolder.assets.slice(0, 2));
-          return [...targetFolder.assets];
-        } else {
-          console.log('[useProjectAssets] Folder exists but has no assets');
-          return [];
-        }
-      } else {
-        console.log(`[useProjectAssets] No folder found with ID ${currentFolderId}`);
-      }
-    }
-    
-    console.log(`[useProjectAssets] Folder ${currentFolderId} not found, returning empty array`);
-    return [];
-  }, [projectData, currentFolderId, folderAssets]);
-  
-  // Determine if there are assets in any folders
-  const folderAssetInfo = useMemo(() => {
-    let hasAssetsInFolders = false;
-    let foldersWithAssets: string[] = [];
-    
-    if (projectData?.subfolders && projectData.subfolders.length > 0) {
-      projectData.subfolders.forEach((folder: any) => {
-        if (folder.assets && folder.assets.length > 0) {
-          hasAssetsInFolders = true;
-          foldersWithAssets.push(folder.name);
-        }
-      });
-    }
-    
-    return { hasAssetsInFolders, foldersWithAssets };
-  }, [projectData]);
 
   return {
     projectData,
     currentFolderAssets,
-    hasAssetsInFolders: folderAssetInfo.hasAssetsInFolders,
-    foldersWithAssets: folderAssetInfo.foldersWithAssets,
+    hasAssetsInFolders,
+    foldersWithAssets,
     isLoading,
     reloadFolderAssets
   };
