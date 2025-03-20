@@ -1,11 +1,12 @@
 
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import { UploadFile } from '../../types';
 import { useUploadState } from './useUploadState';
 import { useUploadProcessing } from './useUploadProcessing';
 import { useCompletedUploads } from './useCompletedUploads';
 import { useUploadErrorHandling } from './useUploadErrorHandling';
+import { supabase } from '@/integrations/supabase/client';
 
 /**
  * Hook for managing the upload process logic
@@ -39,6 +40,27 @@ export const useUploadProcess = () => {
   ) => {
     console.log(`Starting upload process to project: ${projectId}, folder: ${folderId || 'root'}`);
     console.log(`Files to process: ${files.length}, License: ${licenseType}`);
+    
+    // Verify project exists in Supabase
+    try {
+      const { data: projectData, error: projectError } = await supabase
+        .from('projects')
+        .select('id, name')
+        .eq('id', projectId)
+        .single();
+        
+      if (projectError) {
+        console.error(`[useUploadProcess] Error verifying project: ${projectError.message}`);
+        toast.error('Error verifying project, please check your connection');
+        return;
+      }
+      
+      console.log(`[useUploadProcess] Verified project in Supabase: ${projectData.name}`);
+    } catch (err) {
+      console.error('[useUploadProcess] Unexpected error verifying project:', err);
+      toast.error('Error preparing upload');
+      return;
+    }
     
     // Initialize state
     setIsUploading(true);
@@ -88,7 +110,7 @@ export const useUploadProcess = () => {
         projectName,
         setUploadComplete,
         setUploadResults,
-        setIsUploading
+        setIsLoading: setIsUploading
       );
     } finally {
       // Force a final update to overall progress

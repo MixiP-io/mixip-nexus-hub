@@ -1,15 +1,22 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Hook to load and manage assets within a folder
+ * Hook to load and manage assets within a folder with real-time updates
  */
 export const useFolderAssets = () => {
   const [folderAssets, setFolderAssets] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(Date.now());
+
+  // Force reload assets
+  const forceReload = useCallback(() => {
+    console.log('[useFolderAssets] Forcing reload of assets');
+    setRefreshTrigger(Date.now());
+  }, []);
 
   // Load folder assets from Supabase
   const loadFolderAssets = useCallback(async (
@@ -51,7 +58,11 @@ export const useFolderAssets = () => {
         console.error('[useFolderAssets] Error loading assets:', error);
         setError(`Failed to load assets: ${error.message}`);
         if (showToasts) {
-          toast.error('Failed to load folder assets');
+          toast({
+            title: "Failed to load folder assets",
+            description: error.message,
+            variant: "destructive"
+          });
         }
         setFolderAssets([]);
       } else {
@@ -65,14 +76,22 @@ export const useFolderAssets = () => {
         setFolderAssets(data || []);
         
         if (data.length === 0 && showToasts) {
-          toast.info('No assets found in this folder');
+          toast({
+            title: "No assets found",
+            description: "No assets found in this folder",
+            variant: "default"
+          });
         }
       }
     } catch (err) {
       console.error('[useFolderAssets] Unexpected error:', err);
       setError('An unexpected error occurred');
       if (showToasts) {
-        toast.error('Failed to load folder assets');
+        toast({
+          title: "Failed to load folder assets",
+          description: "An unexpected error occurred",
+          variant: "destructive"
+        });
       }
       setFolderAssets([]);
     } finally {
@@ -80,11 +99,44 @@ export const useFolderAssets = () => {
     }
   }, []);
 
+  // Set up real-time subscription for assets changes
+  useEffect(() => {
+    const setupRealtimeSubscription = (projectId: string | null) => {
+      if (!projectId) return null;
+      
+      console.log(`[useFolderAssets] Setting up realtime subscription for project ${projectId}`);
+      
+      const channel = supabase
+        .channel(`assets-changes-${projectId}`)
+        .on('postgres_changes', 
+          { 
+            event: '*', 
+            schema: 'public', 
+            table: 'assets',
+            filter: `project_id=eq.${projectId}`
+          }, 
+          (payload) => {
+            console.log('[useFolderAssets] Received asset change:', payload);
+            forceReload();
+          }
+        )
+        .subscribe();
+        
+      return channel;
+    };
+    
+    // Clean up subscription on unmount
+    return () => {
+      // Cleanup will be performed in the next useEffect that depends on projectId
+    };
+  }, [forceReload]);
+
   return {
     folderAssets,
     isLoading,
     error,
     loadFolderAssets,
-    setFolderAssets
+    setFolderAssets,
+    forceReload
   };
 };

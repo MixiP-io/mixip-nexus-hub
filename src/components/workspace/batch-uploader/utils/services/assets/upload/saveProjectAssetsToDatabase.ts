@@ -23,7 +23,13 @@ export const saveProjectAssetsToDatabase = async (
   // If this is a folder other than root, ensure it exists in the database
   if (normalizedFolderId !== 'root') {
     console.log(`[assetService] Checking if folder ${normalizedFolderId} exists in database`);
-    folderDbId = await ensureFolderExistsInDatabase(projectId, normalizedFolderId, folderName);
+    try {
+      folderDbId = await ensureFolderExistsInDatabase(projectId, normalizedFolderId, folderName);
+      console.log(`[assetService] Using folder ID for assets: ${folderDbId}`);
+    } catch (err) {
+      console.error('[assetService] Error ensuring folder exists:', err);
+      toast.error('Error with folder preparation for upload');
+    }
   }
 
   // Save all assets to database
@@ -38,16 +44,24 @@ export const saveProjectAssetsToDatabase = async (
     preview_url: asset.preview,
     license_type: asset.licenseType,
     uploaded_at: new Date().toISOString(),
-    user_id: '00000000-0000-0000-0000-000000000000' // Placeholder, will be replaced by auth.uid()
+    user_id: supabase.auth.getUser().then(res => res.data.user?.id) // Use auth.getUser() for current user
   }));
 
   try {
     // Insert assets in batches to avoid potential payload size issues
-    const BATCH_SIZE = 50;
+    const BATCH_SIZE = 20;
     let inserted = 0;
     
+    // Get the current user ID
+    const { data: { user } } = await supabase.auth.getUser();
+    const userId = user?.id || '00000000-0000-0000-0000-000000000000';
+    
     for (let i = 0; i < assetsToInsert.length; i += BATCH_SIZE) {
-      const batch = assetsToInsert.slice(i, i + BATCH_SIZE);
+      const batch = assetsToInsert.slice(i, i + BATCH_SIZE).map(asset => ({
+        ...asset,
+        user_id: userId
+      }));
+      
       const { data, error } = await supabase
         .from('assets')
         .insert(batch)
@@ -59,6 +73,7 @@ export const saveProjectAssetsToDatabase = async (
       } else if (data) {
         inserted += data.length;
         console.log(`[assetService] Inserted batch ${i/BATCH_SIZE + 1}: ${data.length} assets`);
+        console.log('Sample asset saved:', data[0]);
       }
     }
     
@@ -74,6 +89,11 @@ export const saveProjectAssetsToDatabase = async (
       console.error('[assetService] Error updating project timestamp:', updateError);
     } else {
       console.log('[assetService] Updated project timestamp to trigger UI refresh');
+    }
+
+    // Return success with insert count
+    if (inserted > 0) {
+      toast.success(`Successfully saved ${inserted} assets to database`);
     }
   } catch (err) {
     console.error('[assetService] Error in batch insert:', err);
@@ -146,12 +166,14 @@ const ensureFolderExistsInDatabase = async (
 
     if (createFolderError) {
       console.error('[assetService] Error creating folder:', createFolderError);
+      throw new Error(`Failed to create folder: ${createFolderError.message}`);
     } else if (newFolder) {
       console.log(`[assetService] Created new folder in database with id ${newFolder.id}`);
       folderDbId = newFolder.id;
     }
   } catch (err) {
     console.error('[assetService] Error in folder database operations:', err);
+    throw err;
   }
 
   return folderDbId;

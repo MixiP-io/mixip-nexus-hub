@@ -1,15 +1,19 @@
 
-import { useEffect } from 'react';
+import { useEffect, useCallback, useState } from 'react';
+import { toast } from 'sonner';
 import { useAssetSelection } from './useAssetSelection';
 import { useRightsPanel } from './useRightsPanel';
 import { useAssetFiltering } from './useAssetFiltering';
 import { useFolderNavigation } from './useFolderNavigation';
 import { useProjectAssets } from './useProjectAssets';
+import { supabase } from '@/integrations/supabase/client';
 
 /**
  * Main hook that coordinates all assets management functionality
  */
 export const useAssetsManager = (selectedProjectId: string | null, initialFolderId?: string | null) => {
+  const [refreshTrigger, setRefreshTrigger] = useState(Date.now());
+  
   // Initialize folder navigation
   const {
     currentFolderId,
@@ -24,7 +28,8 @@ export const useAssetsManager = (selectedProjectId: string | null, initialFolder
     currentFolderAssets,
     hasAssetsInFolders,
     foldersWithAssets,
-    isLoading
+    isLoading,
+    reloadFolderAssets
   } = useProjectAssets(selectedProjectId, currentFolderId);
 
   // Filter assets
@@ -54,13 +59,52 @@ export const useAssetsManager = (selectedProjectId: string | null, initialFolder
     handleBatchRights
   } = useRightsPanel(selectedAssets);
 
-  // Debug logging for initial render
+  // Force reload of assets
+  const forceReload = useCallback(() => {
+    console.log('[useAssetsManager] Force reloading assets');
+    setRefreshTrigger(Date.now());
+    
+    if (selectedProjectId && currentFolderId) {
+      reloadFolderAssets(selectedProjectId, currentFolderId, true);
+    }
+  }, [selectedProjectId, currentFolderId, reloadFolderAssets]);
+
+  // Set up realtime subscription to refresh assets when changes happen
   useEffect(() => {
-    console.log('[CRITICAL] useAssetsManager initialized with:');
-    console.log('- selectedProjectId:', selectedProjectId);
-    console.log('- initialFolderId:', initialFolderId);
-    console.log('- currentFolderId:', currentFolderId);
-  }, []);
+    if (!selectedProjectId) return;
+    
+    console.log('[useAssetsManager] Setting up realtime subscription for assets changes');
+    
+    // Subscribe to changes in the assets table for this project
+    const channel = supabase
+      .channel('assets-changes')
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'assets',
+          filter: `project_id=eq.${selectedProjectId}`
+        }, 
+        (payload) => {
+          console.log('[useAssetsManager] Received asset change:', payload);
+          forceReload();
+        }
+      )
+      .subscribe();
+      
+    return () => {
+      console.log('[useAssetsManager] Removing realtime subscription');
+      supabase.removeChannel(channel);
+    };
+  }, [selectedProjectId, forceReload]);
+
+  // Refresh when trigger changes or folder changes
+  useEffect(() => {
+    if (selectedProjectId && currentFolderId) {
+      console.log(`[useAssetsManager] Loading assets due to refresh trigger or folder change`);
+      reloadFolderAssets(selectedProjectId, currentFolderId);
+    }
+  }, [selectedProjectId, currentFolderId, refreshTrigger, reloadFolderAssets]);
 
   return {
     viewMode,
@@ -84,6 +128,7 @@ export const useAssetsManager = (selectedProjectId: string | null, initialFolder
     hasAssetsInFolders,
     foldersWithAssets,
     isLoading,
-    handleFolderChange
+    handleFolderChange,
+    forceReload
   };
 };

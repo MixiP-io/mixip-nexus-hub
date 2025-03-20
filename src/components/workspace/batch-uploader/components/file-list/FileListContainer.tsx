@@ -1,5 +1,7 @@
 
 import React, { useEffect } from 'react';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 import FileListHeader from './FileListHeader';
 import OverallProgress from './OverallProgress';
 import FileGrid from './FileGrid';
@@ -43,16 +45,32 @@ const FileListContainer: React.FC<FileListContainerProps> = ({
   const totalSize = formatFileSize(calculateTotalSize());
   const uploadedFiles = files.filter(f => f.status === 'complete').length;
   
+  // Trigger asset refresh in project when upload is complete
   useEffect(() => {
-    console.log("FileListContainer render state:", { 
-      uploadComplete, 
-      uploadResults,
-      selectedProject, 
-      selectedProjectName,
-      filesCount: files.length,
-      completedFiles: files.filter(f => f.status === 'complete').length
-    });
-  }, [uploadComplete, uploadResults, selectedProject, selectedProjectName, files]);
+    if (uploadComplete && uploadResults?.success) {
+      console.log('[FileListContainer] Upload complete, refreshing project assets in Supabase');
+      
+      // Trigger a Supabase refresh by updating the project timestamp
+      const updateProjectTimestamp = async () => {
+        try {
+          const { error } = await supabase
+            .from('projects')
+            .update({ updated_at: new Date().toISOString() })
+            .eq('id', uploadResults.projectId);
+            
+          if (error) {
+            console.error('[FileListContainer] Error updating project timestamp:', error);
+          } else {
+            console.log('[FileListContainer] Updated project timestamp to trigger UI refresh');
+          }
+        } catch (err) {
+          console.error('[FileListContainer] Error triggering refresh:', err);
+        }
+      };
+      
+      updateProjectTimestamp();
+    }
+  }, [uploadComplete, uploadResults]);
   
   return (
     <div className="bg-gray-800 rounded-lg p-4 mb-6">

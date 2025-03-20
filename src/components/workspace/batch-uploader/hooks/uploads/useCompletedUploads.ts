@@ -2,6 +2,7 @@
 import { toast } from 'sonner';
 import { UploadFile } from '../../types';
 import { addFilesToProject } from '../../utils/services/assets/upload/addFilesToProject';
+import { supabase } from '@/integrations/supabase/client';
 
 /**
  * Hook for managing completed uploads
@@ -20,7 +21,21 @@ export const useCompletedUploads = () => {
     completeUpload: (projectId: string, results: any) => void
   ) => {
     try {
-      console.log(`Processing ${completedFiles.length} completed files`);
+      console.log(`Processing ${completedFiles.length} completed files for project ${projectId} in folder ${normalizedFolderId}`);
+      
+      // Verify the project exists in Supabase
+      const { data: projectData, error: projectError } = await supabase
+        .from('projects')
+        .select('id, name')
+        .eq('id', projectId)
+        .single();
+        
+      if (projectError) {
+        console.error('[useCompletedUploads] Error verifying project:', projectError);
+        throw new Error(`Project verification failed: ${projectError.message}`);
+      }
+      
+      console.log(`[useCompletedUploads] Verified project: ${projectData.name}`);
       
       // Add the files to the project
       const { success, count, location } = await addFilesToProject(
@@ -53,6 +68,18 @@ export const useCompletedUploads = () => {
       // Update the overall progress to 100%
       updateOverallProgress();
       
+      // Force refresh assets by updating project timestamp
+      const { error: updateError } = await supabase
+        .from('projects')
+        .update({ updated_at: new Date().toISOString() })
+        .eq('id', projectId);
+        
+      if (updateError) {
+        console.error('[useCompletedUploads] Error updating project timestamp:', updateError);
+      } else {
+        console.log('[useCompletedUploads] Updated project timestamp to trigger refresh');
+      }
+      
       // Show toast notification
       if (success) {
         toast.success(`Successfully uploaded ${count} files to ${projectName}`);
@@ -70,7 +97,7 @@ export const useCompletedUploads = () => {
         projectId,
         projectName,
         folderId: normalizedFolderId,
-        error: 'Failed to process uploads'
+        error: error instanceof Error ? error.message : 'Failed to process uploads'
       };
       
       setUploadResults(errorResults);
