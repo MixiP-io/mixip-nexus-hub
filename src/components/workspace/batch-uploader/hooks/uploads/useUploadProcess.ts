@@ -90,10 +90,8 @@ export const useUploadProcess = () => {
           normalizedFolderId,
           updateOverallProgress,
           setIsUploading,
-          // Create a wrapper function to adapt the setUploadComplete to the expected boolean parameter
-          (boolValue: boolean) => {
-            setUploadComplete(boolValue);
-          },
+          // Simple boolean wrapper function
+          (value: boolean) => setUploadComplete(value),
           completeUpload
         );
       } else {

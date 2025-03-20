@@ -1,6 +1,7 @@
 
 import { toast } from 'sonner';
 import { addFilesToProject } from '../../utils/services/assets/upload/addFilesToProject';
+import { Dispatch, SetStateAction } from 'react';
 
 /**
  * Hook for handling completed uploads

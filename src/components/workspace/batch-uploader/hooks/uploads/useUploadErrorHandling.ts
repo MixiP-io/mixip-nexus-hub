@@ -1,5 +1,6 @@
 
 import { toast } from 'sonner';
+import { Dispatch, SetStateAction } from 'react';
 
 /**
  * Hook for handling upload errors
@@ -35,12 +36,13 @@ export const useUploadErrorHandling = () => {
     error: unknown, 
     projectId: string, 
     projectName: string,
+    setIsUploading: (value: boolean) => void,
     setUploadComplete: (value: boolean) => void,
-    setUploadResults: (results: any) => void,
-    setIsUploading: (value: boolean) => void
+    setUploadResults: (results: any) => void
   ) => {
     console.error('Upload error:', error);
     toast.error(`There was a problem with the upload: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    setIsUploading(false);
     setUploadComplete(true);
     setUploadResults({
       success: false,
@@ -49,7 +51,6 @@ export const useUploadErrorHandling = () => {
       projectName: projectName || "",
       folderId: "root"
     });
-    setIsUploading(false);
   };
   
   return {
