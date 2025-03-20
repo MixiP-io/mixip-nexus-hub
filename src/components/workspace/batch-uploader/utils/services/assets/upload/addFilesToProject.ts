@@ -4,8 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ProjectAsset } from '../../../types/projectTypes';
 import { UploadFile } from '../../../../types';
 import { projects, updateProjects } from '../../../data/projectStore';
-import { saveProjectsToLocalStorage } from '../../../data/store/storageSync';
-import { logProjects } from '../../../data/store/storageSync';
+import { saveProjectsToLocalStorage, logProjects } from '../../../data/store/storageSync';
 import { convertFilesToAssets } from '../../assetConversionUtils';
 import { validateProjectForAssets, ensureProjectStructure } from '../projectAssetsValidation';
 import {
