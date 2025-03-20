@@ -57,9 +57,9 @@ const ProjectGrid: React.FC = () => {
             onClick={() => handleProjectClick(project.id)}
           >
             <div className="h-40 bg-frameio-bg-dark relative">
-              {project.coverImage ? (
+              {project.cover_image ? (
                 <img 
-                  src={project.coverImage} 
+                  src={project.cover_image} 
                   alt={project.name} 
                   className="w-full h-full object-cover"
                 />

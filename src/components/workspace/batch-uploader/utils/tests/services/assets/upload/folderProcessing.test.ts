@@ -44,7 +44,7 @@ describe('Folder Processing Service', () => {
     const projectIndex = 0;
     const normalizedFolderId = 'root';
     const assets = [
-      { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, uploadedAt: new Date() }
+      { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, uploadedAt: new Date(), licenseType: 'standard' }
     ];
     
     const result = await processAssetsByFolder(mockProjects, projectIndex, normalizedFolderId, assets);
@@ -60,7 +60,7 @@ describe('Folder Processing Service', () => {
     const projectIndex = 0;
     const normalizedFolderId = 'folder1';
     const assets = [
-      { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, uploadedAt: new Date() }
+      { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, uploadedAt: new Date(), licenseType: 'standard' }
     ];
     
     // Mock database lookup success
@@ -85,7 +85,7 @@ describe('Folder Processing Service', () => {
     const projectIndex = 0;
     const normalizedFolderId = 'folder1';
     const assets = [
-      { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, uploadedAt: new Date() }
+      { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, uploadedAt: new Date(), licenseType: 'standard' }
     ];
     
     // Mock database lookup error
@@ -109,7 +109,7 @@ describe('Folder Processing Service', () => {
     const projectIndex = 0;
     const normalizedFolderId = 'nonexistent';
     const assets = [
-      { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, uploadedAt: new Date() }
+      { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, uploadedAt: new Date(), licenseType: 'standard' }
     ];
     
     // Mock specific folder not found

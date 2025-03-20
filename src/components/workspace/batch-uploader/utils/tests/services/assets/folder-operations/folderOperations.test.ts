@@ -62,8 +62,8 @@ describe('Folder Operations Service', () => {
       const mockProjects = [...projects];
       const projectIndex = 0;
       const mockAssets = [
-        { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, uploadedAt: new Date() },
-        { id: 'asset2', name: 'Asset 2', type: 'image/png', size: 2000, uploadedAt: new Date() }
+        { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, uploadedAt: new Date(), licenseType: 'standard' },
+        { id: 'asset2', name: 'Asset 2', type: 'image/png', size: 2000, uploadedAt: new Date(), licenseType: 'standard' }
       ];
       
       const result = addAssetsToRootFolder(mockProjects, projectIndex, mockAssets);
@@ -77,7 +77,7 @@ describe('Folder Operations Service', () => {
     it('should initialize assets array if it does not exist', () => {
       const mockProjects = [{ id: 'project1', name: 'Test Project' }];
       const projectIndex = 0;
-      const mockAssets = [{ id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, uploadedAt: new Date() }];
+      const mockAssets = [{ id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, uploadedAt: new Date(), licenseType: 'standard' }];
       
       const result = addAssetsToRootFolder(mockProjects, projectIndex, mockAssets);
       
@@ -92,7 +92,7 @@ describe('Folder Operations Service', () => {
       const projectIndex = 0;
       const folderId = 'folder1';
       const mockAssets = [
-        { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, uploadedAt: new Date() }
+        { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, uploadedAt: new Date(), licenseType: 'standard' }
       ];
       
       const result = addAssetsToSpecificFolder(mockProjects, projectIndex, folderId, mockAssets);
@@ -107,7 +107,7 @@ describe('Folder Operations Service', () => {
       const projectIndex = 0;
       const folderId = 'nonexistent-folder';
       const mockAssets = [
-        { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, uploadedAt: new Date() }
+        { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, uploadedAt: new Date(), licenseType: 'standard' }
       ];
       
       const result = addAssetsToSpecificFolder(mockProjects, projectIndex, folderId, mockAssets);
@@ -122,7 +122,7 @@ describe('Folder Operations Service', () => {
       const projectIndex = 0;
       const folderName = 'New Folder';
       const mockAssets = [
-        { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, uploadedAt: new Date() }
+        { id: 'asset1', name: 'Asset 1', type: 'image/jpeg', size: 1000, uploadedAt: new Date(), licenseType: 'standard' }
       ];
       
       const result = createNewFolderWithAssets(mockProjects, projectIndex, folderName, mockAssets);
