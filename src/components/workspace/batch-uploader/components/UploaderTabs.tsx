@@ -10,7 +10,7 @@ import { UploadSource } from '../types';
 interface UploaderTabsProps {
   activeView: ViewOption;
   setActiveView: (view: ViewOption) => void;
-  activeSource: 'computer' | 'phone' | 'local';
+  activeSource: UploadSource;
   setActiveSource: (source: UploadSource) => void;
   tags: string[];
   setTags: (tags: string[]) => void;

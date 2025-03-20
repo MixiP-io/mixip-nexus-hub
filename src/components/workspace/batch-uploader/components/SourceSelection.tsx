@@ -12,7 +12,7 @@ import {
 import { UploadSource } from '../types';
 
 interface SourceSelectionProps {
-  activeSource: 'computer' | 'phone' | 'local';  // Restricting the active sources to what we handle
+  activeSource: UploadSource;
   setActiveSource: (source: UploadSource) => void;
 }
 

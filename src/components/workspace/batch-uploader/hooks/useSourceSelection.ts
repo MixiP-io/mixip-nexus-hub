@@ -4,14 +4,14 @@ import { toast } from 'sonner';
 import { UploadSource } from '../types';
 
 export const useSourceSelection = () => {
-  const [activeSource, setActiveSource] = useState<'computer' | 'phone' | 'local'>('local');
+  const [activeSource, setActiveSource] = useState<UploadSource>('computer');
   
   // Wrapper for source selection to ensure type compatibility
-  const handleSourceChange = (source: 'computer' | 'phone' | 'moby' | 'dropbox' | 'google-drive' | 'box' | 'icloud') => {
+  const handleSourceChange = (source: UploadSource) => {
     if (source === 'computer' || source === 'phone') {
       setActiveSource(source);
     } else {
-      setActiveSource('local'); // Default to local for other sources
+      setActiveSource('computer'); // Default to computer for other sources
       toast.info(`${source} integration coming soon`);
     }
   };
