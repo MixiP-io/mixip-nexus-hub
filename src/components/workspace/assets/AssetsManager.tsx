@@ -7,6 +7,7 @@ import { useProjectLoader } from './hooks/project-assets/useProjectLoader';
 import { useAssetSelection } from './hooks/useAssetSelection';
 import { useRightsPanel } from './hooks/useRightsPanel';
 import { useAssetFiltering } from './hooks/useAssetFiltering';
+import AssetsInitializer from './components/AssetsInitializer';
 
 interface AssetsManagerProps {
   selectedProjectId: string | null;
@@ -18,7 +19,7 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
   selectedFolderId = 'root'
 }) => {
   // Load project data
-  const { projectData, isLoading: projectLoading, loadProjectWithRetries } = useProjectLoader();
+  const { loadProjectWithRetries, isLoading: projectLoading, projectData } = useProjectLoader();
   
   // Use our improved navigation and assets loading hook
   const {
@@ -27,7 +28,8 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
     folderAssets,
     isLoading: assetsLoading,
     error,
-    handleFolderSelect
+    handleFolderSelect,
+    navigateToFolder
   } = useAssetsNavigation(selectedProjectId);
   
   // Load project data when project ID changes
@@ -63,6 +65,14 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
     handleBatchRights
   } = useRightsPanel(selectedAssets);
   
+  // Initialize assets and handle folder selection from URL
+  useEffect(() => {
+    if (selectedFolderId && selectedProjectId && selectedFolderId !== currentFolderId) {
+      console.log(`[AssetsManager] Setting folder from URL: ${selectedFolderId}`);
+      navigateToFolder(selectedFolderId);
+    }
+  }, [selectedFolderId, selectedProjectId, currentFolderId, navigateToFolder]);
+  
   // Handle batch upload
   const handleBatchUpload = () => {
     if (!selectedProjectId) return;
@@ -81,6 +91,17 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
       error
     });
   }, [selectedProjectId, currentFolderId, folderName, folderAssets, error]);
+  
+  // Add an initializer component to handle folder changes from URL
+  const initializer = (
+    <AssetsInitializer
+      selectedProjectId={selectedProjectId}
+      selectedFolderId={selectedFolderId}
+      currentFolderId={currentFolderId}
+      setCurrentFolderId={navigateToFolder}
+      projectData={projectData}
+    />
+  );
   
   // Show error state if needed
   const errorState = (
@@ -107,6 +128,7 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
   
   return (
     <div className="p-6">
+      {initializer}
       <AssetsContent
         projectData={projectData}
         viewMode={viewMode}

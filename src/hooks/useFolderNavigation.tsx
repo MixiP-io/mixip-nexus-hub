@@ -35,7 +35,13 @@ export const useFolderNavigation = (projectId: string | null) => {
   
   // Fetch folder name from database
   const fetchFolderName = async (folderId: string, projectId: string) => {
+    if (folderId === 'root') {
+      setFolderName('Root');
+      return;
+    }
+    
     try {
+      console.log(`[useFolderNavigation] Fetching folder name for: ${folderId}`);
       const { data, error } = await supabase
         .from('project_folders')
         .select('name')
@@ -70,6 +76,9 @@ export const useFolderNavigation = (projectId: string | null) => {
       setFolderName(name);
     } else if (folderId === 'root') {
       setFolderName('Root');
+    } else if (projectId) {
+      // Fetch folder name if not provided
+      fetchFolderName(folderId, projectId);
     }
     
     // Update URL if needed
