@@ -47,7 +47,7 @@ export const useCompletedUploads = () => {
       setUploadComplete(true);
       setUploadResults(results);
       
-      // Complete the upload process
+      // Complete the upload process with the proper arguments
       completeUpload(projectId, results);
       
       // Update the overall progress to 100%
@@ -63,13 +63,18 @@ export const useCompletedUploads = () => {
       console.error('[useCompletedUploads] Error handling completed uploads:', error);
       setIsUploading(false);
       setUploadComplete(true);
-      setUploadResults({
+      
+      const errorResults = {
         success: false,
         count: 0,
         projectId,
         projectName,
+        folderId: normalizedFolderId,
         error: 'Failed to process uploads'
-      });
+      };
+      
+      setUploadResults(errorResults);
+      completeUpload(projectId, errorResults);
       
       toast.error('Error processing uploads');
     }

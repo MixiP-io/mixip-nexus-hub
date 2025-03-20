@@ -14,6 +14,7 @@ export const useUploadState = () => {
     projectId: string;
     projectName: string;
     folderId: string;
+    location?: string;
   } | null>(null);
   
   /**
@@ -21,21 +22,13 @@ export const useUploadState = () => {
    */
   const completeUpload = (
     projectId: string, 
-    projectName: string, 
-    completedFiles: UploadFile[],
-    folderId: string = 'root'
+    results: any
   ) => {
-    console.log(`Setting upload complete for project: ${projectId} (${projectName}), folder: ${folderId || 'root'}`);
+    console.log(`Setting upload complete for project: ${projectId}, results:`, results);
     
     // Make sure we set both upload complete flag and results in one operation
     setUploadComplete(true);
-    setUploadResults({
-      success: true,
-      count: completedFiles.length,
-      projectId,
-      projectName,
-      folderId: folderId || 'root'
-    });
+    setUploadResults(results);
     
     setIsUploading(false);
   };
