@@ -16,22 +16,27 @@ export const formatFileSize = (bytes: number): string => {
  * @param file The file to create a preview for
  * @returns A promise that resolves to a data URL for image files, or undefined for non-image files
  */
-export const getFilePreview = async (file: File): Promise<string | undefined> => {
-  // Only create previews for image files
-  if (!file.type.startsWith('image/')) {
-    return undefined;
-  }
-
+export const getFilePreview = (file: File): Promise<string | undefined> => {
   return new Promise((resolve, reject) => {
+    // Only create previews for image files
+    if (!file.type.startsWith('image/')) {
+      console.log(`Not an image file: ${file.name}, type: ${file.type}`);
+      resolve(undefined);
+      return;
+    }
+
+    console.log(`Generating preview for: ${file.name}, type: ${file.type}`);
+    
     const reader = new FileReader();
     
     reader.onloadend = () => {
+      console.log(`Preview generated for: ${file.name}`);
       // reader.result will be a data URL that can be stored
       resolve(reader.result as string);
     };
     
-    reader.onerror = () => {
-      console.error('Error creating preview for file:', file.name);
+    reader.onerror = (error) => {
+      console.error('Error creating preview for file:', file.name, error);
       reject(new Error(`Failed to read file: ${file.name}`));
     };
     

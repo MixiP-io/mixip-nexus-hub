@@ -47,15 +47,17 @@ export const useFileOperations = (
       // Add files to state immediately
       setFiles(prev => [...prev, ...newFiles]);
       
-      // Then generate previews asynchronously and update state as they complete
+      // Then generate previews asynchronously
       for (let i = 0; i < filesArray.length; i++) {
         const file = filesArray[i];
         const fileId = newFiles[i].id;
         
-        if (file.type.startsWith('image/')) {
-          try {
-            // Generate preview for this file
+        try {
+          // Generate preview for image files
+          if (file.type.startsWith('image/')) {
+            console.log(`Requesting preview for ${file.name}`);
             const preview = await getFilePreview(file);
+            console.log(`Got preview for ${file.name}:`, preview ? 'success' : 'undefined');
             
             // Update the file with its preview
             setFiles(prevFiles => 
@@ -63,9 +65,9 @@ export const useFileOperations = (
                 f.id === fileId ? { ...f, preview } : f
               )
             );
-          } catch (error) {
-            console.error("Error generating preview for file:", file.name, error);
           }
+        } catch (error) {
+          console.error("Error generating preview for file:", file.name, error);
         }
       }
       
@@ -80,13 +82,11 @@ export const useFileOperations = (
   
   const removeFile = (id: string) => {
     setFiles(prev => {
-      // No need to revoke object URLs since we're using data URLs now
       return prev.filter(file => file.id !== id);
     });
   };
   
   const clearAll = () => {
-    // No need to revoke object URLs since we're using data URLs now
     setFiles([]);
   };
   

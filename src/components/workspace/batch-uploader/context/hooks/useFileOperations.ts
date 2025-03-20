@@ -43,6 +43,7 @@ export const useFileOperations = (state: UploaderState, dispatch: React.Dispatch
             );
             
             if (fileToUpdate) {
+              console.log(`Updating preview for file ${fileToUpdate.name}`);
               // Update just this file with its preview
               dispatch({ 
                 type: 'UPDATE_FILE_PREVIEW', 
