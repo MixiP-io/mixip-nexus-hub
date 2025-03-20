@@ -53,8 +53,8 @@ const GroupForm: React.FC<GroupFormProps> = ({
   };
 
   return (
-    <div className="max-w-2xl mx-auto bg-gray-900 rounded-xl overflow-hidden p-6 text-gray-200 border border-gray-700">
-      <h2 className="text-xl font-semibold mb-6 text-white">
+    <div className="max-w-2xl mx-auto bg-frameio-bg-dark rounded-xl overflow-hidden p-6 text-frameio-text-primary border border-frameio-border-subtle">
+      <h2 className="text-xl font-semibold mb-6 tracking-tight">
         {isCreating ? 'Create New Collaborator Group' : 'Edit Group'}
       </h2>
       

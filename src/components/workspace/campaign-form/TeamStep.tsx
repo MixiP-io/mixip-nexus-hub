@@ -14,11 +14,11 @@ const TeamStep: React.FC<TeamStepProps> = ({ onBack, onNext }) => {
   const { selectedRoles } = formState;
 
   const roles = [
-    { id: 'photographer', label: 'Photographer', icon: <Camera className="h-8 w-8 mb-2" /> },
-    { id: 'videographer', label: 'Videographer', icon: <Video className="h-8 w-8 mb-2" /> },
-    { id: 'photo-editor', label: 'Photo Editor', icon: <Edit2 className="h-8 w-8 mb-2" /> },
-    { id: 'video-editor', label: 'Video Editor', icon: <Scissors className="h-8 w-8 mb-2" /> },
-    { id: 'audio-engineer', label: 'Audio Engineer', icon: <Music className="h-8 w-8 mb-2" /> }
+    { id: 'photographer', label: 'Photographer', icon: <Camera className="h-8 w-8 mb-2.5" /> },
+    { id: 'videographer', label: 'Videographer', icon: <Video className="h-8 w-8 mb-2.5" /> },
+    { id: 'photo-editor', label: 'Photo Editor', icon: <Edit2 className="h-8 w-8 mb-2.5" /> },
+    { id: 'video-editor', label: 'Video Editor', icon: <Scissors className="h-8 w-8 mb-2.5" /> },
+    { id: 'audio-engineer', label: 'Audio Engineer', icon: <Music className="h-8 w-8 mb-2.5" /> }
   ];
 
   const toggleRole = (roleId: string) => {
@@ -32,8 +32,8 @@ const TeamStep: React.FC<TeamStepProps> = ({ onBack, onNext }) => {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="font-medium mb-4 flex items-center">
-          <Users className="w-5 h-5 mr-2" />
+        <h3 className="font-medium mb-5 flex items-center text-frameio-text-primary tracking-tight">
+          <Users className="w-5 h-5 mr-2.5 text-frameio-accent-blue" />
           Select Team Roles (Multiple)
         </h3>
         
@@ -41,25 +41,25 @@ const TeamStep: React.FC<TeamStepProps> = ({ onBack, onNext }) => {
           {roles.map((role) => (
             <div 
               key={role.id}
-              className={`flex flex-col items-center justify-center p-4 rounded-lg cursor-pointer border ${
+              className={`flex flex-col items-center justify-center p-4 rounded-lg cursor-pointer border transition-all ${
                 selectedRoles.includes(role.id) 
-                  ? 'border-green-500 bg-gray-700' 
-                  : 'border-gray-600 bg-gray-800 hover:border-gray-500'
+                  ? 'border-frameio-accent-green bg-frameio-bg-highlight shadow-sm' 
+                  : 'border-frameio-border-subtle bg-frameio-bg-card hover:border-frameio-text-tertiary'
               }`}
               onClick={() => toggleRole(role.id)}
             >
               {role.icon}
-              <span className="text-center text-white">{role.label}</span>
+              <span className="text-center text-frameio-text-primary font-medium tracking-tight">{role.label}</span>
             </div>
           ))}
         </div>
       </div>
       
-      <div className="flex justify-between pt-4">
+      <div className="flex justify-between pt-5 mt-2 border-t border-frameio-border-subtle">
         <Button 
           onClick={onBack}
           variant="outline"
-          className="text-white hover:text-white bg-gray-700/50 hover:bg-gray-700 font-medium"
+          className="text-frameio-text-primary hover:text-white bg-frameio-bg-card/50 hover:bg-frameio-bg-highlight font-medium"
         >
           Back
         </Button>
@@ -67,7 +67,7 @@ const TeamStep: React.FC<TeamStepProps> = ({ onBack, onNext }) => {
           onClick={onNext}
           disabled={selectedRoles.length === 0}
           variant="default"
-          className="bg-green-600 hover:bg-green-700"
+          className="bg-frameio-accent-green hover:bg-green-600"
         >
           Continue
         </Button>

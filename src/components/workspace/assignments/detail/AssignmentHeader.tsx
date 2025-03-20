@@ -11,20 +11,20 @@ interface AssignmentHeaderProps {
 const AssignmentHeader: React.FC<AssignmentHeaderProps> = ({ assignment }) => {
   const getBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'pending': return 'bg-frameio-accent-yellow text-black font-medium';
-      case 'in progress': return 'bg-frameio-accent-blue text-white font-medium';
-      case 'completed': return 'bg-frameio-accent-green text-white font-medium';
-      case 'rejected': return 'bg-frameio-accent-red text-white font-medium';
-      default: return 'bg-frameio-text-tertiary text-white font-medium';
+      case 'pending': return 'bg-frameio-accent-yellow text-black font-medium tracking-wide';
+      case 'in progress': return 'bg-frameio-accent-blue text-white font-medium tracking-wide';
+      case 'completed': return 'bg-frameio-accent-green text-white font-medium tracking-wide';
+      case 'rejected': return 'bg-frameio-accent-red text-white font-medium tracking-wide';
+      default: return 'bg-frameio-text-tertiary text-white font-medium tracking-wide';
     }
   };
 
   return (
-    <Card className="bg-frameio-bg-card border-frameio-border-subtle shadow-frame-card mb-6">
-      <CardHeader className="flex flex-row justify-between items-start p-5">
+    <Card className="bg-frameio-bg-card border-frameio-border-subtle shadow-md mb-6">
+      <CardHeader className="flex flex-row justify-between items-start p-5 space-y-0">
         <div>
-          <h2 className="text-xl font-semibold text-frameio-text-primary">{assignment.title}</h2>
-          <p className="text-frameio-text-secondary text-sm mt-1">From {assignment.client}</p>
+          <h2 className="text-xl font-semibold text-frameio-text-primary tracking-tight">{assignment.title}</h2>
+          <p className="text-frameio-text-secondary text-sm mt-1.5">From {assignment.client}</p>
         </div>
         <Badge className={getBadgeVariant(assignment.status)}>
           {assignment.status}

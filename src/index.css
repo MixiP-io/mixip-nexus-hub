@@ -3,90 +3,81 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=SF+Pro+Text:wght@400;500;600&display=swap');
-
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 240 10% 3.9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 240 10% 3.9%;
 
-    --primary: 213 100% 50%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 213 100% 50%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 10% 3.9%;
 
     --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    /* Frame.io inspired colors */
+    --frameio-bg-dark: 222 25% 6%;
+    --frameio-bg-card: 220 16% 10%;
+    --frameio-bg-highlight: 220 15% 13%;
+    --frameio-border-subtle: 220 13% 15%;
+    --frameio-text-primary: 0 0% 100%;
+    --frameio-text-secondary: 220 10% 70%;
+    --frameio-text-tertiary: 220 10% 50%;
+    --frameio-accent-blue: 210 100% 50%;
+    --frameio-accent-green: 142 72% 45%;
+    --frameio-accent-yellow: 40 100% 50%;
+    --frameio-accent-red: 0 100% 60%;
+    --frameio-accent-purple: 265 89% 72%;
   }
 
   .dark {
-    /* Refined dark mode colors inspired by Frame.io */
-    --background: 225 14% 8%; /* Deeper dark background (#0F1115) */
-    --foreground: 0 0% 100%;  /* Pure white text for better contrast */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
 
-    --card: 222 12% 12%;      /* Slightly lighter card background (#1A1E23) */
-    --card-foreground: 0 0% 100%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 222 12% 12%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 213 100% 61%;  /* Brighter blue for better visibility (#3D8BFD) */
-    --primary-foreground: 0 0% 100%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
 
-    --secondary: 220 13% 18%; /* Subtle secondary background (#272C33) */
+    --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 220 13% 18%;
-    --muted-foreground: 215 8% 65%; /* Slightly higher contrast muted text */
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
 
-    --accent: 220 13% 18%;
+    --accent: 240 3.7% 15.9%;
     --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 12% 20%;    /* More subtle borders (#2A2F36) */
-    --input: 220 12% 20%;
-    --ring: 213 100% 61%;
-
-    --sidebar-background: 225 14% 8%; /* Match main background */
-    --sidebar-foreground: 220 6% 70%; /* Higher contrast sidebar text */
-    --sidebar-primary: 213 100% 61%;  /* Match primary color */
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 13% 18%;    /* Match secondary background */
-    --sidebar-accent-foreground: 215 8% 85%;
-    --sidebar-border: 220 12% 20%;    /* Match main border */
-    --sidebar-ring: 213 100% 61%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
   }
 }
 
@@ -94,76 +85,44 @@
   * {
     @apply border-border;
   }
-
-  html, body {
-    @apply bg-background text-foreground antialiased;
-    font-family: 'SF Pro Text', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    scroll-behavior: smooth;
-    overflow-x: hidden;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'SF Pro Display', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    @apply font-medium tracking-tight;
-  }
-
-  /* Frame.io inspired styles */
-  .frameio-card {
-    @apply bg-frameio-bg-card border-frameio-border-subtle rounded-md shadow-frame-card;
-  }
-
-  .frameio-text-primary {
-    @apply text-frameio-text-primary;
-  }
-
-  .frameio-text-secondary {
-    @apply text-frameio-text-secondary;
-  }
-
-  .frameio-text-tertiary {
-    @apply text-frameio-text-tertiary;
-  }
-}
-
-@layer utilities {
-  /* ... keep existing code (utility classes) */
-
-  /* New Frame.io inspired utility classes */
-  .frame-hover {
-    @apply hover:bg-frameio-bg-hover transition-colors duration-200;
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
   
-  .frame-border {
+  /* Typography enhancements */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium tracking-tight;
+    letter-spacing: -0.02em;
+  }
+  
+  h1 {
+    @apply text-3xl font-semibold;
+  }
+  
+  h2 {
+    @apply text-2xl font-medium;
+  }
+  
+  h3 {
+    @apply text-xl;
+  }
+  
+  /* Improved spacing throughout the application */
+  .section-container {
+    @apply px-6 py-5;
+  }
+  
+  .card-spacing {
+    @apply p-4 sm:p-5;
+  }
+  
+  .content-divider {
     @apply border-frameio-border-subtle;
   }
   
-  .frame-shadow {
-    @apply shadow-frame-card;
-  }
-  
-  .frame-card {
-    @apply bg-frameio-bg-card border-frameio-border-subtle rounded-md p-4 shadow-frame-card;
-  }
-  
-  .frame-button {
-    @apply bg-frameio-bg-hover hover:bg-frameio-accent-blue/20 text-frameio-text-primary rounded-md transition-colors duration-200;
-  }
-  
-  .frame-divider {
-    @apply border-frameio-border-subtle my-4;
-  }
-  
-  .frame-status-success {
-    @apply text-frameio-accent-green;
-  }
-  
-  .frame-status-warning {
-    @apply text-frameio-accent-yellow;
-  }
-  
-  .frame-status-error {
-    @apply text-frameio-accent-red;
+  /* Frame.io inspired badge styling */
+  .frameio-badge {
+    @apply inline-flex items-center rounded-full px-2 py-1 text-xs font-medium;
   }
 }
-
-/* ... keep existing code (animations and other CSS) */
