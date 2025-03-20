@@ -37,7 +37,7 @@ export const useFileOperations = (state: UploaderState, dispatch: React.Dispatch
             console.log(`Starting preview generation for: ${file.name}`);
             // Generate preview for this file
             const preview = await getFilePreview(file);
-            console.log(`Preview generation complete for: ${file.name}`);
+            console.log(`Preview generated for ${file.name}, data URL length: ${preview?.length}`);
             
             // Find the file in the state to update it with the preview
             const fileToUpdate = state.files.find(f => 
@@ -53,7 +53,7 @@ export const useFileOperations = (state: UploaderState, dispatch: React.Dispatch
               });
             }
           } catch (error) {
-            console.error("Error generating preview:", error);
+            console.error(`Error generating preview for ${file.name}:`, error);
           }
         }
       }

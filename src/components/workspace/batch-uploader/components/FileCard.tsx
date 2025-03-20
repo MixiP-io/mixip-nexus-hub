@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { X, Image, Video, File, Check, CheckCircle2, AlertCircle } from 'lucide-react';
+import { X, Image, Video, File, Check, CheckCircle2, AlertCircle, FileImage, FileWarning } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { FileCardProps } from '../types/componentProps';
 import { FileStatus } from '../types';
@@ -14,7 +14,7 @@ const FileCard: React.FC<FileCardProps> = ({
   
   const getFileIcon = (fileType: string) => {
     if (fileType.startsWith('image/')) {
-      return <Image className="h-6 w-6 text-frameio-accent-blue" />;
+      return <FileImage className="h-6 w-6 text-frameio-accent-blue" />;
     } else if (fileType.startsWith('video/')) {
       return <Video className="h-6 w-6 text-frameio-accent-green" />;
     } else {
@@ -45,12 +45,20 @@ const FileCard: React.FC<FileCardProps> = ({
               console.error(`Error loading image preview for ${file.name}`);
               const target = e.target as HTMLImageElement;
               target.style.display = 'none';
-              // Show the icon when image fails to load
+              
+              // Replace with the appropriate icon
               const container = target.parentElement;
               if (container) {
-                container.appendChild(
-                  document.createElementNS("http://www.w3.org/2000/svg", "svg")
-                );
+                const iconWrapper = document.createElement('div');
+                iconWrapper.className = 'flex items-center justify-center h-full w-full';
+                container.appendChild(iconWrapper);
+                
+                // Create the icon SVG element using React's createPortal would be better,
+                // but for this fix we'll use a simpler approach
+                const iconElement = document.createElement('div');
+                iconElement.className = 'h-6 w-6 text-frameio-accent-blue';
+                iconElement.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-image"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><circle cx="10" cy="13" r="2"/><path d="m20 17-1.09-1.09a2 2 0 0 0-2.82 0L10 22"/></svg>';
+                iconWrapper.appendChild(iconElement);
               }
             }}
           />

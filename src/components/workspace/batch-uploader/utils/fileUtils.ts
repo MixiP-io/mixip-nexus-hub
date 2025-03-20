@@ -29,7 +29,7 @@ export const getFilePreview = (file: File): Promise<string | undefined> => {
     
     const reader = new FileReader();
     
-    reader.onload = () => {
+    reader.onloadend = () => {
       console.log(`Preview generated for: ${file.name}`);
       // reader.result will be a data URL that can be stored
       resolve(reader.result as string);
