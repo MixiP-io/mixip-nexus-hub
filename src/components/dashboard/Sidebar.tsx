@@ -14,6 +14,15 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import AnimatedLogo from '@/components/ui/AnimatedLogo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/context/AuthContext';
+import {
+  Sidebar as ShadcnSidebar,
+  SidebarContent,
+  SidebarHeader,
+  SidebarFooter,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+} from '@/components/ui/sidebar';
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
@@ -42,7 +51,6 @@ const Sidebar: React.FC = () => {
   const avatarUrl = profile?.avatar || null;
   
   // Make sure we're showing the actual account type from the profile
-  // Log account type for debugging
   console.log('Profile data in sidebar:', profile);
   const accountType = profile?.account_type === 'ai_platform' ? 'AI Platform' : (profile?.account_type || "Creator Pro");
   
@@ -50,126 +58,131 @@ const Sidebar: React.FC = () => {
   const isAIPlatform = profile?.account_type === 'ai_platform';
   
   return (
-    <div className="w-64 bg-[#1A1F2C] flex flex-col text-white">
-      <div className="p-4 flex items-center space-x-2 border-b border-gray-800">
-        <AnimatedLogo size="sm" />
-        <span className="font-bold text-xl">Mix-IP</span>
-      </div>
+    <ShadcnSidebar data-state="expanded" className="bg-[#1A1F2C] text-white">
+      <SidebarHeader className="border-b border-gray-800">
+        <div className="p-4 flex items-center space-x-2">
+          <AnimatedLogo size="sm" />
+          <span className="font-bold text-xl">Mix-IP</span>
+        </div>
+        
+        <div className="p-4 border-b border-gray-800">
+          <Link to="/profile/settings" className="flex items-center space-x-3 hover:bg-gray-800 p-2 rounded-lg transition-colors">
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={avatarUrl || ""} />
+              <AvatarFallback className="bg-gray-700 text-gray-300">
+                {displayName.split(' ').map(name => name[0]).join('') || "U"}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <h3 className="font-medium">{displayName}</h3>
+              <p className="text-sm text-gray-400">{accountType}</p>
+            </div>
+          </Link>
+        </div>
+      </SidebarHeader>
       
-      <div className="p-4 border-b border-gray-800">
-        <Link to="/profile/settings" className="flex items-center space-x-3 hover:bg-gray-800 p-2 rounded-lg transition-colors">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={avatarUrl || ""} />
-            <AvatarFallback className="bg-gray-700 text-gray-300">
-              {displayName.split(' ').map(name => name[0]).join('') || "U"}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <h3 className="font-medium">{displayName}</h3>
-            <p className="text-sm text-gray-400">{accountType}</p>
-          </div>
-        </Link>
-      </div>
-      
-      <nav className="flex-1 p-4">
-        <ul className="space-y-2">
-          <li>
-            <Link 
-              to="/dashboard" 
-              className={`flex items-center space-x-3 p-3 rounded-lg ${
-                isActive('/dashboard') 
-                  ? 'bg-gray-800 text-mixip-blue' 
-                  : 'hover:bg-gray-800 transition-colors'
-              }`}
-              onClick={handleNavigation('/dashboard')}
+      <SidebarContent>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              asChild 
+              isActive={isActive('/dashboard')}
+              tooltip="Dashboard"
             >
-              <LayoutDashboard className="w-5 h-5" />
-              <span>Dashboard</span>
-            </Link>
-          </li>
+              <Link to="/dashboard" onClick={handleNavigation('/dashboard')}>
+                <LayoutDashboard className="w-5 h-5" />
+                <span>Dashboard</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           
           {isAIPlatform ? (
             // AI Platform specific menu items
             <>
-              <li>
-                <Link 
-                  to="/dashboard/workspace?tab=datasets" 
-                  className={`flex items-center space-x-3 p-3 rounded-lg ${
-                    isActive('/dashboard/workspace') && location.search.includes('tab=datasets')
-                      ? 'bg-gray-800 text-green-400' 
-                      : 'hover:bg-gray-800 transition-colors'
-                  }`}
-                  onClick={handleNavigation('/dashboard/workspace?tab=datasets')}
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  asChild 
+                  isActive={isActive('/dashboard/workspace') && location.search.includes('tab=datasets')}
+                  tooltip="Datasets"
                 >
-                  <Database className="w-5 h-5" />
-                  <span>Datasets</span>
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/dashboard/workspace?tab=ai-models" 
-                  className={`flex items-center space-x-3 p-3 rounded-lg ${
-                    isActive('/dashboard/workspace') && location.search.includes('tab=ai-models')
-                      ? 'bg-gray-800 text-green-400' 
-                      : 'hover:bg-gray-800 transition-colors'
-                  }`}
-                  onClick={handleNavigation('/dashboard/workspace?tab=ai-models')}
+                  <Link to="/dashboard/workspace?tab=datasets" onClick={handleNavigation('/dashboard/workspace?tab=datasets')}>
+                    <Database className="w-5 h-5" />
+                    <span>Datasets</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  asChild 
+                  isActive={isActive('/dashboard/workspace') && location.search.includes('tab=ai-models')}
+                  tooltip="AI Models"
                 >
-                  <Bot className="w-5 h-5" />
-                  <span>AI Models</span>
-                </Link>
-              </li>
+                  <Link to="/dashboard/workspace?tab=ai-models" onClick={handleNavigation('/dashboard/workspace?tab=ai-models')}>
+                    <Bot className="w-5 h-5" />
+                    <span>AI Models</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </>
           ) : (
             // Regular user menu items
             <>
-              <li>
-                <Link 
-                  to="/dashboard/workspace" 
-                  className={`flex items-center space-x-3 p-3 rounded-lg ${
-                    isActive('/dashboard/workspace') 
-                      ? 'bg-gray-800 text-mixip-blue' 
-                      : 'hover:bg-gray-800 transition-colors'
-                  }`}
-                  onClick={handleNavigation('/dashboard/workspace')}
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  asChild 
+                  isActive={isActive('/dashboard/workspace')}
+                  tooltip="Creative Workspace"
                 >
-                  <FolderOpen className="w-5 h-5" />
-                  <span>Creative Workspace</span>
-                </Link>
-              </li>
-              <li>
-                <Link to="/dashboard/marketplace" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 transition-colors">
-                  <Store className="w-5 h-5" />
-                  <span>Marketplace</span>
-                </Link>
-              </li>
-              <li>
-                <Link to="/dashboard/insights" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 transition-colors">
-                  <BarChart3 className="w-5 h-5" />
-                  <span>Insights & Revenue</span>
-                </Link>
-              </li>
+                  <Link to="/dashboard/workspace" onClick={handleNavigation('/dashboard/workspace')}>
+                    <FolderOpen className="w-5 h-5" />
+                    <span>Creative Workspace</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  asChild 
+                  tooltip="Marketplace"
+                >
+                  <Link to="/dashboard/marketplace">
+                    <Store className="w-5 h-5" />
+                    <span>Marketplace</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  asChild 
+                  tooltip="Insights & Revenue"
+                >
+                  <Link to="/dashboard/insights">
+                    <BarChart3 className="w-5 h-5" />
+                    <span>Insights & Revenue</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </>
           )}
           
-          <li>
-            <Link 
-              to="/profile/settings" 
-              className={`flex items-center space-x-3 p-3 rounded-lg ${
-                isActive('/profile/settings') 
-                  ? 'bg-gray-800 text-mixip-blue' 
-                  : 'hover:bg-gray-800 transition-colors'
-              }`}
-              onClick={handleNavigation('/profile/settings')}
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              asChild 
+              isActive={isActive('/profile/settings')}
+              tooltip="My Profile"
             >
-              <User className="w-5 h-5" />
-              <span>My Profile</span>
-            </Link>
-          </li>
-        </ul>
-      </nav>
+              <Link to="/profile/settings" onClick={handleNavigation('/profile/settings')}>
+                <User className="w-5 h-5" />
+                <span>My Profile</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarContent>
       
-      <div className="p-4 mt-auto">
+      <SidebarFooter className="p-4 mt-auto">
         <button 
           className="w-full bg-green-600 hover:bg-green-700 text-white p-3 rounded-lg flex items-center justify-center space-x-2 transition-colors"
           onClick={handleLogout}
@@ -177,8 +190,8 @@ const Sidebar: React.FC = () => {
           <LogOut className="w-5 h-5" />
           <span>Log Out</span>
         </button>
-      </div>
-    </div>
+      </SidebarFooter>
+    </ShadcnSidebar>
   );
 };
 
