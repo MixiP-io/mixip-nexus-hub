@@ -19,6 +19,7 @@ export type Database = {
           project_id: string
           size: number
           storage_path: string | null
+          storage_url: string | null
           type: string
           uploaded_at: string
           user_id: string
@@ -32,6 +33,7 @@ export type Database = {
           project_id: string
           size: number
           storage_path?: string | null
+          storage_url?: string | null
           type: string
           uploaded_at?: string
           user_id: string
@@ -45,6 +47,7 @@ export type Database = {
           project_id?: string
           size?: number
           storage_path?: string | null
+          storage_url?: string | null
           type?: string
           uploaded_at?: string
           user_id?: string

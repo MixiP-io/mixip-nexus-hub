@@ -42,9 +42,11 @@ export const saveProjectAssetsToDatabase = async (
     project_id: projectId,
     folder_id: folderDbId, // Will be null for root folder
     preview_url: asset.preview,
+    storage_path: asset.storagePath || null,
+    storage_url: asset.storageUrl || null,
     license_type: asset.licenseType,
     uploaded_at: new Date().toISOString(),
-    user_id: supabase.auth.getUser().then(res => res.data.user?.id) // Use auth.getUser() for current user
+    user_id: null // Will be updated with current user
   }));
 
   try {

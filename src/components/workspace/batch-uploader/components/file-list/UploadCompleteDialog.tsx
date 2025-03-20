@@ -10,7 +10,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface UploadCompleteDialogProps {
@@ -36,10 +35,18 @@ const UploadCompleteDialog: React.FC<UploadCompleteDialogProps> = ({
   navigateToProject,
   folderId
 }) => {
+  console.log("[UploadCompleteDialog] Rendering with props:", { 
+    isOpen, fileCount, totalSize, projectId, projectName, success, folderId 
+  });
+
   const handleGoToProject = () => {
     console.log(`Navigating to project ${projectId} folder ${folderId}`);
     navigateToProject(projectId, folderId);
     onClose();
+  };
+
+  const getFolderName = () => {
+    return folderId === 'root' ? 'root folder' : `folder "${folderId}"`;
   };
 
   return (
@@ -59,7 +66,7 @@ const UploadCompleteDialog: React.FC<UploadCompleteDialogProps> = ({
           <AlertDialogDescription className="text-gray-400">
             {success ? (
               <>
-                Successfully uploaded {fileCount} file{fileCount !== 1 ? 's' : ''} ({totalSize}) to <span className="font-medium text-white">{projectName}</span>.
+                Successfully uploaded {fileCount} file{fileCount !== 1 ? 's' : ''} ({totalSize}) to <span className="font-medium text-white">{projectName}</span> in the {getFolderName()}.
               </>
             ) : (
               <>

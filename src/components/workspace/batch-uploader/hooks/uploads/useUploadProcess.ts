@@ -100,7 +100,8 @@ export const useUploadProcess = () => {
           hasErrors,
           setIsUploading,
           setUploadComplete,
-          setUploadResults
+          setUploadResults,
+          projectId
         );
       }
     } catch (error) {
@@ -108,9 +109,9 @@ export const useUploadProcess = () => {
         error, 
         projectId, 
         projectName,
+        setIsUploading,
         setUploadComplete,
-        setUploadResults,
-        setIsLoading: setIsUploading
+        setUploadResults
       );
     } finally {
       // Force a final update to overall progress

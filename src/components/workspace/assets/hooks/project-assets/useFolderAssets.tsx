@@ -13,6 +13,7 @@ export const useFolderAssets = () => {
 
   // Force refresh of assets
   const forceRefresh = useCallback(() => {
+    console.log('[useFolderAssets] Force refreshing assets');
     setLastRefresh(Date.now());
   }, []);
 
@@ -54,7 +55,26 @@ export const useFolderAssets = () => {
             console.log('First few assets:', data.slice(0, 2));
           }
           
-          setFolderAssets(data || []);
+          // Attach public URLs to assets if they have storage paths
+          const assetsWithUrls = data.map(asset => {
+            if (asset.storage_path) {
+              const { data: urlData } = supabase.storage
+                .from('assets')
+                .getPublicUrl(asset.storage_path);
+              
+              return {
+                ...asset,
+                publicUrl: urlData.publicUrl,
+                preview: asset.storage_url || asset.preview_url || urlData.publicUrl
+              };
+            }
+            return {
+              ...asset,
+              preview: asset.storage_url || asset.preview_url
+            };
+          });
+          
+          setFolderAssets(assetsWithUrls || []);
         }
       } else {
         // Subfolder assets have matching folder_id
@@ -77,7 +97,26 @@ export const useFolderAssets = () => {
             console.log('First few assets:', data.slice(0, 2));
           }
           
-          setFolderAssets(data || []);
+          // Attach public URLs to assets if they have storage paths
+          const assetsWithUrls = data.map(asset => {
+            if (asset.storage_path) {
+              const { data: urlData } = supabase.storage
+                .from('assets')
+                .getPublicUrl(asset.storage_path);
+              
+              return {
+                ...asset,
+                publicUrl: urlData.publicUrl,
+                preview: asset.storage_url || asset.preview_url || urlData.publicUrl
+              };
+            }
+            return {
+              ...asset,
+              preview: asset.storage_url || asset.preview_url
+            };
+          });
+          
+          setFolderAssets(assetsWithUrls || []);
         }
       }
     } catch (err) {
@@ -89,6 +128,26 @@ export const useFolderAssets = () => {
     } finally {
       setIsLoading(false);
     }
+  }, []);
+
+  // Set up realtime subscription to refresh assets when they change
+  useEffect(() => {
+    const channel = supabase.channel('assets-changes')
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'assets'
+        }, 
+        () => {
+          console.log('[useFolderAssets] Received database change, refreshing assets');
+          setLastRefresh(Date.now());
+        })
+      .subscribe();
+      
+    return () => {
+      channel.unsubscribe();
+    };
   }, []);
 
   return {

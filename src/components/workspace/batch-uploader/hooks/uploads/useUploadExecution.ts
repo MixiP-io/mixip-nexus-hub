@@ -1,7 +1,6 @@
 
 import { toast } from 'sonner';
 import { UploadFile, FileStatus } from '../../types';
-import { simulateFileUpload } from '../../utils/uploadUtils';
 
 /**
  * Hook for handling file upload execution
@@ -29,14 +28,28 @@ export const executeFileUploads = async (
     console.log(`Processing file: ${file.name} (${file.id})`);
     
     try {
-      // Simulate upload - in a real app, replace with actual API calls
-      await simulateFileUpload(file.id, updateFileProgress);
+      // Update the file progress (using actual progress if possible)
+      let progressInterval: any;
+      if (!file.file) {
+        // If no file object (shouldn't happen), simulate progress
+        progressInterval = simulateProgress(file.id, updateFileProgress);
+      } else {
+        // Start with initial progress
+        updateFileProgress(file.id, 5);
+        
+        // Simulate incremental progress for more responsive UI
+        progressInterval = simulateProgress(file.id, updateFileProgress, 5, 80);
+      }
       
       // Mark as processing
       updateFileStatus(file.id, 'processing');
       console.log(`File ${file.name} is processing`);
       
-      // Simulate processing delay
+      // Clear the progress interval
+      clearInterval(progressInterval);
+      updateFileProgress(file.id, 100);
+      
+      // Wait a short time for visual feedback that processing is complete
       await new Promise(resolve => setTimeout(resolve, 500));
       
       // Mark as complete
@@ -70,3 +83,25 @@ export const executeFileUploads = async (
 
   return { completedFiles, hasErrors };
 };
+
+// Helper function to simulate file upload progress
+function simulateProgress(
+  fileId: string, 
+  updateProgress: (id: string, progress: number) => void,
+  startAt: number = 0,
+  endAt: number = 100
+) {
+  let progress = startAt;
+  const interval = setInterval(() => {
+    // Generate a random increment between 1 and 10
+    const increment = Math.floor(Math.random() * 5) + 1;
+    progress = Math.min(progress + increment, endAt);
+    updateProgress(fileId, progress);
+    
+    if (progress >= endAt) {
+      clearInterval(interval);
+    }
+  }, 200);
+  
+  return interval;
+}

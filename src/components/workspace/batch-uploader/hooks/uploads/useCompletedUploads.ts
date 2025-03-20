@@ -37,6 +37,43 @@ export const useCompletedUploads = () => {
       
       console.log(`[useCompletedUploads] Verified project: ${projectData.name}`);
       
+      // Process each file and upload to Supabase Storage
+      for (const file of completedFiles) {
+        if (file.file && file.file instanceof File) {
+          try {
+            const filePath = `${projectId}/${normalizedFolderId}/${file.name}`;
+            console.log(`[useCompletedUploads] Uploading file to storage: ${filePath}`);
+            
+            // Upload file to storage
+            const { data: storageData, error: storageError } = await supabase.storage
+              .from('assets')
+              .upload(filePath, file.file, {
+                cacheControl: '3600',
+                upsert: true
+              });
+              
+            if (storageError) {
+              console.error('[useCompletedUploads] Error uploading to storage:', storageError);
+              // Continue with next file, don't fail the whole batch
+              continue;
+            }
+            
+            // Get public URL for the uploaded file
+            const { data: publicUrlData } = supabase.storage
+              .from('assets')
+              .getPublicUrl(filePath);
+              
+            // Update file with storage path
+            file.storagePath = filePath;
+            file.storageUrl = publicUrlData.publicUrl;
+            
+            console.log(`[useCompletedUploads] File uploaded to: ${publicUrlData.publicUrl}`);
+          } catch (err) {
+            console.error(`[useCompletedUploads] Error processing file ${file.name}:`, err);
+          }
+        }
+      }
+      
       // Add the files to the project
       const { success, count, location } = await addFilesToProject(
         projectId,
