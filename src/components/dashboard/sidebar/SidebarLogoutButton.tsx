@@ -14,7 +14,10 @@ const SidebarLogoutButton: React.FC<SidebarLogoutButtonProps> = ({ onLogout }) =
   const logoutButton = (
     <button 
       className={`w-full p-3 rounded-lg bg-green-600 hover:bg-green-700 text-white transition-colors flex items-center ${collapsed ? 'justify-center' : 'justify-center space-x-2'}`}
-      onClick={onLogout}
+      onClick={(e) => {
+        console.log('Logout button clicked');
+        onLogout(e);
+      }}
     >
       <LogOut className="w-5 h-5" />
       {!collapsed && <span>Log Out</span>}

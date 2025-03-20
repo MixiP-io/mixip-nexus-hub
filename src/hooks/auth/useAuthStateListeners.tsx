@@ -18,20 +18,13 @@ export function useAuthStateListeners(
         console.log('Auth state changed:', event, session?.user?.email);
         
         if (event === 'SIGNED_OUT') {
-          console.log('SIGNED_OUT event detected, redirecting to login page');
+          console.log('SIGNED_OUT event detected, clearing auth state');
           setSession(null);
           setUser(null);
           setProfile(null);
           
-          toast({
-            title: "Signed out",
-            description: "You have been signed out.",
-          });
-          
-          // Ensure navigation happens with a short delay to avoid race conditions
-          setTimeout(() => {
-            navigate('/login', { replace: true });
-          }, 100);
+          // Note: We don't need to navigate here because the useSignOut hook
+          // handles navigation directly with window.location.href for a complete reset
           return;
         }
         

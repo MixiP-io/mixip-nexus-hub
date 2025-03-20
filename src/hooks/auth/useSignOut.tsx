@@ -1,14 +1,11 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
-import { useNavigate } from 'react-router-dom';
 
 export function useSignOut(
   setIsLoading: (isLoading: boolean) => void,
   setProfile: (profile: null) => void
 ) {
-  const navigate = useNavigate();
-  
   const signOut = async () => {
     try {
       console.log('Attempting sign out');
@@ -17,7 +14,8 @@ export function useSignOut(
       // Clear profile data first to prevent stale data issues
       setProfile(null);
       
-      const { error } = await supabase.auth.signOut();
+      // Sign out from supabase with global scope to invalidate all sessions
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
       if (error) throw error;
       
       console.log('Sign out successful');
@@ -27,9 +25,8 @@ export function useSignOut(
         description: "You have been signed out.",
       });
       
-      // Force navigation to login page after successful sign out
-      // This ensures navigation happens even if the auth state listener doesn't trigger
-      navigate('/login', { replace: true });
+      // Force a hard navigation to login page to ensure complete state reset
+      window.location.href = '/login';
       
     } catch (error: any) {
       console.error('Sign out error:', error);
