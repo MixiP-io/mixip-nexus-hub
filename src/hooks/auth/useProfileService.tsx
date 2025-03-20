@@ -77,12 +77,13 @@ export function useProfileService(setProfile: (profile: UserProfile | null) => v
         return null;
       }
       
-      // Use type assertion to add default values for fields that might not exist in the database
-      const enhancedProfile = {
+      // Create a type-safe enhanced profile by casting the base data and adding defaults
+      const enhancedProfile: UserProfile = {
         ...profileData,
-        verification_status: profileData.verification_status || 'not_verified',
-        account_status: profileData.account_status || 'active'
-      } as UserProfile;
+        // Add default values for fields that might not exist in the database
+        verification_status: (profileData as any).verification_status || 'not_verified',
+        account_status: (profileData as any).account_status || 'active'
+      };
       
       console.log('Profile fetched successfully:', enhancedProfile);
       // Update cache with the typed profile data
@@ -120,12 +121,13 @@ export function useProfileService(setProfile: (profile: UserProfile | null) => v
         return null;
       }
       
-      // Use type assertion to add default values for fields that might not exist in the database
-      const enhancedProfile = {
+      // Create a type-safe enhanced profile by casting the base data and adding defaults
+      const enhancedProfile: UserProfile = {
         ...data,
-        verification_status: data.verification_status || 'not_verified',
-        account_status: data.account_status || 'active'
-      } as UserProfile;
+        // Add default values for fields that might not exist in the database
+        verification_status: (data as any).verification_status || 'not_verified',
+        account_status: (data as any).account_status || 'active'
+      };
       
       console.log('Profile updated successfully:', enhancedProfile);
       
