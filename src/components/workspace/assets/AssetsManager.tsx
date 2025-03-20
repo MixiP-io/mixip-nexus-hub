@@ -1,9 +1,12 @@
 
-import React from 'react';
-import { useAssetsManager } from './hooks/useAssetsManager';
+import React, { useEffect } from 'react';
+import { useAssetsNavigation } from '@/hooks/useAssetsNavigation';
 import AssetsContent from './components/AssetsContent';
 import AssetsErrorState from './components/AssetsErrorState';
-import AssetsInitializer from './components/AssetsInitializer';
+import { useProjectLoader } from './hooks/project-assets/useProjectLoader';
+import { useAssetSelection } from './hooks/useAssetSelection';
+import { useRightsPanel } from './hooks/useRightsPanel';
+import { useAssetFiltering } from './hooks/useAssetFiltering';
 
 interface AssetsManagerProps {
   selectedProjectId: string | null;
@@ -14,52 +17,96 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
   selectedProjectId,
   selectedFolderId = 'root'
 }) => {
+  // Load project data
+  const { projectData, isLoading: projectLoading, loadProjectWithRetries } = useProjectLoader();
+  
+  // Use our improved navigation and assets loading hook
+  const {
+    currentFolderId,
+    folderName,
+    folderAssets,
+    isLoading: assetsLoading,
+    error,
+    handleFolderSelect
+  } = useAssetsNavigation(selectedProjectId);
+  
+  // Load project data when project ID changes
+  useEffect(() => {
+    if (selectedProjectId) {
+      loadProjectWithRetries(selectedProjectId);
+    }
+  }, [selectedProjectId, loadProjectWithRetries]);
+  
+  // Filter assets
   const {
     viewMode,
     setViewMode,
     searchQuery,
     setSearchQuery,
-    projectData,
+    filteredAssets
+  } = useAssetFiltering(folderAssets);
+  
+  // Asset selection
+  const {
     selectedAssets,
+    handleAssetClick,
+    handleSelectAll
+  } = useAssetSelection(filteredAssets);
+  
+  // Rights panel
+  const {
     rightsPanelOpen,
     setRightsPanelOpen,
     selectedAssetForRights,
     setSelectedAssetForRights,
-    filteredAssets,
-    handleAssetClick,
-    handleSelectAll,
-    handleBatchUpload,
     handleOpenRightsPanel,
-    handleBatchRights,
-    setCurrentFolderId,
-    currentFolderId,
-    hasAssetsInFolders,
-    foldersWithAssets,
-    handleFolderChange
-  } = useAssetsManager(selectedProjectId, selectedFolderId);
-
-  // Handle error states and project selection
-  const errorState = <AssetsErrorState 
-    selectedProjectId={selectedProjectId}
-    currentFolderId={currentFolderId}
-    projectData={projectData}
-  />;
+    handleBatchRights
+  } = useRightsPanel(selectedAssets);
   
-  if (errorState) return errorState;
-
+  // Handle batch upload
+  const handleBatchUpload = () => {
+    if (!selectedProjectId) return;
+    
+    // Logic for batch upload
+    console.log(`Opening batch upload for project ${selectedProjectId}, folder ${currentFolderId}`);
+  };
+  
+  // Debug output
+  useEffect(() => {
+    console.log('[AssetsManager] Render with:', {
+      projectId: selectedProjectId,
+      folderId: currentFolderId,
+      folderName,
+      assetsCount: folderAssets.length,
+      error
+    });
+  }, [selectedProjectId, currentFolderId, folderName, folderAssets, error]);
+  
+  // Show error state if needed
+  const errorState = (
+    <AssetsErrorState 
+      selectedProjectId={selectedProjectId}
+      currentFolderId={currentFolderId}
+      projectData={projectData}
+      error={error}
+    />
+  );
+  
+  if (error) return errorState;
+  
+  const isLoading = projectLoading || assetsLoading;
+  
+  // Folders with assets information
+  const hasAssetsInFolders = projectData?.subfolders?.some((folder: any) => 
+    folder.assets && folder.assets.length > 0
+  ) || false;
+  
+  const foldersWithAssets = projectData?.subfolders
+    ?.filter((folder: any) => folder.assets && folder.assets.length > 0)
+    ?.map((folder: any) => folder.name) || [];
+  
   return (
     <div className="p-6">
-      {/* Side effects component for initialization and debugging */}
-      <AssetsInitializer
-        selectedProjectId={selectedProjectId}
-        selectedFolderId={selectedFolderId}
-        currentFolderId={currentFolderId}
-        setCurrentFolderId={setCurrentFolderId}
-        handleFolderChange={handleFolderChange}
-        projectData={projectData}
-      />
-      
-      {/* Main content */}
       <AssetsContent
         projectData={projectData}
         viewMode={viewMode}
@@ -81,6 +128,9 @@ const AssetsManager: React.FC<AssetsManagerProps> = ({
         currentFolderId={currentFolderId}
         foldersWithAssets={foldersWithAssets}
         selectedProjectId={selectedProjectId}
+        folderName={folderName}
+        isLoading={isLoading}
+        handleFolderSelect={handleFolderSelect}
       />
     </div>
   );

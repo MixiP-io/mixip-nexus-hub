@@ -2,8 +2,7 @@
 import React from 'react';
 import AssetsGridView from './grid-view/AssetsGridView';
 import AssetsListView from './list-view/AssetsListView';
-import AssetsEmptyStateView from './AssetsEmptyStateView';
-import BatchActionsBar from './BatchActionsBar';
+import AssetsEmptyState from './AssetsEmptyState';
 
 interface AssetsViewProps {
   viewMode: 'grid' | 'list';
@@ -19,6 +18,8 @@ interface AssetsViewProps {
   foldersWithAssets: string[];
   handleBatchUpload: () => void;
   selectedProjectId: string | null;
+  handleFolderSelect: (folderId: string, folderName?: string) => void;
+  folderName?: string;
 }
 
 const AssetsView: React.FC<AssetsViewProps> = ({
@@ -34,37 +35,37 @@ const AssetsView: React.FC<AssetsViewProps> = ({
   projectName,
   foldersWithAssets,
   handleBatchUpload,
-  selectedProjectId
+  selectedProjectId,
+  handleFolderSelect,
+  folderName
 }) => {
-  const hasFilteredAssets = filteredAssets && filteredAssets.length > 0;
-
-  if (!hasFilteredAssets) {
+  // Show empty state if no assets
+  if (filteredAssets.length === 0) {
     return (
-      <AssetsEmptyStateView
+      <AssetsEmptyState
+        projectName={projectName}
         hasAssetsInFolders={hasAssetsInFolders}
         currentFolderId={currentFolderId}
-        projectName={projectName}
         foldersWithAssets={foldersWithAssets}
         handleBatchUpload={handleBatchUpload}
         selectedProjectId={selectedProjectId}
+        handleFolderSelect={handleFolderSelect}
+        folderName={folderName}
       />
     );
   }
 
-  if (viewMode === 'grid') {
-    return (
-      <AssetsGridView
-        assets={filteredAssets}
-        selectedAssets={selectedAssets}
-        handleAssetClick={handleAssetClick}
-        handleSelectAll={handleSelectAll}
-        handleOpenRightsPanel={handleOpenRightsPanel}
-        handleBatchRights={handleBatchRights}
-      />
-    );
-  }
-
-  return (
+  // Render grid or list view based on selection
+  return viewMode === 'grid' ? (
+    <AssetsGridView
+      assets={filteredAssets}
+      selectedAssets={selectedAssets}
+      handleAssetClick={handleAssetClick}
+      handleSelectAll={handleSelectAll}
+      handleOpenRightsPanel={handleOpenRightsPanel}
+      handleBatchRights={handleBatchRights}
+    />
+  ) : (
     <AssetsListView
       assets={filteredAssets}
       selectedAssets={selectedAssets}
