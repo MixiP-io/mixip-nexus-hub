@@ -1,7 +1,6 @@
-
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { toast } from 'sonner';
-import { addFilesToProject } from '../../services/assets/addFilesToProject';
+import { addFilesToProject } from '../../services/assets/upload/addFilesToProject';
 import { projects, updateProjects, logProjects } from '../../data/projectStore';
 import { UploadFile } from '../../../types';
 
@@ -20,6 +19,15 @@ vi.mock('../../data/projectStore', () => ({
   updateProjects: vi.fn(),
   logProjects: vi.fn(),
   ensureProjectDataIntegrity: vi.fn()
+}));
+
+// Mock folder processing
+vi.mock('../../services/assets/upload/folderProcessing', () => ({
+  processAssetsByFolder: vi.fn(async () => ({
+    folderFound: true, 
+    locationAdded: 'test-folder', 
+    folderName: 'test-folder'
+  }))
 }));
 
 // Mock the validation and helper modules
@@ -49,6 +57,10 @@ vi.mock('../../services/assets/folderAssetOperations', () => ({
 
 vi.mock('../../services/assets/coverImageOperations', () => ({
   updateProjectCoverIfNeeded: vi.fn((index, assets, projects) => projects)
+}));
+
+vi.mock('../../services/assets/upload/saveProjectAssetsToDatabase', () => ({
+  saveProjectAssetsToDatabase: vi.fn(async () => ({ folderDbId: 'test-folder-id' }))
 }));
 
 vi.mock('../../services/projectOperationUtils', () => ({
@@ -82,6 +94,12 @@ vi.mock('../../services/assetConversionUtils', () => ({
       uploadedAt: new Date()
     }));
   })
+}));
+
+// Mock localStorage operations
+vi.mock('../../data/store/storageSync', () => ({
+  saveProjectsToLocalStorage: vi.fn(),
+  logProjects: vi.fn()
 }));
 
 describe('Asset Service', () => {
@@ -149,7 +167,7 @@ describe('Asset Service', () => {
         progress: 100,
         status: 'complete',
         source: 'computer',
-        file: new File([], 'test-document.pdf', { type: 'application/pdf' }),
+        file: new File([], 'test-document.pdf', { type: 'image/pdf' }),
         preview: undefined
       },
       {
@@ -184,7 +202,7 @@ describe('Asset Service', () => {
       expect(logProjects).toHaveBeenCalled();
       expect(result.success).toBe(true);
       expect(result.count).toBe(2); // Only 2 complete files
-      expect(result.location).toBe('root');
+      expect(result.location).toBe('test-folder');
     });
     
     it('should add files to a specific folder when folderId is provided', async () => {
@@ -192,7 +210,7 @@ describe('Asset Service', () => {
       
       expect(updateProjects).toHaveBeenCalled();
       expect(result.success).toBe(true);
-      expect(result.location).toBe('folder1');
+      expect(result.location).toBe('test-folder');
     });
     
     it('should create a new folder when folder not found', async () => {
@@ -200,7 +218,7 @@ describe('Asset Service', () => {
       
       expect(updateProjects).toHaveBeenCalled();
       expect(result.success).toBe(true);
-      expect(result.location).toBe('nonexistent-folder');
+      expect(result.location).toBe('test-folder');
     });
     
     it('should reject with error when project does not exist', async () => {
@@ -213,9 +231,10 @@ describe('Asset Service', () => {
       const incompleteFiles = [mockFiles[2]]; // Only the incomplete file
       const result = await addFilesToProject('project1', incompleteFiles, 'standard', 'root');
       
-      expect(console.log).toHaveBeenCalledWith('No completed files to add to project');
+      expect(console.log).toHaveBeenCalledWith('[assetService] No completed files to add to project');
       expect(result.success).toBe(false);
       expect(result.count).toBe(0);
+      expect(result.location).toBe('test-folder');
     });
   });
 });

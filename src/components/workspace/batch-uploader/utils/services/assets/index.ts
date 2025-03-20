@@ -10,3 +10,4 @@ export { saveProjectAssetsToDatabase } from './upload/saveProjectAssetsToDatabas
 
 // Re-export other functions 
 export { setProjectCoverImage } from './coverImageService';
+
