@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import Header from '@/components/dashboard/Header';
 import CollapsibleTabs from '@/components/dashboard/CollapsibleTabs';
 import ProjectGrid from '@/components/dashboard/ProjectGrid';
-import { SidebarTrigger } from '@/components/ui/sidebar';
 
 const MainContent: React.FC = () => {
   return (
@@ -14,7 +13,6 @@ const MainContent: React.FC = () => {
         <div className="px-5 py-4 flex-1 flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <CollapsibleTabs />
-            <SidebarTrigger className="text-white hover:bg-frameio-bg-card hidden" />
           </div>
           <div className="mt-2 flex-1">
             <ProjectGrid />

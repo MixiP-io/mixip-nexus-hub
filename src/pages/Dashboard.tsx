@@ -3,7 +3,6 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/dashboard/Sidebar';
 import MainContent from '@/components/dashboard/MainContent';
-import { SidebarProvider } from '@/components/ui/sidebar';
 
 const Dashboard: React.FC = () => {
   console.log('Rendering dashboard component');
@@ -32,12 +31,10 @@ const Dashboard: React.FC = () => {
   }, [navigate]);
   
   return (
-    <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen bg-mixip-gray-dark text-white flex w-full">
-        <Sidebar />
-        <MainContent />
-      </div>
-    </SidebarProvider>
+    <div className="min-h-screen bg-mixip-gray-dark text-white flex w-full">
+      <Sidebar />
+      <MainContent />
+    </div>
   );
 };
 

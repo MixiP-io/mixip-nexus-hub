@@ -8,31 +8,17 @@ import {
   LogOut,
   User,
   Database,
-  Bot,
-  ChevronLeft,
-  ChevronRight
+  Bot
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import AnimatedLogo from '@/components/ui/AnimatedLogo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/context/AuthContext';
-import {
-  Sidebar as ShadcnSidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarFooter,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  useSidebar
-} from '@/components/ui/sidebar';
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
   const { signOut, user, profile } = useAuth();
   const navigate = useNavigate();
-  const { state, toggleSidebar } = useSidebar();
-  const isCollapsed = state === 'collapsed';
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -63,171 +49,158 @@ const Sidebar: React.FC = () => {
   const isAIPlatform = profile?.account_type === 'ai_platform';
   
   return (
-    <ShadcnSidebar data-state={state} className="bg-[#1A1F2C] text-white relative">
-      <button 
-        onClick={toggleSidebar}
-        className="absolute -right-3 top-20 bg-[#1A1F2C] text-white rounded-full p-1 shadow-md z-10 hover:bg-gray-700 transition-colors"
-      >
-        {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-      </button>
-
-      <SidebarHeader className="border-b border-gray-800">
-        <div className={`p-4 flex items-center ${isCollapsed ? 'justify-center' : 'space-x-2'}`}>
+    <div className="w-64 bg-[#1A1F2C] h-screen flex flex-col text-white">
+      {/* Header with Logo */}
+      <div className="p-4 border-b border-gray-800">
+        <div className="flex items-center space-x-2">
           <AnimatedLogo size="sm" />
-          {!isCollapsed && <span className="font-bold text-xl">Mix-IP</span>}
+          <span className="font-bold text-xl">Mix-IP</span>
         </div>
-        
-        <div className={`p-4 border-b border-gray-800 ${isCollapsed ? 'flex justify-center' : ''}`}>
-          <Link to="/profile/settings" className={`flex ${isCollapsed ? 'justify-center' : 'items-center space-x-3'} hover:bg-gray-800 p-2 rounded-lg transition-colors`}>
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={avatarUrl || ""} />
-              <AvatarFallback className="bg-gray-700 text-gray-300">
-                {displayName.split(' ').map(name => name[0]).join('') || "U"}
-              </AvatarFallback>
-            </Avatar>
-            {!isCollapsed && (
-              <div>
-                <h3 className="font-medium">{displayName}</h3>
-                <p className="text-sm text-gray-400">{accountType}</p>
-              </div>
-            )}
-          </Link>
-        </div>
-      </SidebarHeader>
+      </div>
       
-      <SidebarContent>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton 
-              asChild 
-              isActive={isActive('/dashboard')}
-              tooltip={isCollapsed ? "Dashboard" : undefined}
+      {/* User Profile Section */}
+      <div className="p-4 border-b border-gray-800">
+        <Link to="/profile/settings" className="flex items-center space-x-3 hover:bg-gray-800 p-2 rounded-lg transition-colors">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={avatarUrl || ""} />
+            <AvatarFallback className="bg-gray-700 text-gray-300">
+              {displayName.split(' ').map(name => name[0]).join('') || "U"}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <h3 className="font-medium">{displayName}</h3>
+            <p className="text-sm text-gray-400">{accountType}</p>
+          </div>
+        </Link>
+      </div>
+      
+      {/* Navigation Menu */}
+      <nav className="flex-1 overflow-y-auto py-4">
+        <ul className="space-y-1 px-2">
+          <li>
+            <Link 
+              to="/dashboard" 
+              onClick={handleNavigation('/dashboard')}
+              className={`flex items-center space-x-3 p-3 rounded-lg transition-all ${
+                isActive('/dashboard') 
+                  ? 'bg-green-600 text-white' 
+                  : 'text-gray-300 hover:bg-gray-800'
+              }`}
             >
-              <Link to="/dashboard" onClick={handleNavigation('/dashboard')} className={isCollapsed ? 'flex justify-center' : ''}>
-                <LayoutDashboard className="w-5 h-5" />
-                {!isCollapsed && <span>Dashboard</span>}
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+              <LayoutDashboard className="w-5 h-5" />
+              <span>Dashboard</span>
+            </Link>
+          </li>
           
           {isAIPlatform ? (
             // AI Platform specific menu items
             <>
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  asChild 
-                  isActive={isActive('/dashboard/workspace') && location.search.includes('tab=datasets')}
-                  tooltip={isCollapsed ? "Datasets" : undefined}
+              <li>
+                <Link 
+                  to="/dashboard/workspace?tab=datasets" 
+                  onClick={handleNavigation('/dashboard/workspace?tab=datasets')}
+                  className={`flex items-center space-x-3 p-3 rounded-lg transition-all ${
+                    isActive('/dashboard/workspace') && location.search.includes('tab=datasets')
+                      ? 'bg-green-600 text-white' 
+                      : 'text-gray-300 hover:bg-gray-800'
+                  }`}
                 >
-                  <Link 
-                    to="/dashboard/workspace?tab=datasets" 
-                    onClick={handleNavigation('/dashboard/workspace?tab=datasets')}
-                    className={isCollapsed ? 'flex justify-center' : ''}
-                  >
-                    <Database className="w-5 h-5" />
-                    {!isCollapsed && <span>Datasets</span>}
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+                  <Database className="w-5 h-5" />
+                  <span>Datasets</span>
+                </Link>
+              </li>
               
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  asChild 
-                  isActive={isActive('/dashboard/workspace') && location.search.includes('tab=ai-models')}
-                  tooltip={isCollapsed ? "AI Models" : undefined}
+              <li>
+                <Link 
+                  to="/dashboard/workspace?tab=ai-models" 
+                  onClick={handleNavigation('/dashboard/workspace?tab=ai-models')}
+                  className={`flex items-center space-x-3 p-3 rounded-lg transition-all ${
+                    isActive('/dashboard/workspace') && location.search.includes('tab=ai-models')
+                      ? 'bg-green-600 text-white' 
+                      : 'text-gray-300 hover:bg-gray-800'
+                  }`}
                 >
-                  <Link 
-                    to="/dashboard/workspace?tab=ai-models" 
-                    onClick={handleNavigation('/dashboard/workspace?tab=ai-models')}
-                    className={isCollapsed ? 'flex justify-center' : ''}
-                  >
-                    <Bot className="w-5 h-5" />
-                    {!isCollapsed && <span>AI Models</span>}
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+                  <Bot className="w-5 h-5" />
+                  <span>AI Models</span>
+                </Link>
+              </li>
             </>
           ) : (
             // Regular user menu items
             <>
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  asChild 
-                  isActive={isActive('/dashboard/workspace')}
-                  tooltip={isCollapsed ? "Creative Workspace" : undefined}
+              <li>
+                <Link 
+                  to="/dashboard/workspace" 
+                  onClick={handleNavigation('/dashboard/workspace')}
+                  className={`flex items-center space-x-3 p-3 rounded-lg transition-all ${
+                    isActive('/dashboard/workspace') 
+                      ? 'bg-green-600 text-white' 
+                      : 'text-gray-300 hover:bg-gray-800'
+                  }`}
                 >
-                  <Link 
-                    to="/dashboard/workspace" 
-                    onClick={handleNavigation('/dashboard/workspace')}
-                    className={isCollapsed ? 'flex justify-center' : ''}
-                  >
-                    <FolderOpen className="w-5 h-5" />
-                    {!isCollapsed && <span>Creative Workspace</span>}
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+                  <FolderOpen className="w-5 h-5" />
+                  <span>Creative Workspace</span>
+                </Link>
+              </li>
               
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  asChild 
-                  tooltip={isCollapsed ? "Marketplace" : undefined}
+              <li>
+                <Link 
+                  to="/dashboard/marketplace"
+                  className={`flex items-center space-x-3 p-3 rounded-lg transition-all ${
+                    isActive('/dashboard/marketplace') 
+                      ? 'bg-green-600 text-white' 
+                      : 'text-gray-300 hover:bg-gray-800'
+                  }`}
                 >
-                  <Link 
-                    to="/dashboard/marketplace"
-                    className={isCollapsed ? 'flex justify-center' : ''}
-                  >
-                    <Store className="w-5 h-5" />
-                    {!isCollapsed && <span>Marketplace</span>}
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+                  <Store className="w-5 h-5" />
+                  <span>Marketplace</span>
+                </Link>
+              </li>
               
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  asChild 
-                  tooltip={isCollapsed ? "Insights & Revenue" : undefined}
+              <li>
+                <Link 
+                  to="/dashboard/insights"
+                  className={`flex items-center space-x-3 p-3 rounded-lg transition-all ${
+                    isActive('/dashboard/insights') 
+                      ? 'bg-green-600 text-white' 
+                      : 'text-gray-300 hover:bg-gray-800'
+                  }`}
                 >
-                  <Link 
-                    to="/dashboard/insights"
-                    className={isCollapsed ? 'flex justify-center' : ''}
-                  >
-                    <BarChart3 className="w-5 h-5" />
-                    {!isCollapsed && <span>Insights & Revenue</span>}
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+                  <BarChart3 className="w-5 h-5" />
+                  <span>Insights & Revenue</span>
+                </Link>
+              </li>
             </>
           )}
           
-          <SidebarMenuItem>
-            <SidebarMenuButton 
-              asChild 
-              isActive={isActive('/profile/settings')}
-              tooltip={isCollapsed ? "My Profile" : undefined}
+          <li>
+            <Link 
+              to="/profile/settings" 
+              onClick={handleNavigation('/profile/settings')}
+              className={`flex items-center space-x-3 p-3 rounded-lg transition-all ${
+                isActive('/profile/settings') 
+                  ? 'bg-green-600 text-white' 
+                  : 'text-gray-300 hover:bg-gray-800'
+              }`}
             >
-              <Link 
-                to="/profile/settings" 
-                onClick={handleNavigation('/profile/settings')}
-                className={isCollapsed ? 'flex justify-center' : ''}
-              >
-                <User className="w-5 h-5" />
-                {!isCollapsed && <span>My Profile</span>}
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarContent>
+              <User className="w-5 h-5" />
+              <span>My Profile</span>
+            </Link>
+          </li>
+        </ul>
+      </nav>
       
-      <SidebarFooter className="p-4 mt-auto">
+      {/* Log Out Button */}
+      <div className="p-4 border-t border-gray-800">
         <button 
-          className={`${isCollapsed ? 'w-10 h-10 mx-auto rounded-full flex items-center justify-center' : 'w-full p-3 rounded-lg flex items-center justify-center space-x-2'} bg-green-600 hover:bg-green-700 text-white transition-colors`}
+          className="w-full p-3 rounded-lg bg-green-600 hover:bg-green-700 text-white transition-colors flex items-center justify-center space-x-2"
           onClick={handleLogout}
         >
           <LogOut className="w-5 h-5" />
-          {!isCollapsed && <span>Log Out</span>}
+          <span>Log Out</span>
         </button>
-      </SidebarFooter>
-    </ShadcnSidebar>
+      </div>
+    </div>
   );
 };
 
