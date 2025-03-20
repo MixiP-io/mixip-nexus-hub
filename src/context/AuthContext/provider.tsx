@@ -1,13 +1,13 @@
+
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/components/ui/use-toast';
+import { useLocation } from 'react-router-dom';
 import { useAuthService } from '@/hooks/useAuthService';
+import { useAuthInitialization } from '@/hooks/auth/useAuthInitialization';
+import { useAuthStateListeners } from '@/hooks/auth/useAuthStateListeners';
+import LoadingGuard from '@/components/auth/LoadingGuard';
 import AuthContext from './context';
-import { UserProfile } from './profileTypes';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const navigate = useNavigate();
   const location = useLocation();
   const auth = useAuthService();
   const [stableLoading, setStableLoading] = useState(true);
@@ -28,6 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signOut,
   } = auth;
 
+  // Handle loading state stability
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
     
@@ -44,150 +45,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [isLoading]);
 
-  useEffect(() => {
-    let isMounted = true;
-    
-    const authTimeout = setTimeout(() => {
-      if (isMounted && stableLoading) {
-        console.log('Auth initialization timed out, forcing completion');
-        setIsLoading(false);
-      }
-    }, 5000); // 5 second timeout as failsafe
-    
-    const initializeAuth = async () => {
-      try {
-        console.log('Starting auth initialization');
-        if (isMounted) setIsLoading(true);
-        
-        const { data, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('Error getting session:', error);
-          if (isMounted) setIsLoading(false);
-          return;
-        }
-        
-        console.log('Initial session check:', data.session ? 'User logged in' : 'No session found');
-        
-        if (isMounted) {
-          setSession(data.session);
-          setUser(data.session?.user ?? null);
-        }
-        
-        if (data.session?.user) {
-          console.log('User has session, fetching profile');
-          
-          if (location.pathname === '/login') {
-            console.log('User already logged in and on login page, redirecting to dashboard');
-            navigate('/dashboard');
-            if (isMounted) setIsLoading(false);
-            return;
-          }
-          
-          try {
-            await fetchProfile(data.session.user.id);
-          } catch (error) {
-            console.error('Error fetching profile during initialization:', error);
-          } finally {
-            if (isMounted) setIsLoading(false);
-          }
-        } else {
-          if (isMounted) setIsLoading(false);
-        }
-      } catch (error) {
-        console.error('Error during auth initialization:', error);
-        if (isMounted) setIsLoading(false);
-      }
-    };
+  // Initialize authentication
+  useAuthInitialization(
+    setSession,
+    setUser,
+    setProfile,
+    fetchProfile,
+    setIsLoading
+  );
 
-    initializeAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
-        
-        if (event === 'SIGNED_OUT') {
-          console.log('SIGNED_OUT event detected, redirecting to login page');
-          if (isMounted) {
-            setSession(null);
-            setUser(null);
-            setProfile(null);
-            
-            toast({
-              title: "Signed out",
-              description: "You have been signed out.",
-            });
-          }
-          
-          navigate('/login', { replace: true });
-          return;
-        }
-        
-        if (isMounted) {
-          setSession(session);
-          setUser(session?.user ?? null);
-        }
-        
-        if (event === 'SIGNED_IN' && session?.user) {
-          console.log('SIGNED_IN event detected, fetching profile and redirecting');
-          try {
-            const profileData = await fetchProfile(session.user.id);
-            
-            toast({
-              title: "Signed in successfully",
-              description: "Welcome back!",
-            });
-            
-            handleRedirectAfterSignIn(profileData);
-          } catch (error) {
-            console.error('Error checking profile for navigation:', error);
-            navigate('/dashboard', { replace: true });
-          }
-        }
-
-        if (event === 'USER_UPDATED') {
-          console.log('USER_UPDATED event detected, updating profile');
-          if (session?.user && isMounted) {
-            await fetchProfile(session.user.id);
-          }
-        }
-      }
-    );
-
-    return () => {
-      isMounted = false;
-      clearTimeout(authTimeout);
-      subscription.unsubscribe();
-    };
-  }, [navigate, location.pathname, setSession, setUser, setIsLoading, fetchProfile, setProfile]);
-
-  const handleRedirectAfterSignIn = (profileData: UserProfile | null) => {
-    console.log('Profile data for navigation decision:', profileData);
-    console.log('Account type from profile:', profileData?.account_type);
-    
-    if (profileData && 
-        profileData.account_type === 'ai_platform' && 
-        profileData.is_new_user === true) {
-      console.log('New AI Platform user detected, redirecting to specialized onboarding');
-      navigate('/ai-platform/setup', { replace: true });
-      return;
-    }
-    
-    console.log('Navigating to dashboard after sign in');
-    navigate('/dashboard', { replace: true });
-  };
-
-  if (stableLoading && !user && location.pathname !== '/login') {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center p-6 max-w-md mx-auto">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite] mb-4"></div>
-          <h2 className="text-lg font-semibold">Loading your session...</h2>
-          <p className="mt-2 text-gray-500">Please wait while we authenticate you.</p>
-        </div>
-      </div>
-    );
-  }
+  // Listen for authentication state changes
+  useAuthStateListeners(
+    setSession,
+    setUser,
+    setProfile,
+    fetchProfile
+  );
 
   return (
     <AuthContext.Provider
@@ -202,7 +75,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signOut,
       }}
     >
-      {children}
+      <LoadingGuard 
+        isLoading={stableLoading} 
+        user={user} 
+        currentPath={location.pathname}
+      >
+        {children}
+      </LoadingGuard>
     </AuthContext.Provider>
   );
 };
