@@ -1,6 +1,6 @@
-
 import { ViewOption } from './viewOption';
 import { UploadFile, UploadSource } from '../types';
+import { UploadResults } from '../context/types';
 import React, { ChangeEvent, RefObject } from 'react';
 
 export interface FileCardProps {
@@ -54,10 +54,10 @@ export interface FilesListProps {
   startUpload: () => void;
   uploadComplete: boolean;
   setUploadComplete: (isComplete: boolean) => void;
-  uploadResults: { success: boolean; count: number; projectId: string; projectName: string; folderId: string; } | null;
+  uploadResults: UploadResults | null;
   selectedProject: string | null;
   selectedProjectName: string | null;
-  navigateToProject: (projectId: string) => void;
+  navigateToProject: (projectId: string, folderId?: string) => void;
 }
 
 export interface UploadAreaProps {

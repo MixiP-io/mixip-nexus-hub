@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { UploaderProvider } from './context/UploaderContext';
+import { UploaderProvider, useUploaderContext } from './context/UploaderContext';
 import BatchUploaderContainer from './components/layout/BatchUploaderContainer';
 import BatchUploaderHeader from './components/layout/BatchUploaderHeader';
 import UploaderTabs from './components/UploaderTabs';

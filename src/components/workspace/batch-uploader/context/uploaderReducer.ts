@@ -1,7 +1,7 @@
-
 import { UploaderState, UploaderAction } from './types';
 import { generateUniqueId } from '../utils/fileUtils';
 import { calculateTotalProgress } from '../utils/uploadUtils';
+import { FileStatus } from '../types';
 
 export const initialState: UploaderState = {
   // File state
@@ -38,19 +38,16 @@ export function uploaderReducer(state: UploaderState, action: UploaderAction): U
         // Generate unique ID for each file
         const id = generateUniqueId();
         
-        // Create preview URL for images
-        let preview = null;
-        
         return {
           id,
           name: file.name,
           size: file.size,
           type: file.type,
           progress: 0,
-          status: 'queued',
+          status: 'queued' as FileStatus,
           source: state.activeSource,
           file,
-          preview
+          preview: null
         };
       });
       
@@ -87,7 +84,7 @@ export function uploaderReducer(state: UploaderState, action: UploaderAction): U
           ? { 
               ...file, 
               progress, 
-              status: progress === 100 ? 'processing' : 'uploading'
+              status: progress === 100 ? 'processing' as FileStatus : 'uploading' as FileStatus
             } 
           : file
       );
