@@ -37,6 +37,7 @@ export type UploaderAction =
   | { type: 'ADD_FILES'; payload: File[] }
   | { type: 'REMOVE_FILE'; payload: string }
   | { type: 'CLEAR_FILES' }
+  | { type: 'UPDATE_FILE_PREVIEW'; payload: { fileId: string; preview: string | null | undefined } }
   | { type: 'UPDATE_FILE_PROGRESS'; payload: { fileId: string; progress: number } }
   | { type: 'UPDATE_FILE_STATUS'; payload: { fileId: string; status: FileStatus; errorMessage?: string } }
   | { type: 'SET_OVERALL_PROGRESS'; payload: number }

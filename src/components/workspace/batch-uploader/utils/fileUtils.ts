@@ -22,7 +22,7 @@ export const getFilePreview = async (file: File): Promise<string | undefined> =>
     return undefined;
   }
 
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
     
     reader.onloadend = () => {
@@ -32,7 +32,7 @@ export const getFilePreview = async (file: File): Promise<string | undefined> =>
     
     reader.onerror = () => {
       console.error('Error creating preview for file:', file.name);
-      resolve(undefined);
+      reject(new Error(`Failed to read file: ${file.name}`));
     };
     
     // Read the file as a data URL

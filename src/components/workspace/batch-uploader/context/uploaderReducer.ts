@@ -1,3 +1,4 @@
+
 import { UploaderState, UploaderAction } from './types';
 import { generateUniqueId } from '../utils/fileUtils';
 import { calculateTotalProgress } from '../utils/uploadUtils';
@@ -56,6 +57,20 @@ export function uploaderReducer(state: UploaderState, action: UploaderAction): U
         ...state,
         files: updatedFiles,
         overallProgress: calculateTotalProgress(updatedFiles)
+      };
+    }
+    
+    case 'UPDATE_FILE_PREVIEW': {
+      const { fileId, preview } = action.payload;
+      const updatedFiles = state.files.map(file => 
+        file.id === fileId 
+          ? { ...file, preview } 
+          : file
+      );
+      
+      return {
+        ...state,
+        files: updatedFiles
       };
     }
     

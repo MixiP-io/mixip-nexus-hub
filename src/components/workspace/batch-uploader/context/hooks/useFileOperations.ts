@@ -2,7 +2,7 @@
 import { useCallback } from 'react';
 import { toast } from 'sonner';
 import { UploaderState } from '../types';
-import { getFilePreview } from '../../utils/fileUtils';
+import { getFilePreview, generateUniqueId } from '../../utils/fileUtils';
 import { UploadFile, FileStatus } from '../../types';
 
 /**
@@ -20,26 +20,34 @@ export const useFileOperations = (state: UploaderState, dispatch: React.Dispatch
     try {
       // Process files before dispatching to generate previews
       const filesArray = Array.from(selectedFiles);
+      const newFileObjects: File[] = [];
       
-      // Process each file to create previews
-      const processedFiles: File[] = [];
-      
+      // Create file objects immediately
       for (const file of filesArray) {
-        processedFiles.push(file);
-        
-        // Generate preview asynchronously
+        newFileObjects.push(file);
+      }
+      
+      // Add files to state immediately
+      dispatch({ type: 'ADD_FILES', payload: newFileObjects });
+      
+      // Then process each file to create previews asynchronously
+      for (const file of filesArray) {
         if (file.type.startsWith('image/')) {
           try {
+            // Generate preview for this file
             const preview = await getFilePreview(file);
-            // Once preview is ready, update the file in state
-            const newFiles = state.files.map(f => {
-              if (f.file === file) {
-                return { ...f, preview };
-              }
-              return f;
-            });
-            if (newFiles.some(f => f.file === file)) {
-              dispatch({ type: 'ADD_FILES', payload: [] }); // Dummy dispatch to trigger update
+            
+            // Find the file in the state to update it with the preview
+            const fileToUpdate = state.files.find(f => 
+              f.file && f.file.name === file.name && f.file.size === file.size
+            );
+            
+            if (fileToUpdate) {
+              // Update just this file with its preview
+              dispatch({ 
+                type: 'UPDATE_FILE_PREVIEW', 
+                payload: { fileId: fileToUpdate.id, preview } 
+              });
             }
           } catch (error) {
             console.error("Error generating preview:", error);
@@ -47,8 +55,7 @@ export const useFileOperations = (state: UploaderState, dispatch: React.Dispatch
         }
       }
       
-      dispatch({ type: 'ADD_FILES', payload: processedFiles });
-      toast.success(`${processedFiles.length} files added to upload queue`);
+      toast.success(`${filesArray.length} files added to upload queue`);
     } catch (error) {
       console.error("Error processing files:", error);
       toast.error("Error processing files");

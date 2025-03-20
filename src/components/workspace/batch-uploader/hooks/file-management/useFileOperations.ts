@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { UploadFile } from '../../types';
-import { getFilePreview } from '../../utils/fileUtils';
+import { getFilePreview, generateUniqueId } from '../../utils/fileUtils';
 
 /**
  * Hook for file operations like adding and removing files
@@ -24,13 +24,15 @@ export const useFileOperations = (
     try {
       // Process files one by one to generate previews
       const newFiles: UploadFile[] = [];
+      const filesArray = Array.from(selectedFiles);
       
-      for (const file of Array.from(selectedFiles)) {
-        // Generate preview asynchronously (returns data URL for images)
-        const preview = await getFilePreview(file);
+      // Create file objects immediately with null previews
+      for (let i = 0; i < filesArray.length; i++) {
+        const file = filesArray[i];
+        const fileId = generateUniqueId();
         
         newFiles.push({
-          id: `file-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          id: fileId,
           name: file.name,
           size: file.size,
           type: file.type,
@@ -38,11 +40,35 @@ export const useFileOperations = (
           status: 'queued',
           source: 'computer',
           file: file,
-          preview: preview
+          preview: null
         });
       }
       
+      // Add files to state immediately
       setFiles(prev => [...prev, ...newFiles]);
+      
+      // Then generate previews asynchronously and update state as they complete
+      for (let i = 0; i < filesArray.length; i++) {
+        const file = filesArray[i];
+        const fileId = newFiles[i].id;
+        
+        if (file.type.startsWith('image/')) {
+          try {
+            // Generate preview for this file
+            const preview = await getFilePreview(file);
+            
+            // Update the file with its preview
+            setFiles(prevFiles => 
+              prevFiles.map(f => 
+                f.id === fileId ? { ...f, preview } : f
+              )
+            );
+          } catch (error) {
+            console.error("Error generating preview for file:", file.name, error);
+          }
+        }
+      }
+      
       toast.success(`${newFiles.length} files added to upload queue`);
     } catch (error) {
       console.error("Error processing files:", error);
