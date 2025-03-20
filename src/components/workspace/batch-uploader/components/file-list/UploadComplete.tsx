@@ -16,6 +16,14 @@ const UploadComplete: React.FC<UploadCompleteProps> = ({
   navigateToProject,
   folderId
 }) => {
+  console.log("UploadComplete props:", {
+    fileCount,
+    projectId,
+    projectName,
+    success,
+    folderId
+  });
+  
   const normalizedFolderId = folderId || 'root';
   
   const handleViewProject = () => {

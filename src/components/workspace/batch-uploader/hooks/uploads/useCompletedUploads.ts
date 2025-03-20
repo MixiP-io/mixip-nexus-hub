@@ -62,25 +62,42 @@ export const useCompletedUploads = () => {
       // Log projects after upload for debugging
       logProjects();
       
-      // Verify the assets were added to the database
+      // Verify the assets were added to the database - use the result.location for the folder name
       let folderDbId = null;
-      let folderName = "root";
+      let folderName = result.location || "root";
       
-      if (folderId !== 'root') {
-        // Get the folder ID from the database
+      // If this is not the root folder, get the real folder ID from the database
+      if (folderId !== 'root' || folderName !== 'root') {
+        // Get the folder ID from the database using the folder name returned from addFilesToProject
         const { data: folderData, error: folderError } = await supabase
           .from('project_folders')
           .select('id, name')
           .eq('project_id', projectId)
-          .eq('name', result.location)
+          .eq('name', folderName)
           .maybeSingle();
           
         if (folderError) {
-          console.error('[useCompletedUploads] Error fetching folder:', folderError);
+          console.error('[useCompletedUploads] Error fetching folder by name:', folderError);
         } else if (folderData) {
           folderDbId = folderData.id;
           folderName = folderData.name;
-          console.log(`[useCompletedUploads] Retrieved folder from database: ${folderName} (${folderDbId})`);
+          console.log(`[useCompletedUploads] Retrieved folder from database by name: ${folderName} (${folderDbId})`);
+        } else {
+          // Try by ID as fallback
+          console.log(`[useCompletedUploads] Folder not found by name, trying by ID: ${folderId}`);
+          const { data: folderById, error: idError } = await supabase
+            .from('project_folders')
+            .select('id, name')
+            .eq('id', folderId)
+            .maybeSingle();
+            
+          if (idError) {
+            console.error('[useCompletedUploads] Error fetching folder by ID:', idError);
+          } else if (folderById) {
+            folderDbId = folderById.id;
+            folderName = folderById.name;
+            console.log(`[useCompletedUploads] Retrieved folder from database by ID: ${folderName} (${folderDbId})`);
+          }
         }
       }
       
@@ -113,44 +130,15 @@ export const useCompletedUploads = () => {
         // Force project timestamp update to trigger re-renders
         updateProject(projectId, { updatedAt: new Date() });
         
-        // Debug folder assets
-        let foundAssetsInFolder = false;
-        
-        if (folderId !== 'root' && updatedProject.subfolders) {
-          const targetFolder = updatedProject.subfolders.find(folder => folder.id === folderId);
-          if (targetFolder) {
-            console.log(`[CRITICAL] Target folder "${targetFolder.name}" (${folderId}) assets: ${targetFolder.assets?.length || 0}`);
-            
-            // Log each asset in the folder for debugging
-            if (targetFolder.assets && targetFolder.assets.length > 0) {
-              console.log(`[CRITICAL] All assets in folder "${folderName}":`);
-              targetFolder.assets.forEach((asset: any, index: number) => {
-                console.log(`Asset ${index + 1}: ID=${asset.id}, Name=${asset.name}, Preview=${asset.preview ? 'exists' : 'missing'}`);
-              });
-              foundAssetsInFolder = true;
-            } else {
-              console.log(`[ERROR] No assets found in folder "${folderName}" after upload. This is unexpected.`);
-            }
-          } else {
-            console.log(`[ERROR] Target folder with ID ${folderId} not found in project`);
-          }
-        } else if (folderId === 'root') {
-          console.log(`Root folder assets: ${updatedProject.assets?.length || 0}`);
-          if (updatedProject.assets && updatedProject.assets.length > 0) {
-            foundAssetsInFolder = true;
-            console.log(`First few assets in root:`, JSON.stringify(updatedProject.assets.slice(0, 3), null, 2));
-          }
-        }
-        
         // Set upload complete with accurate folder information
-        console.log(`[CRITICAL] Setting upload complete with folder ID: ${folderId}, folder name: ${folderName}`);
-        completeUpload(projectId, projectName, completedFiles, folderId);
+        console.log(`[CRITICAL] Setting upload complete with folder ID: ${folderDbId || folderId}, folder name: ${folderName}`);
+        completeUpload(projectId, projectName, completedFiles, folderDbId || folderId);
         
         // Force another save to localStorage
         saveProjectsToLocalStorage();
         
         // Show toast with clear folder navigation instructions
-        if (folderId !== 'root') {
+        if (folderName !== 'root') {
           toast.success(`Added ${completedFiles.length} files to folder "${folderName}" in project "${projectName}". Click "View Assets" to see them.`);
         } else {
           toast.success(`Added ${completedFiles.length} files to root folder in project "${projectName}". Click "View Assets" to see them.`);
@@ -161,7 +149,7 @@ export const useCompletedUploads = () => {
           count: completedFiles.length,
           projectId,
           projectName,
-          folderId,
+          folderId: folderDbId || folderId,
           folderName
         });
         

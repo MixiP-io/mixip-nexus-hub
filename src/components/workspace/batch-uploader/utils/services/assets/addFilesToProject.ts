@@ -67,6 +67,7 @@ export const addFilesToProject = async (
     let locationAdded = 'root';
     let folderFound = false;
     let folderDbId = null;
+    let folderName = 'root';
     
     // Add assets to local storage for backward compatibility
     if (normalizedFolderId === 'root') {
@@ -74,8 +75,28 @@ export const addFilesToProject = async (
       addAssetsToRootFolder(updatedProjects, projectIndex, assets);
       folderFound = true;
       locationAdded = 'root';
+      folderName = 'root';
       console.log(`[assetService] Added ${assets.length} assets to root folder in localStorage`);
     } else {
+      // First check if folder exists in database
+      try {
+        const { data: existingFolder, error: folderCheckError } = await supabase
+          .from('project_folders')
+          .select('id, name')
+          .eq('id', normalizedFolderId)
+          .maybeSingle();
+          
+        if (folderCheckError) {
+          console.error('[assetService] Error checking folder by ID:', folderCheckError);
+        } else if (existingFolder) {
+          folderDbId = existingFolder.id;
+          folderName = existingFolder.name;
+          console.log(`[assetService] Found existing folder in database by ID: ${folderName} (${folderDbId})`);
+        }
+      } catch (err) {
+        console.error('[assetService] Error checking folder in database:', err);
+      }
+      
       // Try to add to specified folder
       const result = addAssetsToSpecificFolder(updatedProjects, projectIndex, normalizedFolderId, assets);
       folderFound = result.folderFound;
@@ -89,6 +110,7 @@ export const addFilesToProject = async (
         const newFolderResult = createNewFolderWithAssets(updatedProjects, projectIndex, normalizedFolderId, assets);
         folderFound = newFolderResult.folderFound;
         locationAdded = newFolderResult.locationAdded;
+        folderName = locationAdded; // Use the created folder name
         console.log(`[assetService] New folder created: ${locationAdded}`);
       }
     }
@@ -109,46 +131,48 @@ export const addFilesToProject = async (
     if (normalizedFolderId !== 'root') {
       console.log(`[assetService] Checking if folder ${normalizedFolderId} exists in database`);
       
-      // First check if the folder exists in the database
-      const { data: existingFolder, error: folderCheckError } = await supabase
-        .from('project_folders')
-        .select('id')
-        .eq('project_id', projectId)
-        .eq('name', locationAdded)
-        .maybeSingle();
+      if (!folderDbId) {
+        console.log(`[assetService] Folder doesn't exist in database or wasn't found by ID, checking by name: ${folderName}`);
         
-      if (folderCheckError) {
-        console.error('[assetService] Error checking folder:', folderCheckError);
-      }
-      
-      if (existingFolder) {
-        console.log(`[assetService] Found existing folder in database with id ${existingFolder.id}`);
-        folderDbId = existingFolder.id;
-      } else {
-        console.log(`[assetService] Folder doesn't exist in database, creating it`);
-        
-        const { data: newFolder, error: createFolderError } = await supabase
+        // Check if folder exists by name if we couldn't find it by ID
+        const { data: folderByName, error: nameCheckError } = await supabase
           .from('project_folders')
-          .insert({
-            project_id: projectId,
-            name: locationAdded,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          })
-          .select()
-          .single();
+          .select('id, name')
+          .eq('project_id', projectId)
+          .eq('name', folderName)
+          .maybeSingle();
           
-        if (createFolderError) {
-          console.error('[assetService] Error creating folder:', createFolderError);
+        if (nameCheckError) {
+          console.error('[assetService] Error checking folder by name:', nameCheckError);
+        } else if (folderByName) {
+          folderDbId = folderByName.id;
+          console.log(`[assetService] Found folder by name in database: ${folderByName.name} (${folderDbId})`);
         } else {
-          console.log(`[assetService] Created new folder in database with id ${newFolder.id}`);
-          folderDbId = newFolder.id;
+          console.log(`[assetService] Folder not found by name either, creating it: ${folderName}`);
+          
+          const { data: newFolder, error: createFolderError } = await supabase
+            .from('project_folders')
+            .insert({
+              project_id: projectId,
+              name: folderName,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            })
+            .select()
+            .single();
+            
+          if (createFolderError) {
+            console.error('[assetService] Error creating folder:', createFolderError);
+          } else {
+            console.log(`[assetService] Created new folder in database with id ${newFolder.id}`);
+            folderDbId = newFolder.id;
+          }
         }
       }
     }
     
     // Save all assets to database
-    console.log(`[assetService] Saving ${assets.length} assets to database`);
+    console.log(`[assetService] Saving ${assets.length} assets to database with folder ID: ${folderDbId}`);
     
     const assetsToInsert = assets.map(asset => ({
       name: asset.name,
@@ -184,7 +208,7 @@ export const addFilesToProject = async (
     return { 
       success: true, 
       count: assets.length, 
-      location: locationAdded
+      location: folderName
     };
   } catch (error) {
     console.error('[assetService] Error updating projects:', error);
