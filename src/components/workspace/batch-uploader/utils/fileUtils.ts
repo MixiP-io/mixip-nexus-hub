@@ -27,12 +27,19 @@ export const getFilePreview = (file: File): Promise<string | undefined> => {
 
     console.log(`Generating preview for: ${file.name}, type: ${file.type}`);
     
+    // Create a new FileReader instance for each file
     const reader = new FileReader();
     
-    reader.onloadend = () => {
-      console.log(`Preview generated for: ${file.name}`);
-      // reader.result will be a data URL that can be stored
-      resolve(reader.result as string);
+    // Use onload instead of onloadend
+    reader.onload = () => {
+      if (reader.result) {
+        console.log(`Preview generated for: ${file.name}`);
+        // reader.result will be a data URL that can be stored
+        resolve(reader.result.toString());
+      } else {
+        console.error(`Failed to generate preview for: ${file.name}, result is null`);
+        resolve(undefined);
+      }
     };
     
     reader.onerror = (error) => {
@@ -40,8 +47,13 @@ export const getFilePreview = (file: File): Promise<string | undefined> => {
       reject(new Error(`Failed to read file: ${file.name}`));
     };
     
-    // Read the file as a data URL
-    reader.readAsDataURL(file);
+    // Start the read operation
+    try {
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error(`Error reading file: ${file.name}`, error);
+      reject(new Error(`Error reading file: ${file.name}`));
+    }
   });
 };
 

@@ -18,39 +18,40 @@ export const useFileOperations = (state: UploaderState, dispatch: React.Dispatch
     }
     
     try {
-      // Process files before dispatching to generate previews
+      // Get files as array
       const filesArray = Array.from(selectedFiles);
-      const newFileObjects: File[] = [];
+      console.log(`Processing ${filesArray.length} files`);
       
-      // Create file objects immediately
-      for (const file of filesArray) {
-        newFileObjects.push(file);
-      }
+      // Create file objects for the reducer
+      const newFileObjects = filesArray.map(file => file);
       
       // Add files to state immediately
       dispatch({ type: 'ADD_FILES', payload: newFileObjects });
       
-      // Process each file to create previews
+      // Process each image file to generate previews
       for (const file of filesArray) {
         if (file.type.startsWith('image/')) {
           try {
             console.log(`Starting preview generation for: ${file.name}`);
             // Generate preview for this file
             const preview = await getFilePreview(file);
-            console.log(`Preview generated for ${file.name}, data URL length: ${preview?.length}`);
             
-            // Find the file in the state to update it with the preview
-            const fileToUpdate = state.files.find(f => 
-              f.file && f.file.name === file.name && f.file.size === file.size
-            );
-            
-            if (fileToUpdate) {
-              console.log(`Updating file with preview: ${fileToUpdate.name}`);
-              // Update just this file with its preview
-              dispatch({ 
-                type: 'UPDATE_FILE_PREVIEW', 
-                payload: { fileId: fileToUpdate.id, preview } 
-              });
+            if (preview) {
+              console.log(`Preview generated for ${file.name}, data URL length: ${preview.length}`);
+              
+              // Find the file in the state to update it with the preview
+              const fileToUpdate = state.files.find(f => 
+                f.file && f.file.name === file.name && f.file.size === file.size
+              );
+              
+              if (fileToUpdate) {
+                console.log(`Updating file with preview: ${fileToUpdate.name}`);
+                // Update just this file with its preview
+                dispatch({ 
+                  type: 'UPDATE_FILE_PREVIEW', 
+                  payload: { fileId: fileToUpdate.id, preview } 
+                });
+              }
             }
           } catch (error) {
             console.error(`Error generating preview for ${file.name}:`, error);

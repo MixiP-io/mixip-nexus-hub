@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { X, Image, Video, File, Check, CheckCircle2, AlertCircle, FileImage, FileWarning } from 'lucide-react';
+import { X, FileImage, Video, File, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { FileCardProps } from '../types/componentProps';
 import { FileStatus } from '../types';
@@ -43,23 +43,48 @@ const FileCard: React.FC<FileCardProps> = ({
             className="h-full w-full object-cover"
             onError={(e) => {
               console.error(`Error loading image preview for ${file.name}`);
-              const target = e.target as HTMLImageElement;
-              target.style.display = 'none';
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.parentElement?.classList.add('flex', 'items-center', 'justify-center');
               
-              // Replace with the appropriate icon
-              const container = target.parentElement;
-              if (container) {
-                const iconWrapper = document.createElement('div');
-                iconWrapper.className = 'flex items-center justify-center h-full w-full';
-                container.appendChild(iconWrapper);
-                
-                // Create the icon SVG element using React's createPortal would be better,
-                // but for this fix we'll use a simpler approach
-                const iconElement = document.createElement('div');
-                iconElement.className = 'h-6 w-6 text-frameio-accent-blue';
-                iconElement.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-image"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><circle cx="10" cy="13" r="2"/><path d="m20 17-1.09-1.09a2 2 0 0 0-2.82 0L10 22"/></svg>';
-                iconWrapper.appendChild(iconElement);
-              }
+              // Add fallback icon directly with React
+              const iconContainer = document.createElement('div');
+              iconContainer.className = 'fallback-icon';
+              e.currentTarget.parentElement?.appendChild(iconContainer);
+              
+              // Render the icon (we're manually adding it since we can't use React's createPortal here)
+              const svgElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+              svgElement.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+              svgElement.setAttribute('width', '24');
+              svgElement.setAttribute('height', '24');
+              svgElement.setAttribute('viewBox', '0 0 24 24');
+              svgElement.setAttribute('fill', 'none');
+              svgElement.setAttribute('stroke', 'currentColor');
+              svgElement.setAttribute('stroke-width', '2');
+              svgElement.setAttribute('stroke-linecap', 'round');
+              svgElement.setAttribute('stroke-linejoin', 'round');
+              svgElement.setAttribute('class', 'h-6 w-6 text-frameio-accent-blue');
+              
+              // Add the path for the file-image icon
+              const pathElement1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+              pathElement1.setAttribute('d', 'M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z');
+              
+              const pathElement2 = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+              pathElement2.setAttribute('points', '14 2 14 8 20 8');
+              
+              const pathElement3 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+              pathElement3.setAttribute('cx', '10');
+              pathElement3.setAttribute('cy', '13');
+              pathElement3.setAttribute('r', '2');
+              
+              const pathElement4 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+              pathElement4.setAttribute('d', 'm20 17-1.09-1.09a2 2 0 0 0-2.82 0L10 22');
+              
+              svgElement.appendChild(pathElement1);
+              svgElement.appendChild(pathElement2);
+              svgElement.appendChild(pathElement3);
+              svgElement.appendChild(pathElement4);
+              
+              iconContainer.appendChild(svgElement);
             }}
           />
         ) : (

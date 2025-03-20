@@ -22,47 +22,44 @@ export const useFileOperations = (
     setIsProcessingFiles(true);
     
     try {
-      // Process files one by one to generate previews
-      const newFiles: UploadFile[] = [];
       const filesArray = Array.from(selectedFiles);
+      console.log(`Processing ${filesArray.length} files`);
       
-      // First, create the base file objects and add them to state
-      for (const file of filesArray) {
-        const fileId = generateUniqueId();
-        
-        newFiles.push({
-          id: fileId,
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          progress: 0,
-          status: 'queued',
-          source: 'computer',
-          file: file,
-          preview: null
-        });
-      }
+      // Create basic file objects first (without previews)
+      const newFiles: UploadFile[] = filesArray.map(file => ({
+        id: generateUniqueId(),
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        progress: 0,
+        status: 'queued',
+        source: 'computer',
+        file: file,
+        preview: null
+      }));
       
       // Add files to state immediately
       setFiles(prev => [...prev, ...newFiles]);
       
-      // Now generate previews for image files
-      for (const file of filesArray) {
+      // Then process image previews separately
+      for (let i = 0; i < filesArray.length; i++) {
+        const file = filesArray[i];
+        const fileObj = newFiles[i];
+        
         if (file.type.startsWith('image/')) {
           try {
-            const fileObject = newFiles.find(f => f.file === file);
-            if (!fileObject) continue;
-            
             console.log(`Starting preview generation for: ${file.name}`);
             const preview = await getFilePreview(file);
-            console.log(`Preview generated for ${file.name}, data URL length: ${preview?.length}`);
             
-            // Update the file with its preview
-            setFiles(prevFiles => 
-              prevFiles.map(f => 
-                f.id === fileObject.id ? { ...f, preview } : f
-              )
-            );
+            if (preview) {
+              console.log(`Preview generated for ${file.name}, updating state`);
+              // Update just this file with its preview
+              setFiles(prevFiles => 
+                prevFiles.map(f => 
+                  f.id === fileObj.id ? { ...f, preview } : f
+                )
+              );
+            }
           } catch (error) {
             console.error(`Error generating preview for ${file.name}:`, error);
           }
@@ -70,6 +67,7 @@ export const useFileOperations = (
       }
       
       toast.success(`${newFiles.length} files added to upload queue`);
+      
     } catch (error) {
       console.error("Error processing files:", error);
       toast.error("Error processing files");
