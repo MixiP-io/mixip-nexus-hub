@@ -1,6 +1,5 @@
-
 // File source types
-export type UploadSource = 'computer' | 'url' | 'camera' | 'cloud' | 'clipboard';
+export type UploadSource = 'computer' | 'url' | 'camera' | 'cloud' | 'clipboard' | 'phone';
 
 // File status types
 export type FileStatus = 'queued' | 'uploading' | 'processing' | 'complete' | 'error';

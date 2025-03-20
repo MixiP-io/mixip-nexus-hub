@@ -91,7 +91,6 @@ export const useUploadProcess = () => {
           updateOverallProgress,
           setIsUploading,
           setUploadComplete,
-          setUploadResults,
           completeUpload
         );
       } else {
@@ -100,8 +99,7 @@ export const useUploadProcess = () => {
           hasErrors,
           setIsUploading,
           setUploadComplete,
-          setUploadResults,
-          projectId
+          setUploadResults
         );
       }
     } catch (error) {

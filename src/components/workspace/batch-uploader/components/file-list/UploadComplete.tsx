@@ -1,113 +1,107 @@
 
 import React from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, AlertCircle, FolderOpen } from 'lucide-react';
-import { UploadCompleteProps } from '../../types/componentProps';
+import { Check, AlertCircle } from 'lucide-react';
+import UploadCompleteDialog from './UploadCompleteDialog';
+import { formatFileSize } from '../../utils/formatUtils';
+
+interface UploadCompleteProps {
+  isComplete: boolean;
+  results: any;
+  projectId: string | null;
+  projectName: string | null;
+  totalSize: number;
+  fileCount: number;
+  resetUpload: () => void;
+  navigateToProject: (projectId: string, folderId?: string) => void;
+}
 
 const UploadComplete: React.FC<UploadCompleteProps> = ({
-  isOpen,
-  onClose,
-  fileCount,
-  totalSize,
+  isComplete,
+  results,
   projectId,
   projectName,
-  success,
-  navigateToProject,
-  folderId
+  totalSize,
+  fileCount,
+  resetUpload,
+  navigateToProject
 }) => {
-  console.log("UploadComplete props:", {
-    isOpen,
-    fileCount,
-    projectId,
-    projectName,
-    success,
-    folderId
-  });
+  // Dialog state
+  const [showDialog, setShowDialog] = React.useState(true);
   
-  const normalizedFolderId = folderId || 'root';
+  // Early return if upload is not complete or no results
+  if (!isComplete || !results) return null;
   
-  const handleViewProject = () => {
-    console.log(`Navigating to project ${projectId}, folder: ${normalizedFolderId}`);
-    // Pass both projectId and folderId to navigateToProject
-    navigateToProject(projectId, normalizedFolderId);
-    onClose();
+  // Format file size
+  const formattedSize = formatFileSize(totalSize);
+  
+  // Determine success/failure display
+  const isSuccess = results?.success;
+  
+  // Handle dialog close
+  const handleCloseDialog = () => {
+    setShowDialog(false);
   };
-
-  const getFolderInfo = () => {
-    if (!normalizedFolderId || normalizedFolderId === 'root') {
-      return 'project root folder';
-    }
-    return `folder "${normalizedFolderId}"`;
-  };
+  
+  // Project ID and name from results or props
+  const resultProjectId = results?.projectId || projectId || '';
+  const resultProjectName = results?.projectName || projectName || '';
+  const resultFolderId = results?.folderId || 'root';
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => {
-      console.log("Dialog onOpenChange triggered");
-      onClose();
-    }}>
-      <DialogContent className="bg-gray-900 border-gray-700 text-white z-50">
-        <DialogHeader>
-          <div className="flex items-center justify-center mb-4">
-            {success ? (
-              <CheckCircle className="w-16 h-16 text-green-500" />
-            ) : (
-              <AlertCircle className="w-16 h-16 text-red-500" />
-            )}
-          </div>
-          <DialogTitle className="text-xl font-semibold text-center">
-            {success ? 'Upload Complete!' : 'Upload Failed'}
-          </DialogTitle>
-          <DialogDescription className="text-gray-400 text-center">
-            {success ? (
-              <>
-                Successfully uploaded {fileCount} files ({totalSize}) to <strong>{projectName}</strong> in the {getFolderInfo()}.
-              </>
-            ) : (
-              <>
-                There was a problem with your upload. Please try again.
-              </>
-            )}
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="bg-gray-800 px-4 py-3 rounded border border-gray-700 mb-4">
-          <h3 className="text-sm font-medium mb-1 text-gray-300">Project Details</h3>
-          <p className="text-sm text-gray-400">
-            <strong>Name:</strong> {projectName}<br />
-            <strong>Location:</strong> {getFolderInfo()}
-          </p>
+    <>
+      <div className="bg-gray-800 p-4 rounded-lg border border-gray-700 mt-4">
+        <div className="flex items-center mb-2">
+          {isSuccess ? (
+            <Check className="h-5 w-5 text-green-500 mr-2" />
+          ) : (
+            <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
+          )}
+          <h3 className="text-lg font-medium text-white">
+            {isSuccess ? 'Upload Complete' : 'Upload Failed'}
+          </h3>
         </div>
-
-        {success && (
-          <div className="bg-blue-900/30 px-4 py-3 rounded border border-blue-800/50 mb-4">
-            <h3 className="text-sm font-medium mb-1 text-blue-200">Where to find your assets</h3>
-            <p className="text-sm text-blue-300">
-              Your files have been uploaded to the {getFolderInfo()}. Click "View Assets" below to see them.
-            </p>
-          </div>
-        )}
-
-        <DialogFooter className="gap-2 sm:gap-0">
-          {success && (
-            <Button
-              className="w-full sm:w-auto flex items-center justify-center gap-2"
-              onClick={handleViewProject}
+        
+        <p className="text-gray-300 mb-3">
+          {isSuccess ? (
+            <>Successfully uploaded {fileCount} file{fileCount !== 1 ? 's' : ''} ({formattedSize}) to <span className="font-medium text-white">{resultProjectName}</span>.</>
+          ) : (
+            <>There was an issue uploading your files to {resultProjectName}.</>
+          )}
+        </p>
+        
+        <div className="flex justify-between">
+          <Button 
+            variant="ghost" 
+            onClick={resetUpload}
+            className="bg-gray-700 text-white hover:bg-gray-600"
+          >
+            New Upload
+          </Button>
+          
+          {isSuccess && (
+            <Button 
+              onClick={() => navigateToProject(resultProjectId, resultFolderId)}
+              className="bg-green-600 text-white hover:bg-green-700"
             >
-              <FolderOpen className="w-4 h-4" />
-              View Assets
+              Go to Project
             </Button>
           )}
-          <Button
-            variant="secondary"
-            className="w-full sm:w-auto"
-            onClick={onClose}
-          >
-            {success ? 'Upload More' : 'Close'}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </div>
+      
+      <UploadCompleteDialog
+        isOpen={showDialog}
+        onClose={handleCloseDialog}
+        fileCount={fileCount}
+        totalSize={formattedSize}
+        projectId={resultProjectId}
+        projectName={resultProjectName}
+        success={isSuccess}
+        navigateToProject={navigateToProject}
+        folderId={resultFolderId}
+      />
+    </>
   );
 };
 
