@@ -50,7 +50,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   const handleDirectUpload = (e: React.MouseEvent) => {
     e.stopPropagation();
     console.log('[CRITICAL] Direct upload button clicked for project:', project.id);
-    toast.info('Opening uploader for project...');
+    toast.info('Opening uploader for project...', {
+      position: 'top-center',
+    });
     
     setTimeout(() => {
       const origin = window.location.origin;
@@ -76,10 +78,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   return (
     <Card 
       key={project.id} 
-      className="bg-gray-800 border-gray-700 overflow-hidden hover:ring-2 hover:ring-green-600 transition-all cursor-pointer"
+      className="bg-frameio-bg-card border-frameio-border-subtle overflow-hidden hover:ring-1 hover:ring-frameio-accent-blue transition-all cursor-pointer shadow-frame-card transform hover:translate-y-[-2px]"
       onClick={handleClick}
     >
-      <div className="h-40 bg-gray-700 relative">
+      <div className="h-40 bg-frameio-bg-dark relative">
         {project.coverImage ? (
           <img 
             src={project.coverImage} 
@@ -93,8 +95,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <FolderOpen className="w-16 h-16 text-gray-400" />
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-frameio-bg-card to-frameio-bg-dark">
+            <FolderOpen className="w-16 h-16 text-frameio-text-tertiary opacity-50" />
           </div>
         )}
         <div className="absolute top-2 right-2">
@@ -111,7 +113,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         {/* Subfolder indicator */}
         {hasSubfolders && (
           <div className="absolute bottom-2 left-2">
-            <Badge variant="outline" className="bg-blue-600/50 text-blue-200 border-blue-500 flex items-center">
+            <Badge variant="outline" className="bg-frameio-accent-blue/30 text-frameio-text-primary border-frameio-accent-blue/50 flex items-center backdrop-blur-sm">
               <Folder className="mr-1 h-3 w-3" />
               {project.subfolders.length} {project.subfolders.length === 1 ? 'subfolder' : 'subfolders'}
             </Badge>
@@ -122,17 +124,17 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         <div className="flex justify-between items-start">
           <div className="space-y-1">
             <div className="flex items-center">
-              <h3 className="font-medium text-lg mb-1 text-white">{project.name}</h3>
+              <h3 className="font-medium text-lg mb-1 text-frameio-text-primary">{project.name}</h3>
             </div>
             
             {/* Display project description with truncation */}
             {project.description && (
-              <p className="text-sm text-gray-300 line-clamp-2 max-w-[90%]">
+              <p className="text-sm text-frameio-text-secondary line-clamp-2 max-w-[90%]">
                 {project.description}
               </p>
             )}
             
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-frameio-text-tertiary">
               {totalAssets} assets • Updated {formatUpdatedDate(project.updatedAt)}
             </p>
           </div>
@@ -140,14 +142,14 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         
         {/* Tags display */}
         {project.tags && project.tags.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-1">
+          <div className="mt-3 flex flex-wrap gap-1">
             {project.tags.slice(0, 3).map((tag: string, index: number) => (
-              <Badge key={index} variant="outline" className="bg-gray-700 text-gray-300 border-gray-600">
+              <Badge key={index} variant="outline" className="bg-frameio-bg-highlight text-frameio-text-secondary border-frameio-border-subtle text-xs py-0.5">
                 {tag}
               </Badge>
             ))}
             {project.tags.length > 3 && (
-              <Badge variant="outline" className="bg-gray-700 text-gray-300 border-gray-600">
+              <Badge variant="outline" className="bg-frameio-bg-highlight text-frameio-text-secondary border-frameio-border-subtle text-xs py-0.5">
                 +{project.tags.length - 3}
               </Badge>
             )}
@@ -160,25 +162,26 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="flex items-center text-gray-300">
+                  <div className="flex items-center text-frameio-text-secondary bg-frameio-bg-highlight px-2 py-1 rounded-md text-xs">
                     {project.owners.length > 1 ? (
-                      <Users className="h-4 w-4 mr-1" />
+                      <Users className="h-3 w-3 mr-1" />
                     ) : (
-                      <User className="h-4 w-4 mr-1" />
+                      <User className="h-3 w-3 mr-1" />
                     )}
-                    <span className="text-xs">
+                    <span>
                       {project.owners.length > 1 
                         ? `${project.owners.length} owners` 
                         : project.owners[0].name}
                     </span>
                   </div>
                 </TooltipTrigger>
-                <TooltipContent className="bg-gray-800 border-gray-700 p-2">
-                  <div className="space-y-1">
+                <TooltipContent className="bg-frameio-bg-dark border-frameio-border-subtle p-3 shadow-frame-dropdown">
+                  <div className="space-y-2">
+                    <p className="text-xs text-frameio-text-secondary mb-1">Ownership Split</p>
                     {project.owners.map((owner: any) => (
-                      <div key={owner.userId} className="flex justify-between text-xs">
-                        <span>{owner.name}</span>
-                        <span className="ml-4 font-medium">{owner.royaltyPercentage}%</span>
+                      <div key={owner.userId} className="flex justify-between text-sm">
+                        <span className="text-frameio-text-primary">{owner.name}</span>
+                        <span className="ml-4 font-medium text-frameio-accent-blue">{owner.royaltyPercentage}%</span>
                       </div>
                     ))}
                   </div>
@@ -188,8 +191,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           </div>
         )}
       </CardContent>
-      <CardFooter className="px-4 py-3 border-t border-gray-700 flex justify-between">
-        <Badge variant="outline" className="bg-gray-700 text-gray-200">
+      <CardFooter className="px-4 py-3 border-t border-frameio-border-subtle flex justify-between">
+        <Badge variant="outline" className="bg-frameio-bg-highlight text-frameio-text-secondary border-none">
           <Image className="mr-1 h-3 w-3" />
           {totalAssets}
         </Badge>
@@ -197,14 +200,18 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           <Button 
             variant="ghost" 
             size="sm" 
-            className="text-green-300 hover:text-green-100 hover:bg-green-800/30"
+            className="text-frameio-accent-green hover:text-green-300 hover:bg-frameio-accent-green/10"
             onClick={handleDirectUpload}
           >
             <Upload className="mr-1 h-3 w-3" />
             Add Assets
           </Button>
         ) : (
-          <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="text-frameio-text-secondary hover:text-frameio-text-primary hover:bg-frameio-bg-highlight"
+          >
             <Eye className="mr-1 h-3 w-3" />
             View
           </Button>

@@ -67,23 +67,32 @@ const RightsManagementPanel: React.FC<RightsManagementPanelProps> = ({
   };
   
   const handleSendRightsRequest = () => {
-    toast.success('Rights request sent successfully');
+    toast.success('Rights request sent successfully', {
+      description: 'The rights holder will be notified',
+      position: 'top-center',
+    });
   };
   
   const handleApplyToAll = () => {
-    toast.success('Changes applied to all selected assets');
+    toast.success('Changes applied to all selected assets', {
+      description: `Applied to ${totalAssets} assets`,
+      position: 'top-center',
+    });
   };
   
   const handleClearRights = () => {
-    toast.success('Rights cleared successfully');
+    toast.success('Rights cleared successfully', {
+      description: 'Assets are now cleared for use',
+      position: 'top-center',
+    });
   };
   
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent className="w-full sm:max-w-md md:max-w-lg bg-gray-800 border-gray-700 text-white overflow-auto" side="right">
-        <SheetHeader className="mb-4">
-          <SheetTitle className="text-white flex items-center justify-between">
-            Rights Management
+      <SheetContent className="w-full sm:max-w-md md:max-w-lg bg-frameio-bg-dark border-frameio-border-subtle text-frameio-text-primary overflow-auto animate-slide-in-right" side="right">
+        <SheetHeader className="mb-6">
+          <SheetTitle className="text-frameio-text-primary flex items-center justify-between">
+            <span className="text-xl font-semibold tracking-tight">Rights Management</span>
             <AssetNavigation 
               currentIndex={currentAssetIndex}
               totalAssets={totalAssets}
@@ -91,7 +100,7 @@ const RightsManagementPanel: React.FC<RightsManagementPanelProps> = ({
               handleNextAsset={handleNextAsset}
             />
           </SheetTitle>
-          <SheetDescription className="text-gray-400">
+          <SheetDescription className="text-frameio-text-secondary">
             {totalAssets > 1 
               ? `Manage rights for ${totalAssets} selected assets` 
               : currentAsset?.name}
@@ -100,50 +109,58 @@ const RightsManagementPanel: React.FC<RightsManagementPanelProps> = ({
         
         {currentAsset && (
           <>
-            <div className="mb-4">
+            <div className="mb-6 transition-all duration-300 hover:shadow-frame-card rounded-lg overflow-hidden">
               <AssetPreview asset={currentAsset} />
             </div>
             
             <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-              <TabsList className="bg-gray-700 mb-4">
-                <TabsTrigger value="faces" className="data-[state=active]:bg-gray-600">
+              <TabsList className="bg-frameio-bg-card border-b border-frameio-border-subtle rounded-t-lg rounded-b-none p-0">
+                <TabsTrigger 
+                  value="faces" 
+                  className="flex-1 data-[state=active]:bg-frameio-bg-highlight data-[state=active]:border-b-2 data-[state=active]:border-frameio-accent-blue rounded-none py-3"
+                >
                   <User className="h-4 w-4 mr-2" />
                   Faces
                 </TabsTrigger>
-                <TabsTrigger value="locations" className="data-[state=active]:bg-gray-600">
+                <TabsTrigger 
+                  value="locations" 
+                  className="flex-1 data-[state=active]:bg-frameio-bg-highlight data-[state=active]:border-b-2 data-[state=active]:border-frameio-accent-blue rounded-none py-3"
+                >
                   <MapPin className="h-4 w-4 mr-2" />
                   Locations
                 </TabsTrigger>
               </TabsList>
               
-              <TabsContent value="faces">
-                <FacesTab 
-                  faces={mockFaces} 
-                  selectedFace={selectedFace}
-                  setSelectedFace={setSelectedFace}
-                  onClearRights={handleClearRights}
-                  onSendRightsRequest={handleSendRightsRequest}
-                />
-              </TabsContent>
-              
-              <TabsContent value="locations">
-                <LocationsTab locations={mockLocations} />
-              </TabsContent>
+              <div className="mt-4 bg-frameio-bg-card rounded-lg p-4 shadow-frame-card">
+                <TabsContent value="faces" className="mt-0 pt-2">
+                  <FacesTab 
+                    faces={mockFaces} 
+                    selectedFace={selectedFace}
+                    setSelectedFace={setSelectedFace}
+                    onClearRights={handleClearRights}
+                    onSendRightsRequest={handleSendRightsRequest}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="locations" className="mt-0 pt-2">
+                  <LocationsTab locations={mockLocations} />
+                </TabsContent>
+              </div>
             </Tabs>
           </>
         )}
         
-        <SheetFooter className="mt-4 flex-col space-y-2 sm:space-y-2">
+        <SheetFooter className="mt-6 flex-col space-y-3 sm:space-y-3">
           {totalAssets > 1 && (
             <Button 
-              className="w-full bg-blue-600 hover:bg-blue-700"
+              className="w-full bg-frameio-accent-blue hover:bg-blue-600 transition-colors"
               onClick={handleApplyToAll}
             >
               Apply to All Selected Assets
             </Button>
           )}
           <Button 
-            className="w-full" 
+            className="w-full bg-frameio-bg-card hover:bg-frameio-bg-highlight transition-colors border border-frameio-border-subtle" 
             variant="outline"
             onClick={onClose}
           >
