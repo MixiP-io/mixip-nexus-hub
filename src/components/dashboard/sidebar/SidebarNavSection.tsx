@@ -2,6 +2,7 @@
 import React from 'react';
 import { LucideIcon } from 'lucide-react';
 import SidebarNavItem from './SidebarNavItem';
+import { useSidebar } from '@/context/SidebarContext';
 
 export interface NavItem {
   icon: LucideIcon;
@@ -20,8 +21,10 @@ const SidebarNavSection: React.FC<SidebarNavSectionProps> = ({
   isActive,
   onNavigate
 }) => {
+  const { collapsed } = useSidebar();
+  
   return (
-    <ul className="space-y-1 px-2">
+    <ul className={`space-y-1 ${collapsed ? 'px-1' : 'px-2'}`}>
       {items.map((item) => (
         <SidebarNavItem
           key={item.path}

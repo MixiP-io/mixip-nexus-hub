@@ -7,11 +7,13 @@ import SidebarUserProfile from './sidebar/SidebarUserProfile';
 import SidebarNavSection from './sidebar/SidebarNavSection';
 import SidebarLogoutButton from './sidebar/SidebarLogoutButton';
 import { standardNavItems, aiPlatformNavItems } from './sidebar/navItems';
+import { SidebarProvider, useSidebar } from '@/context/SidebarContext';
 
-const Sidebar: React.FC = () => {
+const SidebarContent: React.FC = () => {
   const location = useLocation();
   const { signOut, user, profile } = useAuth();
   const navigate = useNavigate();
+  const { sidebarWidth } = useSidebar();
   
   const isActive = (path: string) => {
     // Special case for workspace tabs
@@ -39,7 +41,7 @@ const Sidebar: React.FC = () => {
   const navItems = isAIPlatform ? aiPlatformNavItems : standardNavItems;
   
   return (
-    <div className="w-64 bg-[#1A1F2C] h-screen flex flex-col text-white">
+    <div className="bg-[#1A1F2C] h-screen flex flex-col text-white transition-all duration-300" style={{ width: sidebarWidth }}>
       {/* Header with Logo */}
       <SidebarLogo />
       
@@ -62,6 +64,14 @@ const Sidebar: React.FC = () => {
       {/* Log Out Button */}
       <SidebarLogoutButton onLogout={handleLogout} />
     </div>
+  );
+};
+
+const Sidebar: React.FC = () => {
+  return (
+    <SidebarProvider>
+      <SidebarContent />
+    </SidebarProvider>
   );
 };
 
