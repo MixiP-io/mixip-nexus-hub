@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { X, FileImage, Video, File, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
@@ -13,11 +14,11 @@ const FileCard: React.FC<FileCardProps> = ({
   
   const getFileIcon = (fileType: string) => {
     if (fileType.startsWith('image/')) {
-      return <FileImage className="h-6 w-6 text-frameio-accent-blue" />;
+      return <FileImage className="h-10 w-10 text-frameio-accent-blue" />;
     } else if (fileType.startsWith('video/')) {
-      return <Video className="h-6 w-6 text-frameio-accent-green" />;
+      return <Video className="h-10 w-10 text-frameio-accent-green" />;
     } else {
-      return <File className="h-6 w-6 text-frameio-text-secondary" />;
+      return <File className="h-10 w-10 text-frameio-text-secondary" />;
     }
   };
   
@@ -32,21 +33,6 @@ const FileCard: React.FC<FileCardProps> = ({
     }
   };
 
-  // Handle image loading error
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    e.currentTarget.style.display = 'none';
-    const container = e.currentTarget.parentElement;
-    if (container) {
-      container.classList.add('flex', 'items-center', 'justify-center');
-      const iconWrapper = document.createElement('div');
-      iconWrapper.className = 'flex items-center justify-center';
-      container.appendChild(iconWrapper);
-      
-      // We could render a React component here, but to keep it simple:
-      iconWrapper.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 text-frameio-accent-blue"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><circle cx="10" cy="13" r="2"></circle><path d="m20 17-1.09-1.09a2 2 0 0 0-2.82 0L10 22"></path></svg>`;
-    }
-  };
-
   return (
     <div className="bg-frameio-bg-card rounded-md overflow-hidden flex flex-col border border-frameio-border-subtle shadow-frame-card">
       <div className="relative h-32 bg-frameio-bg-dark flex items-center justify-center">
@@ -55,7 +41,17 @@ const FileCard: React.FC<FileCardProps> = ({
             src={file.preview} 
             alt={file.name}
             className="h-full w-full object-cover"
-            onError={handleImageError}
+            onError={(e) => {
+              console.error(`Error loading preview for ${file.name}`);
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.parentElement?.classList.add('flex', 'items-center', 'justify-center');
+              const icon = getFileIcon(file.type);
+              // Insert fallback icon when image fails to load
+              const iconContainer = document.createElement('div');
+              e.currentTarget.parentElement?.appendChild(iconContainer);
+              // We can't render React components directly here, so use a basic approach
+              iconContainer.innerHTML = `<div class="flex items-center justify-center">${icon ? 'File preview unavailable' : ''}</div>`;
+            }}
           />
         ) : (
           getFileIcon(file.type)

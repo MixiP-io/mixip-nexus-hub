@@ -22,10 +22,26 @@ export const useFileOperations = (state: UploaderState, dispatch: React.Dispatch
       const filesArray = Array.from(selectedFiles);
       console.log(`Processing ${filesArray.length} files`);
       
-      // Add files to state immediately
-      dispatch({ type: 'ADD_FILES', payload: filesArray });
+      // Create file objects with basic info
+      const newFiles: UploadFile[] = filesArray.map(file => ({
+        id: generateUniqueId(),
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        progress: 0,
+        status: 'queued',
+        source: 'computer',
+        file: file,
+        preview: null
+      }));
       
-      // Process each image file to generate previews
+      // Add files to state
+      dispatch({ 
+        type: 'ADD_FILES', 
+        payload: filesArray 
+      });
+      
+      // Process previews separately
       for (const file of filesArray) {
         if (file.type.startsWith('image/')) {
           try {
