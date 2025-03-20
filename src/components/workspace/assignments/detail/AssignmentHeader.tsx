@@ -11,22 +11,22 @@ interface AssignmentHeaderProps {
 const AssignmentHeader: React.FC<AssignmentHeaderProps> = ({ assignment }) => {
   const getBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'pending': return 'secondary';
-      case 'in progress': return 'default';
-      case 'completed': return 'default';
-      case 'rejected': return 'destructive';
-      default: return 'outline';
+      case 'pending': return 'bg-frameio-accent-yellow text-black font-medium';
+      case 'in progress': return 'bg-frameio-accent-blue text-white font-medium';
+      case 'completed': return 'bg-frameio-accent-green text-white font-medium';
+      case 'rejected': return 'bg-frameio-accent-red text-white font-medium';
+      default: return 'bg-frameio-text-tertiary text-white font-medium';
     }
   };
 
   return (
-    <Card className="bg-mixip-gray-dark border-border shadow-md mb-6">
-      <CardHeader className="flex flex-row justify-between items-start">
+    <Card className="bg-frameio-bg-card border-frameio-border-subtle shadow-frame-card mb-6">
+      <CardHeader className="flex flex-row justify-between items-start p-5">
         <div>
-          <h2 className="text-xl font-semibold text-white">{assignment.title}</h2>
-          <p className="text-white/80">From {assignment.client}</p>
+          <h2 className="text-xl font-semibold text-frameio-text-primary">{assignment.title}</h2>
+          <p className="text-frameio-text-secondary text-sm mt-1">From {assignment.client}</p>
         </div>
-        <Badge variant={getBadgeVariant(assignment.status)}>
+        <Badge className={getBadgeVariant(assignment.status)}>
           {assignment.status}
         </Badge>
       </CardHeader>

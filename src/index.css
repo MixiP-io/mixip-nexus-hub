@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -36,7 +37,7 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 213 100% 50%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -49,41 +50,43 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Refined dark mode colors inspired by Frame.io */
+    --background: 225 14% 8%; /* Deeper dark background (#0F1115) */
+    --foreground: 0 0% 100%;  /* Pure white text for better contrast */
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 222 12% 12%;      /* Slightly lighter card background (#1A1E23) */
+    --card-foreground: 0 0% 100%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 222 12% 12%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 213 100% 50%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 213 100% 61%;  /* Brighter blue for better visibility (#3D8BFD) */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 220 13% 18%; /* Subtle secondary background (#272C33) */
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 220 13% 18%;
+    --muted-foreground: 215 8% 65%; /* Slightly higher contrast muted text */
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 220 13% 18%;
+    --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --border: 220 12% 20%;    /* More subtle borders (#2A2F36) */
+    --input: 220 12% 20%;
+    --ring: 213 100% 61%;
+
+    --sidebar-background: 225 14% 8%; /* Match main background */
+    --sidebar-foreground: 220 6% 70%; /* Higher contrast sidebar text */
+    --sidebar-primary: 213 100% 61%;  /* Match primary color */
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 220 13% 18%;    /* Match secondary background */
+    --sidebar-accent-foreground: 215 8% 85%;
+    --sidebar-border: 220 12% 20%;    /* Match main border */
+    --sidebar-ring: 213 100% 61%;
   }
 }
 
@@ -103,79 +106,64 @@
     font-family: 'SF Pro Display', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     @apply font-medium tracking-tight;
   }
+
+  /* Frame.io inspired styles */
+  .frameio-card {
+    @apply bg-frameio-bg-card border-frameio-border-subtle rounded-md shadow-frame-card;
+  }
+
+  .frameio-text-primary {
+    @apply text-frameio-text-primary;
+  }
+
+  .frameio-text-secondary {
+    @apply text-frameio-text-secondary;
+  }
+
+  .frameio-text-tertiary {
+    @apply text-frameio-text-tertiary;
+  }
 }
 
 @layer utilities {
-  .glass-card {
-    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-apple-sm;
-  }
+  /* ... keep existing code (utility classes) */
 
-  .text-balance {
-    text-wrap: balance;
-  }
-
-  .text-stretch {
-    letter-spacing: -0.015em;
-  }
-
-  .mask-linear-gradient {
-    mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
-  }
-
-  .hover-lift {
-    @apply transition-all duration-300;
-  }
-
-  .hover-lift:hover {
-    @apply -translate-y-1 shadow-apple-md;
+  /* New Frame.io inspired utility classes */
+  .frame-hover {
+    @apply hover:bg-frameio-bg-hover transition-colors duration-200;
   }
   
-  .underline-animation {
-    @apply relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-apple-blue after:transition-all after:duration-300 after:ease-in-out hover:after:w-full;
+  .frame-border {
+    @apply border-frameio-border-subtle;
   }
-
-  .apple-button {
-    @apply rounded-xl bg-apple-blue text-white font-medium px-6 py-2.5 shadow-sm hover:shadow-apple-sm transition-all duration-200;
+  
+  .frame-shadow {
+    @apply shadow-frame-card;
   }
-
-  .apple-button-secondary {
-    @apply rounded-xl bg-gray-200/80 backdrop-blur-sm text-gray-800 font-medium px-6 py-2.5 shadow-sm hover:shadow-apple-sm transition-all duration-200;
+  
+  .frame-card {
+    @apply bg-frameio-bg-card border-frameio-border-subtle rounded-md p-4 shadow-frame-card;
   }
-
-  .apple-card {
-    @apply bg-white/90 backdrop-blur-md rounded-2xl border border-gray-100 shadow-apple-sm hover:shadow-apple-md transition-all duration-200;
+  
+  .frame-button {
+    @apply bg-frameio-bg-hover hover:bg-frameio-accent-blue/20 text-frameio-text-primary rounded-md transition-colors duration-200;
   }
-
-  .apple-input {
-    @apply rounded-xl bg-gray-100 border-gray-200 px-4 py-2.5 focus:ring-2 focus:ring-apple-blue/20 focus:border-apple-blue transition-all duration-200;
+  
+  .frame-divider {
+    @apply border-frameio-border-subtle my-4;
+  }
+  
+  .frame-status-success {
+    @apply text-frameio-accent-green;
+  }
+  
+  .frame-status-warning {
+    @apply text-frameio-accent-yellow;
+  }
+  
+  .frame-status-error {
+    @apply text-frameio-accent-red;
   }
 }
 
-.staggered-animation-container > * {
-  opacity: 0;
-  transform: translateY(20px);
-}
-
-.staggered-animation-container.animate > *:nth-child(1) {
-  animation: fade-up 0.5s 0.1s forwards ease-out;
-}
-
-.staggered-animation-container.animate > *:nth-child(2) {
-  animation: fade-up 0.5s 0.2s forwards ease-out;
-}
-
-.staggered-animation-container.animate > *:nth-child(3) {
-  animation: fade-up 0.5s 0.3s forwards ease-out;
-}
-
-.staggered-animation-container.animate > *:nth-child(4) {
-  animation: fade-up 0.5s 0.4s forwards ease-out;
-}
-
-.staggered-animation-container.animate > *:nth-child(5) {
-  animation: fade-up 0.5s 0.5s forwards ease-out;
-}
-
-.transition-smooth {
-  transition-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
-}
+/* ... keep existing code (animations and other CSS) */

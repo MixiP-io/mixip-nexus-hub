@@ -90,6 +90,20 @@ export default {
 					'gray-5': '#2C2C2E',
 					'gray-6': '#1C1C1E', // darkest gray
 				},
+				// New rich Frame.io inspired colors
+				frameio: {
+					'bg-dark': '#0F1115',     // Deeper dark background
+					'bg-card': '#1A1E23',     // Card background
+					'bg-hover': '#272C33',    // Hover state color
+					'border-subtle': '#2A2F36', // Subtle borders
+					'text-primary': '#FFFFFF', // Primary text
+					'text-secondary': '#A0A4AD', // Secondary text
+					'text-tertiary': '#6A6E76', // Tertiary text
+					'accent-blue': '#3D8BFD',  // Primary accent
+					'accent-green': '#27AE60', // Success state
+					'accent-yellow': '#F2C94C', // Warning state
+					'accent-red': '#EB5757',   // Error state
+				}
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -155,6 +169,10 @@ export default {
 				'apple-lg': '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)',
 				'apple-xl': '0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
 				'apple-glow': '0 0 10px rgba(0, 122, 255, 0.5)',
+				// New Frame.io inspired shadows
+				'frame-card': '0 2px 5px 0 rgba(0, 0, 0, 0.2)',
+				'frame-dropdown': '0 4px 12px rgba(0, 0, 0, 0.15)',
+				'frame-modal': '0 10px 25px rgba(0, 0, 0, 0.3)',
 			},
 		}
 	},

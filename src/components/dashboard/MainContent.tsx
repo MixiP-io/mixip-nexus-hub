@@ -7,7 +7,7 @@ import ProjectGrid from '@/components/dashboard/ProjectGrid';
 
 const MainContent: React.FC = () => {
   return (
-    <div className="flex-1 overflow-auto">
+    <div className="flex-1 overflow-auto bg-frameio-bg-dark">
       <Header />
       <CollapsibleTabs />
       <ProjectGrid />
