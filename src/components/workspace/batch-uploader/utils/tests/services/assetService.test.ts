@@ -45,7 +45,7 @@ vi.mock('../../services/assets/projectAssetsValidation', () => ({
   ensureProjectStructure: vi.fn((projects) => projects)
 }));
 
-vi.mock('../../services/assets/folderAssetOperations', () => ({
+vi.mock('../../services/assets/folder-operations', () => ({
   addAssetsToRootFolder: vi.fn((projects) => projects),
   addAssetsToSpecificFolder: vi.fn((projects, index, folderId) => {
     return { folderFound: folderId === 'folder1', locationAdded: folderId === 'folder1' ? 'folder1' : 'unknown' };

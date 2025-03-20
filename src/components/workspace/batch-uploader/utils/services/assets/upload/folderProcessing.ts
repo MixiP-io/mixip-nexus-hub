@@ -1,7 +1,11 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { ProjectAsset } from '../../../types/projectTypes';
-import { addAssetsToRootFolder, addAssetsToSpecificFolder, createNewFolderWithAssets } from '../folderAssetOperations';
+import { 
+  addAssetsToRootFolder, 
+  addAssetsToSpecificFolder, 
+  createNewFolderWithAssets 
+} from '../folder-operations';
 
 /**
  * Process assets by adding them to the appropriate folder
