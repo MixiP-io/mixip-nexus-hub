@@ -10,10 +10,17 @@ import { syncProjectsWithLocalStorage } from '@/components/workspace/batch-uploa
  * Hook to load project data with retry capability
  */
 export const useProjectLoader = () => {
+  const [projectData, setProjectData] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   
   // Function to load project with retries
   const loadProjectWithRetries = useCallback(async (projectId: string, maxRetries = 3) => {
+    if (!projectId) {
+      console.warn('[useProjectLoader] No project ID provided');
+      return null;
+    }
+    
+    setIsLoading(true);
     let retryCount = 0;
     let project = null;
     
@@ -40,6 +47,7 @@ export const useProjectLoader = () => {
             
             if (project) {
               console.log(`[useProjectLoader] Found project in localStorage (attempt ${retryCount + 1}):`, project.name);
+              setProjectData(project);
               break;
             }
           } catch (e) {
@@ -97,6 +105,7 @@ export const useProjectLoader = () => {
             project.subfolders = foldersWithAssets;
           }
           
+          setProjectData(project);
           break;
         }
         
@@ -115,10 +124,12 @@ export const useProjectLoader = () => {
       }
     }
     
+    setIsLoading(false);
     return project;
   }, []);
 
   return { 
+    projectData,
     loadProjectWithRetries,
     isLoading,
     setIsLoading
