@@ -42,8 +42,11 @@ const UploadComplete: React.FC<UploadCompleteProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-gray-900 border-gray-700 text-white">
+    <Dialog open={isOpen} onOpenChange={() => {
+      console.log("Dialog onOpenChange triggered");
+      onClose();
+    }}>
+      <DialogContent className="bg-gray-900 border-gray-700 text-white z-50">
         <DialogHeader>
           <div className="flex items-center justify-center mb-4">
             {success ? (

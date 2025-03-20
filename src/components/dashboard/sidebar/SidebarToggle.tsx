@@ -8,8 +8,11 @@ const SidebarToggle: React.FC = () => {
   
   return (
     <button 
-      onClick={toggleSidebar}
-      className="absolute -right-3 top-4 bg-green-600 hover:bg-green-700 text-white rounded-full p-1 shadow-md transition-colors z-10"
+      onClick={(e) => {
+        e.stopPropagation(); // Prevent event bubbling
+        toggleSidebar();
+      }}
+      className="absolute -right-3 top-4 bg-green-600 hover:bg-green-700 text-white rounded-full p-1 shadow-md transition-colors z-30"
       aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
     >
       {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}

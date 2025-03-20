@@ -22,8 +22,17 @@ export const useAssetsNavigation = (projectId: string | null) => {
     folderAssets,
     isLoading,
     error,
-    loadFolderAssets
+    loadFolderAssets,
+    setFolderAssets
   } = useFolderAssets();
+  
+  // Force reload of assets
+  const forceReload = useCallback(() => {
+    if (projectId && currentFolderId) {
+      console.log(`[useAssetsNavigation] Force reloading assets for folder: ${currentFolderId}`);
+      loadFolderAssets(projectId, currentFolderId, true);
+    }
+  }, [projectId, currentFolderId, loadFolderAssets]);
   
   // Load assets when folder changes
   useEffect(() => {
@@ -51,6 +60,7 @@ export const useAssetsNavigation = (projectId: string | null) => {
     error,
     handleFolderSelect,
     navigateToFolder,
-    setCurrentFolderId
+    setCurrentFolderId,
+    forceReload
   };
 };

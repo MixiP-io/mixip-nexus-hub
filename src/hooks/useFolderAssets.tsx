@@ -84,6 +84,7 @@ export const useFolderAssets = () => {
     folderAssets,
     isLoading,
     error,
-    loadFolderAssets
+    loadFolderAssets,
+    setFolderAssets
   };
 };
