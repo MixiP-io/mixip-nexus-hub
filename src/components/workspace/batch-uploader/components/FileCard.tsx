@@ -42,15 +42,13 @@ const FileCard: React.FC<FileCardProps> = ({
             alt={file.name}
             className="h-full w-full object-cover"
             onError={(e) => {
-              console.error(`Error loading preview for ${file.name}`);
+              console.error(`Error displaying preview for ${file.name}`);
               e.currentTarget.style.display = 'none';
-              e.currentTarget.parentElement?.classList.add('flex', 'items-center', 'justify-center');
-              const icon = getFileIcon(file.type);
-              // Insert fallback icon when image fails to load
-              const iconContainer = document.createElement('div');
-              e.currentTarget.parentElement?.appendChild(iconContainer);
-              // We can't render React components directly here, so use a basic approach
-              iconContainer.innerHTML = `<div class="flex items-center justify-center">${icon ? 'File preview unavailable' : ''}</div>`;
+              const parent = e.currentTarget.parentElement;
+              if (parent) {
+                parent.classList.add('flex', 'items-center', 'justify-center');
+                parent.innerHTML = `<div>${getFileIcon(file.type)}</div>`;
+              }
             }}
           />
         ) : (
