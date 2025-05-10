@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, FileImage, Video, File, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { FileCardProps } from '../types/componentProps';
@@ -11,6 +11,12 @@ const FileCard: React.FC<FileCardProps> = ({
   isUploading,
   formatFileSize 
 }) => {
+  const [previewError, setPreviewError] = useState(false);
+  
+  // Reset preview error state when file changes
+  useEffect(() => {
+    setPreviewError(false);
+  }, [file.id, file.preview]);
   
   const getFileIcon = (fileType: string) => {
     if (fileType.startsWith('image/')) {
@@ -35,20 +41,15 @@ const FileCard: React.FC<FileCardProps> = ({
 
   return (
     <div className="bg-frameio-bg-card rounded-md overflow-hidden flex flex-col border border-frameio-border-subtle shadow-frame-card">
-      <div className="relative h-32 bg-frameio-bg-dark flex items-center justify-center">
-        {file.preview ? (
+      <div className={`relative h-32 bg-frameio-bg-dark ${(!file.preview || previewError) ? 'flex items-center justify-center' : ''}`}>
+        {file.preview && !previewError ? (
           <img 
             src={file.preview} 
             alt={file.name}
             className="h-full w-full object-cover"
             onError={(e) => {
               console.error(`Error displaying preview for ${file.name}`);
-              e.currentTarget.style.display = 'none';
-              const parent = e.currentTarget.parentElement;
-              if (parent) {
-                parent.classList.add('flex', 'items-center', 'justify-center');
-                parent.innerHTML = `<div>${getFileIcon(file.type)}</div>`;
-              }
+              setPreviewError(true);
             }}
           />
         ) : (

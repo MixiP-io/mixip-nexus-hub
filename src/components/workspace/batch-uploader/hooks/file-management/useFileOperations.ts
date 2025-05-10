@@ -25,7 +25,7 @@ export const useFileOperations = (
       const filesArray = Array.from(selectedFiles);
       console.log(`Processing ${filesArray.length} files`);
       
-      // Create basic file objects first
+      // Create basic file objects first with unique IDs
       const newFiles: UploadFile[] = filesArray.map(file => ({
         id: generateUniqueId(),
         name: file.name,
@@ -38,7 +38,7 @@ export const useFileOperations = (
         preview: null
       }));
       
-      // Add files to state immediately
+      // Add files to state immediately so UI shows them
       setFiles(prev => [...prev, ...newFiles]);
       
       // Process previews for all image files
@@ -52,7 +52,7 @@ export const useFileOperations = (
             const preview = await getFilePreview(file);
             
             if (preview) {
-              console.log(`Preview generated for ${file.name}, updating file ${fileId}`);
+              console.log(`Preview generated successfully for ${file.name}, updating file ${fileId}`);
               
               // Update the file with the preview using the file ID
               setFiles(prevFiles => 
